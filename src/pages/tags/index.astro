@@ -1,0 +1,35 @@
+---
+import BlogLayout from '../../layouts/BlogLayout.astro';
+import { getCollection } from 'astro:content';
+
+const posts = await getCollection('blog');
+
+// Collect all tags with post counts
+const tagCounts = new Map<string, number>();
+posts.forEach((post) => {
+  post.data.tags.forEach((tag: string) => {
+    tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
+  });
+});
+
+// Sort tags alphabetically
+const sortedTags = [...tagCounts.entries()].sort((a, b) => a[0].localeCompare(b[0]));
+---
+
+<BlogLayout title="Tags | Suhas Darsi" description="Browse posts by tag">
+  <div>
+    <a href="/blog" class="text-body text-muted-foreground hover:text-foreground transition-colors inline-block mb-8">
+      ← Back to Blog
+    </a>
+
+    <h1 class="font-serif text-display-sm md:text-display mb-10" style="font-family: var(--font-serif);">Tags</h1>
+    
+    <div class="tag-list">
+      {sortedTags.map(([tag, count]) => (
+        <a href={`/tags/${tag}`} class="tag">
+          {tag} <span class="text-muted-foreground">({count})</span>
+        </a>
+      ))}
+    </div>
+  </div>
+</BlogLayout>

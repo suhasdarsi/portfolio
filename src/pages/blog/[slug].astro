@@ -1,0 +1,69 @@
+---
+import { getCollection, render } from 'astro:content';
+import BlogLayout from '../../layouts/BlogLayout.astro';
+import Backlinks from '../../components/Backlinks.astro';
+import TableOfContents from '../../components/TableOfContents.astro';
+
+export async function getStaticPaths() {
+	const posts = await getCollection('blog');
+	return posts.map((post) => ({
+		params: { slug: post.id },
+		props: post,
+	}));
+}
+
+const post = Astro.props;
+const { Content } = await render(post);
+
+function formatDate(dateStr: string): string {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+---
+
+<BlogLayout title={`${post.data.title} | Suhas Darsi`} description={post.data.description}>
+  <article class="article-wrapper">
+    <aside class="toc-sidebar" id="toc-desktop" style="display: none;">
+      <details class="toc-details" open>
+        <summary class="toc-summary">
+          <span>Table of contents</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m6 9 6 6 6-6"></path>
+          </svg>
+        </summary>
+        <nav class="toc-nav" aria-label="Table of contents" id="toc-desktop-nav"></nav>
+      </details>
+    </aside>
+
+    <div class="max-w-3xl mx-auto flex-1 min-w-0">
+      <a href="/blog" class="text-body text-muted-foreground hover:text-foreground transition-colors inline-block mb-8">
+        ← Back to Blog
+      </a>
+      
+      <header class="mb-10">
+        <h1 class="font-serif text-display-sm md:text-display mb-6" style="font-family: var(--font-serif);">{post.data.title}</h1>
+        <p class="text-body-lg text-muted-foreground mb-6 leading-relaxed">{post.data.description}</p>
+        <div class="flex items-center gap-4 flex-wrap">
+          <div class="text-body text-muted-foreground">
+            <time datetime={post.data.pubDate}>{formatDate(post.data.pubDate)}</time>
+          </div>
+          {post.data.tags.length > 0 && (
+            <div class="tag-list">
+              {post.data.tags.map((tag: string) => (
+                <a href={`/tags/${tag}`} class="tag">{tag}</a>
+              ))}
+            </div>
+          )}
+        </div>
+      </header>
+
+      <TableOfContents />
+
+      <div class="prose-custom">
+        <Content />
+      </div>
+
+      <Backlinks currentSlug={post.id} />
+    </div>
+  </article>
+</BlogLayout>

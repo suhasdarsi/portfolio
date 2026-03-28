@@ -1,0 +1,65 @@
+---
+import BlogLayout from '../../layouts/BlogLayout.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+  const tags = new Set<string>();
+  posts.forEach((post) => {
+    post.data.tags.forEach((tag: string) => tags.add(tag));
+  });
+
+  return [...tags].map((tag) => ({
+    params: { tag },
+  }));
+}
+
+const { tag } = Astro.params;
+
+const allPosts = await getCollection('blog');
+const filteredPosts = allPosts
+  .filter((post) => post.data.tags.includes(tag))
+  .sort((a, b) => new Date(b.data.pubDate).valueOf() - new Date(a.data.pubDate).valueOf());
+
+function formatDate(dateStr: string): string {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+---
+
+<BlogLayout title={`#${tag} | Suhas Darsi`} description={`Posts tagged with ${tag}`}>
+  <div>
+    <a href="/tags" class="text-body text-muted-foreground hover:text-foreground transition-colors inline-block mb-8">
+      ← All Tags
+    </a>
+
+    <h1 class="font-serif text-display-sm md:text-display mb-10 tag-page-title" style="font-family: var(--font-serif);">{tag}</h1>
+
+    <div class="space-y-10">
+      {filteredPosts.map((post) => (
+        <article class="group">
+          <a href={`/blog/${post.id}`} class="block">
+            <div class="flex flex-col gap-3">
+              <h2 class="font-serif text-xl font-medium group-hover:text-muted-foreground transition-colors" style="font-family: var(--font-serif);">
+                {post.data.title}
+              </h2>
+              <p class="text-body text-muted-foreground leading-relaxed">
+                {post.data.description}
+              </p>
+              <div class="flex items-center gap-4 flex-wrap">
+                <div class="text-small text-muted-foreground uppercase tracking-wide">
+                  <time datetime={post.data.pubDate}>{formatDate(post.data.pubDate)}</time>
+                </div>
+                <div class="tag-list">
+                  {post.data.tags.map((t: string) => (
+                    <a href={`/tags/${t}`} class:list={['tag', { 'font-semibold': t === tag }]}>{t}</a>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </a>
+        </article>
+      ))}
+    </div>
+  </div>
+</BlogLayout>

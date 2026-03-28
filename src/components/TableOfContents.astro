@@ -1,0 +1,78 @@
+---
+---
+
+<aside class="toc-mobile" id="toc-mobile" style="display: none;">
+  <details class="toc-details">
+    <summary class="toc-summary">
+      <span>Table of contents</span>
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="m6 9 6 6 6-6"></path>
+      </svg>
+    </summary>
+    <nav class="toc-nav" aria-label="Table of contents" id="toc-mobile-nav"></nav>
+  </details>
+</aside>
+
+<script>
+  function buildTOC() {
+    const content = document.querySelector('.prose-custom');
+    const mobileNav = document.getElementById('toc-mobile-nav');
+    const desktopNav = document.getElementById('toc-desktop-nav');
+    const mobileContainer = document.getElementById('toc-mobile');
+    const desktopContainer = document.getElementById('toc-desktop');
+    if (!content) return;
+
+    const headings = content.querySelectorAll('h2[id]');
+    if (headings.length < 2) return;
+
+    const headingData = Array.from(headings).map((h) => ({
+      id: h.id,
+      text: h.textContent || '',
+    }));
+
+    function populateNav(nav: HTMLElement) {
+      headingData.forEach(({ id, text }) => {
+        const link = document.createElement('a');
+        link.href = `#${id}`;
+        link.textContent = text;
+        link.className = 'toc-link';
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          const target = document.getElementById(id);
+          if (target) {
+            const y = target.getBoundingClientRect().top + window.pageYOffset - 120;
+            window.scrollTo({ top: y, behavior: 'smooth' });
+            history.pushState(null, '', `#${id}`);
+          }
+        });
+        nav.appendChild(link);
+      });
+    }
+
+    if (mobileNav && mobileContainer) {
+      populateNav(mobileNav);
+      mobileContainer.style.display = '';
+    }
+
+    if (desktopNav && desktopContainer) {
+      populateNav(desktopNav);
+      desktopContainer.style.display = '';
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            document.querySelectorAll('.toc-link').forEach((l) => l.classList.remove('toc-link-active'));
+            document.querySelectorAll(`.toc-link[href="#${entry.target.id}"]`).forEach((l) => l.classList.add('toc-link-active'));
+          }
+        });
+      },
+      { rootMargin: '-120px 0px -60% 0px', threshold: 1 }
+    );
+
+    headings.forEach((h) => observer.observe(h));
+  }
+
+  document.addEventListener('DOMContentLoaded', buildTOC);
+</script>

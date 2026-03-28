@@ -1,0 +1,49 @@
+---
+import { getCollection } from 'astro:content';
+
+interface Props {
+  currentSlug: string;
+}
+
+const { currentSlug } = Astro.props;
+
+const allPosts = await getCollection('blog');
+
+// Build a map of slug -> posts that reference it via [[wikilink]]
+const wikiLinkRegex = /\[\[([^\]|]+)(?:\|[^\]]+)?\]\]/g;
+const backlinkMap: Record<string, { title: string; slug: string }[]> = {};
+
+allPosts.forEach((post) => {
+  const matches = [...post.body.matchAll(wikiLinkRegex)];
+  matches.forEach((match) => {
+    const linkedSlug = match[1].trim().replace(/ /g, '-').toLowerCase();
+    if (!backlinkMap[linkedSlug]) {
+      backlinkMap[linkedSlug] = [];
+    }
+    // Avoid duplicate backlinks from the same source
+    if (!backlinkMap[linkedSlug].some((b) => b.slug === post.id)) {
+      backlinkMap[linkedSlug].push({
+        title: post.data.title,
+        slug: post.id,
+      });
+    }
+  });
+});
+
+const backlinks = backlinkMap[currentSlug] || [];
+---
+
+{backlinks.length > 0 && (
+  <section class="backlinks">
+    <h3>Referenced by</h3>
+    <ul class="backlinks-list">
+      {backlinks.map((backlink) => (
+        <li>
+          <a href={`/blog/${backlink.slug}`}>
+            <span class="backlink-title">{backlink.title}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </section>
+)}
