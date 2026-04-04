@@ -46,9 +46,11 @@ At the close of every quarter, we stop building. The whole team comes together t
 
 Then we categorize ruthlessly:
 
-- **P0**: This is broken. Customers are hurting. Fix it immediately.
-- **P1**: This is a real problem we need to solve this quarter.
-- **P2**: Important, but not urgent. We will tackle next quarter or beyond.
+<aside>
+  <strong>P0</strong> — This is broken. Customers are hurting. Fix it immediately.<br>
+  <strong>P1</strong> — This is a real problem we need to solve this quarter.<br>
+  <strong>P2</strong> — Important, but not urgent. We will tackle next quarter or beyond.
+</aside>
 
 That's it. No feature roadmaps. No "wouldn't it be cool if..." discussions. Just problems, prioritized by impact.
 
@@ -58,9 +60,11 @@ This approach—inspired by Railway, an infrastructure company redefining how de
 
 When you build from problems, not features, something remarkable happens:
 
-- You stop arguing about implementation details and start discussing customer pain
-- You stop celebrating shipped features and start measuring solved problems
-- You stop building what is easy and start tackling what matters
+<aside>
+  You stop arguing about implementation details and start discussing customer pain.<br>
+  You stop celebrating shipped features and start measuring solved problems.<br>
+  You stop building what is easy and start tackling what matters.
+</aside>
 
 Your backlog shortens, your sprints become clearer, and your team becomes more focused.
 

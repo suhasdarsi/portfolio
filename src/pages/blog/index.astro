@@ -2,6 +2,7 @@
 import BlogLayout from '../../layouts/BlogLayout.astro';
 import Search from '../../components/Search.astro';
 import { getCollection } from 'astro:content';
+import { formatDate } from '../../utils/date';
 
 const posts = (await getCollection('blog')).sort(
 	(a, b) => new Date(b.data.pubDate).valueOf() - new Date(a.data.pubDate).valueOf()
@@ -13,11 +14,6 @@ const searchData = posts.map((post) => ({
   description: post.data.description,
   tags: post.data.tags,
 }));
-
-function formatDate(dateStr: string): string {
-  const date = new Date(dateStr);
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-}
 ---
 
 <BlogLayout title="Blog | Suhas Darsi" description="My digital garden - thoughts on building products, self-hosting, and more">
@@ -26,29 +22,27 @@ function formatDate(dateStr: string): string {
 
     <script id="search-data" type="application/json" set:html={JSON.stringify(searchData)} />
 
-    <div class="space-y-10" id="post-list">
+    <div class="post-list" id="post-list">
       {posts.map((post) => (
-        <article class="group" data-searchable data-post-id={post.id}>
-          <a href={`/blog/${post.id}`} class="block">
-            <div class="flex flex-col gap-3">
-              <h2 class="font-serif text-xl font-medium group-hover:text-muted-foreground transition-colors" style="font-family: var(--font-serif);">
-                {post.data.title}
-              </h2>
-              <p class="text-body text-muted-foreground leading-relaxed">
-                {post.data.description}
-              </p>
-              <div class="flex items-center gap-4 flex-wrap">
-                <div class="text-small text-muted-foreground uppercase tracking-wide">
-                  <time datetime={post.data.pubDate}>{formatDate(post.data.pubDate)}</time>
-                </div>
-                {post.data.tags.length > 0 && (
-                  <div class="tag-list">
-                    {post.data.tags.map((tag: string) => (
-                      <span class="tag">{tag}</span>
-                    ))}
-                  </div>
-                )}
+        <article class="post-item" data-searchable data-post-id={post.id}>
+          <a href={`/blog/${post.id}`} class="post-link">
+            <h2 class="post-title">
+              {post.data.title}
+            </h2>
+            <p class="post-desc">
+              {post.data.description}
+            </p>
+            <div class="post-meta">
+              <div class="post-date">
+                <time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time>
               </div>
+              {post.data.tags.length > 0 && (
+                <div class="tag-list">
+                  {post.data.tags.map((tag: string) => (
+                    <span class="tag">{tag}</span>
+                  ))}
+                </div>
+              )}
             </div>
           </a>
         </article>
@@ -57,3 +51,73 @@ function formatDate(dateStr: string): string {
     <p id="search-empty" class="search-empty hidden">No posts found.</p>
   </div>
 </BlogLayout>
+
+<style>
+  .post-list {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .post-item {
+    padding: 2rem 0;
+    border-bottom: 1px solid var(--color-subtle-border);
+  }
+
+  .post-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .post-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    transition: color 0.3s ease;
+  }
+
+  .post-link:hover {
+    color: var(--color-muted-foreground);
+  }
+
+  .post-title {
+    font-family: var(--font-serif);
+    font-size: 1.25rem;
+    font-weight: 500;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+    margin: 0 0 0.5rem;
+  }
+
+  .post-desc {
+    font-size: var(--text-body);
+    color: var(--color-muted-foreground);
+    line-height: 1.6;
+    margin: 0 0 0.5rem;
+  }
+
+  .post-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .post-date {
+    font-size: var(--text-small);
+    color: var(--color-muted-foreground);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .search-empty {
+    font-family: var(--font-serif);
+    font-size: var(--text-body);
+    font-style: italic;
+    color: var(--color-muted-foreground);
+    padding: 2rem 0;
+  }
+
+  .hidden {
+    display: none !important;
+  }
+</style>

@@ -1,4 +1,4 @@
 # Setup Instructions
-bun install portfolio
+bun install
 bun run dev
 

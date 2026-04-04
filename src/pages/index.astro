@@ -1,15 +1,15 @@
 ---
 import '../styles/global.css';
 import { getCollection } from 'astro:content';
+import { formatDate } from '../utils/date';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
 
 const posts = (await getCollection('blog')).sort(
 	(a, b) => new Date(b.data.pubDate).valueOf() - new Date(a.data.pubDate).valueOf()
 ).slice(0, 5);
 
-function formatDate(dateStr: string): string {
-  const date = new Date(dateStr);
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-}
+const siteUrl = 'https://suhasdarsi.com';
 ---
 
 <!doctype html>
@@ -19,101 +19,260 @@ function formatDate(dateStr: string): string {
     <meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content="Astro" />
+    <meta name="description" content="Suhas Darsi - Co-Founder at SuperAlign, building foundational infrastructure for AI safety." />
+    <meta name="author" content="Suhas Darsi" />
+    <link rel="canonical" href={siteUrl} />
+    <meta property="og:title" content="Suhas Darsi" />
+    <meta property="og:description" content="Co-Founder at SuperAlign, building foundational infrastructure for AI safety." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={siteUrl} />
+    <meta property="og:site_name" content="Suhas Darsi" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@suhas_darsi" />
+    <meta name="twitter:creator" content="@suhas_darsi" />
     <title>Suhas Darsi</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
   </head>
   <body class="min-h-screen bg-background">
-    <header class="border-b border-subtle-border bg-background/80 backdrop-blur-sm sticky top-0 z-50">
-      <nav class="max-w-3xl mx-auto px-6 py-3 flex items-center justify-between">
-        <a href="/" class="font-serif text-xl font-medium hover:text-muted-foreground transition-colors">
-          Suhas Darsi
-        </a>
-        <div class="flex items-center gap-6 text-body">
-          <a href="/blog" class="text-foreground hover:text-muted-foreground transition-colors">Blog</a>
-        </div>
-      </nav>
-    </header>
+    <Header />
 
     <main class="max-w-3xl mx-auto px-6 pt-12 pb-8">
-      <h1 class="font-serif text-display-sm md:text-display mb-4">
+      <h1 class="home-name">
         Suhas Darsi
       </h1>
-      <p class="text-body text-muted-foreground mb-6 leading-relaxed">
-        Co-Founder at <a href="https://superalign.ai" class="text-foreground underline decoration-2 decoration-[#a19c87] underline-offset-4">SuperAlign</a>, building foundational infrastructure for AI safety. We help security teams see, understand, and control AI adoption across their organizations.
+      <p class="home-bio">
+        Co-Founder at <a href="https://superalign.ai" class="bio-link">SuperAlign</a>, building foundational infrastructure for AI safety. We help security teams see, understand, and control AI adoption across their organizations.
       </p>
-      <p class="text-body text-muted-foreground mb-6 leading-relaxed">
+      <p class="home-bio">
         My background is in Computer Vision research at IIIT Hyderabad. Today I spend most of my time thinking about AI governance, the security risks of enterprise AI, and what it takes to build trustworthy systems at scale.
       </p>
-      <p class="text-body text-muted-foreground mb-8 leading-relaxed">
-        <a href="/blog" class="text-foreground underline decoration-2 decoration-[#a19c87] underline-offset-4">Writing</a> about AI security, network theory, building products, and self-hosting — observations from trying to ship real things in a fast-moving space.
+      <p class="home-bio home-bio-last">
+        <a href="/blog" class="bio-link">Writing</a> about AI security, network theory, building products, and self-hosting — observations from trying to ship real things in a fast-moving space.
       </p>
 
-      <div class="flex items-center gap-5 mb-12">
-        <a href="https://www.linkedin.com/in/suhasdarsi/" target="_blank" rel="noopener noreferrer" class="text-muted-foreground hover:text-foreground transition-colors" aria-label="LinkedIn">
+      <div class="home-socials">
+        <a href="https://www.linkedin.com/in/suhasdarsi/" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="LinkedIn">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
             <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
           </svg>
         </a>
-        <a href="https://x.com/suhas_darsi" target="_blank" rel="noopener noreferrer" class="text-muted-foreground hover:text-foreground transition-colors" aria-label="X (Twitter)">
+        <a href="https://x.com/suhas_darsi" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="X (Twitter)">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
             <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
           </svg>
         </a>
-        <a href="https://booking.akiflow.com/suhas--e823" target="_blank" rel="noopener noreferrer" class="text-body text-muted-foreground hover:text-foreground transition-colors underline decoration-2 decoration-[#a19c87] underline-offset-4">
+        <a href="https://booking.akiflow.com/suhas--e823" target="_blank" rel="noopener noreferrer" class="social-link-text">
           Book a meeting
         </a>
       </div>
 
-      <div class="border-t border-subtle-border pt-10">
-        <h2 class="font-serif text-title mb-8" style="font-family: var(--font-serif);">Recent writing</h2>
-        <div class="space-y-8">
-          {posts.map((post) => (
-            <article class="group">
-              <a href={`/blog/${post.id}`} class="block">
+      <div class="recent-section">
+        <h2 class="recent-heading">Recent writing</h2>
+        <div class="recent-posts">
+          {posts.map((post, i) => (
+            <article class="recent-item" style={`animation-delay: ${i * 80}ms`}>
+              <a href={`/blog/${post.id}`} class="recent-link">
                 <div class="flex flex-col gap-2">
-                  <h3 class="font-serif text-lg font-medium group-hover:text-muted-foreground transition-colors" style="font-family: var(--font-serif);">
+                  <h3 class="recent-title">
                     {post.data.title}
                   </h3>
-                  <p class="text-body text-muted-foreground leading-relaxed">
+                  <p class="recent-desc">
                     {post.data.description}
                   </p>
-                  <div class="text-small text-muted-foreground uppercase tracking-wide">
-                    <time datetime={post.data.pubDate}>{formatDate(post.data.pubDate)}</time>
+                  <div class="recent-date">
+                    <time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time>
                   </div>
                 </div>
               </a>
             </article>
           ))}
         </div>
-        <a href="/blog" class="inline-block mt-8 text-body text-muted-foreground hover:text-foreground transition-colors underline decoration-2 decoration-[#a19c87] underline-offset-4">
-          View all posts →
+        <a href="/blog" class="view-all-link">
+          View all posts
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 12h14"></path>
+            <path d="m12 5 7 7-7 7"></path>
+          </svg>
         </a>
       </div>
     </main>
 
-    <footer class="border-t border-subtle-border mt-16">
-      <div class="max-w-3xl mx-auto px-6 py-8">
-        <div class="flex items-center justify-center gap-5 mb-4">
-          <a href="https://www.linkedin.com/in/suhasdarsi/" target="_blank" rel="noopener noreferrer" class="text-muted-foreground hover:text-foreground transition-colors" aria-label="LinkedIn">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-            </svg>
-          </a>
-          <a href="https://x.com/suhas_darsi" target="_blank" rel="noopener noreferrer" class="text-muted-foreground hover:text-foreground transition-colors" aria-label="X (Twitter)">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-            </svg>
-          </a>
-          <a href="https://booking.akiflow.com/suhas--e823" target="_blank" rel="noopener noreferrer" class="text-small text-muted-foreground hover:text-foreground transition-colors underline decoration-2 decoration-[#a19c87] underline-offset-4">
-            Book a meeting
-          </a>
-        </div>
-        <p class="text-small text-muted-foreground text-center">
-          © {new Date().getFullYear()} Suhas Darsi
-        </p>
-      </div>
-    </footer>
+    <Footer />
   </body>
 </html>
+
+<style>
+  .home-name {
+    font-family: var(--font-serif);
+    font-size: var(--text-display-sm);
+    margin-bottom: 1rem;
+    letter-spacing: -0.02em;
+    opacity: 0;
+    animation: fadeUp 0.6s ease-out forwards;
+  }
+
+  @media (min-width: 768px) {
+    .home-name {
+      font-size: var(--text-display);
+    }
+  }
+
+  .home-bio {
+    font-size: var(--text-body);
+    color: var(--color-muted-foreground);
+    line-height: 1.7;
+    margin-bottom: 1rem;
+    opacity: 0;
+    animation: fadeUp 0.6s ease-out 0.15s forwards;
+  }
+
+  .home-bio-last {
+    margin-bottom: 2.5rem;
+    animation-delay: 0.25s;
+  }
+
+  .bio-link {
+    color: var(--color-foreground);
+    text-decoration: underline;
+    text-decoration-color: #a19c87;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+    transition: text-decoration-color 0.3s ease;
+  }
+
+  .bio-link:hover {
+    text-decoration-color: var(--color-muted-foreground);
+  }
+
+  .home-socials {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    margin-bottom: 3rem;
+    opacity: 0;
+    animation: fadeUp 0.6s ease-out 0.35s forwards;
+  }
+
+  .social-icon {
+    color: var(--color-muted-foreground);
+    transition: color 0.3s ease, transform 0.3s ease;
+  }
+
+  .social-icon:hover {
+    color: var(--color-foreground);
+    transform: scale(1.1);
+  }
+
+  .social-link-text {
+    font-size: var(--text-body);
+    color: var(--color-muted-foreground);
+    text-decoration: underline;
+    text-decoration-color: #a19c87;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+    transition: color 0.3s ease, text-decoration-color 0.3s ease;
+  }
+
+  .social-link-text:hover {
+    color: var(--color-foreground);
+    text-decoration-color: var(--color-muted-foreground);
+  }
+
+  .recent-section {
+    border-top: 1px solid var(--color-subtle-border);
+    padding-top: 2.5rem;
+  }
+
+  .recent-heading {
+    font-family: var(--font-serif);
+    font-size: var(--text-title);
+    margin-bottom: 1.5rem;
+  }
+
+  .recent-posts {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .recent-item {
+    opacity: 0;
+    animation: fadeUp 0.5s ease-out forwards;
+  }
+
+  .recent-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--color-subtle-border);
+    transition: border-color 0.3s ease;
+  }
+
+  .recent-item:last-child .recent-link {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .recent-link:hover {
+    border-bottom-color: var(--color-foreground);
+  }
+
+  .recent-title {
+    font-family: var(--font-serif);
+    font-size: 1.125rem;
+    font-weight: 500;
+    line-height: 1.3;
+    transition: color 0.3s ease;
+  }
+
+  .recent-link:hover .recent-title {
+    color: var(--color-muted-foreground);
+  }
+
+  .recent-desc {
+    font-size: var(--text-body);
+    color: var(--color-muted-foreground);
+    line-height: 1.6;
+  }
+
+  .recent-date {
+    font-size: var(--text-small);
+    color: var(--color-muted-foreground);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-top: 0.125rem;
+  }
+
+  .view-all-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 2rem;
+    font-size: var(--text-body);
+    color: var(--color-muted-foreground);
+    text-decoration: underline;
+    text-decoration-color: #a19c87;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+    transition: color 0.3s ease, text-decoration-color 0.3s ease, gap 0.3s ease;
+  }
+
+  .view-all-link:hover {
+    color: var(--color-foreground);
+    text-decoration-color: var(--color-muted-foreground);
+    gap: 0.75rem;
+  }
+
+  .view-all-link svg {
+    transition: transform 0.3s ease;
+  }
+
+  .view-all-link:hover svg {
+    transform: translateX(3px);
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>

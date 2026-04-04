@@ -9,7 +9,6 @@ const { currentSlug } = Astro.props;
 
 const allPosts = await getCollection('blog');
 
-// Build a map of slug -> posts that reference it via [[wikilink]]
 const wikiLinkRegex = /\[\[([^\]|]+)(?:\|[^\]]+)?\]\]/g;
 const backlinkMap: Record<string, { title: string; slug: string }[]> = {};
 
@@ -20,7 +19,6 @@ allPosts.forEach((post) => {
     if (!backlinkMap[linkedSlug]) {
       backlinkMap[linkedSlug] = [];
     }
-    // Avoid duplicate backlinks from the same source
     if (!backlinkMap[linkedSlug].some((b) => b.slug === post.id)) {
       backlinkMap[linkedSlug].push({
         title: post.data.title,
@@ -35,15 +33,60 @@ const backlinks = backlinkMap[currentSlug] || [];
 
 {backlinks.length > 0 && (
   <section class="backlinks">
-    <h3>Referenced by</h3>
-    <ul class="backlinks-list">
+    <h3 class="backlinks-heading">Linked mentions</h3>
+    <div class="backlinks-list">
       {backlinks.map((backlink) => (
-        <li>
-          <a href={`/blog/${backlink.slug}`}>
-            <span class="backlink-title">{backlink.title}</span>
-          </a>
-        </li>
+        <a href={`/blog/${backlink.slug}`} class="backlink-item">
+          {backlink.title}
+        </a>
       ))}
-    </ul>
+    </div>
   </section>
 )}
+
+<style>
+  .backlinks {
+    margin: 4rem 0 0;
+    padding: 2rem 0 0;
+    border-top: 1px solid var(--color-subtle-border);
+  }
+
+  .backlinks-heading {
+    font-family: var(--font-sans);
+    font-size: var(--text-caption);
+    font-weight: 600;
+    color: var(--color-muted-foreground);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin: 0 0 0.75rem;
+    padding: 0;
+  }
+
+  .backlinks-list {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+  }
+
+  .backlink-item {
+    display: block;
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-serif);
+    font-size: var(--text-body);
+    font-weight: 400;
+    color: var(--color-foreground);
+    text-decoration: none;
+    line-height: 1.6;
+    transition: color 0.3s ease;
+  }
+
+  .backlink-item + .backlink-item {
+    margin-top: 0.5rem;
+  }
+
+  .backlink-item:hover {
+    color: var(--color-muted-foreground);
+  }
+</style>

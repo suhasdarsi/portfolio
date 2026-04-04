@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://suhasdarsi.com/sitemap-index.xml

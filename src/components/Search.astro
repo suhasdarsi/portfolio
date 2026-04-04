@@ -59,3 +59,47 @@
     }
   });
 </script>
+
+<style>
+  .search-container {
+    margin-bottom: 2rem;
+  }
+
+  .search-input {
+    width: 100%;
+    padding: 0.25rem 0;
+    font-family: var(--font-serif);
+    font-size: var(--text-body);
+    font-style: italic;
+    color: var(--color-foreground);
+    background: none;
+    border: none;
+    border-bottom: 1px solid var(--color-subtle-border);
+    outline: none;
+    text-decoration: none;
+    box-shadow: none;
+    -webkit-appearance: none;
+    transition: border-color var(--duration-400);
+  }
+
+  .search-input::placeholder {
+    color: var(--color-muted-foreground);
+    font-style: italic;
+  }
+
+  .search-input:focus {
+    border-bottom-color: var(--color-foreground);
+  }
+
+  .search-empty {
+    font-family: var(--font-serif);
+    font-size: var(--text-body);
+    font-style: italic;
+    color: var(--color-muted-foreground);
+    padding: 2rem 0;
+  }
+
+  .hidden {
+    display: none !important;
+  }
+</style>
