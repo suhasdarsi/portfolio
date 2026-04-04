@@ -49,13 +49,7 @@ const { Content } = await render(post);
           </svg>
           <time datetime={post.data.pubDate.toISOString()}>{formatDateWithYear(post.data.pubDate)}</time>
         </div>
-        {post.data.tags.length > 0 && (
-          <div class="tag-list">
-            {post.data.tags.map((tag: string) => (
-              <a href={`/tags/${tag}`} class="tag">{tag}</a>
-            ))}
-          </div>
-        )}
+
       </div>
     </header>
 

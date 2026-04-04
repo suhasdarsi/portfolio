@@ -1,6 +1,5 @@
 ---
 import BlogLayout from '../../layouts/BlogLayout.astro';
-import Search from '../../components/Search.astro';
 import { getCollection } from 'astro:content';
 import { formatDate } from '../../utils/date';
 
@@ -12,14 +11,11 @@ const searchData = posts.map((post) => ({
   id: post.id,
   title: post.data.title,
   description: post.data.description,
-  tags: post.data.tags,
 }));
 ---
 
 <BlogLayout title="Blog | Suhas Darsi" description="My digital garden - thoughts on building products, self-hosting, and more">
   <div>
-    <Search />
-
     <script id="search-data" type="application/json" set:html={JSON.stringify(searchData)} />
 
     <div class="post-list" id="post-list">
@@ -36,19 +32,11 @@ const searchData = posts.map((post) => ({
               <div class="post-date">
                 <time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time>
               </div>
-              {post.data.tags.length > 0 && (
-                <div class="tag-list">
-                  {post.data.tags.map((tag: string) => (
-                    <span class="tag">{tag}</span>
-                  ))}
-                </div>
-              )}
             </div>
           </a>
         </article>
       ))}
     </div>
-    <p id="search-empty" class="search-empty hidden">No posts found.</p>
   </div>
 </BlogLayout>
 
@@ -107,17 +95,5 @@ const searchData = posts.map((post) => ({
     color: var(--color-muted-foreground);
     text-transform: uppercase;
     letter-spacing: 0.04em;
-  }
-
-  .search-empty {
-    font-family: var(--font-serif);
-    font-size: var(--text-body);
-    font-style: italic;
-    color: var(--color-muted-foreground);
-    padding: 2rem 0;
-  }
-
-  .hidden {
-    display: none !important;
   }
 </style>

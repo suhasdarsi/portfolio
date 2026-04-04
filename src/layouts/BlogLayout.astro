@@ -33,7 +33,18 @@ const ogDescription = description || 'Suhas Darsi - Co-Founder at SuperAlign, wr
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@suhas_darsi" />
     <meta name="twitter:creator" content="@suhas_darsi" />
+    <meta name="theme-color" content="#faf8f2" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)" />
     <title>{title}</title>
+    <script is:inline>
+      (function() {
+        var theme = localStorage.getItem('theme');
+        if (!theme) {
+          theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+        if (theme === 'dark') document.documentElement.classList.add('dark');
+      })();
+    </script>
   </head>
   <body class="min-h-screen bg-background">
     <Header />

@@ -73,7 +73,6 @@ Blog posts are stored as Markdown files in `src/content/blog/`. To add a new pos
    description: "A brief description of your post"
    pubDate: "YYYY-MM-DD"
    author: "Suhas Darsi"
-   tags: ["tag1", "tag2", "tag3"]
    ---
    ```
 3. Write your content in Markdown below the frontmatter

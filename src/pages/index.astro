@@ -7,8 +7,15 @@ import Footer from '../components/Footer.astro';
 
 const posts = (await getCollection('blog')).sort(
 	(a, b) => new Date(b.data.pubDate).valueOf() - new Date(a.data.pubDate).valueOf()
-).slice(0, 5);
+);
 
+const searchData = posts.map((post) => ({
+  id: post.id,
+  title: post.data.title,
+  description: post.data.description,
+}));
+
+const recentPosts = posts.slice(0, 5);
 const siteUrl = 'https://suhasdarsi.com';
 ---
 
@@ -30,10 +37,23 @@ const siteUrl = 'https://suhasdarsi.com';
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@suhas_darsi" />
     <meta name="twitter:creator" content="@suhas_darsi" />
+    <meta name="theme-color" content="#faf8f2" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)" />
     <title>Suhas Darsi</title>
+    <script is:inline>
+      (function() {
+        var theme = localStorage.getItem('theme');
+        if (!theme) {
+          theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+        if (theme === 'dark') document.documentElement.classList.add('dark');
+      })();
+    </script>
   </head>
   <body class="min-h-screen bg-background">
     <Header />
+
+    <script id="search-data" type="application/json" set:html={JSON.stringify(searchData)} />
 
     <main class="max-w-3xl mx-auto px-6 pt-12 pb-8">
       <h1 class="home-name">
@@ -68,7 +88,7 @@ const siteUrl = 'https://suhasdarsi.com';
       <div class="recent-section">
         <h2 class="recent-heading">Recent writing</h2>
         <div class="recent-posts">
-          {posts.map((post, i) => (
+          {recentPosts.map((post, i) => (
             <article class="recent-item" style={`animation-delay: ${i * 80}ms`}>
               <a href={`/blog/${post.id}`} class="recent-link">
                 <div class="flex flex-col gap-2">

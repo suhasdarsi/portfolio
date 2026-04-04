@@ -109,23 +109,23 @@
     padding-top: 0.5rem;
   }
 
-  .toc-link {
+  :global(.toc-link) {
     display: block;
-    padding: 0.2rem 0;
+    padding: 0.35rem 0;
     font-family: var(--font-serif);
     font-size: var(--text-small);
-    font-weight: 300;
     color: var(--color-muted-foreground);
     text-decoration: none;
     line-height: 1.5;
     transition: color 0.3s ease;
   }
 
-  .toc-link:hover {
+  :global(.toc-link:hover) {
     color: var(--color-foreground);
   }
 
-  .toc-link-active {
+  :global(.toc-link-active) {
     color: var(--color-foreground);
+    font-weight: 500;
   }
 </style>

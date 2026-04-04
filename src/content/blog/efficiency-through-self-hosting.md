@@ -3,7 +3,6 @@ title: "Efficiency through Self-Hosting: Strategic AI Cost Management"
 description: "Explore our journey in reducing costs and enhancing product understanding by self-hosting critical infrastructure, using open-source tools, and selectively utilising cloud resources."
 pubDate: "2026-01-29"
 author: "Suhas Darsi"
-tags: ["self-hosting", "infrastructure", "cost-management"]
 ---
 
 Early in our journey, we noticed a trend many growing companies face: as our team expanded, subscription costs climbed rapidly. Monthly overhead no longer made sense for our bottom line. This realization shifted our operational philosophy. Instead of defaulting to a 'buy' decision for every software need, we decided to prioritize self-hosting our internal tools.

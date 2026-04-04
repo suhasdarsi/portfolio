@@ -1,24 +1,141 @@
 ---
 export interface Props {
-  showBlogLink?: boolean;
+  showNav?: boolean;
 }
 
-const { showBlogLink = true } = Astro.props;
+const { showNav = true } = Astro.props;
 ---
 
 <header class="header">
-  <nav class="header-nav">
-    <a href="/" class="header-logo">
-      Suhas Darsi
-    </a>
-    {showBlogLink && (
-      <div class="header-links">
-        <a href="/blog" class="header-link">Blog</a>
-        <a href="/tags" class="header-link">Tags</a>
-      </div>
+  <div class="header-inner">
+    {showNav ? (
+      <nav class="nav-links">
+        <a href="/" class="nav-link" data-path="/">Home</a>
+        <span class="nav-sep">|</span>
+        <a href="/blog" class="nav-link" data-path="/blog">Blog</a>
+      </nav>
+    ) : (
+      <a href="/" class="nav-link">Home</a>
     )}
-  </nav>
+    <div class="header-actions">
+      <button type="button" class="search-btn" id="search-toggle" aria-label="Open search">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-icon"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.34-4.34"></path></svg>
+        <span class="search-label">Search</span>
+        <kbd class="search-kbd">⌘K</kbd>
+      </button>
+      <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-sun"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-moon"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"></path></svg>
+      </button>
+    </div>
+  </div>
 </header>
+
+<div class="search-overlay" id="search-overlay">
+  <div class="search-dialog">
+    <div class="search-input-wrap">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-dialog-icon"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.34-4.34"></path></svg>
+      <input type="text" id="search-input-modal" class="search-input-dialog" placeholder="Search posts..." autocomplete="off" />
+      <button type="button" class="search-close" id="search-close" aria-label="Close search">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+      </button>
+    </div>
+    <div class="search-results" id="search-results"></div>
+    <p class="search-empty hidden" id="search-empty">No posts found.</p>
+  </div>
+</div>
+
+<script>
+  // Theme toggle
+  const themeToggle = document.getElementById('theme-toggle');
+  const html = document.documentElement;
+
+  function getTheme() {
+    const stored = localStorage.getItem('theme');
+    if (stored) return stored;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+
+  function setTheme(theme: string) {
+    localStorage.setItem('theme', theme);
+    if (theme === 'dark') {
+      html.classList.add('dark');
+    } else {
+      html.classList.remove('dark');
+    }
+  }
+
+  setTheme(getTheme());
+
+  themeToggle?.addEventListener('click', () => {
+    const current = html.classList.contains('dark') ? 'dark' : 'light';
+    setTheme(current === 'dark' ? 'light' : 'dark');
+  });
+
+  // Search
+  const searchData = document.getElementById('search-data');
+  const posts = searchData ? JSON.parse(searchData.textContent || '[]') : [];
+
+  const overlay = document.getElementById('search-overlay');
+  const searchInput = document.getElementById('search-input-modal') as HTMLInputElement;
+  const searchResults = document.getElementById('search-results');
+  const searchEmpty = document.getElementById('search-empty');
+
+  function openSearch() {
+    overlay?.classList.add('open');
+    searchInput?.focus();
+    if (posts.length > 0) {
+      renderResults(posts);
+    }
+  }
+
+  function closeSearch() {
+    overlay?.classList.remove('open');
+    searchInput && (searchInput.value = '');
+    searchResults && (searchResults.innerHTML = '');
+    searchEmpty?.classList.add('hidden');
+  }
+
+  document.getElementById('search-toggle')?.addEventListener('click', openSearch);
+  document.getElementById('search-close')?.addEventListener('click', closeSearch);
+  overlay?.addEventListener('click', (e) => {
+    if (e.target === overlay) closeSearch();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault();
+      overlay?.classList.contains('open') ? closeSearch() : openSearch();
+    }
+    if (e.key === 'Escape') closeSearch();
+  });
+
+  function renderResults(items: Array<{ id: string; title: string; description: string }>) {
+    if (!searchResults) return;
+    searchResults.innerHTML = items.map(post =>
+      `<a href="/blog/${post.id}" class="search-result-item"><h3 class="search-result-title">${post.title}</h3><p class="search-result-desc">${post.description}</p></a>`
+    ).join('');
+  }
+
+  searchInput?.addEventListener('input', () => {
+    const query = searchInput.value.trim().toLowerCase();
+    if (!query) {
+      renderResults(posts);
+      searchEmpty?.classList.add('hidden');
+      return;
+    }
+    const filtered = posts.filter(p =>
+      p.title.toLowerCase().includes(query) || p.description.toLowerCase().includes(query)
+    );
+    if (filtered.length === 0) {
+      searchResults && (searchResults.innerHTML = '');
+      searchEmpty?.classList.remove('hidden');
+    } else {
+      renderResults(filtered);
+      searchEmpty?.classList.add('hidden');
+    }
+  });
+</script>
 
 <style>
   .header {
@@ -29,43 +146,265 @@ const { showBlogLink = true } = Astro.props;
     background-color: var(--color-background);
   }
 
-  .header-nav {
+  .header-inner {
     max-width: 48rem;
     margin: 0 auto;
-    padding: 0.75rem 1.5rem;
+    padding: 0 1.5rem;
+    height: 3rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
   }
 
-  .header-logo {
-    font-family: var(--font-serif);
-    font-size: 1.25rem;
-    font-weight: 500;
-    letter-spacing: -0.01em;
-    color: var(--color-foreground);
-    text-decoration: none;
-    transition: color 0.3s ease;
-  }
-
-  .header-logo:hover {
-    color: var(--color-muted-foreground);
-  }
-
-  .header-links {
+  .nav-links {
     display: flex;
     align-items: center;
-    gap: 1.5rem;
+    gap: 0;
+    font-size: var(--text-small);
+    color: var(--color-muted-foreground);
   }
 
-  .header-link {
-    font-size: var(--text-body);
+  .nav-link {
     color: var(--color-muted-foreground);
     text-decoration: none;
     transition: color 0.3s ease;
   }
 
-  .header-link:hover {
+  .nav-link:hover {
     color: var(--color-foreground);
+  }
+
+  .nav-sep {
+    margin: 0 1rem;
+    color: var(--color-subtle-border);
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .search-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid var(--color-subtle-border);
+    padding: 0.25rem 0.625rem;
+    font-size: 0.75rem;
+    color: var(--color-muted-foreground);
+    background: none;
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    transition: border-color 0.3s ease, color 0.3s ease;
+  }
+
+  .search-btn:hover {
+    border-color: var(--color-foreground);
+    color: var(--color-foreground);
+  }
+
+  .search-icon {
+    width: 0.75rem;
+    height: 0.75rem;
+  }
+
+  .search-label {
+    display: none;
+  }
+
+  @media (min-width: 640px) {
+    .search-label {
+      display: inline;
+    }
+  }
+
+  .search-kbd {
+    display: none;
+    border: 1px solid var(--color-subtle-border);
+    background-color: var(--color-muted);
+    padding: 0.0625rem 0.375rem;
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    color: var(--color-muted-foreground);
+    border-radius: 2px;
+  }
+
+  @media (min-width: 640px) {
+    .search-kbd {
+      display: inline;
+    }
+  }
+
+  .theme-toggle {
+    padding: 0.5rem;
+    color: var(--color-muted-foreground);
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.3s ease;
+  }
+
+  .theme-toggle:hover {
+    color: var(--color-foreground);
+  }
+
+  :global(html:not(.dark)) .theme-toggle .icon-sun {
+    display: none;
+  }
+
+  :global(html:not(.dark)) .theme-toggle .icon-moon {
+    display: block;
+  }
+
+  :global(html.dark) .theme-toggle .icon-sun {
+    display: block;
+  }
+
+  :global(html.dark) .theme-toggle .icon-moon {
+    display: none;
+  }
+
+  .theme-toggle svg {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  /* Search overlay */
+  :global(.search-overlay) {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 15vh;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+
+  :global(.search-overlay.open) {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  :global(.search-dialog) {
+    width: 100%;
+    max-width: 32rem;
+    margin: 0 1rem;
+    background-color: var(--color-background);
+    border: 1px solid var(--color-subtle-border);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  }
+
+  :global(.search-input-wrap) {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--color-subtle-border);
+    gap: 0.5rem;
+  }
+
+  :global(.search-dialog-icon) {
+    width: 1rem;
+    height: 1rem;
+    color: var(--color-muted-foreground);
+    flex-shrink: 0;
+  }
+
+  :global(.search-input-dialog) {
+    flex: 1;
+    border: none;
+    background: none;
+    font-family: var(--font-serif);
+    font-size: var(--text-body);
+    color: var(--color-foreground);
+    outline: none;
+  }
+
+  :global(.search-input-dialog::placeholder) {
+    color: var(--color-muted-foreground);
+    font-style: italic;
+  }
+
+  :global(.search-close) {
+    background: none;
+    border: none;
+    color: var(--color-muted-foreground);
+    cursor: pointer;
+    padding: 0.25rem;
+    display: flex;
+    transition: color 0.3s ease;
+  }
+
+  :global(.search-close:hover) {
+    color: var(--color-foreground);
+  }
+
+  :global(.search-close svg) {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  :global(.search-results) {
+    max-height: 60vh;
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  :global(.search-results::-webkit-scrollbar) {
+    display: none;
+  }
+
+  :global(.search-result-item) {
+    display: block;
+    padding: 0.75rem 1rem;
+    text-decoration: none;
+    border-bottom: 1px solid var(--color-subtle-border);
+    transition: background-color 0.2s ease;
+  }
+
+  :global(.search-result-item:last-child) {
+    border-bottom: none;
+  }
+
+  :global(.search-result-item:hover) {
+    background-color: var(--color-muted);
+  }
+
+  :global(.search-result-title) {
+    font-family: var(--font-serif);
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--color-foreground);
+    margin: 0 0 0.25rem;
+  }
+
+  :global(.search-result-desc) {
+    font-size: var(--text-small);
+    color: var(--color-muted-foreground);
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  :global(.search-empty) {
+    font-family: var(--font-serif);
+    font-size: var(--text-body);
+    font-style: italic;
+    color: var(--color-muted-foreground);
+    padding: 2rem 1rem;
+    text-align: center;
+  }
+
+  :global(.hidden) {
+    display: none !important;
   }
 </style>

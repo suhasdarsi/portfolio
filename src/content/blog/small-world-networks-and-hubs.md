@@ -3,7 +3,6 @@ title: "Small World Networks and the Power of Hubs"
 description: "How a 1960s social psychology experiment revealed the hidden architecture that makes our world dangerously efficient — and dangerously fragile."
 pubDate: "2026-03-27"
 author: "Suhas Darsi"
-tags: ["network-theory", "complexity", "infrastructure"]
 ---
 
 Back in the 1960s, social psychologist Stanley Milgram discovered something remarkable: any two people in the United States were connected by an average of just six acquaintances. This "small world" phenomenon isn't unique to human relationships — it's a fundamental property of many complex networks, from the internet to cellular biology.

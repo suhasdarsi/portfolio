@@ -3,7 +3,6 @@ title: "Stop Building Features. Start Solving Problems."
 description: "Discover how focusing on customer problems first—not features—leads to better products, clearer priorities, and more meaningful work."
 pubDate: "2026-01-27"
 author: "Suhas Darsi"
-tags: ["product", "building", "problem-solving"]
 ---
 
 Here's how most product teams operate: Someone has an idea for a feature. It gets added to the backlog. The team plans it during sprint planning. The designer mocks it up. The PM writes the specs. Engineers build it. They ship it, celebrate, and move on to the next feature.

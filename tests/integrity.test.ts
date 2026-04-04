@@ -54,10 +54,6 @@ describe('file structure', () => {
     expect(existsSync(join(SRC, 'pages', 'blog', 'slug.astro'))).toBe(false);
   });
 
-  it('tags dynamic route uses [tag].astro', () => {
-    expect(existsSync(join(SRC, 'pages', 'tags', '[tag].astro'))).toBe(true);
-    expect(existsSync(join(SRC, 'pages', 'tags', 'tag.astro'))).toBe(false);
-  });
 
   it('no files with _1 suffix exist in src/', () => {
     const allFiles = readAllFiles(SRC);
@@ -113,7 +109,7 @@ describe('build', () => {
     const expectedPages = [
       'dist/index.html',
       'dist/blog/index.html',
-      'dist/tags/index.html',
+
       'dist/blog/ai-as-the-ultimate-hub/index.html',
     ];
 
