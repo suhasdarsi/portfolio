@@ -1,8 +1,10 @@
 ---
 title: "AI as the Ultimate Hub"
 description: "AI isn't just another node in our networks — it's a fundamentally new type of hub that compresses complexity in ways we haven't fully reckoned with."
-pubDate: "2026-03-27"
+pubDate: "2026-04-04"
 author: "Suhas Darsi"
+maturity: "evergreen"
+topics: ["AI Safety", "Infrastructure"]
 ---
 
 As we explored in [[small-world-networks-and-hubs|Small World Networks and the Power of Hubs]], complex networks are defined by their hubs — nodes with disproportionately many connections that give the system both its efficiency and its fragility. Now we stand at the threshold of something unprecedented.

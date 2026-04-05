@@ -1,21 +1,30 @@
 ---
 import '../styles/global.css';
 import { getCollection } from 'astro:content';
-import { formatDate } from '../utils/date';
+import { formatDate, getReadingTime } from '../utils/date';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import MaturityBadge from '../components/MaturityBadge.astro';
 
-const posts = (await getCollection('blog')).sort(
-	(a, b) => new Date(b.data.pubDate).valueOf() - new Date(a.data.pubDate).valueOf()
-);
-
-const searchData = posts.map((post) => ({
-  id: post.id,
-  title: post.data.title,
-  description: post.data.description,
-}));
+const allPosts = await getCollection('blog');
+const posts = allPosts
+  .filter((post) => !post.data.draft)
+  .sort((a, b) => new Date(b.data.pubDate).valueOf() - new Date(a.data.pubDate).valueOf());
 
 const recentPosts = posts.slice(0, 5);
+
+const recentTopics = posts.slice(0, 3).flatMap((p) => p.data.topics);
+const currentlyThinking = [...new Set(recentTopics)].slice(0, 3);
+
+const updatedPosts = posts
+  .filter((p) => p.data.updatedDate)
+  .sort((a, b) => new Date(b.data.updatedDate!).valueOf() - new Date(a.data.updatedDate!).valueOf())
+  .slice(0, 3);
+
+const totalNotes = posts.length;
+const totalTopics = [...new Set(posts.flatMap((p) => p.data.topics))].length;
+const evergreenCount = posts.filter((p) => p.data.maturity === 'evergreen').length;
+
 const siteUrl = 'https://suhasdarsi.com';
 ---
 
@@ -26,7 +35,7 @@ const siteUrl = 'https://suhasdarsi.com';
     <meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content="Astro" />
-    <meta name="description" content="Suhas Darsi - Co-Founder at SuperAlign, building foundational infrastructure for AI safety." />
+    <meta name="description" content="Suhas Darsi - Co-Founder at SuperAlign, writing about AI safety, product, bags, travel, and infrastructure." />
     <meta name="author" content="Suhas Darsi" />
     <link rel="canonical" href={siteUrl} />
     <meta property="og:title" content="Suhas Darsi" />
@@ -53,21 +62,22 @@ const siteUrl = 'https://suhasdarsi.com';
   <body class="min-h-screen bg-background">
     <Header />
 
-    <script id="search-data" type="application/json" set:html={JSON.stringify(searchData)} />
-
     <main class="max-w-3xl mx-auto px-6 pt-12 pb-8">
       <h1 class="home-name">
         Suhas Darsi
       </h1>
-      <p class="home-bio">
-        Co-Founder at <a href="https://superalign.ai" class="bio-link">SuperAlign</a>, building foundational infrastructure for AI safety. We help security teams see, understand, and control AI adoption across their organizations.
+      <p class="home-tagline">
+        Building AI safety infrastructure. Writing about the systems we build and the systems that build us.
       </p>
-      <p class="home-bio">
-        My background is in Computer Vision research at IIIT Hyderabad. Today I spend most of my time thinking about AI governance, the security risks of enterprise AI, and what it takes to build trustworthy systems at scale.
-      </p>
-      <p class="home-bio home-bio-last">
-        <a href="/blog" class="bio-link">Writing</a> about AI security, network theory, building products, and self-hosting — observations from trying to ship real things in a fast-moving space.
-      </p>
+
+      <div class="currently-thinking">
+        <span class="ct-label">Currently thinking about</span>
+        <div class="ct-topics">
+          {currentlyThinking.map((topic) => (
+            <a href={`/notes?topic=${topic}`} class="ct-topic">{topic}</a>
+          ))}
+        </div>
+      </div>
 
       <div class="home-socials">
         <a href="https://www.linkedin.com/in/suhasdarsi/" target="_blank" rel="noopener noreferrer" class="social-icon" aria-label="LinkedIn">
@@ -85,34 +95,73 @@ const siteUrl = 'https://suhasdarsi.com';
         </a>
       </div>
 
-      <div class="recent-section">
-        <h2 class="recent-heading">Recent writing</h2>
-        <div class="recent-posts">
-          {recentPosts.map((post, i) => (
-            <article class="recent-item" style={`animation-delay: ${i * 80}ms`}>
-              <a href={`/blog/${post.id}`} class="recent-link">
-                <div class="flex flex-col gap-2">
-                  <h3 class="recent-title">
-                    {post.data.title}
-                  </h3>
-                  <p class="recent-desc">
-                    {post.data.description}
-                  </p>
-                  <div class="recent-date">
-                    <time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time>
-                  </div>
-                </div>
+      {updatedPosts.length > 0 && (
+        <div class="updated-section">
+          <h2 class="section-heading">Recently updated</h2>
+          <div class="updated-list">
+            {updatedPosts.map((post) => (
+              <a href={`/notes/${post.id}`} class="updated-item">
+                <span class="updated-title">{post.data.title}</span>
+                <time datetime={post.data.updatedDate!.toISOString()} class="updated-date">{formatDate(post.data.updatedDate!)}</time>
               </a>
-            </article>
-          ))}
+            ))}
+          </div>
         </div>
-        <a href="/blog" class="view-all-link">
-          View all posts
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M5 12h14"></path>
-            <path d="m12 5 7 7-7 7"></path>
-          </svg>
-        </a>
+      )}
+
+      <div class="recent-section">
+        <div class="recent-header">
+          <h2 class="section-heading">Recent notes</h2>
+          <div class="garden-stats">
+            <span class="stat">{totalNotes} notes</span>
+            <span class="stat-sep">·</span>
+            <span class="stat">{totalTopics} topics</span>
+            <span class="stat-sep">·</span>
+            <span class="stat">{evergreenCount} evergreen</span>
+          </div>
+        </div>
+        <div class="recent-posts">
+          {recentPosts.map((post, i) => {
+            const readingTime = getReadingTime(post.body ?? '');
+            return (
+              <article class="recent-item" style={`animation-delay: ${i * 80}ms`}>
+                <a href={`/notes/${post.id}`} class="recent-link">
+                  <div class="flex flex-col gap-2">
+                    <div class="recent-meta-top">
+                      <MaturityBadge maturity={post.data.maturity} />
+                      <span class="recent-reading-time">{readingTime} min</span>
+                    </div>
+                    <h3 class="recent-title">
+                      {post.data.title}
+                    </h3>
+                    <p class="recent-desc">
+                      {post.data.description}
+                    </p>
+                    <div class="recent-date">
+                      <time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time>
+                    </div>
+                  </div>
+                </a>
+              </article>
+            );
+          })}
+        </div>
+        <div class="home-links">
+          <a href="/notes" class="home-link">
+            View all notes
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h14"></path>
+              <path d="m12 5 7 7-7 7"></path>
+            </svg>
+          </a>
+          <a href="/about" class="home-link">
+            About me
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h14"></path>
+              <path d="m12 5 7 7-7 7"></path>
+            </svg>
+          </a>
+        </div>
       </div>
     </main>
 
@@ -124,7 +173,7 @@ const siteUrl = 'https://suhasdarsi.com';
   .home-name {
     font-family: var(--font-serif);
     font-size: var(--text-display-sm);
-    margin-bottom: 1rem;
+    margin-bottom: 0.75rem;
     letter-spacing: -0.02em;
     opacity: 0;
     animation: fadeUp 0.6s ease-out forwards;
@@ -136,21 +185,38 @@ const siteUrl = 'https://suhasdarsi.com';
     }
   }
 
-  .home-bio {
-    font-size: var(--text-body);
+  .home-tagline {
+    font-size: var(--text-body-lg);
     color: var(--color-muted-foreground);
-    line-height: 1.7;
-    margin-bottom: 1rem;
+    line-height: 1.6;
+    margin-bottom: 2rem;
     opacity: 0;
     animation: fadeUp 0.6s ease-out 0.15s forwards;
   }
 
-  .home-bio-last {
+  .currently-thinking {
     margin-bottom: 2.5rem;
-    animation-delay: 0.25s;
+    opacity: 0;
+    animation: fadeUp 0.6s ease-out 0.25s forwards;
   }
 
-  .bio-link {
+  .ct-label {
+    font-size: var(--text-small);
+    color: var(--color-muted-foreground);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  .ct-topics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .ct-topic {
+    font-size: var(--text-body);
     color: var(--color-foreground);
     text-decoration: underline;
     text-decoration-color: #a19c87;
@@ -159,7 +225,7 @@ const siteUrl = 'https://suhasdarsi.com';
     transition: text-decoration-color 0.3s ease;
   }
 
-  .bio-link:hover {
+  .ct-topic:hover {
     text-decoration-color: var(--color-muted-foreground);
   }
 
@@ -197,15 +263,73 @@ const siteUrl = 'https://suhasdarsi.com';
     text-decoration-color: var(--color-muted-foreground);
   }
 
+  .updated-section {
+    margin-bottom: 3rem;
+    border-top: 1px solid var(--color-subtle-border);
+    padding-top: 2.5rem;
+  }
+
+  .updated-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .updated-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 0.5rem 0;
+    text-decoration: none;
+    color: inherit;
+    transition: color 0.3s ease;
+  }
+
+  .updated-item:hover {
+    color: var(--color-muted-foreground);
+  }
+
+  .updated-title {
+    font-family: var(--font-serif);
+    font-size: var(--text-body);
+  }
+
+  .updated-date {
+    font-size: var(--text-small);
+    color: var(--color-muted-foreground);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    flex-shrink: 0;
+    margin-left: 1rem;
+  }
+
   .recent-section {
     border-top: 1px solid var(--color-subtle-border);
     padding-top: 2.5rem;
   }
 
-  .recent-heading {
+  .recent-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .section-heading {
     font-family: var(--font-serif);
     font-size: var(--text-title);
-    margin-bottom: 1.5rem;
+    margin: 0;
+  }
+
+  .garden-stats {
+    font-size: var(--text-small);
+    color: var(--color-muted-foreground);
+  }
+
+  .stat-sep {
+    margin: 0 0.25rem;
   }
 
   .recent-posts {
@@ -237,6 +361,18 @@ const siteUrl = 'https://suhasdarsi.com';
     border-bottom-color: var(--color-foreground);
   }
 
+  .recent-meta-top {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .recent-reading-time {
+    font-size: var(--text-caption);
+    color: var(--color-muted-foreground);
+  }
+
   .recent-title {
     font-family: var(--font-serif);
     font-size: 1.125rem;
@@ -263,11 +399,17 @@ const siteUrl = 'https://suhasdarsi.com';
     margin-top: 0.125rem;
   }
 
-  .view-all-link {
+  .home-links {
+    display: flex;
+    gap: 2rem;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .home-link {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    margin-top: 2rem;
     font-size: var(--text-body);
     color: var(--color-muted-foreground);
     text-decoration: underline;
@@ -277,17 +419,17 @@ const siteUrl = 'https://suhasdarsi.com';
     transition: color 0.3s ease, text-decoration-color 0.3s ease, gap 0.3s ease;
   }
 
-  .view-all-link:hover {
+  .home-link:hover {
     color: var(--color-foreground);
     text-decoration-color: var(--color-muted-foreground);
     gap: 0.75rem;
   }
 
-  .view-all-link svg {
+  .home-link svg {
     transition: transform 0.3s ease;
   }
 
-  .view-all-link:hover svg {
+  .home-link:hover svg {
     transform: translateX(3px);
   }
 

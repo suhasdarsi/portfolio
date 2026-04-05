@@ -8,7 +8,11 @@ const blog = defineCollection({
     title: z.string(),
     description: z.string(),
     pubDate: z.string().transform((str) => new Date(str)),
+    updatedDate: z.string().transform((str) => new Date(str)).optional(),
     author: z.string().default('Author'),
+    draft: z.boolean().default(false),
+    maturity: z.enum(['seedling', 'budding', 'evergreen']).default('seedling'),
+    topics: z.array(z.enum(['AI Safety', 'Product', 'Bags', 'Travel', 'Infrastructure'])).default([]),
   }),
 });
 

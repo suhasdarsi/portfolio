@@ -1,4 +1,7 @@
 ---
+import { getCollection } from 'astro:content';
+import SearchData from './SearchData.astro';
+
 export interface Props {
   showNav?: boolean;
 }
@@ -7,12 +10,15 @@ const { showNav = true } = Astro.props;
 ---
 
 <header class="header">
+  <SearchData />
   <div class="header-inner">
     {showNav ? (
       <nav class="nav-links">
         <a href="/" class="nav-link" data-path="/">Home</a>
         <span class="nav-sep">|</span>
-        <a href="/blog" class="nav-link" data-path="/blog">Blog</a>
+        <a href="/notes" class="nav-link" data-path="/notes">Notes</a>
+        <span class="nav-sep">|</span>
+        <a href="/about" class="nav-link" data-path="/about">About</a>
       </nav>
     ) : (
       <a href="/" class="nav-link">Home</a>
@@ -46,7 +52,8 @@ const { showNav = true } = Astro.props;
 </div>
 
 <script>
-  // Theme toggle
+  import Fuse from 'fuse.js';
+
   const themeToggle = document.getElementById('theme-toggle');
   const html = document.documentElement;
 
@@ -72,9 +79,18 @@ const { showNav = true } = Astro.props;
     setTheme(current === 'dark' ? 'light' : 'dark');
   });
 
-  // Search
   const searchData = document.getElementById('search-data');
   const posts = searchData ? JSON.parse(searchData.textContent || '[]') : [];
+
+  const fuse = new Fuse(posts, {
+    keys: [
+      { name: 'title', weight: 0.5 },
+      { name: 'description', weight: 0.3 },
+      { name: 'body', weight: 0.2 },
+    ],
+    threshold: 0.3,
+    ignoreLocation: true,
+  });
 
   const overlay = document.getElementById('search-overlay');
   const searchInput = document.getElementById('search-input-modal') as HTMLInputElement;
@@ -113,25 +129,23 @@ const { showNav = true } = Astro.props;
   function renderResults(items: Array<{ id: string; title: string; description: string }>) {
     if (!searchResults) return;
     searchResults.innerHTML = items.map(post =>
-      `<a href="/blog/${post.id}" class="search-result-item"><h3 class="search-result-title">${post.title}</h3><p class="search-result-desc">${post.description}</p></a>`
+      `<a href="/notes/${post.id}" class="search-result-item"><h3 class="search-result-title">${post.title}</h3><p class="search-result-desc">${post.description}</p></a>`
     ).join('');
   }
 
   searchInput?.addEventListener('input', () => {
-    const query = searchInput.value.trim().toLowerCase();
+    const query = searchInput.value.trim();
     if (!query) {
       renderResults(posts);
       searchEmpty?.classList.add('hidden');
       return;
     }
-    const filtered = posts.filter(p =>
-      p.title.toLowerCase().includes(query) || p.description.toLowerCase().includes(query)
-    );
-    if (filtered.length === 0) {
+    const results = fuse.search(query);
+    if (results.length === 0) {
       searchResults && (searchResults.innerHTML = '');
       searchEmpty?.classList.remove('hidden');
     } else {
-      renderResults(filtered);
+      renderResults(results.map(r => r.item));
       searchEmpty?.classList.add('hidden');
     }
   });
@@ -273,7 +287,6 @@ const { showNav = true } = Astro.props;
     height: 1rem;
   }
 
-  /* Search overlay */
   :global(.search-overlay) {
     position: fixed;
     inset: 0;

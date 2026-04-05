@@ -1,0 +1,67 @@
+---
+interface Props {
+  maturity: 'seedling' | 'budding' | 'evergreen';
+}
+
+const { maturity } = Astro.props;
+---
+
+<span class="maturity-badge maturity-{maturity}">
+  <svg class="maturity-icon" viewBox="0 0 10 10" width="14" height="14" aria-hidden="true">
+    {maturity === 'seedling' && <circle cx="5" cy="5" r="3.5" fill="none" stroke="currentColor" stroke-width="1"/>}
+    {maturity === 'budding' && (
+      <>
+        <circle cx="5" cy="5" r="3.5" fill="none" stroke="currentColor" stroke-width="1"/>
+        <path d="M5 1.5 A3.5 3.5 0 0 1 5 8.5 Z" fill="currentColor"/>
+      </>
+    )}
+    {maturity === 'evergreen' && <circle cx="5" cy="5" r="3.5" fill="currentColor"/>}
+  </svg>
+  {maturity}
+</span>
+
+<style>
+  .maturity-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: var(--text-caption);
+    padding: 0;
+    border-radius: var(--radius-sm);
+    text-transform: capitalize;
+    letter-spacing: 0.02em;
+    font-weight: 500;
+  }
+
+  .maturity-icon {
+    flex-shrink: 0;
+  }
+
+  .maturity-seedling {
+    color: var(--color-muted-foreground);
+    border: 1px solid var(--color-subtle-border);
+  }
+
+  .maturity-budding {
+    color: #3a7d3a;
+    border: 1px solid rgba(34, 139, 34, 0.3);
+  }
+
+  html.dark .maturity-budding {
+    color: #4ade80;
+    border-color: rgba(74, 222, 128, 0.3);
+  }
+
+  .maturity-evergreen {
+    color: var(--color-background);
+    background-color: #2d7a2d;
+    border: 1px solid #2d7a2d;
+    border-radius: 999px;
+  }
+
+  html.dark .maturity-evergreen {
+    background-color: #22c55e;
+    border-color: #22c55e;
+    color: #0a0a0a;
+  }
+</style>

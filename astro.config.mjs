@@ -26,7 +26,7 @@ export default defineConfig({
         {
           permalinks: existingSlugs,
           pageResolver: (name) => [name.replace(/ /g, '-').toLowerCase()],
-          hrefTemplate: (permalink) => `/blog/${permalink}`,
+          hrefTemplate: (permalink) => `/notes/${permalink}`,
           wikiLinkClassName: 'wikilink',
           newClassName: 'wikilink-broken',
           aliasDivider: '|',

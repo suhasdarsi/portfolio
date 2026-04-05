@@ -1,8 +1,10 @@
 ---
 title: "The Cascade Risk of Hub-to-Hub AI Networks"
 description: "The danger isn't just AI hubs failing — it's what happens when they start talking to each other."
-pubDate: "2026-03-27"
+pubDate: "2026-04-05"
 author: "Suhas Darsi"
+maturity: "evergreen"
+topics: ["AI Safety"]
 ---
 
 In [[ai-as-the-ultimate-hub|AI as the Ultimate Hub]], we explored how AI is emerging as a new kind of network node — one that compresses complexity by bridging previously siloed systems. But here's where [[small-world-networks-and-hubs|network theory]] delivers its most sobering lesson.

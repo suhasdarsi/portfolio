@@ -1,8 +1,10 @@
 ---
 title: "Why AI Security Is Fundamentally Different"
 description: "Traditional security assumes boundaries. AI is designed to break them. That's the problem."
-pubDate: "2026-03-27"
+pubDate: "2026-04-05"
 author: "Suhas Darsi"
+maturity: "evergreen"
+topics: ["AI Safety"]
 ---
 
 As we explored in [[the-cascade-risk-of-hub-to-hub-ai-networks|The Cascade Risk of Hub-to-Hub AI Networks]], AI hubs connecting to each other creates a new class of systemic risk. This brings us to why AI risk represents a categorically different challenge than traditional IT security.

@@ -37,8 +37,8 @@ describe('file structure', () => {
     expect(existsSync(join(SRC, 'layouts', 'BlogLayout.astro'))).toBe(true);
   });
 
-  it('Search.astro exists with correct name', () => {
-    expect(existsSync(join(SRC, 'components', 'Search.astro'))).toBe(true);
+  it('Search.astro was removed (functionality moved to Header.astro)', () => {
+    expect(existsSync(join(SRC, 'components', 'Search.astro'))).toBe(false);
   });
 
   it('Backlinks.astro exists with correct name', () => {
@@ -49,9 +49,9 @@ describe('file structure', () => {
     expect(existsSync(join(SRC, 'components', 'TableOfContents.astro'))).toBe(true);
   });
 
-  it('blog dynamic route uses [slug].astro', () => {
-    expect(existsSync(join(SRC, 'pages', 'blog', '[slug].astro'))).toBe(true);
-    expect(existsSync(join(SRC, 'pages', 'blog', 'slug.astro'))).toBe(false);
+  it('notes dynamic route uses [slug].astro', () => {
+    expect(existsSync(join(SRC, 'pages', 'notes', '[slug].astro'))).toBe(true);
+    expect(existsSync(join(SRC, 'pages', 'notes', 'slug.astro'))).toBe(false);
   });
 
 
@@ -108,9 +108,9 @@ describe('build', () => {
 
     const expectedPages = [
       'dist/index.html',
-      'dist/blog/index.html',
+      'dist/notes/index.html',
 
-      'dist/blog/ai-as-the-ultimate-hub/index.html',
+      'dist/notes/ai-as-the-ultimate-hub/index.html',
     ];
 
     for (const page of expectedPages) {

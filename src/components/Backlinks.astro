@@ -36,7 +36,7 @@ const backlinks = backlinkMap[currentSlug] || [];
     <h3 class="backlinks-heading">Linked mentions</h3>
     <div class="backlinks-list">
       {backlinks.map((backlink) => (
-        <a href={`/blog/${backlink.slug}`} class="backlink-item">
+        <a href={`/notes/${backlink.slug}`} class="backlink-item">
           {backlink.title}
         </a>
       ))}
