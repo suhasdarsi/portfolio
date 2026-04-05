@@ -86,6 +86,16 @@ const allTopicsUsed = [...new Set(posts.flatMap((p) => p.data.topics))].sort();
 
   let activeTopic = 'all';
 
+  const urlParams = new URLSearchParams(window.location.search);
+  const topicFromUrl = urlParams.get('topic');
+  if (topicFromUrl && topicFilters) {
+    activeTopic = topicFromUrl;
+    topicFilters.querySelectorAll('.topic-filter').forEach((b) => {
+      b.classList.toggle('active', b.getAttribute('data-topic') === activeTopic);
+    });
+    applyFilters();
+  }
+
   function applyFilters() {
     let filteredIds = new Set(posts.map((p: { id: string }) => p.id));
 
