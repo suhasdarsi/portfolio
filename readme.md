@@ -1,6 +1,6 @@
-# Suhas Darsi - Personal Portfolio & Blog
+# Suhas Darsi — Digital Garden
 
-A personal portfolio and blog site built with Astro, Tailwind CSS, and Bun.
+A personal digital garden built with Astro, Tailwind CSS, and Bun. A place for thinking in public — polished posts, developing ideas, and early thoughts, all connected through wiki-style links.
 
 ## 🚀 Project Structure
 
@@ -9,112 +9,119 @@ A personal portfolio and blog site built with Astro, Tailwind CSS, and Bun.
 ├── public/
 ├── src/
 │   ├── components/
-│   │   ├── Backlinks.astro
-│   │   ├── Search.astro
-│   │   └── TableOfContents.astro
+│   │   ├── Backlinks.astro           # Shows notes that link to the current note
+│   │   ├── Footer.astro              # Site footer
+│   │   ├── Header.astro              # Site header with global search
+│   │   ├── MaturityBadge.astro       # Reusable maturity indicator component
+│   │   ├── SearchData.astro          # Injects search data on every page
+│   │   └── TableOfContents.astro     # Auto-generated TOC from headings
 │   ├── content/
-│   │   └── blog/                 # Blog posts in MDX format
-│   │       ├── ai-as-the-ultimate-hub.md
-│   │       ├── cost-per-use-revolution.md
-│   │       ├── efficiency-through-self-hosting.md
-│   │       ├── rethinking-ai-safety-through-network-science.md
-│   │       ├── small-world-networks-and-hubs.md
-│   │       ├── stop-building-features.md
-│   │       ├── the-cascade-risk-of-hub-to-hub-ai-networks.md
-│   │       └── why-ai-security-is-fundamentally-different.md
+│   │   └── blog/                     # Notes stored as Markdown files
+│   │       └── *.md                  # Each file is a note
 │   ├── layouts/
-│   │   └── BlogLayout.astro      # Base layout for blog pages
-│   └── pages/
-│       ├── index.astro           # Homepage
-│       ├── blog/
-│       │   ├── index.astro       # Blog listing page
-│       │   └── [slug].astro      # Dynamic blog post pages
-│       └── ...                   # Other static pages
-├── astro.config.mjs              # Astro configuration
-├── package.json                  # Dependencies and scripts
-├── tsconfig.json                 # TypeScript configuration
+│   │   └── BlogLayout.astro          # Base layout for note pages
+│   ├── pages/
+│   │   ├── index.astro               # Homepage — hybrid landing + recent notes
+│   │   ├── about.astro               # About page
+│   │   ├── rss.xml.ts                # RSS feed endpoint
+│   │   └── notes/
+│   │       ├── index.astro           # Notes listing with topic filters
+│   │       └── [slug].astro          # Dynamic note pages with prev/next nav
+│   ├── styles/
+│   │   └── global.css                # Global styles and design tokens
+│   └── utils/
+│       └── date.ts                   # Date formatting and reading time utilities
+├── tests/
+│   └── integrity.test.ts             # File structure and build integrity tests
+├── astro.config.mjs                  # Astro + remark-wiki-link configuration
+├── content.config.ts                 # Content collection schema
+├── package.json
+├── tsconfig.json
 └── README.md
 ```
 
 ## 🛠️ Technologies Used
 
-- [Astro](https://astro.build) - Static site builder
-- [Tailwind CSS](https://tailwindcss.com) - Utility-first CSS framework
-- [Bun](https://bun.sh) - Fast JavaScript runtime & package manager
-- [TypeScript](https://www.typescriptlang.org) - For type safety
-- [Vite](https://vitejs.dev) - Build tool (via Astro)
-- [Fuse.js](https://fusejs.io) - Lightweight fuzzy-search for client-side search
-- [Remark Wiki Link](https://github.com/remarkjs/remark-wiki-link) - For [[wiki-style links]] in markdown
+- [Astro](https://astro.build) — Static site builder
+- [Tailwind CSS](https://tailwindcss.com) — Utility-first CSS framework
+- [Bun](https://bun.sh) — Fast JavaScript runtime & package manager
+- [TypeScript](https://www.typescriptlang.org) — Type safety
+- [Vite](https://vitejs.dev) — Build tool (via Astro)
+- [Fuse.js](https://fusejs.io) — Client-side fuzzy search
+- [Remark Wiki Link](https://github.com/remarkjs/remark-wiki-link) — Wiki-style `[[links]]` in markdown
 
 ## 🧞 Commands
 
-All commands are run from the root of the project, from a terminal:
+All commands run from the project root:
 
 | Command                   | Action                                           |
 | :------------------------ | :----------------------------------------------- |
-| `bun install`             | Installs dependencies                            |
-| `bun dev`                 | Starts local dev server at `localhost:4321`      |
-| `bun build`               | Build your production site to `./dist/`          |
-| `bun preview`             | Preview your build locally, before deploying     |
-| `bun astro`               | Run CLI commands like `astro add`, `astro check` |
-| `bun astro -- --help`     | Get help using the Astro CLI                     |
-| `bun test`                | Run tests with Vitest                            |
+| `bun install`             | Install dependencies                             |
+| `bun dev`                 | Start dev server at `localhost:4321`             |
+| `bun build`               | Build production site to `./dist/`               |
+| `bun preview`             | Preview production build locally                 |
+| `bun astro`               | Run Astro CLI commands                           |
+| `bun test`                | Run integrity tests                              |
 | `bun test:watch`          | Run tests in watch mode                          |
 
-## 📝 Adding New Blog Posts
+## 📝 Adding New Notes
 
-Blog posts are stored as Markdown files in `src/content/blog/`. To add a new post:
+Notes are stored as Markdown files in `src/content/blog/`. To add a new note:
 
 1. Create a new `.md` file in `src/content/blog/`
-2. Add frontmatter with:
+2. Add frontmatter:
    ```markdown
    ---
-   title: "Your Post Title"
-   description: "A brief description of your post"
+   title: "Your Note Title"
+   description: "A brief description"
    pubDate: "YYYY-MM-DD"
    author: "Suhas Darsi"
+   maturity: "seedling"        # seedling | budding | evergreen
+   draft: false                # true = hidden from listings/search
+   topics: ["AI Safety"]       # From: AI Safety, Product, Bags, Travel, Infrastructure
    ---
    ```
-3. Write your content in Markdown below the frontmatter
-4. Use `[[wiki-style links]]` to link to other posts (they'll be automatically converted)
+3. Write content in Markdown below the frontmatter
+4. Use `[[wiki-style links]]` to connect notes (e.g., `[[slug|display text]]`)
 
-## 🔧 Development
+### Maturity Levels
 
-The site uses Tailwind CSS for styling. Custom styles can be added to:
-- `src/styles/global.css` - Global styles
-- Individual component Astro files - Scoped styles
+| Level | Meaning |
+|---|---|
+| `seedling` | Early thinking, rough notes |
+| `budding` | Developing, being refined |
+| `evergreen` | Polished, complete |
 
-Fonts are loaded from Google Fonts in the BlogLayout.astro component:
-- Lora (serif) for body text
-- Fira Code (monospace) for code snippets
+### Draft Notes
+
+Set `draft: true` to hide a note from all listings, search, and RSS. It remains accessible via direct URL — useful for work-in-progress notes you want to link to from other notes.
 
 ## 🌐 Deployment
 
-This site can be deployed to any static hosting provider:
-- Vercel
-- Netlify
-- Cloudflare Pages
-- GitHub Pages
-- Or any other static site host
+This site is deployed on [Cloudflare Pages](https://pages.cloudflare.com/) with automatic builds on push to the main branch.
 
-To build for production:
-```bash
-bun build
-```
+**Build settings:**
+- Build command: `bun run build`
+- Build output directory: `dist`
+- Root directory: `/`
 
-The output will be in the `dist/` directory.
+Can also be deployed to any static host: Vercel, Netlify, GitHub Pages, etc.
 
 ## 🎯 Features
 
-- Responsive design
-- Dark/light mode aware (through CSS system preferences)
-- Client-side search functionality
-- Table of contents generation
-- Backlinks showing related content
-- Syntax highlighting for code blocks
-- Optimized font loading
-- SEO-friendly metadata
-- RSS feed generation (built into Astro)
+- **Digital garden structure** — Notes with maturity indicators and wiki-style linking
+- **Global search** — Fuse.js-powered fuzzy search across all notes (title, description, body)
+- **Topic filtering** — Filter notes by topic on the notes listing page
+- **Dark/light mode** — System-aware with manual toggle, persisted in localStorage
+- **Table of contents** — Auto-generated from h2 headings with scroll-spy highlighting
+- **Backlinks** — Shows which notes link to the current note
+- **Prev/next navigation** — Chronological navigation between notes
+- **Reading time** — Calculated from word count, displayed on note pages
+- **Last updated timestamps** — Optional `updatedDate` field shows when a note was revised
+- **RSS feed** — Available at `/rss.xml`
+- **Responsive design** — Mobile-first, works across all screen sizes
+- **SEO-friendly** — Open Graph, Twitter cards, sitemap, structured data
+- **Integrity tests** — Validates file structure and build output
 
 ---
 
