@@ -5,157 +5,39 @@ import Footer from '../components/Footer.astro';
 
 const siteUrl = 'https://suhasdarsi.com';
 
-const categories = [
-  {
-    name: 'Code',
-    apps: [
-      {
-        name: 'OpenCode',
-        description: 'Primary AI coding agent. How this site gets built.',
-        url: 'https://opencode.ai',
-      },
-      {
-        name: 'Zed',
-        description: 'Daily code editor. Fast, minimal, and gets out of the way.',
-        url: 'https://zed.dev',
-      },
-    ],
-  },
-  {
-    name: 'AI',
-    apps: [
-      {
-        name: 'Claude',
-        description: 'Go-to LLM for reasoning and writing.',
-        url: 'https://claude.ai',
-      },
-      {
-        name: 'Perplexity',
-        description: 'Research and quick answers with sources.',
-        url: 'https://perplexity.ai',
-      },
-      {
-        name: 'Kimi',
-        description: 'Long-context model for deep dives.',
-        url: 'https://kimi.moonshot.cn',
-      },
-    ],
-  },
-  {
-    name: 'Productivity',
-    apps: [
-      {
-        name: 'Akiflow',
-        description: 'Calendar and task management. Where my day gets planned.',
-        url: 'https://akiflow.com',
-      },
-      {
-        name: 'Things 3',
-        description: 'Personal task manager. Clean, focused, and a joy to use.',
-        url: 'https://culturedcode.com/things/',
-      },
-      {
-        name: 'Obsidian',
-        description: 'Second brain. Where raw thinking lives before it becomes a note.',
-        url: 'https://obsidian.md',
-      },
-      {
-        name: 'Voice Notes',
-        description: 'Voice-to-text for capturing thoughts on the go.',
-        url: 'https://voicenotes.com',
-      },
-      {
-        name: 'Griply',
-        description: 'Goal planner. Where bigger-picture goals get tracked.',
-        url: 'https://griply.app',
-      },
-    ],
-  },
-  {
-    name: 'Design',
-    apps: [
-      {
-        name: 'Figma',
-        description: 'UI design and prototyping.',
-        url: 'https://figma.com',
-      },
-    ],
-  },
-  {
-    name: 'Infrastructure',
-    apps: [
-      {
-        name: 'Cloudflare',
-        description: 'Hosting, DNS, and deployment. Where this site lives.',
-        url: 'https://www.cloudflare.com',
-      },
-      {
-        name: 'Plane',
-        description: 'Project management. Self-hosted, clean UI, no bloat.',
-        url: 'https://plane.so',
-      },
-      {
-        name: 'Docmost',
-        description: 'Internal documentation. Collaborative wiki for self-hosted setups.',
-        url: 'https://docmost.com',
-      },
-      {
-        name: 'NocoDB',
-        description: 'Airtable alternative. Turns any database into a smart spreadsheet.',
-        url: 'https://nocodb.com',
-      },
-    ],
-  },
-  {
-    name: 'Communication',
-    apps: [
-      {
-        name: 'Beeper',
-        description: 'Unified inbox for all messaging. One app, every channel.',
-        url: 'https://beeper.com',
-      },
-    ],
-  },
-  {
-    name: 'Browser',
-    apps: [
-      {
-        name: 'Helium',
-        description: 'Lightweight browser for floating video and quick tasks.',
-        url: 'https://heliumbrowser.com',
-      },
-    ],
-  },
-  {
-    name: 'Writing',
-    apps: [
-      {
-        name: 'TypeWhisperer',
-        description: 'Distraction-free writing.',
-        url: 'https://github.com/TypeWhisper/typewhisper-mac',
-      },
-    ],
-  },
-  {
-    name: 'Gaming',
-    apps: [
-      {
-        name: 'Steam',
-        description: 'Dota. Always Dota.',
-        url: 'https://store.steampowered.com',
-      },
-    ],
-  },
-  {
-    name: 'Gaming',
-    apps: [
-      {
-        name: 'Steam',
-        description: 'Dota. Always Dota.',
-        url: 'https://store.steampowered.com',
-      },
-    ],
-  },
+const digital = [
+  { name: 'OpenCode', description: 'Primary AI coding agent', url: 'https://opencode.ai' },
+  { name: 'Zed', description: 'Daily code editor', url: 'https://zed.dev' },
+  { name: 'Claude', description: 'Go-to LLM for reasoning and writing', url: 'https://claude.ai' },
+  { name: 'Perplexity', description: 'Research with sources', url: 'https://perplexity.ai' },
+  { name: 'Kimi', description: 'Long-context model for deep dives', url: 'https://kimi.moonshot.cn' },
+  { name: 'Akiflow', description: 'Calendar and task management', url: 'https://akiflow.com' },
+  { name: 'Things 3', description: 'Personal task manager', url: 'https://culturedcode.com/things/' },
+  { name: 'Obsidian', description: 'Second brain', url: 'https://obsidian.md' },
+  { name: 'Voice Notes', description: 'Voice-to-text on the go', url: 'https://voicenotes.com' },
+  { name: 'Griply', description: 'Goal planner', url: 'https://griply.app' },
+  { name: 'Figma', description: 'UI design and prototyping', url: 'https://figma.com' },
+  { name: 'Cloudflare', description: 'Hosting, DNS, deployment', url: 'https://www.cloudflare.com' },
+  { name: 'Plane', description: 'Self-hosted project management', url: 'https://plane.so' },
+  { name: 'Docmost', description: 'Internal documentation wiki', url: 'https://docmost.com' },
+  { name: 'NocoDB', description: 'Smart spreadsheets', url: 'https://nocodb.com' },
+  { name: 'Beeper', description: 'Unified messaging inbox', url: 'https://beeper.com' },
+  { name: 'Helium', description: 'Lightweight browser', url: 'https://heliumbrowser.com' },
+  { name: 'TypeWhisperer', description: 'Distraction-free writing', url: 'https://github.com/TypeWhisper/typewhisper-mac' },
+  { name: 'Steam', description: 'Dota. Always Dota.', url: 'https://store.steampowered.com' },
+];
+
+const physical = [
+  { name: 'Mac Mini M4', description: 'Primary desktop', url: 'https://www.apple.com/mac-mini/' },
+  { name: 'iPad Pro M4 11"', description: 'Portable workstation', url: 'https://www.apple.com/ipad-pro/' },
+  { name: 'iPhone 15', description: 'Daily driver', url: 'https://www.apple.com/iphone-15/' },
+  { name: 'AirPods Pro 2', description: 'Everyday earbuds', url: 'https://www.apple.com/airpods-pro/' },
+  { name: 'Amazfit Helio Band', description: 'Fitness tracking', url: 'https://www.amazfit.com' },
+  { name: 'Keychron K8 Pro', description: 'Mechanical keyboard', url: 'https://www.keychron.com/products/keychron-k8-pro' },
+  { name: 'Damoshark M3', description: 'Lightweight mouse', url: 'https://www.damoshark.com' },
+  { name: 'HyperX SoloCast', description: 'USB microphone', url: 'https://www.hyperx.com/products/hyperx-solocast-usb-microphone' },
+  { name: 'INUI 10,000mAh 45W', description: 'Compact powerbank', url: 'https://www.inui.tech' },
+  { name: 'Owala FreeSip 945ml', description: 'Water bottle', url: 'https://owalalife.com' },
 ];
 ---
 
@@ -166,11 +48,11 @@ const categories = [
     <meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content="Astro" />
-    <meta name="description" content="Apps and tools I use daily — from engineering to design to everyday carry." />
+    <meta name="description" content="Things I use — digital tools and physical gear that earn their keep." />
     <meta name="author" content="Suhas Darsi" />
     <link rel="canonical" href={`${siteUrl}/uses`} />
     <meta property="og:title" content="Uses — Suhas Darsi" />
-    <meta property="og:description" content="Apps and tools I use daily — from engineering to design to everyday carry." />
+    <meta property="og:description" content="Things I use — digital tools and physical gear that earn their keep." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content={`${siteUrl}/uses`} />
     <meta property="og:site_name" content="Suhas Darsi" />
@@ -197,24 +79,36 @@ const categories = [
       <h1 class="page-title">Uses</h1>
 
       <p class="page-intro">
-        Apps and tools I use daily. Some I pay for, some I self-host, all of them earn their place. This page is a living document — it changes as my workflow evolves.
+        Things I use daily — digital tools and physical gear. Some I pay for, some I self-host, all of them earn their place. This is a living document.
       </p>
 
-      {categories.map((category) => (
-        category.apps.length > 0 && (
-          <section class="category-section">
-            <h2 class="category-heading">{category.name}</h2>
-            <div class="app-grid">
-              {category.apps.map((app) => (
-                <a href={app.url} target="_blank" rel="noopener noreferrer" class="app-card">
-                  <h3 class="app-name">{app.name}</h3>
-                  <p class="app-desc">{app.description}</p>
-                </a>
-              ))}
-            </div>
-          </section>
-        )
-      ))}
+      <section class="section">
+        <h2 class="section-heading">Digital</h2>
+        <ul class="item-list">
+          {digital.map((item) => (
+            <li>
+              <a href={item.url} target="_blank" rel="noopener noreferrer" class="item-link">
+                <span class="item-name">{item.name}</span>
+                <span class="item-desc">{item.description}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section class="section">
+        <h2 class="section-heading">Physical</h2>
+        <ul class="item-list">
+          {physical.map((item) => (
+            <li>
+              <a href={item.url} target="_blank" rel="noopener noreferrer" class="item-link">
+                <span class="item-name">{item.name}</span>
+                <span class="item-desc">{item.description}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
 
       <p class="page-outro">
         Have a recommendation? <a href="https://x.com/suhas_darsi" target="_blank" rel="noopener noreferrer" class="link">Say hi on X</a>.
@@ -246,11 +140,13 @@ const categories = [
     margin-bottom: 3rem;
   }
 
-  .category-section {
+  .section {
+    padding: 0;
     margin-bottom: 3rem;
+    width: 100%;
   }
 
-  .category-heading {
+  .section-heading {
     font-family: var(--font-sans);
     font-size: var(--text-caption);
     font-weight: 600;
@@ -258,48 +154,66 @@ const categories = [
     letter-spacing: 0.05em;
     text-transform: uppercase;
     margin: 0 0 1rem;
+  }
+
+  .item-list {
+    list-style: none;
     padding: 0;
+    margin: 0;
+    width: 100%;
   }
 
-  .app-grid {
+  .item-list li {
+    border-bottom: 1px solid var(--color-subtle-border);
+    width: 100%;
+  }
+
+  .item-list li:last-child {
+    border-bottom: none;
+  }
+
+  .item-link {
     display: grid;
-    grid-template-columns: 1fr;
-    gap: 0.75rem;
-  }
-
-  @media (min-width: 640px) {
-    .app-grid {
-      grid-template-columns: 1fr 1fr;
-    }
-  }
-
-  .app-card {
-    display: block;
-    padding: 1.25rem;
-    border: 1px solid var(--color-subtle-border);
-    border-radius: var(--radius-sm);
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: baseline;
+    gap: 1rem;
+    padding: 0.75rem 0;
     text-decoration: none;
     color: inherit;
-    transition: all 0.2s ease;
+    transition: color 0.2s ease;
+    width: 100%;
   }
 
-  .app-card:hover {
-    border-color: var(--color-foreground);
-    background-color: var(--color-muted);
+  .item-link:hover {
+    color: var(--color-muted-foreground);
   }
 
-  .app-name {
+  .item-name {
     font-family: var(--font-serif);
     font-size: var(--text-body);
     font-weight: 500;
-    margin: 0 0 0.375rem;
+    min-width: 0;
   }
 
-  .app-desc {
+  .item-desc {
     font-size: var(--text-small);
     color: var(--color-muted-foreground);
-    line-height: 1.5;
-    margin: 0;
+    text-align: right;
+    justify-self: end;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  @media (max-width: 480px) {
+    .item-link {
+      grid-template-columns: 1fr;
+      gap: 0.25rem;
+    }
+
+    .item-desc {
+      justify-self: start;
+      text-align: left;
+    }
   }
 
   .page-outro {
@@ -322,4 +236,5 @@ const categories = [
   .page-outro .link:hover {
     text-decoration-color: var(--color-muted-foreground);
   }
+
 </style>

@@ -74,15 +74,15 @@
 }
 
 html.dark {
-  --color-background: #0a0a0a;
-  --color-foreground: #faf8f2;
-  --color-muted: #1a1a1a;
-  --color-muted-foreground: #8a8478;
-  --color-subtle: #141414;
-  --color-subtle-border: #2a2a2a;
-  --color-accent: #faf8f2;
-  --color-accent-foreground: #0a0a0a;
-  --color-border: #2a2a2a;
+  --color-background: #1c1c1c;
+  --color-foreground: #e5e5e5;
+  --color-muted: #262626;
+  --color-muted-foreground: #a3a3a3;
+  --color-subtle: #2b2b2b;
+  --color-subtle-border: #404040;
+  --color-accent: #e5e5e5;
+  --color-accent-foreground: #1c1c1c;
+  --color-border: #404040;
 }
 
 html {

@@ -3,7 +3,6 @@ import { getCollection, render } from 'astro:content';
 import BlogLayout from '../../layouts/BlogLayout.astro';
 import Backlinks from '../../components/Backlinks.astro';
 import TableOfContents from '../../components/TableOfContents.astro';
-import SearchData from '../../components/SearchData.astro';
 import MaturityBadge from '../../components/MaturityBadge.astro';
 import { formatDateWithYear, getReadingTime } from '../../utils/date';
 
@@ -30,7 +29,6 @@ const nextPost = currentIndex < allPosts.length - 1 ? allPosts[currentIndex + 1]
 ---
 
 <BlogLayout title={`${post.data.title} | Suhas Darsi`} description={post.data.description}>
-  <SearchData />
   <script type="application/ld+json" set:html={JSON.stringify({
     "@context": "https://schema.org",
     "@type": "BlogPosting",

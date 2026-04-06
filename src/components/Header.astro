@@ -1,16 +1,15 @@
 ---
-import { getCollection } from 'astro:content';
 import SearchData from './SearchData.astro';
 
 export interface Props {
   showNav?: boolean;
+  showSearch?: boolean;
 }
 
-const { showNav = true } = Astro.props;
+const { showNav = true, showSearch = true } = Astro.props;
 ---
 
 <header class="header">
-  <SearchData />
   <div class="header-inner">
     {showNav ? (
       <nav class="nav-links">
@@ -19,20 +18,18 @@ const { showNav = true } = Astro.props;
         <a href="/notes" class="nav-link" data-path="/notes">Notes</a>
         <span class="nav-sep">|</span>
         <a href="/uses" class="nav-link" data-path="/uses">Uses</a>
-        <span class="nav-sep">|</span>
-        <a href="/gear" class="nav-link" data-path="/gear">Gear</a>
-        <span class="nav-sep">|</span>
-        <a href="/about" class="nav-link" data-path="/about">About</a>
       </nav>
     ) : (
       <a href="/" class="nav-link">Home</a>
     )}
     <div class="header-actions">
-      <button type="button" class="search-btn" id="search-toggle" aria-label="Open search">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-icon"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.34-4.34"></path></svg>
-        <span class="search-label">Search</span>
-        <kbd class="search-kbd">⌘K</kbd>
-      </button>
+      {showSearch && (
+        <button type="button" class="search-trigger" id="global-search-toggle" aria-label="Open search">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-trigger-icon"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.34-4.34"></path></svg>
+          <span class="search-trigger-label">Search</span>
+          <kbd class="search-trigger-kbd">⌘K</kbd>
+        </button>
+      )}
       <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-sun"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path></svg>
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-moon"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"></path></svg>
@@ -41,25 +38,47 @@ const { showNav = true } = Astro.props;
   </div>
 </header>
 
-<div class="search-overlay" id="search-overlay">
-  <div class="search-dialog">
-    <div class="search-input-wrap">
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-dialog-icon"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.34-4.34"></path></svg>
-      <input type="text" id="search-input-modal" class="search-input-dialog" placeholder="Search posts..." autocomplete="off" />
-      <button type="button" class="search-close" id="search-close" aria-label="Close search">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
-      </button>
+{showSearch && (
+  <>
+    <SearchData />
+    <div class="search-overlay" id="global-search-overlay">
+      <div class="search-dialog">
+        <div class="search-input-wrap">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-dialog-icon"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.34-4.34"></path></svg>
+          <input type="text" id="global-search-input" class="search-input-dialog" placeholder="Search posts..." autocomplete="off" />
+          <kbd class="search-esc">Esc</kbd>
+        </div>
+        <div class="search-results" id="global-search-results"></div>
+        <p class="search-empty hidden" id="global-search-empty">No posts found.</p>
+        <div class="search-footer">
+          <span><kbd>↑</kbd><kbd>↓</kbd> navigate</span>
+          <span><kbd>↵</kbd> open</span>
+          <span><kbd>Esc</kbd> close</span>
+        </div>
+      </div>
     </div>
-    <div class="search-results" id="search-results"></div>
-    <p class="search-empty hidden" id="search-empty">No posts found.</p>
-  </div>
-</div>
+  </>
+)}
 
 <script>
   import Fuse from 'fuse.js';
 
   const themeToggle = document.getElementById('theme-toggle');
   const html = document.documentElement;
+  const searchToggle = document.getElementById('global-search-toggle');
+  const searchOverlay = document.getElementById('global-search-overlay');
+  const searchInput = document.getElementById('global-search-input') as HTMLInputElement;
+  const searchResults = document.getElementById('global-search-results');
+  const searchEmpty = document.getElementById('global-search-empty');
+  const searchData = document.getElementById('search-data');
+  const searchPosts = searchData ? JSON.parse(searchData.textContent || '[]') : [];
+  let activeResultIndex = -1;
+
+  const fuse = new Fuse(searchPosts, {
+    keys: [{ name: 'title', weight: 1 }],
+    threshold: 0.3,
+    ignoreLocation: true,
+  });
 
   function getTheme() {
     const stored = localStorage.getItem('theme');
@@ -83,75 +102,105 @@ const { showNav = true } = Astro.props;
     setTheme(current === 'dark' ? 'light' : 'dark');
   });
 
-  const searchData = document.getElementById('search-data');
-  const posts = searchData ? JSON.parse(searchData.textContent || '[]') : [];
-
-  const fuse = new Fuse(posts, {
-    keys: [
-      { name: 'title', weight: 0.5 },
-      { name: 'description', weight: 0.3 },
-      { name: 'body', weight: 0.2 },
-    ],
-    threshold: 0.3,
-    ignoreLocation: true,
-  });
-
-  const overlay = document.getElementById('search-overlay');
-  const searchInput = document.getElementById('search-input-modal') as HTMLInputElement;
-  const searchResults = document.getElementById('search-results');
-  const searchEmpty = document.getElementById('search-empty');
-
-  function openSearch() {
-    overlay?.classList.add('open');
-    searchInput?.focus();
-    if (posts.length > 0) {
-      renderResults(posts);
-    }
+  function getResultItems() {
+    return Array.from(searchResults?.querySelectorAll<HTMLAnchorElement>('.search-result-item') || []);
   }
 
-  function closeSearch() {
-    overlay?.classList.remove('open');
-    searchInput && (searchInput.value = '');
-    searchResults && (searchResults.innerHTML = '');
+  function setActiveResult(index: number) {
+    const items = getResultItems();
+    if (items.length === 0) {
+      activeResultIndex = -1;
+      return;
+    }
+
+    const safeIndex = Math.max(0, Math.min(index, items.length - 1));
+    activeResultIndex = safeIndex;
+    items.forEach((item, itemIndex) => item.classList.toggle('active', itemIndex === safeIndex));
+    items[safeIndex]?.scrollIntoView({ block: 'nearest' });
+  }
+
+  function renderResults(items: Array<{ id: string; title: string }>) {
+    if (!searchResults) return;
+    searchResults.innerHTML = items.map((post) =>
+      `<a href="/notes/${post.id}" class="search-result-item"><span class="search-result-title">${post.title}</span><span class="search-result-type">Note</span></a>`
+    ).join('');
+    setActiveResult(items.length > 0 ? 0 : -1);
+  }
+
+  function openSearch() {
+    searchOverlay?.classList.add('open');
+    searchInput?.focus();
+    renderResults(searchPosts);
     searchEmpty?.classList.add('hidden');
   }
 
-  document.getElementById('search-toggle')?.addEventListener('click', openSearch);
-  document.getElementById('search-close')?.addEventListener('click', closeSearch);
-  overlay?.addEventListener('click', (e) => {
-    if (e.target === overlay) closeSearch();
-  });
-
-  document.addEventListener('keydown', (e) => {
-    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-      e.preventDefault();
-      overlay?.classList.contains('open') ? closeSearch() : openSearch();
-    }
-    if (e.key === 'Escape') closeSearch();
-  });
-
-  function renderResults(items: Array<{ id: string; title: string; description: string }>) {
-    if (!searchResults) return;
-    searchResults.innerHTML = items.map(post =>
-      `<a href="/notes/${post.id}" class="search-result-item"><h3 class="search-result-title">${post.title}</h3><p class="search-result-desc">${post.description}</p></a>`
-    ).join('');
+  function closeSearch() {
+    searchOverlay?.classList.remove('open');
+    if (searchInput) searchInput.value = '';
+    if (searchResults) searchResults.innerHTML = '';
+    searchEmpty?.classList.add('hidden');
+    activeResultIndex = -1;
   }
+
+  searchToggle?.addEventListener('click', openSearch);
+  searchOverlay?.addEventListener('click', (e) => {
+    if (e.target === searchOverlay) closeSearch();
+  });
 
   searchInput?.addEventListener('input', () => {
     const query = searchInput.value.trim();
     if (!query) {
-      renderResults(posts);
+      renderResults(searchPosts);
       searchEmpty?.classList.add('hidden');
       return;
     }
-    const results = fuse.search(query);
+
+    const results = fuse.search(query).map((result) => result.item);
     if (results.length === 0) {
-      searchResults && (searchResults.innerHTML = '');
+      if (searchResults) searchResults.innerHTML = '';
       searchEmpty?.classList.remove('hidden');
-    } else {
-      renderResults(results.map(r => r.item));
-      searchEmpty?.classList.add('hidden');
+      setActiveResult(-1);
+      return;
     }
+
+    renderResults(results);
+    searchEmpty?.classList.add('hidden');
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+      e.preventDefault();
+      searchOverlay?.classList.contains('open') ? closeSearch() : openSearch();
+      return;
+    }
+
+    if (!searchOverlay?.classList.contains('open')) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      const items = getResultItems();
+      if (items.length === 0) return;
+      setActiveResult(activeResultIndex < 0 ? 0 : activeResultIndex + 1);
+      return;
+    }
+
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      const items = getResultItems();
+      if (items.length === 0) return;
+      setActiveResult(activeResultIndex < 0 ? items.length - 1 : activeResultIndex - 1);
+      return;
+    }
+
+    if (e.key === 'Enter') {
+      const items = getResultItems();
+      if (items.length === 0) return;
+      const targetIndex = activeResultIndex >= 0 ? activeResultIndex : 0;
+      items[targetIndex]?.click();
+      return;
+    }
+
+    if (e.key === 'Escape') closeSearch();
   });
 </script>
 
@@ -203,57 +252,6 @@ const { showNav = true } = Astro.props;
     gap: 0.5rem;
   }
 
-  .search-btn {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    border: 1px solid var(--color-subtle-border);
-    padding: 0.25rem 0.625rem;
-    font-size: 0.75rem;
-    color: var(--color-muted-foreground);
-    background: none;
-    cursor: pointer;
-    border-radius: var(--radius-sm);
-    transition: border-color 0.3s ease, color 0.3s ease;
-  }
-
-  .search-btn:hover {
-    border-color: var(--color-foreground);
-    color: var(--color-foreground);
-  }
-
-  .search-icon {
-    width: 0.75rem;
-    height: 0.75rem;
-  }
-
-  .search-label {
-    display: none;
-  }
-
-  @media (min-width: 640px) {
-    .search-label {
-      display: inline;
-    }
-  }
-
-  .search-kbd {
-    display: none;
-    border: 1px solid var(--color-subtle-border);
-    background-color: var(--color-muted);
-    padding: 0.0625rem 0.375rem;
-    font-family: var(--font-mono);
-    font-size: 0.625rem;
-    color: var(--color-muted-foreground);
-    border-radius: 2px;
-  }
-
-  @media (min-width: 640px) {
-    .search-kbd {
-      display: inline;
-    }
-  }
-
   .theme-toggle {
     padding: 0.5rem;
     color: var(--color-muted-foreground);
@@ -291,7 +289,53 @@ const { showNav = true } = Astro.props;
     height: 1rem;
   }
 
-  :global(.search-overlay) {
+  .search-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    border: 1px solid var(--color-subtle-border);
+    border-radius: 4px;
+    background: none;
+    color: var(--color-muted-foreground);
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    transition: border-color 0.2s ease, color 0.2s ease;
+  }
+
+  .search-trigger:hover {
+    border-color: var(--color-foreground);
+    color: var(--color-foreground);
+  }
+
+  .search-trigger-icon {
+    width: 0.75rem;
+    height: 0.75rem;
+  }
+
+  .search-trigger-label {
+    display: none;
+  }
+
+  .search-trigger-kbd {
+    display: none;
+    border: 1px solid var(--color-subtle-border);
+    background-color: var(--color-muted);
+    border-radius: 2px;
+    padding: 0.05rem 0.3rem;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--color-muted-foreground);
+  }
+
+  @media (min-width: 640px) {
+    .search-trigger-label,
+    .search-trigger-kbd {
+      display: inline;
+    }
+  }
+
+  .search-overlay {
     position: fixed;
     inset: 0;
     z-index: 100;
@@ -305,114 +349,118 @@ const { showNav = true } = Astro.props;
     transition: opacity 0.2s ease;
   }
 
-  :global(.search-overlay.open) {
+  .search-overlay.open {
     opacity: 1;
     pointer-events: auto;
   }
 
-  :global(.search-dialog) {
+  .search-dialog {
     width: 100%;
-    max-width: 32rem;
+    max-width: 42rem;
     margin: 0 1rem;
     background-color: var(--color-background);
     border: 1px solid var(--color-subtle-border);
-    border-radius: 8px;
+    border-radius: 10px;
     overflow: hidden;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
   }
 
-  :global(.search-input-wrap) {
+  .search-input-wrap {
     display: flex;
     align-items: center;
-    padding: 0.75rem 1rem;
+    padding: 0.875rem 1rem;
     border-bottom: 1px solid var(--color-subtle-border);
-    gap: 0.5rem;
+    gap: 0.75rem;
   }
 
-  :global(.search-dialog-icon) {
+  .search-dialog-icon {
     width: 1rem;
     height: 1rem;
     color: var(--color-muted-foreground);
     flex-shrink: 0;
   }
 
-  :global(.search-input-dialog) {
+  .search-input-dialog {
     flex: 1;
     border: none;
     background: none;
-    font-family: var(--font-serif);
+    font-family: var(--font-mono);
     font-size: var(--text-body);
     color: var(--color-foreground);
     outline: none;
   }
 
-  :global(.search-input-dialog::placeholder) {
+  .search-input-dialog::placeholder {
     color: var(--color-muted-foreground);
-    font-style: italic;
   }
 
-  :global(.search-close) {
-    background: none;
-    border: none;
+  .search-esc {
+    border: 1px solid var(--color-subtle-border);
+    background: var(--color-muted);
     color: var(--color-muted-foreground);
-    cursor: pointer;
-    padding: 0.25rem;
-    display: flex;
-    transition: color 0.3s ease;
+    border-radius: 4px;
+    padding: 0.125rem 0.45rem;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
   }
 
-  :global(.search-close:hover) {
-    color: var(--color-foreground);
-  }
-
-  :global(.search-close svg) {
-    width: 1rem;
-    height: 1rem;
-  }
-
-  :global(.search-results) {
+  .search-results {
     max-height: 60vh;
     overflow-y: auto;
     scrollbar-width: none;
     -ms-overflow-style: none;
   }
 
-  :global(.search-results::-webkit-scrollbar) {
+  .search-results::-webkit-scrollbar {
     display: none;
   }
 
   :global(.search-result-item) {
-    display: block;
-    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.875rem 1rem;
     text-decoration: none;
     border-bottom: 1px solid var(--color-subtle-border);
-    transition: background-color 0.2s ease;
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
 
   :global(.search-result-item:last-child) {
     border-bottom: none;
   }
 
-  :global(.search-result-item:hover) {
+  :global(.search-result-item:hover),
+  :global(.search-result-item.active),
+  :global(.search-result-item:focus-visible) {
     background-color: var(--color-muted);
   }
 
-  :global(.search-result-title) {
-    font-family: var(--font-serif);
-    font-size: 1rem;
-    font-weight: 500;
-    color: var(--color-foreground);
-    margin: 0 0 0.25rem;
+  :global(.search-result-item:focus-visible) {
+    outline: 1px solid var(--color-foreground);
+    outline-offset: -1px;
   }
 
-  :global(.search-result-desc) {
-    font-size: var(--text-small);
-    color: var(--color-muted-foreground);
+  :global(.search-result-title) {
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    font-weight: 400;
+    color: var(--color-foreground);
     margin: 0;
     line-height: 1.5;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
-  :global(.search-empty) {
+  :global(.search-result-type) {
+    font-family: var(--font-sans);
+    font-size: var(--text-small);
+    color: var(--color-muted-foreground);
+    flex-shrink: 0;
+  }
+
+  .search-empty {
     font-family: var(--font-serif);
     font-size: var(--text-body);
     font-style: italic;
@@ -421,7 +469,28 @@ const { showNav = true } = Astro.props;
     text-align: center;
   }
 
-  :global(.hidden) {
+  .hidden {
     display: none !important;
+  }
+
+  .search-footer {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 0.75rem 1rem;
+    border-top: 1px solid var(--color-subtle-border);
+    color: var(--color-muted-foreground);
+    font-size: var(--text-small);
+  }
+
+  .search-footer kbd {
+    border: 1px solid var(--color-subtle-border);
+    background: var(--color-muted);
+    color: inherit;
+    border-radius: 4px;
+    padding: 0.1rem 0.3rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    margin-right: 0.25rem;
   }
 </style>

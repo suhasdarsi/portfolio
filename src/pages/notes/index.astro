@@ -1,8 +1,10 @@
 ---
-import BlogLayout from '../../layouts/BlogLayout.astro';
+import '../../styles/global.css';
 import { getCollection } from 'astro:content';
 import { formatDate } from '../../utils/date';
 import MaturityBadge from '../../components/MaturityBadge.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
 
 const allPosts = await getCollection('blog');
 const posts = allPosts
@@ -12,74 +14,86 @@ const posts = allPosts
 const allTopicsUsed = [...new Set(posts.flatMap((p) => p.data.topics))].sort();
 ---
 
-<BlogLayout title="Notes | Suhas Darsi" description="My digital garden - thoughts on AI safety, product, bags, travel, and infrastructure">
-  <div>
-    <div class="notes-header">
-      <h1 class="notes-heading">Notes</h1>
-      {allTopicsUsed.length > 0 && (
-        <div class="topic-filters" id="topic-filters">
-          <button type="button" class="topic-filter active" data-topic="all">All</button>
-          {allTopicsUsed.map((topic) => (
-            <button type="button" class="topic-filter" data-topic={topic}>{topic}</button>
-          ))}
-        </div>
-      )}
-    </div>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content="Astro" />
+    <meta name="description" content="My digital garden - thoughts on AI safety, product, bags, travel, and infrastructure." />
+    <meta name="author" content="Suhas Darsi" />
+    <title>Notes | Suhas Darsi</title>
+    <script is:inline>
+      (function() {
+        var theme = localStorage.getItem('theme');
+        if (!theme) {
+          theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+        if (theme === 'dark') document.documentElement.classList.add('dark');
+      })();
+    </script>
+  </head>
+  <body class="min-h-screen bg-background">
+    <Header />
 
-    <div class="note-list" id="note-list">
-      {posts.map((post) => (
-        <article
-          class="note-item"
-          data-searchable
-          data-post-id={post.id}
-          data-topics={JSON.stringify(post.data.topics)}
-        >
-          <a href={`/notes/${post.id}`} class="note-link">
-            <div class="note-meta-top">
-              <MaturityBadge maturity={post.data.maturity} />
-              {post.data.topics.length > 0 && (
-                <div class="note-topics">
-                  {post.data.topics.map((topic) => (
-                    <span class="topic-tag">{topic}</span>
-                  ))}
-                </div>
-              )}
-            </div>
-            <h2 class="note-title">
-              {post.data.title}
-            </h2>
-            <p class="note-desc">
-              {post.data.description}
-            </p>
-            <div class="note-meta">
-              <div class="note-date">
-                <time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time>
+    <main class="max-w-3xl mx-auto px-6 py-8">
+      <div class="notes-header">
+        <div class="notes-header-top">
+          <h1 class="notes-heading">Notes</h1>
+        </div>
+        {allTopicsUsed.length > 0 && (
+          <div class="topic-filters" id="topic-filters">
+            <button type="button" class="topic-filter active" data-topic="all">All</button>
+            {allTopicsUsed.map((topic) => (
+              <button type="button" class="topic-filter" data-topic={topic}>{topic}</button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div class="note-list" id="note-list">
+        {posts.map((post) => (
+          <article
+            class="note-item"
+            data-searchable
+            data-post-id={post.id}
+            data-topics={JSON.stringify(post.data.topics)}
+          >
+            <a href={`/notes/${post.id}`} class="note-link">
+              <div class="note-meta-top">
+                <MaturityBadge maturity={post.data.maturity} />
+                {post.data.topics.length > 0 && (
+                  <div class="note-topics">
+                    {post.data.topics.map((topic) => (
+                      <span class="topic-tag">{topic}</span>
+                    ))}
+                  </div>
+                )}
               </div>
-            </div>
-          </a>
-        </article>
-      ))}
-    </div>
-    <p class="search-empty hidden" id="search-empty">No notes found.</p>
-  </div>
-</BlogLayout>
+              <h2 class="note-title">
+                {post.data.title}
+              </h2>
+              <p class="note-desc">
+                {post.data.description}
+              </p>
+              <div class="note-meta">
+                <div class="note-date">
+                  <time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time>
+                </div>
+              </div>
+            </a>
+          </article>
+        ))}
+      </div>
+      <p class="search-empty hidden" id="search-empty">No notes found.</p>
+    </main>
+
+    <Footer />
+  </body>
+</html>
 
 <script>
-  import Fuse from 'fuse.js';
-
-  const searchData = document.getElementById('search-data');
-  const posts = searchData ? JSON.parse(searchData.textContent || '[]') : [];
-
-  const fuse = new Fuse(posts, {
-    keys: [
-      { name: 'title', weight: 0.5 },
-      { name: 'description', weight: 0.3 },
-      { name: 'body', weight: 0.2 },
-    ],
-    threshold: 0.3,
-    ignoreLocation: true,
-  });
-
   const articles = document.querySelectorAll('[data-searchable]');
   const emptyMsg = document.getElementById('search-empty');
   const topicFilters = document.getElementById('topic-filters');
@@ -93,19 +107,16 @@ const allTopicsUsed = [...new Set(posts.flatMap((p) => p.data.topics))].sort();
     topicFilters.querySelectorAll('.topic-filter').forEach((b) => {
       b.classList.toggle('active', b.getAttribute('data-topic') === activeTopic);
     });
-    applyFilters();
   }
 
   function applyFilters() {
-    let filteredIds = new Set(posts.map((p: { id: string }) => p.id));
-
     let visibleCount = 0;
 
     articles.forEach((el) => {
       const id = el.getAttribute('data-post-id');
       const topics = JSON.parse(el.getAttribute('data-topics') || '[]') as string[];
       const matchesTopic = activeTopic === 'all' || topics.includes(activeTopic);
-      const matchesSearch = id && filteredIds.has(id);
+      const matchesSearch = Boolean(id);
 
       if (matchesTopic && matchesSearch) {
         el.classList.remove('hidden');
@@ -132,11 +143,7 @@ const allTopicsUsed = [...new Set(posts.flatMap((p) => p.data.topics))].sort();
     applyFilters();
   });
 
-  document.addEventListener('keydown', (e) => {
-    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-      e.preventDefault();
-    }
-  });
+  applyFilters();
 </script>
 
 <style>
@@ -144,11 +151,17 @@ const allTopicsUsed = [...new Set(posts.flatMap((p) => p.data.topics))].sort();
     margin-bottom: 2rem;
   }
 
+  .notes-header-top {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+
   .notes-heading {
     font-family: var(--font-serif);
     font-size: var(--text-display-sm);
     letter-spacing: -0.02em;
-    margin: 0 0 1.5rem;
+    margin: 0;
   }
 
   @media (min-width: 768px) {
@@ -275,4 +288,5 @@ const allTopicsUsed = [...new Set(posts.flatMap((p) => p.data.topics))].sort();
   .hidden {
     display: none !important;
   }
+
 </style>
