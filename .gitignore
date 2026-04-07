@@ -26,5 +26,4 @@ pnpm-debug.log*
 # AI agent config
 .superset/
 
-# orphaned content
-content/
+
