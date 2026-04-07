@@ -1,0 +1,213 @@
+{
+  "main": {
+    "id": "df2c5b123a88c031",
+    "type": "split",
+    "children": [
+      {
+        "id": "f7202f1a7696bc32",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "ca465efb8779793d",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "small-world-networks-and-hubs.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "small-world-networks-and-hubs"
+            }
+          },
+          {
+            "id": "31af80c919929180",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Untitled.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Untitled"
+            }
+          }
+        ],
+        "currentTab": 1
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "ca7424b970e547d5",
+    "type": "split",
+    "children": [
+      {
+        "id": "8174aa1b867ff426",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "a0ccac4a8ff36ea9",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "c5583d33d1fbadfb",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "5dd66867e9e627ee",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "6e0526dedbd69051",
+    "type": "split",
+    "children": [
+      {
+        "id": "fe5830ee3a96dbe7",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "3e7e206ba61be6f9",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "small-world-networks-and-hubs.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks for small-world-networks-and-hubs"
+            }
+          },
+          {
+            "id": "0768f8730d2919f1",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "small-world-networks-and-hubs.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links from small-world-networks-and-hubs"
+            }
+          },
+          {
+            "id": "965c613e72438e2a",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "80538742ae82cdb5",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          },
+          {
+            "id": "982833f1b4ef597b",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "small-world-networks-and-hubs.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline of small-world-networks-and-hubs"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false
+    }
+  },
+  "active": "31af80c919929180",
+  "lastOpenFiles": [
+    "Compass.pdf",
+    "small-world-networks-and-hubs.md",
+    "Untitled.md",
+    "why-ai-security-is-fundamentally-different.md",
+    "the-cascade-risk-of-hub-to-hub-ai-networks.md",
+    "stop-building-features.md",
+    "efficiency-through-self-hosting.md",
+    "cost-per-use-revolution.md",
+    "ai-as-the-ultimate-hub.md"
+  ]
+}
