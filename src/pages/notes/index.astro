@@ -5,6 +5,7 @@ import { formatDate } from '../../utils/date';
 import MaturityBadge from '../../components/MaturityBadge.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
+import ThemeInit from '../../components/ThemeInit.astro';
 
 const allPosts = await getCollection('blog');
 const posts = allPosts
@@ -24,15 +25,7 @@ const allTopicsUsed = [...new Set(posts.flatMap((p) => p.data.topics))].sort();
     <meta name="description" content="My digital garden - thoughts on AI safety, product, bags, travel, and infrastructure." />
     <meta name="author" content="Suhas Darsi" />
     <title>Notes | Suhas Darsi</title>
-    <script is:inline>
-      (function() {
-        var theme = localStorage.getItem('theme');
-        if (!theme) {
-          theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-        }
-        if (theme === 'dark') document.documentElement.classList.add('dark');
-      })();
-    </script>
+    <ThemeInit />
   </head>
   <body class="min-h-screen bg-background">
     <Header />
@@ -132,18 +125,24 @@ const allTopicsUsed = [...new Set(posts.flatMap((p) => p.data.topics))].sort();
     }
   }
 
-  topicFilters?.addEventListener('click', (e) => {
+  const handleTopicClick = (e: Event) => {
     const btn = (e.target as HTMLElement).closest('.topic-filter');
     if (!btn) return;
 
     activeTopic = btn.getAttribute('data-topic') || 'all';
-    topicFilters.querySelectorAll('.topic-filter').forEach((b) => {
+    topicFilters?.querySelectorAll('.topic-filter').forEach((b) => {
       b.classList.toggle('active', b.getAttribute('data-topic') === activeTopic);
     });
     applyFilters();
-  });
+  };
+
+  topicFilters?.addEventListener('click', handleTopicClick);
 
   applyFilters();
+
+  window.addEventListener('beforeunload', () => {
+    topicFilters?.removeEventListener('click', handleTopicClick);
+  });
 </script>
 
 <style>
@@ -230,6 +229,7 @@ const allTopicsUsed = [...new Set(posts.flatMap((p) => p.data.topics))].sort();
     gap: 0.75rem;
     margin-bottom: 0.75rem;
     flex-wrap: wrap;
+    min-width: 0;
   }
 
   .note-topics {

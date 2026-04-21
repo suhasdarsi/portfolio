@@ -26,4 +26,7 @@ pnpm-debug.log*
 # AI agent config
 .superset/
 
+# Obsidian
+.obsidian/
+
 

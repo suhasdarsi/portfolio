@@ -20,10 +20,10 @@ A personal digital garden built with Astro, Tailwind CSS, and Bun. A place for t
 │   │       └── *.md                  # Each file is a note
 │   ├── layouts/
 │   │   └── BlogLayout.astro          # Base layout for note pages
-│   ├── pages/
-│   │   ├── index.astro               # Homepage — hybrid landing + recent notes
-│   │   ├── about.astro               # About page
-│   │   ├── rss.xml.ts                # RSS feed endpoint
+    │   ├── pages/
+    │   │   ├── index.astro               # Homepage — hybrid landing + recent notes
+    │   │   ├── 404.astro                 # 404 page
+    │   │   ├── rss.xml.ts                # RSS feed endpoint
 │   │   └── notes/
 │   │       ├── index.astro           # Notes listing with topic filters
 │   │       └── [slug].astro          # Dynamic note pages with prev/next nav

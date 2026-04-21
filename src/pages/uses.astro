@@ -2,43 +2,44 @@
 import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import ThemeInit from '../components/ThemeInit.astro';
 
 const siteUrl = 'https://suhasdarsi.com';
 
 const digital = [
-  { name: 'OpenCode', description: 'Primary AI coding agent', url: 'https://opencode.ai' },
-  { name: 'Zed', description: 'Daily code editor', url: 'https://zed.dev' },
-  { name: 'Claude', description: 'Go-to LLM for reasoning and writing', url: 'https://claude.ai' },
-  { name: 'Perplexity', description: 'Research with sources', url: 'https://perplexity.ai' },
-  { name: 'Kimi', description: 'Long-context model for deep dives', url: 'https://kimi.moonshot.cn' },
-  { name: 'Akiflow', description: 'Calendar and task management', url: 'https://akiflow.com' },
-  { name: 'Things 3', description: 'Personal task manager', url: 'https://culturedcode.com/things/' },
-  { name: 'Obsidian', description: 'Second brain', url: 'https://obsidian.md' },
-  { name: 'Voice Notes', description: 'Voice-to-text on the go', url: 'https://voicenotes.com' },
-  { name: 'Griply', description: 'Goal planner', url: 'https://griply.app' },
-  { name: 'Figma', description: 'UI design and prototyping', url: 'https://figma.com' },
-  { name: 'Cloudflare', description: 'Hosting, DNS, deployment', url: 'https://www.cloudflare.com' },
-  { name: 'Plane', description: 'Self-hosted project management', url: 'https://plane.so' },
-  { name: 'Docmost', description: 'Internal documentation wiki', url: 'https://docmost.com' },
-  { name: 'NocoDB', description: 'Smart spreadsheets', url: 'https://nocodb.com' },
-  { name: 'Beeper', description: 'Unified messaging inbox', url: 'https://beeper.com' },
-  { name: 'Helium', description: 'Lightweight browser', url: 'https://heliumbrowser.com' },
-  { name: 'TypeWhisperer', description: 'Distraction-free writing', url: 'https://github.com/TypeWhisper/typewhisper-mac' },
-  { name: 'Steam', description: 'Dota. Always Dota.', url: 'https://store.steampowered.com' },
+  { name: 'OpenCode', url: 'https://opencode.ai' },
+  { name: 'Zed', url: 'https://zed.dev' },
+  { name: 'Claude', url: 'https://claude.ai' },
+  { name: 'Perplexity', url: 'https://perplexity.ai' },
+  { name: 'Kimi', url: 'https://kimi.moonshot.cn' },
+  { name: 'Akiflow', url: 'https://akiflow.com' },
+  { name: 'Things 3', url: 'https://culturedcode.com/things/' },
+  { name: 'Obsidian', url: 'https://obsidian.md' },
+  { name: 'Voice Notes', url: 'https://voicenotes.com' },
+  { name: 'Griply', url: 'https://griply.app' },
+  { name: 'Figma', url: 'https://figma.com' },
+  { name: 'Cloudflare', url: 'https://www.cloudflare.com' },
+  { name: 'Plane', url: 'https://plane.so' },
+  { name: 'Docmost', url: 'https://docmost.com' },
+  { name: 'NocoDB', url: 'https://nocodb.com' },
+  { name: 'Beeper', url: 'https://beeper.com' },
+  { name: 'Helium', url: 'https://heliumbrowser.com' },
+  { name: 'TypeWhisperer', url: 'https://github.com/TypeWhisper/typewhisper-mac' },
+  { name: 'Steam', url: 'https://store.steampowered.com' },
 ];
 
 const physical = [
-  { name: 'Mac Mini M4', description: 'Primary desktop', url: 'https://www.apple.com/mac-mini/' },
-  { name: 'iPad Pro M4 11"', description: 'Portable workstation', url: 'https://www.apple.com/ipad-pro/' },
-  { name: 'iPhone 15', description: 'Daily driver', url: 'https://www.apple.com/iphone-15/' },
-  { name: 'AirPods Pro 2', description: 'Everyday earbuds', url: 'https://www.apple.com/airpods-pro/' },
-  { name: 'Amazfit Helio Band', description: 'Fitness tracking', url: 'https://www.amazfit.com' },
-  { name: 'Keychron K8 Pro', description: 'Mechanical keyboard', url: 'https://www.keychron.com/products/keychron-k8-pro' },
-  { name: 'Damoshark M3', description: 'Lightweight mouse', url: 'https://www.damoshark.com' },
-  { name: 'HyperX SoloCast', description: 'USB microphone', url: 'https://www.hyperx.com/products/hyperx-solocast-usb-microphone' },
-  { name: 'INUI 10,000mAh 45W', description: 'Compact powerbank', url: 'https://www.inui.tech' },
-  { name: 'Owala FreeSip 945ml', description: 'Water bottle', url: 'https://owalalife.com' },
-  { name: 'Pakt Travel Backpack 3', description: 'One bag for travel and EDC', url: 'https://pakt.one', review: '/notes/pakt-travel-backpack-3-review' },
+  { name: 'Mac Mini M4', url: 'https://www.apple.com/mac-mini/' },
+  { name: 'iPad Pro M4 11"', url: 'https://www.apple.com/ipad-pro/' },
+  { name: 'iPhone 15', url: 'https://www.apple.com/iphone-15/' },
+  { name: 'AirPods Pro 2', url: 'https://www.apple.com/airpods-pro/' },
+  { name: 'Amazfit Helio Band', url: 'https://www.amazfit.com' },
+  { name: 'Keychron K8 Pro', url: 'https://www.keychron.com/products/keychron-k8-pro' },
+  { name: 'Damoshark M3', url: 'https://www.damoshark.com' },
+  { name: 'HyperX SoloCast', url: 'https://www.hyperx.com/products/hyperx-solocast-usb-microphone' },
+  { name: 'INUI 10,000mAh 45W', url: 'https://www.inui.tech' },
+  { name: 'Owala FreeSip 945ml', url: 'https://owalalife.com' },
+  { name: 'Pakt Travel Backpack 3', url: 'https://pakt.one', review: '/notes/pakt-travel-backpack-3-review' },
 ];
 ---
 
@@ -63,15 +64,7 @@ const physical = [
     <meta name="theme-color" content="#faf8f2" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)" />
     <title>Uses — Suhas Darsi</title>
-    <script is:inline>
-      (function() {
-        var theme = localStorage.getItem('theme');
-        if (!theme) {
-          theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-        }
-        if (theme === 'dark') document.documentElement.classList.add('dark');
-      })();
-    </script>
+    <ThemeInit />
   </head>
   <body class="min-h-screen bg-background">
     <Header />
@@ -87,11 +80,16 @@ const physical = [
         <h2 class="section-heading">Digital</h2>
         <ul class="item-list">
           {digital.map((item) => (
-            <li>
-              <a href={item.url} target="_blank" rel="noopener noreferrer" class="item-link">
-                <span class="item-name">{item.name}</span>
-                <span class="item-desc">{item.description}</span>
-              </a>
+            <li class="item">
+              <div class="item-content">
+                <a href={item.url} target="_blank" rel="noopener noreferrer" class="item-name">{item.name}</a>
+                <a href={item.url} target="_blank" rel="noopener noreferrer" class="item-arrow" aria-label={`Open ${item.name}`}>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M7 17L17 7"/>
+                    <path d="M7 7h10v10"/>
+                  </svg>
+                </a>
+              </div>
             </li>
           ))}
         </ul>
@@ -101,15 +99,20 @@ const physical = [
         <h2 class="section-heading">Physical</h2>
         <ul class="item-list">
           {physical.map((item) => (
-            <li>
-              <div class="item-row">
-                <a href={item.url} target="_blank" rel="noopener noreferrer" class="item-link">
-                  <span class="item-name">{item.name}</span>
-                  <span class="item-desc">{item.description}</span>
+            <li class="item">
+              <div class="item-content">
+                <div class="item-main">
+                  <a href={item.url} target="_blank" rel="noopener noreferrer" class="item-name">{item.name}</a>
+                  {item.review && (
+                    <a href={item.review} class="item-review">Review</a>
+                  )}
+                </div>
+                <a href={item.url} target="_blank" rel="noopener noreferrer" class="item-arrow" aria-label={`Open ${item.name}`}>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M7 17L17 7"/>
+                    <path d="M7 7h10v10"/>
+                  </svg>
                 </a>
-                {item.review && (
-                  <a href={item.review} class="item-review">Review</a>
-                )}
               </div>
             </li>
           ))}
@@ -140,7 +143,7 @@ const physical = [
   }
 
   .page-intro {
-    font-size: var(--text-body);
+    font-size: var(--text-body-lg);
     color: var(--color-muted-foreground);
     line-height: 1.7;
     margin-bottom: 3rem;
@@ -159,7 +162,7 @@ const physical = [
     color: var(--color-muted-foreground);
     letter-spacing: 0.05em;
     text-transform: uppercase;
-    margin: 0 0 1rem;
+    margin: 0 0 1.5rem;
   }
 
   .item-list {
@@ -169,84 +172,98 @@ const physical = [
     width: 100%;
   }
 
-  .item-list li {
+  .item {
     border-bottom: 1px solid var(--color-subtle-border);
     width: 100%;
+    transition: background-color 0.15s ease;
   }
 
-  .item-list li:last-child {
-    border-bottom: none;
+  .item:first-child {
+    border-top: 1px solid var(--color-subtle-border);
   }
 
-  .item-row {
+  .item:hover {
+    background-color: var(--color-subtle);
+  }
+
+  .item-content {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
+    padding: 1rem 0;
   }
 
-  .item-link {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: baseline;
-    gap: 1rem;
-    padding: 0.75rem 0;
-    text-decoration: none;
-    color: inherit;
-    transition: color 0.2s ease;
-    width: 100%;
-  }
-
-  .item-link:hover {
-    color: var(--color-muted-foreground);
+  .item-main {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
   }
 
   .item-name {
     font-family: var(--font-serif);
     font-size: var(--text-body);
     font-weight: 500;
-    min-width: 0;
+    color: var(--color-foreground);
+    text-decoration: none;
+    transition: color 0.2s ease;
   }
 
-  .item-desc {
-    font-size: var(--text-small);
+  .item-name:hover {
     color: var(--color-muted-foreground);
-    text-align: right;
-    justify-self: end;
-    min-width: 0;
-    overflow-wrap: anywhere;
+    text-decoration: underline;
+    text-decoration-color: var(--color-subtle-border);
+    text-underline-offset: 3px;
   }
 
   .item-review {
-    font-size: var(--text-small);
+    font-size: 0.75rem;
+    font-weight: 500;
     color: var(--color-muted-foreground);
-    text-decoration: underline;
-    text-decoration-color: #a19c87;
-    text-decoration-thickness: 1px;
-    text-underline-offset: 3px;
+    text-decoration: none;
+    padding: 0.25rem 0.625rem;
+    border: 1px solid var(--color-subtle-border);
+    border-radius: 999px;
+    transition: all 0.2s ease;
     white-space: nowrap;
-    transition: text-decoration-color 0.2s ease;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
   }
 
   .item-review:hover {
-    text-decoration-color: var(--color-foreground);
+    color: var(--color-foreground);
+    border-color: var(--color-foreground);
+    background-color: var(--color-subtle);
+  }
+
+  .item-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    color: var(--color-muted-foreground);
+    text-decoration: none;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+  }
+
+  .item-arrow:hover {
+    background-color: var(--color-muted);
+    color: var(--color-foreground);
   }
 
   @media (max-width: 480px) {
-    .item-link {
-      grid-template-columns: 1fr;
-      gap: 0.25rem;
+    .item-content {
+      gap: 0.75rem;
     }
 
-    .item-desc {
-      justify-self: start;
-      text-align: left;
-    }
-
-    .item-row {
+    .item-main {
       flex-direction: column;
       align-items: flex-start;
-      gap: 0.5rem;
+      gap: 0.25rem;
     }
   }
 
@@ -254,8 +271,6 @@ const physical = [
     font-size: var(--text-body);
     color: var(--color-muted-foreground);
     margin-top: 3rem;
-    padding-top: 2rem;
-    border-top: 1px solid var(--color-subtle-border);
   }
 
   .page-outro .link {
@@ -270,5 +285,4 @@ const physical = [
   .page-outro .link:hover {
     text-decoration-color: var(--color-muted-foreground);
   }
-
 </style>

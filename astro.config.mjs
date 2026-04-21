@@ -2,7 +2,7 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import remarkWikiLink from 'remark-wiki-link';
-import { readdirSync } from 'fs';
+import { readdirSync } from 'node:fs';
 
 import tailwindcss from '@tailwindcss/vite';
 
@@ -15,6 +15,8 @@ const existingSlugs = readdirSync(blogDir)
 // https://astro.build/config
 export default defineConfig({
   site: 'https://suhasdarsi.com',
+  trailingSlash: 'never',
+  compressHTML: true,
   integrations: [sitemap()],
   vite: {
     plugins: [tailwindcss()]

@@ -1,0 +1,112 @@
+---
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import ThemeInit from '../components/ThemeInit.astro';
+
+const siteUrl = 'https://suhasdarsi.com';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content="Astro" />
+    <meta name="description" content="Page not found — Suhas Darsi" />
+    <meta name="author" content="Suhas Darsi" />
+    <link rel="canonical" href={`${siteUrl}/404`} />
+    <meta property="og:title" content="404 — Suhas Darsi" />
+    <meta property="og:description" content="Page not found" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={`${siteUrl}/404`} />
+    <meta property="og:site_name" content="Suhas Darsi" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@suhas_darsi" />
+    <meta name="twitter:creator" content="@suhas_darsi" />
+    <meta name="theme-color" content="#faf8f2" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)" />
+    <title>404 — Page Not Found | Suhas Darsi</title>
+    <ThemeInit />
+  </head>
+  <body class="min-h-screen bg-background">
+    <Header />
+
+    <main class="max-w-3xl mx-auto px-6 py-16 text-center">
+      <h1 class="error-code">404</h1>
+      <p class="error-message">This page doesn't exist.</p>
+      <p class="error-hint">It might have been moved, deleted, or you may have mistyped the URL.</p>
+      <div class="error-actions">
+        <a href="/" class="error-link error-link-primary">Go home</a>
+        <a href="/notes" class="error-link">Browse notes</a>
+      </div>
+    </main>
+
+    <Footer />
+  </body>
+</html>
+
+<style>
+  .error-code {
+    font-family: var(--font-serif);
+    font-size: 6rem;
+    font-weight: 400;
+    color: var(--color-muted-foreground);
+    margin: 0 0 1rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+
+  .error-message {
+    font-family: var(--font-serif);
+    font-size: var(--text-title);
+    color: var(--color-foreground);
+    margin: 0 0 0.5rem;
+  }
+
+  .error-hint {
+    font-size: var(--text-body);
+    color: var(--color-muted-foreground);
+    margin: 0 0 2rem;
+    line-height: 1.6;
+  }
+
+  .error-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .error-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: var(--text-body);
+    color: var(--color-muted-foreground);
+    text-decoration: none;
+    padding: 0.625rem 1.25rem;
+    border: 1px solid var(--color-subtle-border);
+    border-radius: var(--radius-sm);
+    transition: all 0.3s ease;
+  }
+
+  .error-link:hover {
+    border-color: var(--color-foreground);
+    color: var(--color-foreground);
+  }
+
+  .error-link-primary {
+    background: var(--color-foreground);
+    color: var(--color-background);
+    border-color: var(--color-foreground);
+  }
+
+  .error-link-primary:hover {
+    background: var(--color-muted-foreground);
+    border-color: var(--color-muted-foreground);
+    color: var(--color-background);
+  }
+</style>

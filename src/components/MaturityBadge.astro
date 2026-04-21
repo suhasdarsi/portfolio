@@ -6,7 +6,7 @@ interface Props {
 const { maturity } = Astro.props;
 ---
 
-<span class="maturity-badge maturity-{maturity}">
+<span class={`maturity-badge maturity-${maturity}`}>
   <svg class="maturity-icon" viewBox="0 0 10 10" width="14" height="14" aria-hidden="true">
     {maturity === 'seedling' && <circle cx="5" cy="5" r="3.5" fill="none" stroke="currentColor" stroke-width="1"/>}
     {maturity === 'budding' && (
@@ -26,11 +26,13 @@ const { maturity } = Astro.props;
     align-items: center;
     gap: 0.25rem;
     font-size: var(--text-caption);
-    padding: 0;
+    padding: 0.125rem 0.5rem;
     border-radius: var(--radius-sm);
     text-transform: capitalize;
     letter-spacing: 0.02em;
     font-weight: 500;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
 
   .maturity-icon {
@@ -40,11 +42,13 @@ const { maturity } = Astro.props;
   .maturity-seedling {
     color: var(--color-muted-foreground);
     border: 1px solid var(--color-subtle-border);
+    border-radius: 999px;
   }
 
   .maturity-budding {
     color: #3a7d3a;
     border: 1px solid rgba(34, 139, 34, 0.3);
+    border-radius: 999px;
   }
 
   html.dark .maturity-budding {

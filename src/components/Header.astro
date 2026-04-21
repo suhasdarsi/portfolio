@@ -24,7 +24,7 @@ const { showNav = true, showSearch = true } = Astro.props;
     )}
     <div class="header-actions">
       {showSearch && (
-        <button type="button" class="search-trigger" id="global-search-toggle" aria-label="Open search">
+        <button type="button" class="search-trigger" id="global-search-toggle" aria-label="Open search" aria-expanded="false" aria-controls="global-search-overlay">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-trigger-icon"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.34-4.34"></path></svg>
           <span class="search-trigger-label">Search</span>
           <kbd class="search-trigger-kbd">⌘K</kbd>
@@ -75,7 +75,11 @@ const { showNav = true, showSearch = true } = Astro.props;
   let activeResultIndex = -1;
 
   const fuse = new Fuse(searchPosts, {
-    keys: [{ name: 'title', weight: 1 }],
+    keys: [
+      { name: 'title', weight: 0.5 },
+      { name: 'description', weight: 0.3 },
+      { name: 'body', weight: 0.2 },
+    ],
     threshold: 0.3,
     ignoreLocation: true,
   });
@@ -129,6 +133,7 @@ const { showNav = true, showSearch = true } = Astro.props;
 
   function openSearch() {
     searchOverlay?.classList.add('open');
+    searchToggle?.setAttribute('aria-expanded', 'true');
     searchInput?.focus();
     renderResults(searchPosts);
     searchEmpty?.classList.add('hidden');
@@ -136,16 +141,20 @@ const { showNav = true, showSearch = true } = Astro.props;
 
   function closeSearch() {
     searchOverlay?.classList.remove('open');
+    searchToggle?.setAttribute('aria-expanded', 'false');
     if (searchInput) searchInput.value = '';
     if (searchResults) searchResults.innerHTML = '';
     searchEmpty?.classList.add('hidden');
     activeResultIndex = -1;
   }
 
-  searchToggle?.addEventListener('click', openSearch);
-  searchOverlay?.addEventListener('click', (e) => {
+  const handleSearchToggle = () => openSearch();
+  const handleOverlayClick = (e: Event) => {
     if (e.target === searchOverlay) closeSearch();
-  });
+  };
+
+  searchToggle?.addEventListener('click', handleSearchToggle);
+  searchOverlay?.addEventListener('click', handleOverlayClick);
 
   searchInput?.addEventListener('input', () => {
     const query = searchInput.value.trim();
@@ -167,7 +176,7 @@ const { showNav = true, showSearch = true } = Astro.props;
     searchEmpty?.classList.add('hidden');
   });
 
-  document.addEventListener('keydown', (e) => {
+  const handleKeydown = (e: KeyboardEvent) => {
     if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
       e.preventDefault();
       searchOverlay?.classList.contains('open') ? closeSearch() : openSearch();
@@ -201,6 +210,14 @@ const { showNav = true, showSearch = true } = Astro.props;
     }
 
     if (e.key === 'Escape') closeSearch();
+  };
+
+  document.addEventListener('keydown', handleKeydown);
+
+  window.addEventListener('beforeunload', () => {
+    document.removeEventListener('keydown', handleKeydown);
+    searchToggle?.removeEventListener('click', handleSearchToggle);
+    searchOverlay?.removeEventListener('click', handleOverlayClick);
   });
 </script>
 

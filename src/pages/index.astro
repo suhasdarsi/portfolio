@@ -5,6 +5,7 @@ import { formatDate, getReadingTime } from '../utils/date';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import MaturityBadge from '../components/MaturityBadge.astro';
+import ThemeInit from '../components/ThemeInit.astro';
 
 const allPosts = await getCollection('blog');
 const posts = allPosts
@@ -49,15 +50,7 @@ const previously = [
     <meta name="theme-color" content="#faf8f2" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)" />
     <title>Suhas Darsi</title>
-    <script is:inline>
-      (function() {
-        var theme = localStorage.getItem('theme');
-        if (!theme) {
-          theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-        }
-        if (theme === 'dark') document.documentElement.classList.add('dark');
-      })();
-    </script>
+    <ThemeInit />
   </head>
   <body class="min-h-screen bg-background">
     <Header />

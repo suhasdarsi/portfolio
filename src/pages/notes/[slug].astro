@@ -4,6 +4,8 @@ import BlogLayout from '../../layouts/BlogLayout.astro';
 import Backlinks from '../../components/Backlinks.astro';
 import TableOfContents from '../../components/TableOfContents.astro';
 import MaturityBadge from '../../components/MaturityBadge.astro';
+import ReadingProgress from '../../components/ReadingProgress.astro';
+import CopyCode from '../../components/CopyCode.astro';
 import { formatDateWithYear, getReadingTime } from '../../utils/date';
 
 export async function getStaticPaths() {
@@ -29,6 +31,8 @@ const nextPost = currentIndex < allPosts.length - 1 ? allPosts[currentIndex + 1]
 ---
 
 <BlogLayout title={`${post.data.title} | Suhas Darsi`} description={post.data.description}>
+  <ReadingProgress />
+  <CopyCode />
   <script type="application/ld+json" set:html={JSON.stringify({
     "@context": "https://schema.org",
     "@type": "BlogPosting",
@@ -80,12 +84,14 @@ const nextPost = currentIndex < allPosts.length - 1 ? allPosts[currentIndex + 1]
             Updated <time datetime={post.data.updatedDate.toISOString()}>{formatDateWithYear(post.data.updatedDate)}</time>
           </div>
         )}
-        <div class="article-reading-time">
+        <div class="article-reading-time" title="Estimated reading time">
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="10"></circle>
             <polyline points="12 6 12 12 16 14"></polyline>
           </svg>
-          {readingTime} min read
+          <span>{readingTime} min read</span>
+          <span class="reading-time-separator">·</span>
+          <span class="reading-progress-text" id="reading-progress-text">0%</span>
         </div>
       </div>
     </header>
@@ -162,6 +168,7 @@ const nextPost = currentIndex < allPosts.length - 1 ? allPosts[currentIndex + 1]
     gap: 0.75rem;
     margin-bottom: 1rem;
     flex-wrap: wrap;
+    min-width: 0;
   }
 
   .article-topics {
@@ -224,6 +231,16 @@ const nextPost = currentIndex < allPosts.length - 1 ? allPosts[currentIndex + 1]
   .article-date svg,
   .article-reading-time svg {
     opacity: 0.5;
+  }
+
+  .reading-time-separator {
+    margin: 0 0.25rem;
+    opacity: 0.5;
+  }
+
+  .reading-progress-text {
+    font-variant-numeric: tabular-nums;
+    min-width: 2.5ch;
   }
 
   .note-nav {
