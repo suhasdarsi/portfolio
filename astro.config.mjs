@@ -6,6 +6,8 @@ import { readdirSync } from 'node:fs';
 
 import tailwindcss from '@tailwindcss/vite';
 
+import cloudflare from '@astrojs/cloudflare';
+
 // Build list of existing blog post slugs for wikilink resolution
 const blogDir = './src/content/blog';
 const existingSlugs = readdirSync(blogDir)
@@ -18,9 +20,11 @@ export default defineConfig({
   trailingSlash: 'never',
   compressHTML: true,
   integrations: [sitemap()],
+
   vite: {
     plugins: [tailwindcss()]
   },
+
   markdown: {
     remarkPlugins: [
       [
@@ -36,4 +40,6 @@ export default defineConfig({
       ],
     ],
   },
+
+  adapter: cloudflare(),
 });
