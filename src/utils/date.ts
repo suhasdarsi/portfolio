@@ -21,6 +21,7 @@ export function formatDateWithYear(dateInput: Date | string): string {
 export function getReadingTime(content: string): number {
   if (!content || typeof content !== 'string') return 0;
   const wordsPerMinute = 200;
-  const words = content.trim().split(/\s+/).length;
+  const words = content.trim().split(/\s+/).filter(Boolean).length;
+  if (words === 0) return 0;
   return Math.ceil(words / wordsPerMinute);
 }

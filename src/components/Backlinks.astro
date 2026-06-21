@@ -7,12 +7,14 @@ interface Props {
 
 const { currentSlug } = Astro.props;
 
-const allPosts = await getCollection('blog');
+const allPosts = (await getCollection('blog')).filter((post) => !post.data.draft);
 
-const wikiLinkRegex = /\[\[([^\]|]+)(?:\|[^\]]+)?\]\]/g;
+const wikiLinkRegex = /\[\[([^\]|]+)(?:\|[^\]]+)?\]\]/gs;
 const backlinkMap: Record<string, { title: string; slug: string }[]> = {};
 
 allPosts.forEach((post) => {
+  if (post.id === currentSlug) return;
+
   const matches = [...post.body.matchAll(wikiLinkRegex)];
   matches.forEach((match) => {
     const linkedSlug = match[1].trim().replace(/ /g, '-').toLowerCase();
@@ -46,18 +48,18 @@ const backlinks = backlinkMap[currentSlug] || [];
 
 <style>
   .backlinks {
-    margin: 4rem 0 0;
-    padding: 2rem 0 0;
+    margin: 3rem auto 0;
+    padding: 1.5rem 0 0;
     border-top: 1px solid var(--color-subtle-border);
   }
 
   .backlinks-heading {
-    font-family: var(--font-sans);
-    font-size: var(--text-caption);
+    font-family: var(--font-serif);
+    font-size: var(--text-body);
     font-weight: 600;
-    color: var(--color-muted-foreground);
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
+    color: var(--color-foreground);
+    letter-spacing: 0;
+    text-transform: none;
     margin: 0 0 0.75rem;
     padding: 0;
   }
@@ -65,28 +67,45 @@ const backlinks = backlinkMap[currentSlug] || [];
   .backlinks-list {
     display: flex;
     flex-direction: column;
+    gap: 0;
     margin: 0;
     padding: 0;
   }
 
   .backlink-item {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     margin: 0;
-    padding: 0;
-    font-family: var(--font-serif);
+    padding: 0.625rem 0.875rem;
+    font-family: var(--font-sans);
     font-size: var(--text-body);
-    font-weight: 400;
+    font-weight: 500;
     color: var(--color-foreground);
     text-decoration: none;
-    line-height: 1.6;
-    transition: color 0.3s ease;
+    line-height: 1.5;
+    border-radius: 8px;
+    border-bottom: none;
+    transition: background 0.15s ease, color 0.15s ease;
   }
 
-  .backlink-item + .backlink-item {
-    margin-top: 0.5rem;
+  .backlink-item::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-muted-foreground);
+    flex-shrink: 0;
+    opacity: 0.5;
+    transition: opacity 0.15s ease;
   }
 
   .backlink-item:hover {
-    color: var(--color-muted-foreground);
+    background: var(--color-muted);
+    color: var(--color-foreground);
+  }
+
+  .backlink-item:hover::before {
+    opacity: 1;
   }
 </style>

@@ -1,15 +1,12 @@
 ---
 ---
 
-<details class="toc" id="toc">
-  <summary class="toc-summary">
-    <span>Table of contents</span>
-    <svg class="toc-chevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="m6 9 6 6 6-6"></path>
-    </svg>
-  </summary>
-  <nav class="toc-nav" aria-label="Table of contents" id="toc-nav"></nav>
-</details>
+<nav class="toc" aria-label="Table of contents" id="toc">
+  <details>
+    <summary class="toc-heading">Table of contents</summary>
+    <div class="toc-links" id="toc-nav"></div>
+  </details>
+</nav>
 
 <script>
   function buildTOC() {
@@ -24,24 +21,19 @@
       return;
     }
 
-    const headingData = Array.from(headings).map((h) => ({
-      id: h.id,
-      text: h.textContent || '',
-    }));
-
-    headingData.forEach(({ id, text }) => {
+    headings.forEach((h) => {
       const link = document.createElement('a');
-      link.href = `#${id}`;
-      link.textContent = text;
+      link.href = `#${encodeURIComponent(h.id)}`;
+      link.textContent = h.textContent || '';
       link.className = 'toc-link';
       link.addEventListener('click', (e) => {
         e.preventDefault();
-        const target = document.getElementById(id);
+        const target = document.getElementById(h.id);
         if (target) {
           const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
           const y = target.getBoundingClientRect().top + window.pageYOffset - 120;
           window.scrollTo({ top: y, behavior: prefersReducedMotion ? 'auto' : 'smooth' });
-          history.pushState(null, '', `#${id}`);
+          history.pushState(null, '', `#${encodeURIComponent(h.id)}`);
         }
       });
       nav.appendChild(link);
@@ -52,7 +44,11 @@
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             nav.querySelectorAll('.toc-link').forEach((l) => l.classList.remove('toc-link-active'));
-            nav.querySelectorAll(`.toc-link[href="#${entry.target.id}"]`).forEach((l) => l.classList.add('toc-link-active'));
+            nav.querySelectorAll('.toc-link').forEach((link) => {
+              if (link.getAttribute('href') === `#${encodeURIComponent(entry.target.id)}`) {
+                link.classList.add('toc-link-active');
+              }
+            });
           }
         });
       },
@@ -71,85 +67,69 @@
 
 <style>
   .toc {
-    margin-bottom: 2.5rem;
-    padding: 1rem 1.25rem;
-    background-color: var(--color-subtle);
-    border: 1px solid var(--color-subtle-border);
-    border-radius: 8px;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--color-subtle-border);
   }
 
-  .toc-summary {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    cursor: pointer;
+  .toc-heading {
     font-family: var(--font-sans);
-    font-size: var(--text-caption);
-    font-weight: 600;
+    font-size: 0.8125rem;
+    font-weight: 500;
     color: var(--color-muted-foreground);
-    letter-spacing: 0.05em;
     text-transform: uppercase;
-    list-style: none;
+    letter-spacing: 0.05em;
+    margin: 0;
+    cursor: pointer;
     user-select: none;
+    list-style: none;
   }
 
-  .toc-summary::-webkit-details-marker,
-  .toc-summary::marker {
+  .toc-heading::-webkit-details-marker {
     display: none;
-    content: '';
   }
 
-  .toc-chevron {
-    transition: transform 0.3s ease;
-    flex-shrink: 0;
+  .toc-heading::before {
+    content: '+';
+    display: inline-block;
+    margin-right: 0.375rem;
+    font-weight: 400;
   }
 
-  .toc[open] .toc-chevron {
-    transform: rotate(180deg);
+  .toc[open] .toc-heading::before {
+    content: '−';
   }
 
-  .toc-nav {
+  .toc-links {
     display: flex;
     flex-direction: column;
-    padding-top: 0.5rem;
+    gap: 0.25rem;
+    margin-top: 0.75rem;
   }
 
-  :global(.toc-link) {
+  .toc-link {
     display: block;
-    padding: 0.35rem 0;
-    font-family: var(--font-serif);
-    font-size: var(--text-small);
+    padding: 0.25rem 0;
+    font-family: var(--font-sans);
+    font-size: 0.9375rem;
     color: var(--color-muted-foreground);
     text-decoration: none;
     line-height: 1.5;
-    transition: color 0.3s ease;
+    transition: color 0.2s ease;
   }
 
-  :global(.toc-link:hover) {
+  .toc-link:hover {
     color: var(--color-foreground);
   }
 
-  :global(.toc-link:focus-visible) {
+  .toc-link:focus-visible {
     outline: 2px solid var(--color-foreground);
     outline-offset: 2px;
     border-radius: 2px;
   }
 
-  :global(.toc-link-active) {
+  .toc-link-active {
     color: var(--color-foreground);
     font-weight: 500;
-    position: relative;
-  }
-
-  :global(.toc-link-active::before) {
-    content: '';
-    position: absolute;
-    left: -0.75rem;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 3px;
-    height: 1rem;
-    background-color: var(--color-foreground);
-    border-radius: 2px;
   }
 </style>

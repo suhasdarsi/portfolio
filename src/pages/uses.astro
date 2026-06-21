@@ -1,10 +1,5 @@
 ---
-import '../styles/global.css';
-import Header from '../components/Header.astro';
-import Footer from '../components/Footer.astro';
-import ThemeInit from '../components/ThemeInit.astro';
-
-const siteUrl = 'https://suhasdarsi.com';
+import BlogLayout from '../layouts/BlogLayout.astro';
 
 const digital = [
   { name: 'OpenCode', url: 'https://opencode.ai' },
@@ -43,96 +38,66 @@ const physical = [
 ];
 ---
 
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="generator" content="Astro" />
-    <meta name="description" content="Things I use — digital tools and physical gear that earn their keep." />
-    <meta name="author" content="Suhas Darsi" />
-    <link rel="canonical" href={`${siteUrl}/uses`} />
-    <meta property="og:title" content="Uses — Suhas Darsi" />
-    <meta property="og:description" content="Things I use — digital tools and physical gear that earn their keep." />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content={`${siteUrl}/uses`} />
-    <meta property="og:site_name" content="Suhas Darsi" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@suhas_darsi" />
-    <meta name="twitter:creator" content="@suhas_darsi" />
-    <meta name="theme-color" content="#faf8f2" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)" />
-    <title>Uses — Suhas Darsi</title>
-    <ThemeInit />
-  </head>
-  <body class="min-h-screen bg-background">
-    <Header />
+<BlogLayout title="Uses — Suhas Darsi" description="Things I use — digital tools and physical gear that earn their keep.">
+  <h1 class="page-title">Uses</h1>
 
-    <main class="max-w-3xl mx-auto px-6 py-8">
-      <h1 class="page-title">Uses</h1>
+  <p class="page-intro">
+    Things I use daily — digital tools and physical gear. Some I pay for, some I self-host, all of them earn their place. This is a living document.
+  </p>
 
-      <p class="page-intro">
-        Things I use daily — digital tools and physical gear. Some I pay for, some I self-host, all of them earn their place. This is a living document.
-      </p>
+  <section class="section">
+    <h2 class="section-heading">Digital</h2>
+    <ul class="item-list">
+      {digital.map((item) => (
+        <li class="item">
+          <div class="item-content">
+            <a href={item.url} target="_blank" rel="noopener noreferrer" class="item-name">{item.name}</a>
+            <a href={item.url} target="_blank" rel="noopener noreferrer" class="item-arrow" aria-label={`Open ${item.name}`}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M7 17L17 7"/>
+                <path d="M7 7h10v10"/>
+              </svg>
+            </a>
+          </div>
+        </li>
+      ))}
+    </ul>
+  </section>
 
-      <section class="section">
-        <h2 class="section-heading">Digital</h2>
-        <ul class="item-list">
-          {digital.map((item) => (
-            <li class="item">
-              <div class="item-content">
-                <a href={item.url} target="_blank" rel="noopener noreferrer" class="item-name">{item.name}</a>
-                <a href={item.url} target="_blank" rel="noopener noreferrer" class="item-arrow" aria-label={`Open ${item.name}`}>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M7 17L17 7"/>
-                    <path d="M7 7h10v10"/>
-                  </svg>
-                </a>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </section>
+  <section class="section">
+    <h2 class="section-heading">Physical</h2>
+    <ul class="item-list">
+      {physical.map((item) => (
+        <li class="item">
+          <div class="item-content">
+            <div class="item-main">
+              <a href={item.url} target="_blank" rel="noopener noreferrer" class="item-name">{item.name}</a>
+              {item.review && (
+                <a href={item.review} class="item-review">Review</a>
+              )}
+            </div>
+            <a href={item.url} target="_blank" rel="noopener noreferrer" class="item-arrow" aria-label={`Open ${item.name}`}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M7 17L17 7"/>
+                <path d="M7 7h10v10"/>
+              </svg>
+            </a>
+          </div>
+        </li>
+      ))}
+    </ul>
+  </section>
 
-      <section class="section">
-        <h2 class="section-heading">Physical</h2>
-        <ul class="item-list">
-          {physical.map((item) => (
-            <li class="item">
-              <div class="item-content">
-                <div class="item-main">
-                  <a href={item.url} target="_blank" rel="noopener noreferrer" class="item-name">{item.name}</a>
-                  {item.review && (
-                    <a href={item.review} class="item-review">Review</a>
-                  )}
-                </div>
-                <a href={item.url} target="_blank" rel="noopener noreferrer" class="item-arrow" aria-label={`Open ${item.name}`}>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M7 17L17 7"/>
-                    <path d="M7 7h10v10"/>
-                  </svg>
-                </a>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <p class="page-outro">
-        Have a recommendation? <a href="https://x.com/suhas_darsi" target="_blank" rel="noopener noreferrer" class="link">Say hi on X</a>.
-      </p>
-    </main>
-
-    <Footer />
-  </body>
-</html>
+  <p class="page-outro">
+    Have a recommendation? <a href="https://x.com/suhas_darsi" target="_blank" rel="noopener noreferrer" class="link">Say hi on X</a>.
+  </p>
+</BlogLayout>
 
 <style>
   .page-title {
     font-family: var(--font-serif);
     font-size: var(--text-display-sm);
-    letter-spacing: -0.02em;
+    letter-spacing: 0;
     margin-bottom: 1.5rem;
   }
 
@@ -144,7 +109,7 @@ const physical = [
 
   .page-intro {
     font-size: var(--text-body-lg);
-    color: var(--color-muted-foreground);
+    color: var(--color-body-text);
     line-height: 1.7;
     margin-bottom: 3rem;
   }
@@ -224,7 +189,7 @@ const physical = [
     text-decoration: none;
     padding: 0.25rem 0.625rem;
     border: 1px solid var(--color-subtle-border);
-    border-radius: 999px;
+    border-radius: var(--radius-buttons);
     transition: all 0.2s ease;
     white-space: nowrap;
     letter-spacing: 0.02em;

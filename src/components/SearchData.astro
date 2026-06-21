@@ -12,6 +12,8 @@ const searchData = posts.map((post) => ({
   description: post.data.description,
   body: post.body?.slice(0, 500) ?? '',
 }));
+
+const serializedSearchData = JSON.stringify(searchData).replace(/</g, '\\u003c');
 ---
 
-<script id="search-data" type="application/json" set:html={JSON.stringify(searchData)} />
+<script id="search-data" type="application/json" set:html={serializedSearchData} />

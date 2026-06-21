@@ -1,51 +1,16 @@
 ---
-import '../styles/global.css';
-import Header from '../components/Header.astro';
-import Footer from '../components/Footer.astro';
-import ThemeInit from '../components/ThemeInit.astro';
-
-const siteUrl = 'https://suhasdarsi.com';
+import BlogLayout from '../layouts/BlogLayout.astro';
 ---
 
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="generator" content="Astro" />
-    <meta name="description" content="Page not found — Suhas Darsi" />
-    <meta name="author" content="Suhas Darsi" />
-    <link rel="canonical" href={`${siteUrl}/404`} />
-    <meta property="og:title" content="404 — Suhas Darsi" />
-    <meta property="og:description" content="Page not found" />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content={`${siteUrl}/404`} />
-    <meta property="og:site_name" content="Suhas Darsi" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@suhas_darsi" />
-    <meta name="twitter:creator" content="@suhas_darsi" />
-    <meta name="theme-color" content="#faf8f2" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)" />
-    <title>404 — Page Not Found | Suhas Darsi</title>
-    <ThemeInit />
-  </head>
-  <body class="min-h-screen bg-background">
-    <Header />
-
-    <main class="max-w-3xl mx-auto px-6 py-16 text-center">
-      <h1 class="error-code">404</h1>
-      <p class="error-message">This page doesn't exist.</p>
-      <p class="error-hint">It might have been moved, deleted, or you may have mistyped the URL.</p>
-      <div class="error-actions">
-        <a href="/" class="error-link error-link-primary">Go home</a>
-        <a href="/notes" class="error-link">Browse notes</a>
-      </div>
-    </main>
-
-    <Footer />
-  </body>
-</html>
+<BlogLayout title="404 — Page Not Found | Suhas Darsi" description="Page not found — Suhas Darsi">
+  <h1 class="error-code">404</h1>
+  <p class="error-message">This page doesn't exist.</p>
+  <p class="error-hint">It might have been moved, deleted, or you may have mistyped the URL.</p>
+  <div class="error-actions">
+    <a href="/" class="error-link error-link-primary">Go home</a>
+    <a href="/notes" class="error-link">Browse notes</a>
+  </div>
+</BlogLayout>
 
 <style>
   .error-code {
@@ -55,7 +20,7 @@ const siteUrl = 'https://suhasdarsi.com';
     color: var(--color-muted-foreground);
     margin: 0 0 1rem;
     line-height: 1;
-    letter-spacing: -0.02em;
+    letter-spacing: 0;
   }
 
   .error-message {

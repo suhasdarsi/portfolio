@@ -19,7 +19,9 @@
     const windowHeight = window.innerHeight;
 
     const scrollableDistance = articleHeight - windowHeight + articleTop;
-    const progress = Math.min(100, Math.max(0, ((scrollTop - articleTop) / scrollableDistance) * 100));
+    const progress = scrollableDistance <= 0
+      ? 100
+      : Math.min(100, Math.max(0, ((scrollTop - articleTop) / scrollableDistance) * 100));
 
     progressBar.style.width = `${progress}%`;
 

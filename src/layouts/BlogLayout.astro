@@ -7,11 +7,12 @@ import ThemeInit from '../components/ThemeInit.astro';
 interface Props {
   title: string;
   description?: string;
-  wide?: boolean;
+  ogType?: string;
+  ogImage?: string;
 }
 
-const { title, description, wide = false } = Astro.props;
-const siteUrl = 'https://suhasdarsi.com';
+const { title, description, ogType = 'website', ogImage } = Astro.props;
+const siteUrl = Astro.site?.toString().replace(/\/$/, '') || 'https://suhasdarsi.com';
 const canonicalUrl = `${siteUrl}${Astro.url.pathname}`;
 const ogDescription = description || 'Suhas Darsi - Co-Founder at SuperAlign, writing about AI security, network theory, and building products.';
 ---
@@ -22,22 +23,21 @@ const ogDescription = description || 'Suhas Darsi - Co-Founder at SuperAlign, wr
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
     <meta name="generator" content="Astro" />
     <meta name="description" content={description || "Blog posts"} />
     <meta name="author" content="Suhas Darsi" />
     <link rel="canonical" href={canonicalUrl} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={ogDescription} />
-    <meta property="og:type" content="article" />
+    <meta property="og:type" content={ogType} />
     <meta property="og:url" content={canonicalUrl} />
     <meta property="og:site_name" content="Suhas Darsi" />
-    <meta name="twitter:card" content="summary_large_image" />
+    {ogImage && <meta property="og:image" content={ogImage} />}
+    <meta name="twitter:card" content={ogImage ? 'summary_large_image' : 'summary'} />
     <meta name="twitter:site" content="@suhas_darsi" />
     <meta name="twitter:creator" content="@suhas_darsi" />
-    <meta name="theme-color" content="#faf8f2" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#f8f5eb" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0c0b09" media="(prefers-color-scheme: dark)" />
     <link rel="sitemap" href="/sitemap-index.xml" />
     <link rel="alternate" type="application/rss+xml" title="Suhas Darsi — Notes" href="/rss.xml" />
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self';" />
@@ -49,7 +49,7 @@ const ogDescription = description || 'Suhas Darsi - Co-Founder at SuperAlign, wr
     <a href="#main-content" class="skip-link">Skip to main content</a>
     <Header />
 
-    <main id="main-content" class:list={[wide ? 'max-w-5xl' : 'max-w-3xl', 'mx-auto px-6 py-8']}>
+    <main id="main-content" class="max-w-3xl mx-auto pt-16 pb-12">
       <slot />
     </main>
 

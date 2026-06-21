@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SuperAlign cognitive security platform datasheet</title>
+  <style>
+    @font-face { font-family: Geist; src: url('./fonts/Geist-Regular.woff2') format('woff2'); font-weight: 400; }
+    @font-face { font-family: Geist; src: url('./fonts/Geist-Medium.woff2') format('woff2'); font-weight: 500; }
+    @font-face { font-family: Geist; src: url('./fonts/Geist-SemiBold.woff2') format('woff2'); font-weight: 600; }
+    @font-face { font-family: 'Geist Mono'; src: url('./fonts/GeistMono-Regular.woff2') format('woff2'); font-weight: 400; }
+    @font-face { font-family: 'Geist Mono'; src: url('./fonts/GeistMono-SemiBold.woff2') format('woff2'); font-weight: 600; }
+    @font-face { font-family: Onest; src: url('./fonts/Onest-Regular.woff2') format('woff2'); font-weight: 400; }
+    @font-face { font-family: Onest; src: url('./fonts/Onest-Medium.woff2') format('woff2'); font-weight: 500; }
+    @font-face { font-family: Onest; src: url('./fonts/Onest-SemiBold.woff2') format('woff2'); font-weight: 600; }
+
+    :root {
+      --primary: #C44B21;
+      --primary-20: rgba(196,75,33,.20);
+      --bg: #FBFBF8;
+      --white: #FFFFFF;
+      --border: #EEE8DE;
+      --charcoal: #333333;
+      --n900: #4A4A4A;
+      --n800: #616161;
+      --n600: #8E8E8E;
+      --n500: #A6A6A6;
+      --n300: #D9D9D9;
+      --n200: #EEEEEE;
+      --green: #6B7D5A;
+      --green-20: rgba(107,125,90,.20);
+      --blue: #597590;
+      --blue-20: rgba(89,117,144,.20);
+      --yellow: #CD9130;
+      --yellow-20: rgba(205,145,48,.20);
+      --red: #B2523B;
+      --orange: #C26425;
+      --font-ui: Geist, sans-serif;
+      --font-mono: 'Geist Mono', monospace;
+      --font-display: Onest, sans-serif;
+      --shadow-v1: 0 1.83px 4.88px rgba(50,50,71,.05);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; background: #e8e8e5; color: var(--charcoal); font-family: var(--font-ui); }
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .page {
+      position: relative;
+      width: 210mm;
+      height: 297mm;
+      margin: 0 auto 16px;
+      padding: 12mm 12mm 13mm;
+      overflow: hidden;
+      background: var(--bg);
+      page-break-after: always;
+    }
+    .page:last-child { page-break-after: auto; }
+    @page { size: A4; margin: 0; }
+    @media print { html, body { background: var(--bg); } .page { margin: 0; } }
+
+    .topline, .footerline, .eyebrow, .kicker, th, .index {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: .08em;
+      color: var(--n600);
+    }
+    .topline { display: flex; justify-content: space-between; margin-bottom: 16px; }
+    .footerline { position: absolute; left: 12mm; right: 12mm; bottom: 8mm; display: flex; justify-content: space-between; }
+    .brand-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .brand { display: flex; align-items: center; gap: 8px; font-family: var(--font-display); font-size: 20px; font-weight: 600; color: var(--charcoal); }
+    .mark { width: 28px; height: 28px; }
+    .pill { display: inline-flex; align-items: center; min-height: 28px; padding: 0 12px; border-radius: 999px; font-size: 11px; }
+    .confidential { background: var(--primary-20); color: #8A3A05; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1, h2, h3 { font-family: var(--font-display); }
+    h1 { margin-bottom: 4px; font-size: 28px; line-height: 1.08; font-weight: 500; letter-spacing: -.025em; }
+    h2 { margin: 0 0 12px; font-size: 16px; line-height: 1.2; font-weight: 500; letter-spacing: .02em; }
+    h3 { margin-bottom: 6px; font-size: 14px; line-height: 1.25; font-weight: 500; }
+    p { margin-bottom: 8px; font-size: 13px; line-height: 1.42; }
+    .subtitle { font-size: 14px; color: var(--n900); margin-bottom: 16px; }
+    .section-label { margin: 18px 0 10px; font-family: var(--font-mono); font-size: 11px; letter-spacing: .1em; color: var(--n900); }
+    .rule { height: 1px; margin-bottom: 16px; background: var(--border); }
+    .intro-card, .card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: var(--shadow-v1);
+    }
+    .intro-card { padding: 16px 20px; margin-bottom: 16px; border-left: 4px solid var(--primary); }
+    .intro-card p { margin: 0; font-size: 14px; line-height: 1.45; }
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 8px; }
+    .stat { min-width: 0; }
+    .stat-value { font-family: var(--font-mono); font-size: 36px; line-height: 1; letter-spacing: -.04em; }
+    .stat-value .unit { margin-left: 2px; font-size: 13px; color: var(--n600); letter-spacing: 0; }
+    .stat p { margin: 6px 0 0; font-size: 11px; line-height: 1.35; color: var(--n600); }
+    .source-note { font-size: 11px; color: var(--n800); margin: 0; }
+    .era-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 8px; background: rgba(238,232,222,.35); }
+    .era { padding: 14px 16px; }
+    .era.post { border-left: 4px solid var(--primary); }
+    .era .eyebrow { margin-bottom: 10px; }
+    .era.post .eyebrow { color: var(--primary); }
+    .flow { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+    .node { padding: 5px 10px; border: 1px solid var(--border); border-radius: 999px; font-size: 11px; }
+    .node.dark { background: var(--charcoal); border-color: var(--charcoal); color: var(--white); }
+    .node.primary { background: var(--primary); border-color: var(--primary); color: var(--white); }
+    .arrow { color: var(--n500); font-size: 16px; }
+    .era p { margin: 0 0 9px; font-size: 11px; line-height: 1.45; }
+    .chip-row { display: flex; gap: 6px; flex-wrap: wrap; }
+    .chip { padding: 4px 8px; border-radius: 999px; background: var(--blue-20); color: #384F6A; font-size: 11px; }
+    .chip.warm { background: var(--primary-20); color: #8A3A05; }
+    .shift-note { margin: 8px 0 10px; font-size: 11px; }
+    .reason-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .reason { padding: 12px; min-height: 140px; background: var(--white); border-top: 2px solid var(--primary); }
+    .reason .index { color: var(--primary); }
+    .reason h3 { margin-top: 8px; font-size: 13px; }
+    .reason p { margin: 0; font-size: 11px; line-height: 1.4; }
+
+    .page-intro { margin-bottom: 12px; }
+    .page-intro h2 { margin-bottom: 8px; }
+    .page-intro p { margin: 0; font-size: 11px; line-height: 1.45; }
+    .comparison { overflow: hidden; margin-bottom: 8px; }
+    table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    th, td { padding: 7px 8px; border-bottom: 1px solid var(--border); vertical-align: top; text-align: left; }
+    th { font-weight: 400; line-height: 1.2; }
+    td { font-size: 11px; line-height: 1.25; }
+    th:first-child, td:first-child { width: 30%; }
+    th:nth-child(2), td:nth-child(2) { width: 19%; background: var(--primary-20); }
+    td:first-child { font-weight: 500; }
+    tr:last-child td { border-bottom: 0; }
+    .dot { display: inline-block; width: 8px; height: 8px; margin-right: 6px; border-radius: 50%; background: var(--n500); }
+    .dot.green { background: var(--green); }
+    .dot.yellow { background: var(--yellow); }
+    .caption { margin: 0 0 12px; font-size: 11px; color: var(--n800); }
+    .platform-label { color: var(--primary); }
+    .platform-copy { margin-bottom: 12px; font-size: 11px; line-height: 1.45; }
+    .sensor-card { display: grid; grid-template-columns: auto 1fr; gap: 12px; padding: 14px 16px; margin-bottom: 12px; }
+    .icon-tile { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 8px; background: var(--primary); color: var(--white); }
+    .icon-tile.blue { background: var(--blue); }
+    .icon-tile.green { background: var(--green); }
+    .icon-tile svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+    .product-copy .kicker { margin-bottom: 5px; }
+    .product-copy h3 { font-size: 16px; margin-bottom: 7px; }
+    .product-copy p { margin: 0; font-size: 11px; line-height: 1.42; }
+    .product-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .product { padding: 14px 16px; min-height: 176px; }
+    .product-head { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: start; margin-bottom: 8px; }
+    .product-head h3 { margin: 2px 0 0; font-size: 14px; }
+    .product > p { font-size: 11px; line-height: 1.4; margin-bottom: 8px; }
+    ul.clean { list-style: none; padding: 0; margin: 0; }
+    ul.clean li { position: relative; padding-left: 18px; margin: 0 0 6px; font-size: 11px; line-height: 1.3; }
+    ul.clean li::before { content: '✓'; position: absolute; left: 0; color: var(--primary); }
+
+    .risk-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+    .risk-card { overflow: hidden; }
+    .risk-head { min-height: 72px; padding: 14px 16px; }
+    .risk-head.primary { background: var(--primary-20); }
+    .risk-head.blue { background: var(--blue-20); }
+    .risk-head.green { background: var(--green-20); }
+    .risk-head h3 { margin: 0 0 3px; font-size: 14px; }
+    .risk-head em { font-size: 11px; color: var(--n900); }
+    .risk-body { position: relative; padding: 16px 14px 16px 30px; min-height: 102px; font-size: 11px; line-height: 1.45; }
+    .risk-body::before { content: ''; position: absolute; left: 16px; top: 20px; width: 6px; height: 6px; border-radius: 50%; background: var(--primary); }
+    .risk-card:nth-child(2) .risk-body::before { background: var(--blue); }
+    .risk-card:nth-child(3) .risk-body::before { background: var(--green); }
+    .deploy { display: grid; grid-template-columns: 1fr 160px 1fr; gap: 24px; align-items: center; padding: 24px; margin-bottom: 16px; border-radius: 12px; background: var(--charcoal); color: var(--white); }
+    .deploy ul { list-style: none; padding: 0; margin: 0; }
+    .deploy li { margin: 0 0 10px; font-size: 13px; }
+    .deploy .left li::before { content: ''; display: inline-block; width: 6px; height: 6px; margin-right: 10px; border-radius: 50%; background: var(--primary); }
+    .deploy .right { text-align: right; }
+    .deploy .right li::after { content: ''; display: inline-block; width: 6px; height: 6px; margin-left: 10px; border-radius: 50%; background: var(--blue); }
+    .time-card { padding: 16px; text-align: center; border: 1px solid rgba(255,255,255,.12); border-radius: 8px; background: rgba(255,255,255,.04); }
+    .time-card .mark { margin-bottom: 8px; }
+    .time-card strong { display: block; font-family: var(--font-mono); font-size: 20px; }
+    .time-card span { font-size: 11px; color: var(--n500); }
+    .cta-panel { overflow: hidden; border-radius: 12px; background: #262522; color: var(--white); }
+    .cta-row { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 16px 24px; }
+    .cta-row + .cta-row { border-top: 1px solid rgba(255,255,255,.12); }
+    .cta-row p { margin: 0; font-size: 13px; color: var(--n300); }
+    .framework { max-width: 520px; }
+    .dark-pill { background: rgba(255,255,255,.10); color: var(--white); font-size: 11px; }
+    .action { background: var(--primary); color: var(--white); font-size: 14px; }
+    .contact-row { display: flex; justify-content: space-between; padding-top: 16px; margin-top: 16px; border-top: 1px solid var(--border); font-size: 11px; color: var(--n600); }
+    .contact-row .web { color: var(--primary); }
+  </style>
+</head>
+<body>
+  <section class="page">
+    <div class="topline"><span>SUPERALIGN · COGNITIVE SECURITY PLATFORM</span><span>DATASHEET</span></div>
+    <div class="brand-row">
+      <div class="brand">
+        <svg class="mark" viewBox="0 0 32 32" aria-label="SuperAlign"><path fill="#C44B21" d="M16 2 23 16 16 13 9 16Z"/><path fill="#C44B21" d="m8 17 7-3-2 15H1Z"/><path fill="#C44B21" d="m17 14 14 10-15 3Z"/></svg>
+        <span>SuperAlign</span>
+      </div>
+      <span class="pill confidential">Confidential</span>
+    </div>
+
+    <h1>AI is the new interface layer. SuperAlign secures it.</h1>
+    <p class="subtitle">Discover, score and govern every AI interaction — at the source · Datasheet</p>
+    <div class="rule"></div>
+
+    <div class="intro-card"><p>Your network tools watch the wire and the cloud — downstream of where AI actually thinks. SuperAlign puts an agentic sensor, <strong>Surface</strong>, on the endpoint, browser and network path to see and govern every agent, model and MCP server the moment it acts — including the third-party and local AI nothing else can see.</p></div>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-value">#1</div><p>reason CISO security budgets are rising: securing AI</p></div>
+      <div class="stat"><div class="stat-value">63%</div><p>of AI usage never touches the network</p></div>
+      <div class="stat"><div class="stat-value">15<span class="unit">min</span></div><p>time to value — complete visibility across the fleet</p></div>
+      <div class="stat"><div class="stat-value">1M+</div><p>AI assets pre-scored in Atlas, 8 categories</p></div>
+    </div>
+    <p class="source-note">Budget finding: Felicis AI-security survey, 2025 (45 enterprise security leaders, 76% CISO/CSO-level). Coverage from Atlas / AIRiskDB; other figures illustrative.</p>
+
+    <div class="section-label">THE SHIFT THAT BROKE THE THREAT MODEL</div>
+    <div class="era-grid">
+      <div class="card era">
+        <div class="eyebrow">PRE-AI ERA</div>
+        <div class="flow"><span class="node">User</span><span class="arrow">→</span><span class="node dark">Application</span></div>
+        <p>Employees used public SaaS and private apps directly through the UI. The <strong>application was the control point</strong>, and security wrapped around it.</p>
+        <div class="chip-row"><span class="chip">CASB</span><span class="chip">SSO</span><span class="chip">IAM</span><span class="chip">DLP</span></div>
+      </div>
+      <div class="card era post">
+        <div class="eyebrow">POST-AI ERA</div>
+        <div class="flow"><span class="node">User</span><span class="arrow">→</span><span class="node primary">AI</span><span class="arrow">→</span><span class="node dark">Everything</span></div>
+        <p>AI is the <strong>new interface layer</strong> — the OS, the browser, the front door to everything. The app no longer mediates access; the AI does. <strong>Security lost visibility.</strong></p>
+        <div class="chip-row"><span class="chip warm">No control point</span><span class="chip warm">Blind spot</span></div>
+      </div>
+    </div>
+    <p class="shift-note">This is a fundamental shift in <strong>where the control point lives</strong> — and in the threat model around it.</p>
+    <div class="reason-grid">
+      <div class="card reason"><div class="index">01</div><h3>One prompt, many systems</h3><p>A single request can touch Salesforce, internal databases and third-party APIs in one motion.</p></div>
+      <div class="card reason"><div class="index">02</div><h3>One agent, many tools</h3><p>Agents invoke tools and skills on the user's behalf, often with no human in the loop.</p></div>
+      <div class="card reason"><div class="index">03</div><h3>One MCP server, many capabilities</h3><p>A single connector can expose far more surface area than the org realizes it has granted.</p></div>
+      <div class="card reason"><div class="index">04</div><h3>The user is the new source of truth</h3><p>The application no longer mediates access — the user, through the AI, does.</p></div>
+    </div>
+    <div class="footerline"><span>SUPERALIGN · CONFIDENTIAL · 2026</span><span>SUPERALIGN.AI</span></div>
+  </section>
+
+  <section class="page">
+    <div class="topline"><span>SUPERALIGN · COGNITIVE SECURITY PLATFORM</span><span>DATASHEET</span></div>
+    <div class="page-intro">
+      <h2>WHY THE EXISTING STACK CAN'T SEE IT</h2>
+      <p>Coverage depends on where you sit in the AI data path. Everything downstream of the device reads yesterday's logs to stop today's action. Surface sits at the earliest point — the endpoint itself.</p>
+    </div>
+    <div class="card comparison">
+      <table>
+        <thead><tr><th>COVERAGE</th><th style="color:#8A3A05">SURFACE · ENDPOINT</th><th>GATEWAY / SASE</th><th>SDK IN YOUR CODE</th><th>CASB / DLP</th></tr></thead>
+        <tbody>
+          <tr><td>Local models, MCP servers, on-device agents</td><td><span class="dot green"></span>Complete</td><td><span class="dot"></span>Never sees it</td><td><span class="dot"></span>Out of scope</td><td><span class="dot"></span>Never sees it</td></tr>
+          <tr><td>Browser &amp; IDE AI assistants</td><td><span class="dot green"></span>Complete</td><td><span class="dot yellow"></span>URL filtering only</td><td><span class="dot"></span>Out of scope</td><td><span class="dot yellow"></span>Sanctioned apps</td></tr>
+          <tr><td>Cloud AI egress</td><td><span class="dot green"></span>With full context</td><td><span class="dot yellow"></span>In transit, no context</td><td><span class="dot yellow"></span>First-party only</td><td><span class="dot yellow"></span>Known apps only</td></tr>
+          <tr><td>Off-network &amp; remote devices</td><td><span class="dot green"></span>Always on</td><td><span class="dot yellow"></span>Only if routed</td><td><span class="dot"></span>n/a</td><td><span class="dot yellow"></span>Only via proxy</td></tr>
+          <tr><td>Agent intent &amp; the action taken</td><td><span class="dot green"></span>Classified on device</td><td><span class="dot"></span>None</td><td><span class="dot yellow"></span>App-level only</td><td><span class="dot"></span>None</td></tr>
+          <tr><td>Enforcement point</td><td><span class="dot green"></span>At source, pre-action</td><td><span class="dot yellow"></span>Downstream, in transit</td><td><span class="dot yellow"></span>Your own apps</td><td><span class="dot yellow"></span>At the proxy</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="caption">Category comparison — positions in the AI-security landscape, not specific vendors.</p>
+    <h2 class="platform-label">THE PLATFORM · ONE SENSOR, THREE PRODUCTS, ONE CONSOLE</h2>
+    <p class="platform-copy">One agentic sensor — <strong>SuperAlign Surface</strong> — plus a browser extension and network telemetry feeds three products, all driven from a single console. SuperAlign governs AI <strong>interactions</strong>: what your people and their agents do with AI. It does not touch your first-party apps or non-AI traffic.</p>
+
+    <div class="card sensor-card">
+      <div class="icon-tile"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><path d="M12 2v3m10 7h-3m-7 10v-3M2 12h3m11-5-4 5"/></svg></div>
+      <div class="product-copy"><div class="kicker">AGENTIC ENDPOINT SENSOR</div><h3>SuperAlign Surface</h3><p>One lightweight agentic sensor on every endpoint, browser and network path — the vantage point that sees every AI interaction, online or off. It discovers the assets, carries the telemetry, and enforces the verdict on the device, before the action completes.</p></div>
+    </div>
+
+    <div class="product-grid">
+      <div class="card product">
+        <div class="product-head"><div class="icon-tile blue"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="7" ry="3"/><path d="M5 5v6c0 1.7 3.1 3 7 3s7-1.3 7-3V5m-14 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/></svg></div><div><div class="kicker">RISK INTELLIGENCE · AIRISKDB</div><h3>SuperAlign Atlas</h3></div></div>
+        <p>Risk intelligence behind every verdict — so the moment an asset appears, its risk is known.</p>
+        <ul class="clean"><li>1M+ assets pre-scored across 8 categories</li><li>Capability, Exposure &amp; Governance dimensions</li><li>57 signal definitions; CVSS-aligned 0–10</li></ul>
+      </div>
+      <div class="card product">
+        <div class="product-head"><div class="icon-tile green"><svg viewBox="0 0 24 24"><path d="M12 3 19 6v5c0 4.8-2.9 8.2-7 10-4.1-1.8-7-5.2-7-10V6Z"/><path d="m9 12 2 2 4-5"/></svg></div><div><div class="kicker">DETECTION &amp; RESPONSE · AIDR</div><h3>SuperAlign Sentinel</h3></div></div>
+        <p>Purpose-built small models run locally, scoring intent and risk in milliseconds.</p>
+        <ul class="clean"><li>Intent classification at the edge, not domains</li><li>Enforce allow / warn / block before the action</li><li>87 scanner signals; private, works offline</li></ul>
+      </div>
+      <div class="card product">
+        <div class="product-head"><div class="icon-tile blue"><svg viewBox="0 0 24 24"><path d="M6 4h9v5H9v7h9v4H6Z"/><path d="M9 7H4v10h5m6-6h5v6h-5"/></svg></div><div><div class="kicker">SYSTEM OF RECORD · AI-IEM SOC</div><h3>SuperAlign Signal</h3></div></div>
+        <p>The AI-native system of record. A SIEM indexes logs; Signal captures cognition.</p>
+        <ul class="clean"><li>Prompt-level observability of every AI event</li><li>Replayable, span-by-span agent traces</li><li>Immutable audit, streamed into your SOC</li></ul>
+      </div>
+      <div class="card product">
+        <div class="product-head"><div class="icon-tile"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></div><div><div class="kicker">CONTROL PLANE</div><h3>SuperAlign Console</h3></div></div>
+        <p>One pane of glass — policy, investigation and response across every sensor.</p>
+        <ul class="clean"><li>Set guardrails once; enforce on every endpoint</li><li>Pivot from a risk score to a trace to the device</li><li>Board-ready reporting, mapped to frameworks</li></ul>
+      </div>
+    </div>
+    <div class="footerline"><span>SUPERALIGN · CONFIDENTIAL · 2026</span><span>SUPERALIGN.AI</span></div>
+  </section>
+
+  <section class="page">
+    <div class="topline"><span>SUPERALIGN · COGNITIVE SECURITY PLATFORM</span><span>DATASHEET</span></div>
+    <div class="section-label" style="margin-top:32px">EVERY ASSET SCORED ON THREE RISK DIMENSIONS</div>
+    <div class="risk-grid">
+      <div class="card risk-card"><div class="risk-head primary"><h3>Capability</h3><em>what the asset can do &amp; access</em></div><div class="risk-body">Web crawling, code execution, file-system access, autonomous actions, tool &amp; API reach</div></div>
+      <div class="card risk-card"><div class="risk-head blue"><h3>Exposure</h3><em>footprint across systems &amp; users</em></div><div class="risk-body">Install reach, public inference endpoints, always-on, cross-platform availability</div></div>
+      <div class="card risk-card"><div class="risk-head green"><h3>Governance</h3><em>legal, compliance &amp; policy</em></div><div class="risk-body">Legal &amp; compliance status, enterprise-account usage, risk-framework alignment, policy violations, user privilege</div></div>
+    </div>
+
+    <div class="deploy">
+      <ul class="left"><li>macOS</li><li>Windows</li><li>Linux</li></ul>
+      <div class="time-card">
+        <svg class="mark" viewBox="0 0 32 32"><path fill="#C44B21" d="M16 2 23 16 16 13 9 16Z"/><path fill="#C44B21" d="m8 17 7-3-2 15H1Z"/><path fill="#C44B21" d="m17 14 14 10-15 3Z"/></svg>
+        <strong>15 min</strong><span>first AI inventory</span>
+      </div>
+      <ul class="right"><li>Managed browser extension</li><li>Deploys through existing MDM</li><li>No re-architecture or rerouting</li></ul>
+    </div>
+
+    <div class="cta-panel">
+      <div class="cta-row"><p class="framework">Mapped to EU AI Act · ISO 42001 · NIST AI RMF · MITRE ATLAS · OWASP LLM, Agent, MCP &amp; Skill Top 10</p><span class="pill dark-pill">Framework-mapped</span></div>
+      <div class="cta-row"><p>See your own AI inventory and gather telemetry within 15 minutes.</p><span class="pill action">cal.com/appidi</span></div>
+    </div>
+    <div class="contact-row"><span>SuperAlign · Confidential · 2026&nbsp; · &nbsp;contact@superalign.ai</span><span class="web">superalign.ai</span></div>
+    <div class="footerline"><span>SUPERALIGN · CONFIDENTIAL · 2026</span><span>SUPERALIGN.AI</span></div>
+  </section>
+</body>
+</html>
