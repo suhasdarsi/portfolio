@@ -1,6 +1,7 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
+import cloudflare from '@astrojs/cloudflare';
 import remarkWikiLink from 'remark-wiki-link';
 import { readdirSync } from 'node:fs';
 
@@ -15,9 +16,10 @@ const existingSlugs = readdirSync(blogDir)
 // https://astro.build/config
 export default defineConfig({
   site: 'https://suhasdarsi.com',
+  output: 'static',
   trailingSlash: 'never',
   compressHTML: true,
-  integrations: [sitemap()],
+  integrations: [sitemap(), cloudflare()],
   vite: {
     plugins: [tailwindcss()]
   },
