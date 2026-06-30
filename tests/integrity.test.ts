@@ -106,11 +106,15 @@ describe('build', () => {
   it('produces all expected pages', () => {
     execSync('bun run build', { cwd: ROOT, stdio: 'pipe' });
 
+    const blogDir = join(SRC, 'content', 'blog');
+    const blogSlugs = readdirSync(blogDir)
+      .filter((f) => f.endsWith('.md'))
+      .map((f) => f.replace(/\.md$/, ''));
+
     const expectedPages = [
       'dist/index.html',
       'dist/notes/index.html',
-
-      'dist/notes/ai-as-the-ultimate-hub/index.html',
+      ...blogSlugs.map((slug) => `dist/notes/${slug}/index.html`),
     ];
 
     for (const page of expectedPages) {

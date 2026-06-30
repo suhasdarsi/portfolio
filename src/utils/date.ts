@@ -8,6 +8,14 @@ export function formatDate(dateInput: Date | string): string {
   }
 }
 
+export function getReadingTime(content: string): string {
+  if (!content) return '';
+  const words = content.trim().split(/\s+/).filter(Boolean).length;
+  const minutes = Math.ceil(words / 200);
+  if (minutes < 1) return '< 1 min read';
+  return `${minutes} min read`;
+}
+
 export function formatDateWithYear(dateInput: Date | string): string {
   try {
     const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput;
@@ -16,12 +24,4 @@ export function formatDateWithYear(dateInput: Date | string): string {
   } catch {
     return 'Invalid date';
   }
-}
-
-export function getReadingTime(content: string): number {
-  if (!content || typeof content !== 'string') return 0;
-  const wordsPerMinute = 200;
-  const words = content.trim().split(/\s+/).filter(Boolean).length;
-  if (words === 0) return 0;
-  return Math.ceil(words / wordsPerMinute);
 }

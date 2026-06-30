@@ -1,7 +1,6 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
-import cloudflare from '@astrojs/cloudflare';
 import remarkWikiLink from 'remark-wiki-link';
 import { readdirSync } from 'node:fs';
 
@@ -19,7 +18,7 @@ export default defineConfig({
   output: 'static',
   trailingSlash: 'never',
   compressHTML: true,
-  integrations: [sitemap(), cloudflare()],
+  integrations: [sitemap()],
   vite: {
     plugins: [tailwindcss()]
   },

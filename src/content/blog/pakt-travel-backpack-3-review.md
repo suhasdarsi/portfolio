@@ -3,7 +3,6 @@ title: "Pakt Travel Backpack 3 — An Honest Review"
 description: "After months of daily use across multiple cities, here's what I actually think about the Pakt Travel Backpack 3."
 pubDate: "2026-04-07"
 author: "Suhas Darsi"
-draft: false
 maturity: "seedling"
 topics: ["Bags", "Travel"]
 ---

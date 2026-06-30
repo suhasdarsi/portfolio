@@ -28,7 +28,7 @@ const previously = [
     Suhas Darsi
   </h1>
   <p class="home-bio">
-    I'm a co-founder at <a href="https://superalign.ai" class="bio-link">SuperAlign</a>, where we help security teams see, understand, and control AI adoption across their organizations.
+    I'm a co-founder at <a href="https://superalign.ai" class="bio-link link-underline">SuperAlign</a>, where we help security teams see, understand, and control AI adoption across their organizations.
   </p>
   <p class="home-bio">
     My background is in Computer Vision research at IIIT Hyderabad. These days I spend most of my time thinking about AI governance, the security risks of enterprise AI, and what it takes to build trustworthy systems at scale.
@@ -60,24 +60,23 @@ const previously = [
     </div>
   </div>
 
-  <div class="sections">
-    <div class="section-card">
-      <h2 class="section-label">Currently</h2>
-      <ul class="section-list">
+  <div class="timeline-section">
+    <div class="timeline-group">
+      <h2 class="timeline-label">Currently</h2>
+      <ul class="timeline-list">
         {currently.map((item) => (
-          <li class="section-item">
-            {item.label} at <a href={item.url} class="section-link" target="_blank" rel="noopener noreferrer">{item.name}</a>
+          <li class="timeline-item">
+            <span class="timeline-role">{item.label}</span> at <a href={item.url} class="section-link link-underline" target="_blank" rel="noopener noreferrer">{item.name}</a>
           </li>
         ))}
       </ul>
     </div>
-
-    <div class="section-card">
-      <h2 class="section-label">Previously</h2>
-      <ul class="section-list">
+    <div class="timeline-group">
+      <h2 class="timeline-label">Previously</h2>
+      <ul class="timeline-list">
         {previously.map((item) => (
-          <li class="section-item">
-            {item.label} at <a href={item.url} class="section-link" target="_blank" rel="noopener noreferrer">{item.name}</a>
+          <li class="timeline-item">
+            <span class="timeline-role">{item.label}</span> at <a href={item.url} class="section-link link-underline" target="_blank" rel="noopener noreferrer">{item.name}</a>
           </li>
         ))}
       </ul>
@@ -119,28 +118,33 @@ const previously = [
   .home-name {
     font-family: var(--font-serif);
     font-size: var(--text-display);
-    margin-bottom: 1rem;
+    margin-bottom: 2rem;
     letter-spacing: 0;
-    opacity: 0;
-    animation: fadeUp 0.6s ease-out forwards;
   }
 
   .home-bio {
-    font-size: var(--text-body-lg);
+    font-size: 1.125rem;
     color: var(--color-body-text);
-    line-height: 1.7;
+    line-height: 1.75;
+    margin-bottom: 1.5rem;
+  }
+
+  .home-bio:last-of-type {
     margin-bottom: 1rem;
-    opacity: 0;
-    animation: fadeUp 0.6s ease-out 0.15s forwards;
   }
 
   .cta-row {
     display: flex;
-    align-items: center;
+    flex-direction: column;
     gap: 1.25rem;
-    margin-bottom: 2rem;
-    opacity: 0;
-    animation: fadeUp 0.6s ease-out 0.2s forwards;
+    margin-bottom: 2.5rem;
+  }
+
+  @media (min-width: 480px) {
+    .cta-row {
+      flex-direction: row;
+      align-items: center;
+    }
   }
 
   .cta-button {
@@ -152,100 +156,66 @@ const previously = [
     background: none;
     border: 1px solid var(--color-subtle-border);
     padding: 0.625rem 1.25rem;
-    border-radius: var(--radius-sm);
     text-decoration: none;
     font-weight: 500;
-    transition: all 0.3s ease;
+    transition: border-color 0.2s ease, color 0.2s ease;
+  }
+
+  .cta-button:focus-visible {
+    outline: 2px solid var(--color-foreground);
+    outline-offset: 2px;
   }
 
   .cta-button:hover {
     border-color: var(--color-foreground);
     color: var(--color-foreground);
-    transform: translateX(2px);
   }
 
-  .cta-button svg {
-    transition: transform 0.3s ease;
+  .timeline-section {
+    padding-top: 2.5rem;
+    border-top: 1px solid var(--color-subtle-border);
+    margin-bottom: 2.5rem;
   }
 
-  .cta-button:hover svg {
-    transform: translateX(3px);
+  .timeline-group {
+    margin-bottom: 1.5rem;
   }
 
-  .bio-link {
-    color: var(--color-foreground);
-    text-decoration: underline;
-    text-decoration-color: #a19c87;
-    text-decoration-thickness: 2px;
-    text-underline-offset: 4px;
-    transition: text-decoration-color 0.3s ease;
+  .timeline-group:last-child {
+    margin-bottom: 0;
   }
 
-  .bio-link:hover {
-    text-decoration-color: var(--color-muted-foreground);
-  }
-
-  .sections {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-    margin-bottom: 2rem;
-    opacity: 0;
-    animation: fadeUp 0.6s ease-out 0.25s forwards;
-  }
-
-  @media (max-width: 640px) {
-    .sections {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  .section-card {
-    padding: 1.5rem;
-    border: 1px solid var(--color-subtle-border);
-    border-radius: var(--radius-sm);
-    transition: border-color 0.3s ease;
-  }
-
-  .section-card:hover {
-    border-color: var(--color-foreground);
-  }
-
-  .section-label {
+  .timeline-label {
     font-size: var(--text-small);
     color: var(--color-muted-foreground);
     text-transform: uppercase;
-    letter-spacing: 0.04em;
-    margin: 0 0 1rem;
+    letter-spacing: 0.06em;
+    margin: 0 0 0.75rem;
   }
 
-  .section-list {
+  .timeline-list {
     list-style: none;
     padding: 0;
     margin: 0;
   }
 
-  .section-item {
-    font-size: var(--text-body);
-    color: var(--color-muted-foreground);
+  .timeline-item {
+    font-size: 1rem;
+    color: var(--color-foreground);
     margin-bottom: 0.5rem;
   }
 
-  .section-item:last-child {
+  .timeline-item:last-child {
     margin-bottom: 0;
+  }
+
+  .timeline-role {
+    font-weight: 500;
+    color: var(--color-foreground);
   }
 
   .section-link {
     color: var(--color-foreground);
-    text-decoration: underline;
-    text-decoration-color: #a19c87;
-    text-decoration-thickness: 2px;
-    text-underline-offset: 4px;
-    transition: text-decoration-color 0.3s ease;
-  }
-
-  .section-link:hover {
-    text-decoration-color: var(--color-muted-foreground);
   }
 
   .home-socials {
@@ -259,24 +229,15 @@ const previously = [
     transition: color 0.3s ease, transform 0.3s ease;
   }
 
+  .social-icon:focus-visible {
+    outline: 2px solid var(--color-foreground);
+    outline-offset: 4px;
+    border-radius: 4px;
+  }
+
   .social-icon:hover {
     color: var(--color-foreground);
     transform: scale(1.1);
-  }
-
-  .social-link-text {
-    font-size: var(--text-body);
-    color: var(--color-muted-foreground);
-    text-decoration: underline;
-    text-decoration-color: #a19c87;
-    text-decoration-thickness: 2px;
-    text-underline-offset: 4px;
-    transition: color 0.3s ease, text-decoration-color 0.3s ease;
-  }
-
-  .social-link-text:hover {
-    color: var(--color-foreground);
-    text-decoration-color: var(--color-muted-foreground);
   }
 
   .recent-section {
@@ -296,9 +257,9 @@ const previously = [
     gap: 1.5rem;
   }
 
-  .recent-item {
-    opacity: 0;
-    animation: fadeUp 0.5s ease-out forwards;
+  .recent-item:last-child .recent-link {
+    border-bottom: none;
+    padding-bottom: 0;
   }
 
   .recent-link {
@@ -307,12 +268,6 @@ const previously = [
     color: inherit;
     padding-bottom: 1.5rem;
     border-bottom: 1px solid var(--color-subtle-border);
-    transition: border-color 0.3s ease;
-  }
-
-  .recent-item:last-child .recent-link {
-    border-bottom: none;
-    padding-bottom: 0;
   }
 
   .recent-link:hover {
@@ -324,7 +279,7 @@ const previously = [
     font-size: 1.125rem;
     font-weight: 500;
     line-height: 1.3;
-    transition: color 0.3s ease;
+    transition: color 0.2s ease;
   }
 
   .recent-link:hover .recent-title {
@@ -341,7 +296,7 @@ const previously = [
     font-size: var(--text-small);
     color: var(--color-muted-foreground);
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.06em;
     margin-top: 0.125rem;
   }
 
@@ -352,29 +307,21 @@ const previously = [
     font-size: var(--text-body);
     color: var(--color-muted-foreground);
     text-decoration: underline;
-    text-decoration-color: #a19c87;
+    text-decoration-color: var(--color-slate);
     text-decoration-thickness: 2px;
     text-underline-offset: 4px;
-    transition: color 0.3s ease, text-decoration-color 0.3s ease, gap 0.3s ease;
+    transition: color 0.2s ease, text-decoration-color 0.2s ease;
     margin-top: 2rem;
+  }
+
+  .view-all-link:focus-visible {
+    outline: 2px solid var(--color-foreground);
+    outline-offset: 2px;
+    border-radius: 2px;
   }
 
   .view-all-link:hover {
     color: var(--color-foreground);
     text-decoration-color: var(--color-muted-foreground);
-    gap: 0.75rem;
-  }
-
-  .view-all-link svg {
-    transition: transform 0.3s ease;
-  }
-
-  .view-all-link:hover svg {
-    transform: translateX(3px);
-  }
-
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
   }
 </style>

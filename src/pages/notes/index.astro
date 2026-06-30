@@ -24,7 +24,10 @@ const allTopicsUsed = [...new Set(posts.flatMap((p) => p.data.topics))].sort();
         ))}
       </div>
     )}
-  </div>
+    <div class="notes-controls">
+      <input type="text" id="notes-search" class="notes-search-input" placeholder="Filter by title or description..." autocomplete="off" />
+      <span class="notes-count" id="notes-count"></span>
+    </div>
 
   <div class="note-list" id="note-list">
     {posts.map((post) => (
@@ -58,16 +61,20 @@ const allTopicsUsed = [...new Set(posts.flatMap((p) => p.data.topics))].sort();
         </a>
       </article>
     ))}
+    <p class="search-empty hidden" id="search-empty">No notes found.</p>
   </div>
-  <p class="search-empty hidden" id="search-empty">No notes found.</p>
 </BlogLayout>
 
 <script>
   const articles = document.querySelectorAll('[data-searchable]');
   const emptyMsg = document.getElementById('search-empty');
   const topicFilters = document.getElementById('topic-filters');
+  const searchInput = document.getElementById('notes-search') as HTMLInputElement;
+  const countDisplay = document.getElementById('notes-count');
+  const totalCount = articles.length;
 
   let activeTopic = 'all';
+  let searchQuery = '';
 
   const urlParams = new URLSearchParams(window.location.search);
   const topicFromUrl = urlParams.get('topic');
@@ -82,10 +89,11 @@ const allTopicsUsed = [...new Set(posts.flatMap((p) => p.data.topics))].sort();
     let visibleCount = 0;
 
     articles.forEach((el) => {
-      const id = el.getAttribute('data-post-id');
+      const title = el.querySelector('.note-title')?.textContent?.toLowerCase() || '';
+      const desc = el.querySelector('.note-desc')?.textContent?.toLowerCase() || '';
       const topics = JSON.parse(el.getAttribute('data-topics') || '[]') as string[];
       const matchesTopic = activeTopic === 'all' || topics.includes(activeTopic);
-      const matchesSearch = Boolean(id);
+      const matchesSearch = !searchQuery || title.includes(searchQuery) || desc.includes(searchQuery);
 
       if (matchesTopic && matchesSearch) {
         el.classList.remove('hidden');
@@ -96,8 +104,12 @@ const allTopicsUsed = [...new Set(posts.flatMap((p) => p.data.topics))].sort();
     });
 
     if (emptyMsg) {
-      if (visibleCount === 0) emptyMsg.classList.remove('hidden');
-      else emptyMsg.classList.add('hidden');
+      emptyMsg.classList.toggle('hidden', visibleCount > 0);
+    }
+
+    if (countDisplay) {
+      const label = activeTopic !== 'all' ? `Filtered: ` : '';
+      countDisplay.textContent = visibleCount < totalCount ? `${label}${visibleCount} of ${totalCount}` : `${totalCount} notes`;
     }
   }
 
@@ -113,6 +125,11 @@ const allTopicsUsed = [...new Set(posts.flatMap((p) => p.data.topics))].sort();
   };
 
   topicFilters?.addEventListener('click', handleTopicClick);
+
+  searchInput?.addEventListener('input', () => {
+    searchQuery = searchInput.value.trim().toLowerCase();
+    applyFilters();
+  });
 
   applyFilters();
 
@@ -152,12 +169,11 @@ const allTopicsUsed = [...new Set(posts.flatMap((p) => p.data.topics))].sort();
   }
 
   .topic-filter {
-    font-size: 0.8125rem;
+    font-size: 0.875rem;
     line-height: 1.25rem;
     font-weight: 500;
     padding: 0.25rem 0.75rem;
     border: 1px solid var(--color-subtle-border);
-    border-radius: 0.5rem;
     background: var(--color-subtle);
     color: var(--color-muted-foreground);
     cursor: pointer;
@@ -167,6 +183,40 @@ const allTopicsUsed = [...new Set(posts.flatMap((p) => p.data.topics))].sort();
   .topic-filter:hover {
     border-color: var(--color-foreground);
     color: var(--color-foreground);
+  }
+
+  .notes-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  .notes-search-input {
+    flex: 1;
+    max-width: 28rem;
+    font-family: var(--font-serif);
+    font-size: 0.875rem;
+    color: var(--color-foreground);
+    background: none;
+    border: 1px solid var(--color-subtle-border);
+    padding: 0.5rem 0.75rem;
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+
+  .notes-search-input::placeholder {
+    color: var(--color-muted-foreground);
+  }
+
+  .notes-search-input:focus {
+    border-color: var(--color-foreground);
+  }
+
+  .notes-count {
+    font-size: 0.875rem;
+    color: var(--color-muted-foreground);
+    white-space: nowrap;
   }
 
   .topic-filter.active {
@@ -218,7 +268,7 @@ const allTopicsUsed = [...new Set(posts.flatMap((p) => p.data.topics))].sort();
 
   .note-title {
     font-family: var(--font-serif);
-    font-size: 1.25rem;
+    font-size: 1.375rem;
     font-weight: 500;
     line-height: 1.3;
     letter-spacing: 0;
@@ -226,7 +276,7 @@ const allTopicsUsed = [...new Set(posts.flatMap((p) => p.data.topics))].sort();
   }
 
   .note-desc {
-    font-size: var(--text-body);
+    font-size: 1rem;
     color: var(--color-body-text);
     line-height: 1.6;
     margin: 0 0 0.5rem;
@@ -243,7 +293,7 @@ const allTopicsUsed = [...new Set(posts.flatMap((p) => p.data.topics))].sort();
     font-size: var(--text-small);
     color: var(--color-muted-foreground);
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.06em;
   }
 
   .search-empty {
@@ -253,10 +303,4 @@ const allTopicsUsed = [...new Set(posts.flatMap((p) => p.data.topics))].sort();
     color: var(--color-muted-foreground);
     padding: 2rem 0;
     text-align: center;
-  }
-
-  .hidden {
-    display: none !important;
-  }
-
-</style>
+  }</style>

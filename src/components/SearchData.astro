@@ -10,7 +10,7 @@ const searchData = posts.map((post) => ({
   id: post.id,
   title: post.data.title,
   description: post.data.description,
-  body: post.body?.slice(0, 500) ?? '',
+  body: post.body?.slice(0, 2000) ?? '',
 }));
 
 const serializedSearchData = JSON.stringify(searchData).replace(/</g, '\\u003c');

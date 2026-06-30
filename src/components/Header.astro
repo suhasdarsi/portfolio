@@ -7,17 +7,16 @@ export interface Props {
 }
 
 const { showNav = true, showSearch = true } = Astro.props;
+const currentPath = Astro.url.pathname;
 ---
 
 <header class="header">
   <div class="header-inner">
     {showNav ? (
       <nav class="nav-links">
-        <a href="/" class="nav-link" data-path="/">Home</a>
-        <span class="nav-sep">|</span>
-        <a href="/notes" class="nav-link" data-path="/notes">Notes</a>
-        <span class="nav-sep">|</span>
-        <a href="/uses" class="nav-link" data-path="/uses">Uses</a>
+        <a href="/" class="nav-link" aria-current={currentPath === '/' ? 'page' : undefined}>Home</a>
+        <a href="/notes" class="nav-link" aria-current={currentPath.startsWith('/notes') ? 'page' : undefined}>Notes</a>
+        <a href="/uses" class="nav-link" aria-current={currentPath === '/uses' ? 'page' : undefined}>Uses</a>
       </nav>
     ) : (
       <a href="/" class="nav-link">Home</a>
@@ -283,20 +282,38 @@ const { showNav = true, showSearch = true } = Astro.props;
   .nav-links {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 1.5rem;
     font-size: var(--text-small);
     color: var(--color-muted-foreground);
   }
 
   .nav-link {
-    color: var(--color-foreground);
+    color: var(--color-muted-foreground);
     text-decoration: none;
-    padding: 0;
+    padding: 0.25rem 0;
     transition: color 0.2s ease;
+    position: relative;
   }
 
-  .nav-link:hover {
-    color: var(--color-graphite);
+  .nav-link:hover,
+  .nav-link[aria-current="page"] {
+    color: var(--color-foreground);
+  }
+
+  .nav-link[aria-current="page"]::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: var(--color-foreground);
+  }
+
+  .nav-link:focus-visible {
+    outline: 2px solid var(--color-foreground);
+    outline-offset: 4px;
+    outline-offset: 2px;
   }
 
   .nav-sep {
@@ -372,7 +389,7 @@ const { showNav = true, showSearch = true } = Astro.props;
   }
 
   .search-trigger-label {
-    display: none;
+    display: inline;
   }
 
   .search-trigger-kbd {
@@ -387,7 +404,6 @@ const { showNav = true, showSearch = true } = Astro.props;
   }
 
   @media (min-width: 640px) {
-    .search-trigger-label,
     .search-trigger-kbd {
       display: inline;
     }
@@ -398,7 +414,6 @@ const { showNav = true, showSearch = true } = Astro.props;
     inset: 0;
     z-index: 100;
     background: var(--color-overlay);
-    backdrop-filter: blur(8px);
     display: flex;
     align-items: flex-start;
     justify-content: center;
@@ -526,10 +541,6 @@ const { showNav = true, showSearch = true } = Astro.props;
     color: var(--color-muted-foreground);
     padding: 2rem 1rem;
     text-align: center;
-  }
-
-  .hidden {
-    display: none !important;
   }
 
   .search-footer {

@@ -10,6 +10,16 @@
     codeBlocks.forEach((pre) => {
       if (pre.querySelector('.copy-code-button')) return;
 
+      const code = pre.querySelector('code');
+      const langClass = code?.className || '';
+      const lang = langClass.replace(/^language-/, '');
+      if (lang) {
+        const label = document.createElement('span');
+        label.className = 'copy-code-lang';
+        label.textContent = lang;
+        pre.prepend(label);
+      }
+
       const button = document.createElement('button');
       button.className = 'copy-code-button';
       button.setAttribute('aria-label', 'Copy code to clipboard');
@@ -28,7 +38,8 @@
         try {
           await navigator.clipboard.writeText(code.textContent || '');
           button.classList.add('copied');
-          button.querySelector('.copy-code-tooltip')!.textContent = 'Copied!';
+          const tooltip = button.querySelector('.copy-code-tooltip');
+          if (tooltip) tooltip.textContent = 'Copied!';
           
           const toast = document.getElementById('copy-toast');
           if (toast) {
@@ -38,10 +49,11 @@
 
           setTimeout(() => {
             button.classList.remove('copied');
-            button.querySelector('.copy-code-tooltip')!.textContent = 'Copy';
+            const tooltipReset = button.querySelector('.copy-code-tooltip');
+            if (tooltipReset) tooltipReset.textContent = 'Copy';
           }, 2000);
-        } catch (err) {
-          console.error('Failed to copy:', err);
+        } catch {
+          // Clipboard API not available
         }
       });
 
@@ -87,6 +99,17 @@
     background: var(--color-foreground);
     color: var(--color-background);
     border-color: var(--color-foreground);
+  }
+
+  .copy-code-lang {
+    position: absolute;
+    bottom: 0.5rem;
+    right: 0.75rem;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--color-muted-foreground);
+    opacity: 0.4;
+    pointer-events: none;
   }
 
   .copy-code-tooltip {

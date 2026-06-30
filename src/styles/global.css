@@ -1,6 +1,5 @@
 @import 'tailwindcss';
-@import '@fontsource-variable/inter';
-@import '@fontsource-variable/lora';
+@import '@fontsource-variable/literata';
 @import '@fontsource/fira-code/400.css';
 @import '@fontsource/fira-code/500.css';
 
@@ -11,7 +10,7 @@
   --color-slate: #a19c87;
   --color-fog: #d8d3c1;
   --color-chalk: #d8d3c1;
-  --color-powder: #f8f5eb;
+  --color-powder: #f0ede3;
   --color-eggshell: #f8f5eb;
   --color-signal-blue: #517cd9;
   --color-ember: #cd5f37;
@@ -29,24 +28,21 @@
   --color-code-bg: var(--color-powder);
   --color-body-text: #4d4937;
 
-  --font-display: 'Lora Variable', 'Lora', Georgia, serif;
-  --font-inter: 'Inter Variable', 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-geist-mono: 'Geist Mono', 'Fira Code', 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-display: 'Literata Variable', 'Literata', Georgia, serif;
+  --font-mono-stack: 'Fira Code', 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   --font-serif: var(--font-display);
-  --font-sans: var(--font-inter);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-serif);
+  --font-mono: var(--font-mono-stack);
 
   --text-display: 3rem;
   --text-display-sm: 2.25rem;
-  --text-heading-lg: 2.25rem;
   --text-title: 2rem;
-  --text-heading-sm: 1.25rem;
   --text-subtitle: 1.125rem;
   --text-body-lg: 1rem;
   --text-body: 0.875rem;
-  --text-body-sm: 0.8125rem;
+  --text-body-sm: 0.875rem;
   --text-small: 0.875rem;
-  --text-caption: 0.625rem;
+  --text-caption: 0.75rem;
 
   --text-display--line-height: 1.08;
   --text-display--letter-spacing: -0.02em;
@@ -57,7 +53,9 @@
   --text-subtitle--line-height: 1.44;
   --text-body-lg--line-height: 1.5;
   --text-body--line-height: 1.43;
+  --text-body-sm--line-height: 1.5;
   --text-small--line-height: 1.5;
+  --text-small--letter-spacing: 0.02em;
   --text-caption--line-height: 1.2;
   --text-caption--letter-spacing: 0.05em;
 
@@ -90,11 +88,10 @@
   --tracking-tight: -0.02em;
   --tracking-snug: -0.01em;
 
-  --radius-sm: 4px;
-  --radius-cards: 16px;
-  --radius-panels: 20px;
-  --radius-buttons: 9999px;
-  --shadow-subtle: rgba(0, 0, 0, 0.075) 0 0 0 0.5px inset;
+  --radius-sm: 0px;
+  --radius-cards: 0px;
+  --radius-panels: 0px;
+  --radius-buttons: 0px;
 
   --duration-400: 400ms;
 
@@ -114,9 +111,9 @@
 
 html.dark {
   --color-background: #0c0b09;
-  --color-foreground: #f8f5eb;
+  --color-foreground: #f5f2e5;
   --color-muted: #1a1815;
-  --color-muted-foreground: #847f6b;
+  --color-muted-foreground: #a09b88;
   --color-subtle: #151310;
   --color-subtle-border: #2a2720;
   --color-accent: #f8f5eb;
@@ -124,8 +121,12 @@ html.dark {
   --color-border: #2a2720;
   --color-overlay: rgba(12, 11, 9, 0.78);
   --color-code-bg: #1a1815;
-  --color-body-text: #c4bfa9;
-  --shadow-subtle: rgba(248, 245, 235, 0.08) 0 0 0 0.5px inset;
+  --color-body-text: #d1cdbd;
+}
+
+html.dark .prose-custom {
+  line-height: 1.8;
+  letter-spacing: 0.01em;
 }
 
 html {
@@ -148,6 +149,29 @@ html {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* Inline underline link — used on homepage and /uses for styled inline links */
+.link-underline {
+  text-decoration: underline;
+  text-decoration-color: var(--color-slate);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+  transition: text-decoration-color 0.3s ease;
+}
+
+.link-underline:hover {
+  text-decoration-color: var(--color-muted-foreground);
+}
+
+.link-underline:focus-visible {
+  outline: 2px solid var(--color-foreground);
+  outline-offset: 2px;
+  border-radius: 2px;
 }
 
 .skip-link {
@@ -251,9 +275,17 @@ main {
 .prose-custom {
   overflow-wrap: break-word;
   word-break: break-word;
-  font-size: 1.375rem;
-  line-height: 1.82;
+  hyphens: auto;
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  line-height: 1.7;
   color: var(--color-body-text);
+}
+
+@media (min-width: 480px) {
+  .prose-custom {
+    font-size: 1.25rem;
+  }
 }
 
 .prose-custom > *:first-child {
@@ -264,34 +296,34 @@ main {
   margin-bottom: 0;
 }
 
-.prose-custom h2,
-.prose-custom h2[id] {
-  font-family: var(--font-serif) !important;
-  font-size: 2.375rem !important;
-  font-weight: 600 !important;
-  line-height: 1.26 !important;
-  letter-spacing: -0.02em !important;
-  margin-top: 3rem !important;
-  margin-bottom: 0.75rem !important;
-  text-wrap: balance !important;
-  color: var(--color-foreground) !important;
+:is(.prose-custom) h2,
+:is(.prose-custom) h2[id] {
+  font-family: var(--font-serif);
+  font-size: 1.75rem;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  margin-top: 3rem;
+  margin-bottom: 0.75rem;
+  text-wrap: balance;
+  color: var(--color-foreground);
   scroll-margin-top: 5rem;
 }
 
 .prose-custom h2:first-child {
-  margin-top: 0 !important;
+  margin-top: 0;
 }
 
-.prose-custom h3,
-.prose-custom h3[id] {
-  font-family: var(--font-serif) !important;
-  font-size: 2rem !important;
-  font-weight: 600 !important;
-  line-height: 1.25 !important;
-  letter-spacing: -0.01em !important;
-  margin-top: 2rem !important;
-  margin-bottom: 0.5rem !important;
-  color: var(--color-foreground) !important;
+:is(.prose-custom) h3,
+:is(.prose-custom) h3[id] {
+  font-family: var(--font-serif);
+  font-size: 1.375rem;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  margin-top: 2rem;
+  margin-bottom: 0.5rem;
+  color: var(--color-foreground);
   scroll-margin-top: 5rem;
 }
 
@@ -338,7 +370,7 @@ main {
 .prose-custom a {
   color: var(--color-foreground);
   text-decoration: underline;
-  text-decoration-color: var(--color-muted-foreground);
+  text-decoration-color: var(--color-slate);
   text-underline-offset: 3px;
   text-decoration-thickness: 1px;
   transition:
@@ -347,6 +379,14 @@ main {
 }
 
 .prose-custom a:hover {
+  text-decoration-color: var(--color-ember);
+}
+
+.prose-custom a[target="_blank"] {
+  text-decoration-color: var(--color-signal-blue);
+}
+
+.prose-custom a[target="_blank"]:hover {
   text-decoration-color: var(--color-foreground);
 }
 
@@ -508,6 +548,11 @@ main {
   margin-right: 0.125em;
   opacity: 0.5;
   font-weight: 400;
+}
+
+.topic-tag:focus-visible {
+  outline: 2px solid var(--color-foreground);
+  outline-offset: 2px;
 }
 
 .topic-tag:hover {

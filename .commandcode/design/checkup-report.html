@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Suhas Darsi Portfolio - Checkup Report</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: Inter, ui-sans-serif, system-ui, sans-serif; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .report-section { border: 1px solid #222226; background: #0a0a0b; position: relative; }
+    .corner-box { position: absolute; width: 20px; height: 20px; border: 1px solid #222226; background: #000; }
+    .badge-green { border: 1px solid #34d399; background: rgba(52, 211, 153, 0.08); color: #34d399; }
+    .badge-yellow { border: 1px solid #fbbf24; background: rgba(251, 191, 36, 0.08); color: #fbbf24; }
+  </style>
+</head>
+<body class="bg-black text-[#fafafa]">
+  <main class="mx-auto w-full max-w-6xl px-5 py-8 md:px-10 md:py-12">
+    <header class="report-section mb-8 p-6 md:p-8">
+      <div class="corner-box left-0 top-0 -translate-x-1/2 -translate-y-1/2"></div>
+      <div class="corner-box right-0 top-0 translate-x-1/2 -translate-y-1/2"></div>
+      <div class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+        <div>
+          <div class="mono mb-2 text-xs tracking-widest text-[#666]">// CHECKUP</div>
+          <h1 class="text-4xl font-bold tracking-tight md:text-6xl">Suhas Darsi Portfolio</h1>
+        </div>
+        <div class="mono text-left text-xs text-[#666] md:text-right">
+          <div>COMMANDCODE REPORT</div>
+          <div class="text-[#444]">2026-06-30</div>
+        </div>
+      </div>
+    </header>
+
+    <section class="report-section mb-8 p-6 md:p-8">
+      <div class="corner-box left-0 top-0 -translate-x-1/2 -translate-y-1/2"></div>
+      <div class="corner-box right-0 top-0 translate-x-1/2 -translate-y-1/2"></div>
+      <div class="grid gap-8 md:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
+        <div>
+          <div class="mono mb-2 text-xs tracking-widest text-[#666]">// OVERALL</div>
+          <div class="text-6xl font-bold tracking-tight md:text-7xl">56</div>
+          <div class="mt-1 text-lg text-[#666]">/ 60</div>
+          <div class="mt-4 inline-flex border border-[#34d399]/30 bg-[#34d399]/10 px-3 py-1 text-sm text-[#34d399]">HEALTHY</div>
+        </div>
+        <div>
+          <div class="mono mb-3 text-xs tracking-widest text-[#666]">// TL;DR</div>
+          <p class="text-sm leading-6 text-[#a0a0a0]">Warm, authored editorial design with excellent typography and intentional color. The palette, composition, and motion all signal a personal digital garden, not a template. Two small surface issues — mobile search affordance and prose overflow risk on very narrow viewports — are the only things keeping this from a clean bill of health.</p>
+          <p class="mt-4 text-sm leading-6 text-[#fbbf24]">RECOMMENDATION: /design surface to harden the search trigger and review narrow-viewport prose rendering.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="report-section mb-8 p-6 md:p-8">
+      <div class="mono mb-6 text-xs tracking-widest text-[#666]">// HEURISTIC SCORES</div>
+      <div class="overflow-x-auto">
+        <table class="w-full min-w-[720px] border-collapse text-sm">
+          <thead>
+            <tr class="border-b border-[#222226] text-left mono text-xs text-[#666]">
+              <th class="py-3 pr-4 font-normal">#</th>
+              <th class="py-3 pr-4 font-normal">HEURISTIC</th>
+              <th class="py-3 pr-4 font-normal">SCORE</th>
+              <th class="py-3 font-normal">KEY FINDING</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-b border-[#1a1a1e]">
+              <td class="py-4 pr-4 text-[#555]">1</td>
+              <td class="py-4 pr-4 text-[#fafafa]">Intentionality</td>
+              <td class="py-4 pr-4 text-[#34d399]">10/10</td>
+              <td class="py-4 text-[#a0a0a0]">Warm earth palette, serif/sans pairing, type scale, and staggered entrance motion all feel authored — not assembled from defaults</td>
+            </tr>
+            <tr class="border-b border-[#1a1a1e]">
+              <td class="py-4 pr-4 text-[#555]">2</td>
+              <td class="py-4 pr-4 text-[#fafafa]">Readability</td>
+              <td class="py-4 pr-4 text-[#34d399]">10/10</td>
+              <td class="py-4 text-[#a0a0a0]">Prose at 1.375rem / 1.82 leading / 75ch measure is excellent. Light and dark mode contrast both pass comfortably</td>
+            </tr>
+            <tr class="border-b border-[#1a1a1e]">
+              <td class="py-4 pr-4 text-[#555]">3</td>
+              <td class="py-4 pr-4 text-[#fafafa]">Usability</td>
+              <td class="py-4 pr-4 text-[#34d399]">9/10</td>
+              <td class="py-4 text-[#a0a0a0]">Skip link, sticky header, keyboard-driven search overlay with Tab trap, ⌘K toggle. Only gap: mobile search trigger is icon-only</td>
+            </tr>
+            <tr class="border-b border-[#1a1a1e]">
+              <td class="py-4 pr-4 text-[#555]">4</td>
+              <td class="py-4 pr-4 text-[#fafafa]">Responsiveness</td>
+              <td class="py-4 pr-4 text-[#34d399]">8/10</td>
+              <td class="py-4 text-[#a0a0a0]">Grids collapse cleanly at 640px. Prose at 22px on 320px phones may overflow — needs hardware verification</td>
+            </tr>
+            <tr class="border-b border-[#1a1a1e]">
+              <td class="py-4 pr-4 text-[#555]">5</td>
+              <td class="py-4 pr-4 text-[#fafafa]">Speed</td>
+              <td class="py-4 pr-4 text-[#34d399]">10/10</td>
+              <td class="py-4 text-[#a0a0a0]">Static output, no framework runtime, minimal client JS (search + theme), ~1s build, no layout shift</td>
+            </tr>
+            <tr class="border-b border-[#1a1a1e]">
+              <td class="py-4 pr-4 text-[#555]">6</td>
+              <td class="py-4 pr-4 text-[#fafafa]">Accessibility</td>
+              <td class="py-4 pr-4 text-[#34d399]">9/10</td>
+              <td class="py-4 text-[#a0a0a0]">Skip link, semantic HTML, full keyboard search, reduced-motion, focus-visible. Only concern: placeholder-only search input</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="report-section mb-8 p-6 md:p-8">
+      <div class="mono mb-6 text-xs tracking-widest text-[#666]">// WHAT'S WORKING</div>
+      <div class="grid gap-4 md:grid-cols-3">
+        <article class="border border-[#1f1f24] p-4">
+          <h2 class="mb-2 text-sm font-semibold">Color System</h2>
+          <p class="text-sm leading-6 text-[#a0a0a0]">Warm earth palette (eggshell, obsidian, gravel) avoids generic tech hues entirely. Dark mode mirrors the same warmth rather than switching to cool neutrals. Tactile, paper-like feel.</p>
+        </article>
+        <article class="border border-[#1f1f24] p-4">
+          <h2 class="mb-2 text-sm font-semibold">Typography</h2>
+          <p class="text-sm leading-6 text-[#a0a0a0]">Lora serif for headings + Inter sans for UI creates clear hierarchy. Generous prose scale (1.375rem) signals "this is worth reading" before the first word.</p>
+        </article>
+        <article class="border border-[#1f1f24] p-4">
+          <h2 class="mb-2 text-sm font-semibold">Search UX</h2>
+          <p class="text-sm leading-6 text-[#a0a0a0]">Full keyboard navigation, Tab trap inside overlay, ⌘K global shortcut, arrow key scrolling, Escape to close — genuinely well-implemented interaction.</p>
+        </article>
+        <article class="border border-[#1f1f24] p-4">
+          <h2 class="mb-2 text-sm font-semibold">Motion</h2>
+          <p class="text-sm leading-6 text-[#a0a0a0]">Staggered fadeUp entrance on homepage is restrained and purposeful. Overlay transitions are crisp at 0.2s. Respects prefers-reduced-motion fully.</p>
+        </article>
+        <article class="border border-[#1f1f24] p-4">
+          <h2 class="mb-2 text-sm font-semibold">Layout</h2>
+          <p class="text-sm leading-6 text-[#a0a0a0]">Single-column centered at 48rem is right for a reading-focused personal site. Currently/Previously grid adds structure without feeling like a dashboard.</p>
+        </article>
+        <article class="border border-[#1f1f24] p-4">
+          <h2 class="mb-2 text-sm font-semibold">Content-first Character</h2>
+          <p class="text-sm leading-6 text-[#a0a0a0]">The design steps back and lets writing lead. No decorative flourishes, stock imagery, or layout gymnastics. This restraint is the site's strongest quality.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="report-section mb-8 p-6 md:p-8">
+      <div class="mono mb-6 text-xs tracking-widest text-[#666]">// COGNITIVE LOAD / RISK</div>
+      <div class="grid gap-6 md:grid-cols-2">
+        <div>
+          <div class="mb-3 text-xl font-semibold">Low</div>
+          <ul class="space-y-3 text-sm text-[#a0a0a0]">
+            <li><span class="mono mr-2 text-[#34d399]">PASS</span>Distinctive warm palette — no generic SaaS gradient or cream-purple reflex</li>
+            <li><span class="mono mr-2 text-[#34d399]">PASS</span>Search overlay with full keyboard UX is better than most production sites</li>
+            <li><span class="mono mr-2 text-[#34d399]">PASS</span>No layout shift, fast static output, no framework fatigue</li>
+            <li><span class="mono mr-2 text-[#fbbf24]">WATCH</span>Search trigger on mobile has no visible label, only a 12px icon</li>
+            <li><span class="mono mr-2 text-[#fbbf24]">WATCH</span>Prose at 22px may overflow on 320px phones with wide inline elements</li>
+            <li><span class="mono mr-2 text-[#fbbf24]">WATCH</span>Two accent colors defined but never used (signal-blue, ember)</li>
+          </ul>
+        </div>
+        <div>
+          <div class="mono mb-3 text-xs tracking-widest text-[#666]">// NEXT MODES</div>
+          <div class="flex flex-wrap gap-2">
+            <span class="border border-[#333] px-3 py-1 text-sm text-[#a0a0a0]">/design interaction</span>
+            <span class="border border-[#333] px-3 py-1 text-sm text-[#a0a0a0]">/design responsive</span>
+            <span class="border border-[#333] px-3 py-1 text-sm text-[#a0a0a0]">/design surface</span>
+            <span class="border border-[#333] px-3 py-1 text-sm text-[#a0a0a0]">/design tokenize</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="report-section mb-8 p-6 md:p-8">
+      <div class="mono mb-6 text-xs tracking-widest text-[#666]">// PRIORITY ISSUES</div>
+      <div class="space-y-5">
+        <article class="border border-[#2a1d22] bg-[#110b0d] p-5">
+          <div class="mono mb-2 text-xs text-[#f43f5e]">P0</div>
+          <h2 class="mb-2 text-lg font-semibold">Mobile search trigger has no visible label</h2>
+          <p class="mb-4 text-sm leading-6 text-[#a0a0a0]">On viewports &lt; 640px, the search button shows only a 12×12px magnifying glass icon. The aria-label is present for screen readers, but sighted users on mobile see an unlabeled icon with no textual context.</p>
+          <div class="border-l border-[#fbbf24] pl-4 text-sm leading-6 text-[#fbbf24]">FIX: /design interaction on the search trigger to add a visible label or meaningful icon sizing on all viewport sizes.</div>
+        </article>
+        <article class="border border-[#2a1d22] bg-[#110b0d] p-5">
+          <div class="mono mb-2 text-xs text-[#f43f5e]">P1</div>
+          <h2 class="mb-2 text-lg font-semibold">Prose may overflow on very narrow viewports</h2>
+          <p class="mb-4 text-sm leading-6 text-[#a0a0a0]">.prose-custom sets font-size: 1.375rem (22px) with max-width: 75ch. At 22px per character, 75ch ≈ 1650px — the overflow-wrap: break-word prevents hard breakage, but on a 320px phone, long unbroken strings, wide tables, or oversize images may force horizontal scroll.</p>
+          <div class="border-l border-[#fbbf24] pl-4 text-sm leading-6 text-[#fbbf24]">FIX: /design responsive on .prose-custom to clamp the font size on narrow viewports and add safe overflow handling for embedded content.</div>
+        </article>
+        <article class="border border-[#1f1f24] bg-[#0a0a0b] p-5">
+          <div class="mono mb-2 text-xs text-[#fbbf24]">P2</div>
+          <h2 class="mb-2 text-lg font-semibold">Orphan accent colors defined but unused</h2>
+          <p class="mb-4 text-sm leading-6 text-[#a0a0a0]">--color-signal-blue: #517cd9 and --color-ember: #cd5f37 are defined in the theme but never referenced in any component or page. Not harmful but signals unfinished color-system work.</p>
+          <div class="border-l border-[#fbbf24] pl-4 text-sm leading-6 text-[#fbbf24]">FIX: Either purge them or use intentionally (e.g., ember for underline accents, signal-blue for external link indicators).</div>
+        </article>
+        <article class="border border-[#1f1f24] bg-[#0a0a0b] p-5">
+          <div class="mono mb-2 text-xs text-[#fbbf24]">P3</div>
+          <h2 class="mb-2 text-lg font-semibold">Fragile CSS in prose-custom</h2>
+          <p class="mb-4 text-sm leading-6 text-[#a0a0a0]">All heading rules in .prose-custom use !important on every property — 21 declarations total. This creates a specificity trap where any override must also use !important. Fragile and hard to maintain.</p>
+          <div class="border-l border-[#fbbf24] pl-4 text-sm leading-6 text-[#fbbf24]">FIX: /design tokenize to restructure prose-custom with higher-specificity selectors instead of !important.</div>
+        </article>
+      </div>
+    </section>
+
+    <footer class="mono py-8 text-center text-xs tracking-widest text-[#444]">
+      Generated with CommandCode — 2026-06-30
+    </footer>
+  </main>
+</body>
+</html>

@@ -10,9 +10,10 @@ A personal digital garden built with Astro, Tailwind CSS, and Bun. A place for t
 ├── src/
 │   ├── components/
 │   │   ├── Backlinks.astro           # Shows notes that link to the current note
+│   │   ├── CopyCode.astro            # Copy-to-clipboard button for code blocks
 │   │   ├── Footer.astro              # Site footer
 │   │   ├── Header.astro              # Site header with global search
-│   │   ├── MaturityBadge.astro       # Reusable maturity indicator component
+│   │   ├── ReadingProgress.astro     # Reading progress bar at top of viewport
 │   │   ├── SearchData.astro          # Injects search data on every page
 │   │   └── TableOfContents.astro     # Auto-generated TOC from headings
 │   ├── content/
@@ -20,12 +21,12 @@ A personal digital garden built with Astro, Tailwind CSS, and Bun. A place for t
 │   │       └── *.md                  # Each file is a note
 │   ├── layouts/
 │   │   └── BlogLayout.astro          # Base layout for note pages
-    │   ├── pages/
-    │   │   ├── index.astro               # Homepage — hybrid landing + recent notes
-    │   │   ├── 404.astro                 # 404 page
-    │   │   ├── rss.xml.ts                # RSS feed endpoint
+│   ├── pages/
+│   │   ├── index.astro               # Homepage — hybrid landing + recent notes
+│   │   ├── 404.astro                 # 404 page with inline search
+│   │   ├── rss.xml.ts                # RSS feed endpoint
 │   │   └── notes/
-│   │       ├── index.astro           # Notes listing with topic filters
+│   │       ├── index.astro           # Notes listing with topic filters + search
 │   │       └── [slug].astro          # Dynamic note pages with prev/next nav
 │   ├── styles/
 │   │   └── global.css                # Global styles and design tokens
