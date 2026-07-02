@@ -8,12 +8,15 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "astro preview",
+    "preview": "bun run build && wrangler dev",
     "astro": "astro",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "generate-types": "wrangler types",
+    "deploy": "bun run build && wrangler deploy"
   },
   "dependencies": {
+    "@astrojs/cloudflare": "^14.1.0",
     "@astrojs/rss": "^4.0.18",
     "@astrojs/sitemap": "^3.7.3",
     "@fontsource-variable/literata": "^5.2.8",
@@ -25,13 +28,14 @@
     "tailwindcss": "^4.3.1"
   },
   "devDependencies": {
-    "typescript": "^5.9.3",
-    "vitest": "^4.1.9",
-    "eslint": "^9.39.4",
     "@typescript-eslint/parser": "^8.62.0",
+    "eslint": "^9.39.4",
     "eslint-plugin-astro": "^1.7.0",
     "prettier": "^3.8.4",
-    "prettier-plugin-astro": "^0.14.1"
+    "prettier-plugin-astro": "^0.14.1",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.9",
+    "wrangler": "^4.106.0"
   },
   "overrides": {
     "vite": "^7.3.1"
