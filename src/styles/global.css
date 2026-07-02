@@ -18,10 +18,10 @@
   --color-background: var(--color-eggshell);
   --color-foreground: var(--color-obsidian);
   --color-muted: var(--color-powder);
-  --color-muted-foreground: var(--color-gravel);
+  --color-muted-foreground: #6b6657;
   --color-subtle: #fefcf6;
   --color-subtle-border: var(--color-chalk);
-  --color-accent: var(--color-obsidian);
+  --color-accent: var(--color-ember);
   --color-accent-foreground: var(--color-eggshell);
   --color-border: var(--color-chalk);
   --color-overlay: rgba(248, 245, 235, 0.82);
@@ -40,8 +40,8 @@
   --text-subtitle: 1.125rem;
   --text-body-lg: 1rem;
   --text-body: 0.875rem;
-  --text-body-sm: 0.875rem;
-  --text-small: 0.875rem;
+  --text-body-sm: 0.8125rem;
+  --text-small: 0.8125rem;
   --text-caption: 0.75rem;
 
   --text-display--line-height: 1.08;
@@ -88,10 +88,12 @@
   --tracking-tight: -0.02em;
   --tracking-snug: -0.01em;
 
-  --radius-sm: 0px;
-  --radius-cards: 0px;
-  --radius-panels: 0px;
-  --radius-buttons: 0px;
+  --radius-sm: 6px;
+  --radius-cards: 10px;
+  --radius-panels: 14px;
+  --radius-buttons: 8px;
+  --shadow-subtle: 0 1px 2px rgba(48, 46, 35, 0.04), 0 1px 3px rgba(48, 46, 35, 0.06);
+  --shadow-elevated: 0 4px 12px rgba(48, 46, 35, 0.08), 0 2px 4px rgba(48, 46, 35, 0.04);
 
   --duration-400: 400ms;
 
@@ -113,7 +115,7 @@ html.dark {
   --color-background: #0c0b09;
   --color-foreground: #f5f2e5;
   --color-muted: #1a1815;
-  --color-muted-foreground: #a09b88;
+  --color-muted-foreground: #948f7d;
   --color-subtle: #151310;
   --color-subtle-border: #2a2720;
   --color-accent: #f8f5eb;
@@ -122,6 +124,8 @@ html.dark {
   --color-overlay: rgba(12, 11, 9, 0.78);
   --color-code-bg: #1a1815;
   --color-body-text: #d1cdbd;
+  --shadow-subtle: 0 1px 2px rgba(0, 0, 0, 0.2), 0 1px 3px rgba(0, 0, 0, 0.15);
+  --shadow-elevated: 0 4px 12px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 html.dark .prose-custom {
@@ -165,7 +169,7 @@ html {
 }
 
 .link-underline:hover {
-  text-decoration-color: var(--color-muted-foreground);
+  text-decoration-color: var(--color-accent);
 }
 
 .link-underline:focus-visible {
@@ -209,7 +213,7 @@ h1,
 h2,
 h3 {
   font-family: var(--font-serif);
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: var(--tracking-tight);
 }
 
@@ -401,7 +405,7 @@ main {
   font-size: 0.875em;
   background-color: var(--color-code-bg);
   padding: 0.15em 0.35em;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   word-break: break-word;
 }
 
@@ -410,7 +414,7 @@ main {
   font-size: 0.8125rem;
   line-height: 1.7;
   padding: 1.25rem 1.5rem;
-  border-radius: 8px;
+  border-radius: var(--radius-cards);
   overflow-x: auto;
   margin: 1.75rem 0;
   border: 1px solid var(--color-border);
@@ -460,7 +464,7 @@ main {
   max-width: 100%;
   height: auto;
   margin: 1.75rem auto;
-  border-radius: 8px;
+  border-radius: var(--radius-cards);
 }
 
 .prose-custom table {
@@ -491,8 +495,8 @@ main {
   padding: 1rem 1.25rem;
   margin: 1.75rem 0;
   background-color: var(--color-muted);
-  border-radius: 8px;
-  border-left: 3px solid var(--color-muted-foreground);
+  border-radius: var(--radius-cards);
+  border-left: 3px solid var(--color-accent);
 }
 
 .prose-custom aside p {
@@ -535,7 +539,7 @@ main {
   font-weight: 500;
   letter-spacing: 0.01em;
   padding: 0.25rem 0.625rem;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   border: 1px solid var(--color-subtle-border);
   background: var(--color-subtle);
   color: var(--color-muted-foreground);

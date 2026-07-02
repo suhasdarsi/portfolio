@@ -10,11 +10,11 @@ function readFile(path: string): string {
 }
 
 describe('layout width consistency', () => {
-  it('BlogLayout main uses max-w-3xl with no horizontal padding', () => {
+  it('BlogLayout main uses max-w-3xl with horizontal padding on mobile', () => {
     const content = readFile('layouts/BlogLayout.astro');
     expect(content).toContain('max-w-3xl');
     expect(content).toContain('mx-auto');
-    expect(content).not.toMatch(/px-\d+/);
+    expect(content).toContain('px-4');
   });
 
   it('BlogLayout main has vertical padding for breathing room', () => {
@@ -23,17 +23,17 @@ describe('layout width consistency', () => {
     expect(content).toMatch(/pb-\d+/);
   });
 
-  it('Header inner uses --max-width-shell with no horizontal padding', () => {
+  it('Header inner uses --max-width-shell with horizontal padding', () => {
     const content = readFile('components/Header.astro');
     expect(content).toContain('max-width: var(--max-width-shell)');
-    expect(content).toMatch(/padding:\s*0;/);
-    expect(content).not.toMatch(/padding:\s*0\s+[\d.]+rem/);
+    expect(content).toMatch(/padding:\s*0\s+1rem/);
+    expect(content).not.toMatch(/padding:\s*0;/);
   });
 
-  it('Footer inner uses 48rem max-width with no horizontal padding', () => {
+  it('Footer inner uses 48rem max-width with horizontal padding', () => {
     const content = readFile('components/Footer.astro');
     expect(content).toContain('max-width: 48rem');
-    expect(content).toMatch(/padding:\s*2rem\s+0/);
+    expect(content).toMatch(/padding:\s*2rem\s+1rem/);
   });
 
   it('--max-width-shell is 48rem matching max-w-3xl', () => {

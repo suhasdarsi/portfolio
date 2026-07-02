@@ -25,7 +25,7 @@ const allTopicsUsed = [...new Set(posts.flatMap((p) => p.data.topics))].sort();
       </div>
     )}
     <div class="notes-controls">
-      <input type="text" id="notes-search" class="notes-search-input" placeholder="Filter by title or description..." autocomplete="off" />
+      <input type="text" id="notes-search" class="notes-search-input" placeholder="Filter by title or description..." aria-label="Filter notes by title or description" autocomplete="off" />
       <span class="notes-count" id="notes-count"></span>
     </div>
 
@@ -180,6 +180,11 @@ const allTopicsUsed = [...new Set(posts.flatMap((p) => p.data.topics))].sort();
     transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
   }
 
+  .topic-filter:focus-visible {
+    outline: 2px solid var(--color-foreground);
+    outline-offset: 2px;
+  }
+
   .topic-filter:hover {
     border-color: var(--color-foreground);
     color: var(--color-foreground);
@@ -247,8 +252,14 @@ const allTopicsUsed = [...new Set(posts.flatMap((p) => p.data.topics))].sort();
     transition: color 0.3s ease;
   }
 
+  .note-link:focus-visible {
+    outline: 2px solid var(--color-foreground);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
   .note-link:hover {
-    color: var(--color-muted-foreground);
+    color: var(--color-foreground);
   }
 
   .note-meta-top {

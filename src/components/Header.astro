@@ -40,11 +40,11 @@ const currentPath = Astro.url.pathname;
 {showSearch && (
   <>
     <SearchData />
-    <div class="search-overlay" id="global-search-overlay">
+    <div class="search-overlay" id="global-search-overlay" role="dialog" aria-modal="true" aria-label="Search notes">
       <div class="search-dialog">
         <div class="search-input-wrap">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-dialog-icon"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.34-4.34"></path></svg>
-          <input type="text" id="global-search-input" class="search-input-dialog" placeholder="Search posts..." autocomplete="off" />
+          <input type="text" id="global-search-input" class="search-input-dialog" placeholder="Search posts..." aria-label="Search notes" autocomplete="off" />
           <kbd class="search-esc">Esc</kbd>
         </div>
         <div class="search-results" id="global-search-results"></div>
@@ -86,7 +86,7 @@ const currentPath = Astro.url.pathname;
   function getTheme() {
     const stored = localStorage.getItem('theme');
     if (stored) return stored;
-    return 'light';
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   }
 
   function setTheme(theme: string) {
@@ -272,7 +272,7 @@ const currentPath = Astro.url.pathname;
   .header-inner {
     max-width: var(--max-width-shell);
     margin: 0 auto;
-    padding: 0;
+    padding: 0 1rem;
     height: 3.25rem;
     display: flex;
     align-items: center;
@@ -339,6 +339,11 @@ const currentPath = Astro.url.pathname;
     transition: color 0.3s ease;
   }
 
+  .theme-toggle:focus-visible {
+    outline: 2px solid var(--color-foreground);
+    outline-offset: 2px;
+  }
+
   .theme-toggle:hover {
     color: var(--color-foreground);
   }
@@ -376,6 +381,11 @@ const currentPath = Astro.url.pathname;
     padding: 0.25rem 0.75rem;
     font-size: var(--text-body-sm);
     transition: border-color 0.2s ease, color 0.2s ease;
+  }
+
+  .search-trigger:focus-visible {
+    outline: 2px solid var(--color-foreground);
+    outline-offset: 2px;
   }
 
   .search-trigger:hover {

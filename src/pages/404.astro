@@ -12,7 +12,7 @@ import BlogLayout from '../layouts/BlogLayout.astro';
   </div>
   <p class="error-search-label">Or search across all notes:</p>
   <div class="error-search-wrap">
-    <input type="text" id="error-search-input" class="error-search-input" placeholder="Search notes..." autocomplete="off" />
+    <input type="text" id="error-search-input" class="error-search-input" placeholder="Search notes..." aria-label="Search all notes" autocomplete="off" />
     <div class="error-search-results" id="error-search-results"></div>
   </div>
 </BlogLayout>
@@ -88,6 +88,11 @@ import BlogLayout from '../layouts/BlogLayout.astro';
     border: 1px solid var(--color-subtle-border);
     border-radius: var(--radius-sm);
     transition: all 0.3s ease;
+  }
+
+  .error-link:focus-visible {
+    outline: 2px solid var(--color-foreground);
+    outline-offset: 2px;
   }
 
   .error-link:hover {
