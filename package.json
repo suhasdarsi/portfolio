@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
+    "deploy": "bun run build && bunx wrangler deploy",
     "preview": "astro preview",
     "astro": "astro",
     "test": "vitest run",
@@ -26,12 +27,13 @@
     "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
-    "typescript": "^5.9.3",
-    "vitest": "^4.1.9",
-    "eslint": "^9.39.4",
     "@typescript-eslint/parser": "^8.62.0",
+    "eslint": "^9.39.4",
     "eslint-plugin-astro": "^1.7.0",
     "prettier": "^3.8.4",
-    "prettier-plugin-astro": "^0.14.1"
+    "prettier-plugin-astro": "^0.14.1",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.9",
+    "wrangler": "4.112.0"
   }
 }

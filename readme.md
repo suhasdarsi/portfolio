@@ -95,13 +95,16 @@ Set `draft: true` to hide a note from listings, search, and RSS. It remains acce
 
 ## 🌐 Deployment
 
-This site is deployed on [Cloudflare Pages](https://pages.cloudflare.com/) with automatic builds on push to the main branch.
+This static site is deployed with [Cloudflare Workers Static Assets](https://developers.cloudflare.com/workers/static-assets/) and can be built automatically on pushes to the main branch.
 
 **Build settings:**
 
 - Build command: `bun run build`
 - Build output directory: `dist`
+- Deploy command: `bunx wrangler deploy`
 - Root directory: `/`
+
+`wrangler.jsonc` declares `dist` as static assets. Keep Astro in static mode; the Cloudflare Astro adapter is only needed for server-rendered routes.
 
 Can also be deployed to any static host: Vercel, Netlify, GitHub Pages, etc.
 
