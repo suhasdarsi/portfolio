@@ -13,7 +13,7 @@ const allTopicsUsed = [...new Set(posts.flatMap((p) => p.data.topics))].sort();
     <div class="notes-header-top">
       <div>
         <p class="notes-kicker">AI security field notes</p>
-        <h1 class="notes-heading">AI Security</h1>
+        <h1 class="notes-heading page-heading">AI Security</h1>
         <p class="notes-intro">Practical essays on how AI systems fail, how attacks propagate through connected agents, and how builders can contain the risk.</p>
       </div>
     </div>
@@ -139,10 +139,6 @@ const allTopicsUsed = [...new Set(posts.flatMap((p) => p.data.topics))].sort();
   }
 
   .notes-heading {
-    font-family: var(--font-serif);
-    font-size: var(--text-display-sm);
-    letter-spacing: -0.035em;
-    line-height: 1.08;
     margin: 0 0 0.85rem;
   }
 
@@ -164,12 +160,6 @@ const allTopicsUsed = [...new Set(posts.flatMap((p) => p.data.topics))].sort();
     font-size: 1rem;
     line-height: 1.65;
     text-wrap: pretty;
-  }
-
-  @media (min-width: 768px) {
-    .notes-heading {
-      font-size: var(--text-display);
-    }
   }
 
   .topic-filters {

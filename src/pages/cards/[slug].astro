@@ -36,7 +36,7 @@ const connectedCards = getConnectedCards(card, allCards);
           <time datetime={card.data.pubDate.toISOString()}>{formatDateWithYear(card.data.pubDate)}</time>
           <span>Under 1 min</span>
         </div>
-        <h1>{card.data.title}</h1>
+        <h1 class="page-heading">{card.data.title}</h1>
         <p>{card.data.description}</p>
       </header>
 
@@ -120,12 +120,6 @@ const connectedCards = getConnectedCards(card, allCards);
 
   .card-page-header h1 {
     margin: 0 0 1rem;
-    font-family: var(--font-sans);
-    font-size: clamp(2rem, 6vw, 2.8rem);
-    font-weight: 680;
-    line-height: 1.1;
-    letter-spacing: -0.035em;
-    text-wrap: balance;
   }
 
   .card-page-header > p {

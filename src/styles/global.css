@@ -211,6 +211,16 @@ h1 {
   }
 }
 
+/* Shared H1 treatment for the portfolio's primary pages. */
+.page-heading {
+  font-family: var(--font-serif);
+  font-size: clamp(2.5rem, 6vw, var(--text-display));
+  font-weight: 550;
+  line-height: 1.08;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+
 h2 {
   font-size: var(--text-title);
 }
@@ -548,4 +558,3 @@ main {
   color: var(--color-foreground);
   border-color: var(--color-muted-foreground);
 }
-

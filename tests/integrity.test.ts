@@ -69,6 +69,26 @@ describe('file structure', () => {
   });
 });
 
+describe('typography system', () => {
+  it('uses the shared page heading treatment on primary portfolio pages', () => {
+    const pages = [
+      join(SRC, 'pages', 'index.astro'),
+      join(SRC, 'pages', 'cards', 'index.astro'),
+      join(SRC, 'pages', 'cards', '[slug].astro'),
+      join(SRC, 'pages', 'uses.astro'),
+      join(SRC, 'pages', 'notes', 'index.astro'),
+      join(SRC, 'pages', 'notes', '[slug].astro'),
+    ];
+
+    const globalStyles = readFileSync(join(SRC, 'styles', 'global.css'), 'utf-8');
+    expect(globalStyles).toContain('.page-heading');
+
+    for (const page of pages) {
+      expect(readFileSync(page, 'utf-8'), page).toMatch(/<h1[^>]*class="[^"]*page-heading/);
+    }
+  });
+});
+
 describe('import paths resolve to real files', () => {
   const astroFiles = readAllFiles(SRC).filter((f) => f.endsWith('.astro'));
 
