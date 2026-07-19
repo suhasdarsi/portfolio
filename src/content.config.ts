@@ -15,9 +15,27 @@ const blog = defineCollection({
     updatedDate: dateSchema.optional(),
     author: z.string().default('Suhas Darsi'),
     draft: z.boolean().default(false),
-    maturity: z.enum(['seedling', 'budding', 'evergreen']).default('seedling'),
-    topics: z.array(z.enum(['AI Safety', 'Product', 'Bags', 'Travel', 'Infrastructure'])).default([]),
+    published: z.boolean().optional(),
+    dueDate: dateSchema.optional(),
+    topics: z.array(z.enum(['AI Security'])).default([]),
   }),
 });
 
-export const collections = { blog };
+const cards = defineCollection({
+  loader: glob({ pattern: "**/*.md", base: "./src/content/cards" }),
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    pubDate: dateSchema,
+    updatedDate: dateSchema.optional(),
+    topic: z.enum(['AI Security', 'Agent Systems', 'Network Risk', 'Resilience']),
+    related: z.array(z.string()).default([]),
+    source: z.string().optional(),
+    order: z.number(),
+    draft: z.boolean().default(false),
+    published: z.boolean().optional(),
+    dueDate: dateSchema.optional(),
+  }),
+});
+
+export const collections = { blog, cards };

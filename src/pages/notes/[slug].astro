@@ -1,5 +1,12 @@
 ---
-import { getCollection, render } from 'astro:content';
+import { render } from 'astro:content';
+import {
+  getCardsForSource,
+  getPublishedBlogEntries,
+  getPublishedBlogEntriesByDate,
+  getPublishedCardEntries,
+  validatePublishedCardReferences,
+} from '../../utils/content';
 import BlogLayout from '../../layouts/BlogLayout.astro';
 import Backlinks from '../../components/Backlinks.astro';
 import ReadingProgress from '../../components/ReadingProgress.astro';
@@ -7,8 +14,8 @@ import CopyCode from '../../components/CopyCode.astro';
 import { formatDateWithYear, getReadingTime } from '../../utils/date';
 
 export async function getStaticPaths() {
-	const posts = (await getCollection('blog'))
-    .filter((post) => !post.data.draft);
+	await validatePublishedCardReferences();
+	const posts = await getPublishedBlogEntries();
 	return posts.map((post) => ({
 		params: { slug: post.id },
 		props: post,
@@ -19,9 +26,8 @@ const post = Astro.props;
 const { Content } = await render(post);
 const readingTime = getReadingTime(post.body || '');
 
-const allPosts = (await getCollection('blog'))
-  .filter((p) => !p.data.draft)
-  .sort((a, b) => new Date(b.data.pubDate).valueOf() - new Date(a.data.pubDate).valueOf());
+const allPosts = await getPublishedBlogEntriesByDate();
+const sourceCards = getCardsForSource(post.id, await getPublishedCardEntries());
 
 const currentIndex = allPosts.findIndex((p) => p.id === post.id);
 const prevPost = currentIndex > 0 ? allPosts[currentIndex - 1] : null;
@@ -88,6 +94,28 @@ const structuredData = JSON.stringify({
       <Content />
     </div>
 
+    {sourceCards.length > 0 && (
+      <section class="source-cards" aria-labelledby="source-cards-title">
+        <div class="section-heading">
+          <h2 id="source-cards-title">Ideas from this essay</h2>
+          <span>{sourceCards.length} short-form {sourceCards.length === 1 ? 'card' : 'cards'}</span>
+        </div>
+        <div class="source-cards-list">
+          {sourceCards.map((card) => (
+            <a href={`/cards/${card.id}`}>
+              <span>{card.data.topic}</span>
+              <strong>{card.data.title}</strong>
+              <small>{card.data.description}</small>
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M5 12h14"></path>
+                <path d="m13 6 6 6-6 6"></path>
+              </svg>
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
+
     <Backlinks currentSlug={post.id} />
 
     {(prevPost || nextPost) && (
@@ -126,8 +154,10 @@ const structuredData = JSON.stringify({
     gap: 0.25rem;
     color: var(--color-muted-foreground);
     text-decoration: none;
-    font-size: var(--text-small);
-    margin-bottom: 1.5rem;
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    font-weight: 550;
+    margin-bottom: 2rem;
     transition: color 0.2s ease;
   }
 
@@ -150,7 +180,9 @@ const structuredData = JSON.stringify({
   }
 
   .article-header {
-    margin-bottom: 2.5rem;
+    margin-bottom: 3.25rem;
+    padding-bottom: 2.5rem;
+    border-bottom: 1px solid var(--color-subtle-border);
   }
 
   .article-topics {
@@ -161,30 +193,31 @@ const structuredData = JSON.stringify({
   }
 
   .article-title {
-    font-size: clamp(2rem, 7vw, var(--text-display));
-    line-height: 1.1;
-    letter-spacing: -0.025em;
-    margin-bottom: 1rem;
+    font-size: clamp(2.35rem, 7vw, 3.6rem);
+    line-height: 1.07;
+    letter-spacing: -0.04em;
+    margin-bottom: 1.25rem;
     text-wrap: balance;
-    font-weight: 500;
+    font-weight: 550;
   }
 
   @media (min-width: 768px) {
     .article-title {
-      font-size: var(--text-display);
+      font-size: clamp(3rem, 5vw, 3.6rem);
     }
   }
 
   .article-description {
-    font-family: var(--font-serif);
-    font-size: var(--text-subtitle);
+    font-family: var(--font-sans);
+    font-size: clamp(1.05rem, 2.5vw, 1.2rem);
     color: var(--color-body-text);
-    line-height: 1.65;
-    margin-bottom: 1.5rem;
+    line-height: 1.62;
+    margin-bottom: 1.75rem;
     text-wrap: pretty;
   }
 
   .article-meta {
+    font-family: var(--font-sans);
     display: flex;
     align-items: center;
     gap: 0.625rem 1.25rem;
@@ -195,7 +228,7 @@ const structuredData = JSON.stringify({
     display: flex;
     align-items: center;
     gap: 0.375rem;
-    font-size: var(--text-small);
+    font-size: 0.8125rem;
     color: var(--color-muted-foreground);
   }
 
@@ -204,30 +237,116 @@ const structuredData = JSON.stringify({
   }
 
   .article-reading-time {
-    font-size: var(--text-small);
+    font-size: 0.8125rem;
+    color: var(--color-muted-foreground);
+  }
+
+  .source-cards {
+    margin-top: 3.5rem;
+    padding: 1.25rem;
+    border-radius: 16px;
+    background: var(--color-subtle);
+    box-shadow: inset 0 0 0 1px var(--color-subtle-border);
+    font-family: var(--font-sans);
+  }
+
+  .section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.85rem;
+  }
+
+  .section-heading h2 {
+    margin: 0;
+    color: var(--color-muted-foreground);
+    font-family: var(--font-sans);
+    font-size: 0.7rem;
+    font-weight: 450;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .section-heading > span {
+    color: var(--color-muted-foreground);
+    font-size: 0.7rem;
+  }
+
+  .source-cards-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.45rem;
+  }
+
+  .source-cards-list a {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.2rem 0.75rem;
+    padding: 0.85rem;
+    border-radius: 10px;
+    color: var(--color-foreground);
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+  }
+
+  .source-cards-list a:hover {
+    background: var(--color-muted);
+  }
+
+  .source-cards-list a > span,
+  .source-cards-list a > small {
+    grid-column: 1;
+    color: var(--color-muted-foreground);
+  }
+
+  .source-cards-list a > span {
+    font-size: 0.68rem;
+  }
+
+  .source-cards-list a > strong {
+    grid-column: 1;
+    font-size: 0.86rem;
+    font-weight: 550;
+    line-height: 1.4;
+  }
+
+  .source-cards-list a > small {
+    margin-top: 0.1rem;
+    font-size: 0.74rem;
+    line-height: 1.45;
+  }
+
+  .source-cards-list svg {
+    grid-column: 2;
+    grid-row: 1 / span 3;
+    align-self: center;
     color: var(--color-muted-foreground);
   }
 
   .note-nav {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-    margin-top: 4rem;
-    padding-top: 2.5rem;
-    border-top: 1px solid var(--color-subtle-border);
+    gap: 0.45rem;
+    margin-top: 1rem;
+    padding: 1.25rem;
+    border-radius: 16px;
+    background: var(--color-subtle);
+    box-shadow: inset 0 0 0 1px var(--color-subtle-border);
   }
 
   .note-nav-link {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    padding: 1.25rem;
-    border: 1px solid var(--color-subtle-border);
-    border-radius: var(--radius-cards);
-    background: var(--color-subtle);
+    padding: 0.85rem;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    box-shadow: none;
     text-decoration: none;
     color: inherit;
-    transition: border-color 0.2s ease, background-color 0.2s ease;
+    transition: background-color 0.2s ease;
   }
 
   .note-nav-link:focus-visible {
@@ -236,7 +355,6 @@ const structuredData = JSON.stringify({
   }
 
   .note-nav-link:hover {
-    border-color: var(--color-muted-foreground);
     background: var(--color-muted);
   }
 
@@ -256,15 +374,17 @@ const structuredData = JSON.stringify({
   }
 
   .note-nav-label {
-    font-size: var(--text-caption);
+    font-family: var(--font-sans);
+    font-size: 0.68rem;
     color: var(--color-muted-foreground);
     text-transform: uppercase;
     letter-spacing: 0.06em;
   }
 
   .note-nav-title {
-    font-size: var(--text-body);
-    font-weight: 500;
+    font-family: var(--font-sans);
+    font-size: 0.84rem;
+    font-weight: 540;
     line-height: 1.45;
     color: var(--color-foreground);
     transition: color 0.2s ease;
@@ -292,6 +412,14 @@ const structuredData = JSON.stringify({
       align-items: flex-start;
       flex-direction: column;
       gap: 0.5rem;
+    }
+
+    .source-cards {
+      margin-top: 2.5rem;
+    }
+
+    .source-cards-list {
+      grid-template-columns: 1fr;
     }
 
     .note-nav {

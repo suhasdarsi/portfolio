@@ -1,10 +1,9 @@
 ---
-title: "Rethinking AI Safety Through Network Science"
-description: "Network theory gives us the vocabulary and frameworks to design AI systems that are powerful without being dangerously fragile."
+title: "Designing Resilient AI Systems Through Network Science"
+description: "How redundancy, circuit breakers, monitoring, and intentional friction can contain security failures across connected AI systems."
 pubDate: "2026-04-05"
 author: "Suhas Darsi"
-maturity: "evergreen"
-topics: ["AI Safety"]
+topics: ["AI Security"]
 ---
 
 We've seen how [[small-world-networks-and-hubs|network hubs create both efficiency and fragility]], how [[ai-as-the-ultimate-hub|AI is emerging as the ultimate hub]], how [[the-cascade-risk-of-hub-to-hub-ai-networks|hub-to-hub connections amplify risk]], and [[why-ai-security-is-fundamentally-different|why traditional security falls short]]. The question is: what do we do about it?

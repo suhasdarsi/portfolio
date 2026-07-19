@@ -1,0 +1,196 @@
+---
+import { render } from 'astro:content';
+import {
+  getConnectedCards,
+  getPublishedCardEntries,
+  validatePublishedCardReferences,
+} from '../../utils/content';
+import { formatDateWithYear } from '../../utils/date';
+import BlogLayout from '../../layouts/BlogLayout.astro';
+
+export async function getStaticPaths() {
+  await validatePublishedCardReferences();
+  const cards = await getPublishedCardEntries();
+  return cards.map((card) => ({ params: { slug: card.id }, props: card }));
+}
+
+const card = Astro.props;
+const { Content } = await render(card);
+const allCards = await getPublishedCardEntries();
+const connectedCards = getConnectedCards(card, allCards);
+---
+
+<BlogLayout title={`${card.data.title} | Suhas Darsi`} description={card.data.description} ogType="article">
+  <article class="card-page">
+    <a href="/cards" class="card-back">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="m15 18-6-6 6-6"></path>
+      </svg>
+      All notes
+    </a>
+
+    <section class="card-surface">
+      <header class="card-page-header">
+        <div class="card-page-meta">
+          <span class="card-topic">{card.data.topic}</span>
+          <time datetime={card.data.pubDate.toISOString()}>{formatDateWithYear(card.data.pubDate)}</time>
+          <span>Under 1 min</span>
+        </div>
+        <h1>{card.data.title}</h1>
+        <p>{card.data.description}</p>
+      </header>
+
+      <div class="card-page-body">
+        <Content />
+      </div>
+
+      {connectedCards.length > 0 && (
+        <nav class="card-inline-links" aria-label="Linked notes">
+          {connectedCards.map((entry) => (
+            <a href={`/cards/${entry.id}`}>{entry.data.title}</a>
+          ))}
+        </nav>
+      )}
+    </section>
+  </article>
+</BlogLayout>
+
+<style>
+  .card-page {
+    max-width: var(--max-width-shell);
+    margin-inline: auto;
+  }
+
+  .card-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-bottom: 1.5rem;
+    color: var(--color-muted-foreground);
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    text-decoration: none;
+  }
+
+  .card-back:hover {
+    color: var(--color-foreground);
+  }
+
+  .card-surface {
+    padding: clamp(1.5rem, 5vw, 3.5rem);
+    border-radius: 24px;
+    background: var(--color-subtle);
+    box-shadow: inset 0 0 0 1px var(--color-subtle-border), var(--shadow-subtle);
+  }
+
+  .card-page-header {
+    max-width: 42rem;
+    margin-bottom: 2.25rem;
+  }
+
+  .card-page-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    color: var(--color-muted-foreground);
+    font-family: var(--font-sans);
+    font-size: 0.72rem;
+    line-height: 1.4;
+  }
+
+  .card-topic {
+    color: var(--color-foreground);
+    font-weight: 540;
+  }
+
+  .card-page-meta > * {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .card-page-meta > *:not(:last-child)::after {
+    content: '·';
+    margin-left: 0.5rem;
+    color: var(--color-muted-foreground);
+    font-weight: 400;
+  }
+
+  .card-page-header h1 {
+    margin: 0 0 1rem;
+    font-family: var(--font-sans);
+    font-size: clamp(2rem, 6vw, 2.8rem);
+    font-weight: 680;
+    line-height: 1.1;
+    letter-spacing: -0.035em;
+    text-wrap: balance;
+  }
+
+  .card-page-header > p {
+    margin: 0;
+    color: var(--color-muted-foreground);
+    font-family: var(--font-sans);
+    font-size: 1.05rem;
+    line-height: 1.6;
+  }
+
+  .card-page-body {
+    max-width: 40rem;
+    padding: 0;
+    color: var(--color-body-text);
+    font-family: var(--font-sans);
+    font-size: 1.0625rem;
+    line-height: 1.78;
+  }
+
+  .card-page-body :global(p) {
+    margin: 0 0 1.15rem;
+  }
+
+  .card-page-body :global(p:last-child) {
+    margin-bottom: 0;
+  }
+
+  .card-inline-links {
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.35rem;
+    margin-top: 1.5rem;
+    font-family: var(--font-sans);
+    font-size: 1.0625rem;
+    line-height: 1.78;
+  }
+
+  .card-inline-links a {
+    color: var(--color-foreground);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1px;
+  }
+
+  @media (max-width: 560px) {
+    .card-back {
+      margin-bottom: 1rem;
+    }
+
+    .card-surface {
+      border-radius: 18px;
+    }
+
+    .card-page-header {
+      margin-bottom: 1.75rem;
+    }
+
+    .card-page-meta {
+      gap: 0.45rem;
+    }
+
+    .card-page-body {
+      font-size: 1rem;
+      line-height: 1.72;
+    }
+  }
+</style>

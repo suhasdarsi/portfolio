@@ -34,7 +34,7 @@ const physical = [
   { name: 'HyperX SoloCast', url: 'https://www.hyperx.com/products/hyperx-solocast-usb-microphone' },
   { name: 'INUI 10,000mAh 45W', url: 'https://www.inui.tech' },
   { name: 'Owala FreeSip 945ml', url: 'https://owalalife.com' },
-  { name: 'Pakt Travel Backpack 3', url: 'https://pakt.one', review: '/notes/pakt-travel-backpack-3-review' },
+  { name: 'Pakt Travel Backpack 3', url: 'https://pakt.one' },
 ];
 ---
 
@@ -97,7 +97,8 @@ const physical = [
   .page-title {
     font-family: var(--font-serif);
     font-size: var(--text-display-sm);
-    letter-spacing: 0;
+    letter-spacing: -0.035em;
+    line-height: 1.08;
     margin-bottom: 1.5rem;
   }
 
@@ -108,7 +109,8 @@ const physical = [
   }
 
   .page-intro {
-    font-size: var(--text-body-lg);
+    font-family: var(--font-sans);
+    font-size: 1.0625rem;
     color: var(--color-body-text);
     line-height: 1.7;
     margin-bottom: 3rem;
@@ -116,7 +118,7 @@ const physical = [
 
   .section {
     padding: 0;
-    margin-bottom: 3rem;
+    margin-bottom: 4rem;
     width: 100%;
   }
 
@@ -131,24 +133,37 @@ const physical = [
   }
 
   .item-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
     list-style: none;
     padding: 0;
     margin: 0;
     width: 100%;
   }
 
+  @media (min-width: 640px) {
+    .item-list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
   .item {
-    border-bottom: 1px solid var(--color-subtle-border);
+    border: 0;
+    border-radius: var(--radius-cards);
+    background: var(--color-subtle);
     width: 100%;
-    transition: background-color 0.15s ease;
+    min-width: 0;
+    transition: background-color 0.2s ease, transform 0.2s ease;
   }
 
   .item:first-child {
-    border-top: 1px solid var(--color-subtle-border);
+    border-top: 0;
   }
 
   .item:hover {
-    background-color: var(--color-subtle);
+    background-color: var(--color-muted);
+    transform: translateY(-1px);
   }
 
   .item-content {
@@ -156,7 +171,8 @@ const physical = [
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    padding: 1rem 0;
+    min-height: 3.75rem;
+    padding: 0.85rem 1rem;
   }
 
   .item-main {
@@ -167,9 +183,9 @@ const physical = [
   }
 
   .item-name {
-    font-family: var(--font-serif);
-    font-size: var(--text-body-lg);
-    font-weight: 500;
+    font-family: var(--font-sans);
+    font-size: 0.9375rem;
+    font-weight: 450;
     color: var(--color-foreground);
     text-decoration: none;
     transition: color 0.2s ease;
@@ -233,7 +249,8 @@ const physical = [
   }
 
   .page-outro {
-    font-size: var(--text-body-lg);
+    font-family: var(--font-sans);
+    font-size: 0.9375rem;
     color: var(--color-muted-foreground);
     margin-top: 3rem;
   }

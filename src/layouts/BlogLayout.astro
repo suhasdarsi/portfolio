@@ -14,14 +14,14 @@ interface Props {
 const { title, description, ogType = 'website', ogImage } = Astro.props;
 const siteUrl = Astro.site?.toString().replace(/\/$/, '') || 'https://suhasdarsi.com';
 const canonicalUrl = `${siteUrl}${Astro.url.pathname}`;
-const ogDescription = description || 'Suhas Darsi - Co-Founder at SuperAlign, writing about AI security, network theory, and building products.';
+const ogDescription = description || 'Suhas Darsi — practical writing about AI security, agent systems, and network risk.';
 ---
 
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content="Astro" />
     <meta name="description" content={description || "Blog posts"} />
