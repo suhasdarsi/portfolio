@@ -1,33 +1,31 @@
 ---
-import { getCollection } from 'astro:content';
+import { getPublishedBlogEntriesByDate } from '../../utils/content';
 import { formatDate } from '../../utils/date';
+
 import BlogLayout from '../../layouts/BlogLayout.astro';
 
-const allPosts = await getCollection('blog');
-const posts = allPosts
-  .filter((post) => !post.data.draft)
-  .sort((a, b) => new Date(b.data.pubDate).valueOf() - new Date(a.data.pubDate).valueOf());
-
+const posts = await getPublishedBlogEntriesByDate();
 const allTopicsUsed = [...new Set(posts.flatMap((p) => p.data.topics))].sort();
 ---
 
-<BlogLayout title="Notes | Suhas Darsi" description="My digital garden - thoughts on AI safety, product, bags, travel, and infrastructure.">
+<BlogLayout title="AI Security Notes | Suhas Darsi" description="Practical field notes on AI security, agent systems, and network risk.">
   <div class="notes-header">
     <div class="notes-header-top">
-      <h1 class="notes-heading">Notes</h1>
+      <div>
+        <p class="notes-kicker">AI security field notes</p>
+        <h1 class="notes-heading">AI Security</h1>
+        <p class="notes-intro">Practical essays on how AI systems fail, how attacks propagate through connected agents, and how builders can contain the risk.</p>
+      </div>
     </div>
-    {allTopicsUsed.length > 0 && (
+    {allTopicsUsed.length > 1 && (
       <div class="topic-filters" id="topic-filters">
-        <button type="button" class="topic-filter active" data-topic="all">All</button>
+        <button type="button" class="topic-filter active" data-topic="all" aria-pressed="true">All</button>
         {allTopicsUsed.map((topic) => (
-          <button type="button" class="topic-filter" data-topic={topic}>{topic}</button>
+          <button type="button" class="topic-filter" data-topic={topic} aria-pressed="false">{topic}</button>
         ))}
       </div>
     )}
-    <div class="notes-controls">
-      <input type="text" id="notes-search" class="notes-search-input" placeholder="Filter by title or description..." aria-label="Filter notes by title or description" autocomplete="off" />
-      <span class="notes-count" id="notes-count"></span>
-    </div>
+  </div>
 
   <div class="note-list" id="note-list">
     {posts.map((post) => (
@@ -69,19 +67,20 @@ const allTopicsUsed = [...new Set(posts.flatMap((p) => p.data.topics))].sort();
   const articles = document.querySelectorAll('[data-searchable]');
   const emptyMsg = document.getElementById('search-empty');
   const topicFilters = document.getElementById('topic-filters');
-  const searchInput = document.getElementById('notes-search') as HTMLInputElement;
-  const countDisplay = document.getElementById('notes-count');
-  const totalCount = articles.length;
 
   let activeTopic = 'all';
-  let searchQuery = '';
 
   const urlParams = new URLSearchParams(window.location.search);
   const topicFromUrl = urlParams.get('topic');
-  if (topicFromUrl && topicFilters) {
+  const availableTopics = topicFilters
+    ? Array.from(topicFilters.querySelectorAll<HTMLElement>('.topic-filter')).map((button) => button.dataset.topic)
+    : [];
+  if (topicFromUrl && availableTopics.includes(topicFromUrl) && topicFilters) {
     activeTopic = topicFromUrl;
     topicFilters.querySelectorAll('.topic-filter').forEach((b) => {
-      b.classList.toggle('active', b.getAttribute('data-topic') === activeTopic);
+      const isActive = b.getAttribute('data-topic') === activeTopic;
+      b.classList.toggle('active', isActive);
+      b.setAttribute('aria-pressed', String(isActive));
     });
   }
 
@@ -89,13 +88,10 @@ const allTopicsUsed = [...new Set(posts.flatMap((p) => p.data.topics))].sort();
     let visibleCount = 0;
 
     articles.forEach((el) => {
-      const title = el.querySelector('.note-title')?.textContent?.toLowerCase() || '';
-      const desc = el.querySelector('.note-desc')?.textContent?.toLowerCase() || '';
       const topics = JSON.parse(el.getAttribute('data-topics') || '[]') as string[];
       const matchesTopic = activeTopic === 'all' || topics.includes(activeTopic);
-      const matchesSearch = !searchQuery || title.includes(searchQuery) || desc.includes(searchQuery);
 
-      if (matchesTopic && matchesSearch) {
+      if (matchesTopic) {
         el.classList.remove('hidden');
         visibleCount++;
       } else {
@@ -107,10 +103,6 @@ const allTopicsUsed = [...new Set(posts.flatMap((p) => p.data.topics))].sort();
       emptyMsg.classList.toggle('hidden', visibleCount > 0);
     }
 
-    if (countDisplay) {
-      const label = activeTopic !== 'all' ? `Filtered: ` : '';
-      countDisplay.textContent = visibleCount < totalCount ? `${label}${visibleCount} of ${totalCount}` : `${totalCount} notes`;
-    }
   }
 
   const handleTopicClick = (e: Event) => {
@@ -119,17 +111,14 @@ const allTopicsUsed = [...new Set(posts.flatMap((p) => p.data.topics))].sort();
 
     activeTopic = btn.getAttribute('data-topic') || 'all';
     topicFilters?.querySelectorAll('.topic-filter').forEach((b) => {
-      b.classList.toggle('active', b.getAttribute('data-topic') === activeTopic);
+      const isActive = b.getAttribute('data-topic') === activeTopic;
+      b.classList.toggle('active', isActive);
+      b.setAttribute('aria-pressed', String(isActive));
     });
     applyFilters();
   };
 
   topicFilters?.addEventListener('click', handleTopicClick);
-
-  searchInput?.addEventListener('input', () => {
-    searchQuery = searchInput.value.trim().toLowerCase();
-    applyFilters();
-  });
 
   applyFilters();
 
@@ -140,20 +129,41 @@ const allTopicsUsed = [...new Set(posts.flatMap((p) => p.data.topics))].sort();
 
 <style>
   .notes-header {
-    margin-bottom: 2rem;
+    margin-bottom: 2.75rem;
   }
 
   .notes-header-top {
     display: flex;
     align-items: center;
-    margin-bottom: 1.5rem;
+    margin-bottom: 2rem;
   }
 
   .notes-heading {
     font-family: var(--font-serif);
     font-size: var(--text-display-sm);
-    letter-spacing: 0;
+    letter-spacing: -0.035em;
+    line-height: 1.08;
+    margin: 0 0 0.85rem;
+  }
+
+  .notes-kicker {
+    margin: 0 0 0.65rem;
+    color: var(--color-muted-foreground);
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 520;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .notes-intro {
+    max-width: 38rem;
     margin: 0;
+    color: var(--color-muted-foreground);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.65;
+    text-wrap: pretty;
   }
 
   @media (min-width: 768px) {
@@ -165,16 +175,18 @@ const allTopicsUsed = [...new Set(posts.flatMap((p) => p.data.topics))].sort();
   .topic-filters {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: 0.55rem;
   }
 
   .topic-filter {
-    font-size: 0.875rem;
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
     line-height: 1.25rem;
     font-weight: 500;
-    padding: 0.25rem 0.75rem;
-    border: 1px solid var(--color-subtle-border);
-    background: var(--color-subtle);
+    padding: 0.45rem 0.8rem;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    background: var(--color-muted);
     color: var(--color-muted-foreground);
     cursor: pointer;
     transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
@@ -190,58 +202,24 @@ const allTopicsUsed = [...new Set(posts.flatMap((p) => p.data.topics))].sort();
     color: var(--color-foreground);
   }
 
-  .notes-controls {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-top: 1rem;
-  }
-
-  .notes-search-input {
-    flex: 1;
-    max-width: 28rem;
-    font-family: var(--font-serif);
-    font-size: 0.875rem;
-    color: var(--color-foreground);
-    background: none;
-    border: 1px solid var(--color-subtle-border);
-    padding: 0.5rem 0.75rem;
-    outline: none;
-    transition: border-color 0.2s ease;
-  }
-
-  .notes-search-input::placeholder {
-    color: var(--color-muted-foreground);
-  }
-
-  .notes-search-input:focus {
-    border-color: var(--color-foreground);
-  }
-
-  .notes-count {
-    font-size: 0.875rem;
-    color: var(--color-muted-foreground);
-    white-space: nowrap;
-  }
-
   .topic-filter.active {
-    background: var(--color-foreground);
-    color: var(--color-background);
-    border-color: var(--color-foreground);
+    background: var(--color-accent);
+    color: var(--color-accent-foreground);
+    border-color: var(--color-accent);
   }
 
   .note-list {
     display: flex;
     flex-direction: column;
+    gap: 0.75rem;
   }
 
   .note-item {
-    padding: 2rem 0;
-    border-bottom: 1px solid var(--color-subtle-border);
+    padding: 0;
+    border: 0;
   }
 
   .note-item:last-child {
-    border-bottom: none;
     padding-bottom: 0;
   }
 
@@ -249,7 +227,12 @@ const allTopicsUsed = [...new Set(posts.flatMap((p) => p.data.topics))].sort();
     display: block;
     text-decoration: none;
     color: inherit;
-    transition: color 0.3s ease;
+    padding: 1.5rem;
+    border: 1px solid var(--color-subtle-border);
+    border-radius: var(--radius-cards);
+    background: var(--color-subtle);
+    box-shadow: var(--shadow-subtle);
+    transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
   }
 
   .note-link:focus-visible {
@@ -260,6 +243,9 @@ const allTopicsUsed = [...new Set(posts.flatMap((p) => p.data.topics))].sort();
 
   .note-link:hover {
     color: var(--color-foreground);
+    border-color: color-mix(in srgb, var(--color-accent) 52%, var(--color-subtle-border));
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-elevated);
   }
 
   .note-meta-top {
@@ -279,15 +265,16 @@ const allTopicsUsed = [...new Set(posts.flatMap((p) => p.data.topics))].sort();
 
   .note-title {
     font-family: var(--font-serif);
-    font-size: 1.375rem;
-    font-weight: 500;
-    line-height: 1.3;
-    letter-spacing: 0;
+    font-size: clamp(1.25rem, 3vw, 1.5rem);
+    font-weight: 550;
+    line-height: 1.28;
+    letter-spacing: -0.02em;
     margin: 0 0 0.5rem;
   }
 
   .note-desc {
-    font-size: 1rem;
+    font-family: var(--font-sans);
+    font-size: 0.9375rem;
     color: var(--color-body-text);
     line-height: 1.6;
     margin: 0 0 0.5rem;
@@ -301,6 +288,7 @@ const allTopicsUsed = [...new Set(posts.flatMap((p) => p.data.topics))].sort();
   }
 
   .note-date {
+    font-family: var(--font-sans);
     font-size: var(--text-small);
     color: var(--color-muted-foreground);
     text-transform: uppercase;

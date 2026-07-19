@@ -8,7 +8,7 @@ import BlogLayout from '../layouts/BlogLayout.astro';
   <p class="error-hint">It might have been moved, deleted, or you may have mistyped the URL.</p>
   <div class="error-actions">
     <a href="/" class="error-link error-link-primary">Go home</a>
-    <a href="/notes" class="error-link">Browse notes</a>
+    <a href="/cards" class="error-link">Browse notes</a>
   </div>
   <p class="error-search-label">Or search across all notes:</p>
   <div class="error-search-wrap">
@@ -18,30 +18,48 @@ import BlogLayout from '../layouts/BlogLayout.astro';
 </BlogLayout>
 
 <script>
-  import Fuse from 'fuse.js';
-
-  const searchData = document.getElementById('search-data');
-  const searchPosts = searchData ? JSON.parse(searchData.textContent || '[]') : [];
   const input = document.getElementById('error-search-input') as HTMLInputElement;
   const results = document.getElementById('error-search-results');
 
-  if (searchPosts.length > 0) {
-    const fuse = new Fuse(searchPosts, {
+  type SearchPost = {
+    href: string;
+    title: string;
+    description?: string;
+  };
+
+  let searchReady: Promise<{ search: (query: string) => Array<{ item: SearchPost }> }> | undefined;
+
+  function loadSearch() {
+    if (!searchReady) {
+      searchReady = Promise.all([
+        fetch('/search.json').then((response) => {
+          if (!response.ok) throw new Error('Unable to load search data');
+          return response.json() as Promise<SearchPost[]>;
+        }),
+        import('fuse.js'),
+      ]).then(([searchPosts, { default: Fuse }]) => new Fuse(searchPosts, {
       keys: ['title', 'description'],
       threshold: 0.3,
-    });
+      }));
+    }
 
-    input?.addEventListener('input', () => {
-      const query = input.value.trim();
-      if (!query) { if (results) results.innerHTML = ''; return; }
-      const hits = fuse.search(query).slice(0, 5);
-      if (results) {
-        results.innerHTML = hits.map((hit) =>
-          `<a href="/notes/${encodeURIComponent(hit.item.id)}" class="error-search-result">${hit.item.title}</a>`
-        ).join('');
-      }
-    });
+    return searchReady;
   }
+
+  input?.addEventListener('input', async () => {
+    const query = input.value.trim();
+    if (!query) { if (results) results.replaceChildren(); return; }
+
+    const fuse = await loadSearch();
+    const hits = fuse.search(query).slice(0, 5);
+    results?.replaceChildren(...hits.map((hit) => {
+      const link = document.createElement('a');
+      link.href = hit.item.href;
+      link.className = 'error-search-result';
+      link.textContent = hit.item.title;
+      return link;
+    }));
+  });
 </script>
 
 <style>

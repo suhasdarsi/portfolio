@@ -1,6 +1,6 @@
-# Suhas Darsi — Digital Garden
+# Suhas Darsi — AI Security Notes
 
-A personal digital garden built with Astro, Tailwind CSS, and Bun. A place for thinking in public — polished posts, developing ideas, and early thoughts, all connected through wiki-style links.
+A focused collection of practical writing about AI security, agent systems, and network risk, built with Astro, Tailwind CSS, and Bun.
 
 ## 🚀 Project Structure
 
@@ -16,9 +16,11 @@ A personal digital garden built with Astro, Tailwind CSS, and Bun. A place for t
 │   │   ├── ReadingProgress.astro     # Reading progress bar at top of viewport
 │   │   ├── SearchData.astro          # Injects search data on every page
 │   │   └── TableOfContents.astro     # Auto-generated TOC from headings
-│   ├── content/
-│   │   └── blog/                     # Notes stored as Markdown files
-│   │       └── *.md                  # Each file is a note
+│   ├── content/                      # Open this folder as the Obsidian vault
+│   │   ├── .obsidian/                # Shared vault settings
+│   │   ├── blog/                     # Long-form notes published at /notes
+│   │   ├── cards/                    # Short-form cards published at /cards
+│   │   └── templates/note.md         # Template for new blog notes
 │   ├── layouts/
 │   │   └── BlogLayout.astro          # Base layout for note pages
 │   ├── pages/
@@ -34,7 +36,7 @@ A personal digital garden built with Astro, Tailwind CSS, and Bun. A place for t
 │       └── date.ts                   # Date formatting and reading time utilities
 ├── tests/
 │   └── integrity.test.ts             # File structure and build integrity tests
-├── astro.config.mjs                  # Astro + remark-wiki-link configuration
+├── astro.config.mjs                  # Astro, sitemap, and Tailwind configuration
 ├── content.config.ts                 # Content collection schema
 ├── package.json
 ├── tsconfig.json
@@ -49,59 +51,54 @@ A personal digital garden built with Astro, Tailwind CSS, and Bun. A place for t
 - [TypeScript](https://www.typescriptlang.org) — Type safety
 - [Vite](https://vitejs.dev) — Build tool (via Astro)
 - [Fuse.js](https://fusejs.io) — Client-side fuzzy search
-- [Remark Wiki Link](https://github.com/remarkjs/remark-wiki-link) — Wiki-style `[[links]]` in markdown
+- [Obsidian](https://obsidian.md) — Local Markdown authoring and linked-note graph
 
 ## 🧞 Commands
 
 All commands run from the project root:
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `bun install`             | Install dependencies                             |
-| `bun dev`                 | Start dev server at `localhost:4321`             |
-| `bun build`               | Build production site to `./dist/`               |
-| `bun preview`             | Preview production build locally                 |
-| `bun astro`               | Run Astro CLI commands                           |
-| `bun test`                | Run integrity tests                              |
-| `bun test:watch`          | Run tests in watch mode                          |
+| Command          | Action                               |
+| :--------------- | :----------------------------------- |
+| `bun install`    | Install dependencies                 |
+| `bun dev`        | Start dev server at `localhost:4321` |
+| `bun build`      | Build production site to `./dist/`   |
+| `bun preview`    | Preview production build locally     |
+| `bun astro`      | Run Astro CLI commands               |
+| `bun test`       | Run integrity tests                  |
+| `bun test:watch` | Run tests in watch mode              |
 
-## 📝 Adding New Notes
+## 📝 Writing in Obsidian
 
-Notes are stored as Markdown files in `src/content/blog/`. To add a new note:
+Open `src/content/` as a vault in Obsidian using **Open folder as vault**. The vault is configured to create new files in `blog/`, use shortest-path wikilinks, and update links when files are renamed.
 
-1. Create a new `.md` file in `src/content/blog/`
-2. Add frontmatter:
-   ```markdown
-   ---
-   title: "Your Note Title"
-   description: "A brief description"
-   pubDate: "YYYY-MM-DD"
-   author: "Suhas Darsi"
-   maturity: "seedling"        # seedling | budding | evergreen
-   draft: false                # true = hidden from listings/search
-   topics: ["AI Safety"]       # From: AI Safety, Product, Bags, Travel, Infrastructure
-   ---
-   ```
-3. Write content in Markdown below the frontmatter
-4. Use `[[wiki-style links]]` to connect notes (e.g., `[[slug|display text]]`)
+### New notes
 
-### Maturity Levels
+1. Create a note in Obsidian. New files default to `src/content/blog/`.
+2. Run **Templates: Insert template** and select `templates/note`.
+3. Fill in `description`, `pubDate`, and `topics`.
+4. Write the note using normal Markdown and wikilinks.
+5. Set `draft: false` when the note is ready to publish.
 
-| Level | Meaning |
-|---|---|
-| `seedling` | Early thinking, rough notes |
-| `budding` | Developing, being refined |
-| `evergreen` | Polished, complete |
+### Linked notes
 
-### Draft Notes
+- Link by filename or exact title: `[[ai-as-the-ultimate-hub]]`
+- Add display text: `[[ai-as-the-ultimate-hub|AI as a hub]]`
+- Link to a heading: `[[ai-as-the-ultimate-hub#The Implications|hub risks]]`
+- Builds fail when a target is missing or ambiguous.
+- Obsidian block references such as `[[note#^block-id]]` are not supported.
 
-Set `draft: true` to hide a note from all listings, search, and RSS. It remains accessible via direct URL — useful for work-in-progress notes you want to link to from other notes.
+Backlinks are generated from these wikilinks during the Astro build.
+
+### Draft notes
+
+Set `draft: true` to hide a note from listings, search, and RSS. It remains accessible by direct URL.
 
 ## 🌐 Deployment
 
 This site is deployed on [Cloudflare Pages](https://pages.cloudflare.com/) with automatic builds on push to the main branch.
 
 **Build settings:**
+
 - Build command: `bun run build`
 - Build output directory: `dist`
 - Root directory: `/`
@@ -126,4 +123,4 @@ Can also be deployed to any static host: Vercel, Netlify, GitHub Pages, etc.
 
 ---
 
-*Built with ❤️ by Suhas Darsi*
+_Built with ❤️ by Suhas Darsi_

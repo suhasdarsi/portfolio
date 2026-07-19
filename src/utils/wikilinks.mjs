@@ -1,7 +1,7 @@
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { basename, extname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { parseFrontmatter } from 'astro/markdown';
-import { contentCollections } from './content-routes.mjs';
+import { contentCollections, isPublishedContent } from './content-routes.mjs';
 
 function resolveCollectionDirectory(collection) {
   return isAbsolute(collection.directory) ? collection.directory : resolve(process.cwd(), collection.directory);
@@ -25,15 +25,6 @@ function parseMarkdownDocument(file) {
     content: parsed.content,
     data: parsed.frontmatter ?? {},
   };
-}
-
-function isPublished(data) {
-  if (data.published === false) return false;
-  if (data.draft !== true) return true;
-  if (!data.dueDate) return false;
-
-  const dueDate = new Date(data.dueDate);
-  return !Number.isNaN(dueDate.valueOf()) && dueDate <= new Date();
 }
 
 function decodeTarget(value) {
@@ -87,7 +78,7 @@ export function buildWikilinkIndex(collections = contentCollections) {
         .join('/');
       const document = parseMarkdownDocument(file);
 
-      if (!isPublished(document.data)) continue;
+      if (!isPublishedContent(document.data)) continue;
 
       documents.push(document);
       const title = typeof document.data.title === 'string' && document.data.title.trim()
@@ -132,7 +123,29 @@ export function buildWikilinkIndex(collections = contentCollections) {
   return index;
 }
 
-export function resolveWikilink(rawTarget, index = buildWikilinkIndex()) {
+let cachedIndex;
+let cachedFingerprint;
+
+function contentFingerprint(collections = contentCollections) {
+  return collections.flatMap((collection) => {
+    const directory = resolveCollectionDirectory(collection);
+    return markdownFiles(directory).map((file) => {
+      const stat = statSync(file);
+      return `${file}:${stat.size}:${stat.mtimeMs}`;
+    });
+  }).sort().join('|');
+}
+
+export function getWikilinkIndex(collections = contentCollections) {
+  const fingerprint = contentFingerprint(collections);
+  if (!cachedIndex || fingerprint !== cachedFingerprint) {
+    cachedIndex = buildWikilinkIndex(collections);
+    cachedFingerprint = fingerprint;
+  }
+  return cachedIndex;
+}
+
+export function resolveWikilink(rawTarget, index = getWikilinkIndex()) {
   const decoded = decodeTarget(rawTarget);
   const hashIndex = decoded.indexOf('#');
   const target = hashIndex >= 0 ? decoded.slice(0, hashIndex) : decoded;

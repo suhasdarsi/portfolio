@@ -1,5 +1,6 @@
 ---
-import { getCollection } from 'astro:content';
+import { getPublishedBlogEntries } from '../utils/content';
+import { extractWikilinkTargets, resolveWikilink } from '../utils/wikilinks.mjs';
 
 interface Props {
   currentSlug: string;
@@ -7,17 +8,17 @@ interface Props {
 
 const { currentSlug } = Astro.props;
 
-const allPosts = (await getCollection('blog')).filter((post) => !post.data.draft);
+const allPosts = await getPublishedBlogEntries();
 
-const wikiLinkRegex = /\[\[([^\]|]+)(?:\|[^\]]+)?\]\]/gs;
 const backlinkMap: Record<string, { title: string; slug: string }[]> = {};
 
 allPosts.forEach((post) => {
   if (post.id === currentSlug) return;
 
-  const matches = [...post.body.matchAll(wikiLinkRegex)];
-  matches.forEach((match) => {
-    const linkedSlug = match[1].trim().replace(/ /g, '-').toLowerCase();
+  for (const target of extractWikilinkTargets(post.body)) {
+    const linkedNote = resolveWikilink(target);
+    if (!linkedNote || linkedNote.collection !== 'blog') continue;
+    const linkedSlug = linkedNote.id;
     if (!backlinkMap[linkedSlug]) {
       backlinkMap[linkedSlug] = [];
     }
@@ -27,50 +28,87 @@ allPosts.forEach((post) => {
         slug: post.id,
       });
     }
-  });
+  }
 });
 
 const backlinks = backlinkMap[currentSlug] || [];
 ---
 
-{backlinks.length > 0 && (
-  <section class="backlinks">
-    <h3 class="backlinks-heading">Linked mentions</h3>
-    <div class="backlinks-list">
-      {backlinks.map((backlink) => (
-        <a href={`/notes/${backlink.slug}`} class="backlink-item">
-          {backlink.title}
-        </a>
-      ))}
-    </div>
-  </section>
-)}
+{
+  backlinks.length > 0 && (
+    <section class="backlinks">
+      <div class="backlinks-header">
+        <h3 class="backlinks-heading">Referenced by other essays</h3>
+        <span>
+          {backlinks.length} {backlinks.length === 1 ? 'mention' : 'mentions'}
+        </span>
+      </div>
+      <div class="backlinks-list">
+        {backlinks.map((backlink) => (
+          <a href={`/notes/${backlink.slug}`} class="backlink-item">
+            <span>{backlink.title}</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M5 12h14" />
+              <path d="m13 6 6 6-6 6" />
+            </svg>
+          </a>
+        ))}
+      </div>
+    </section>
+  )
+}
 
 <style>
   .backlinks {
-    margin: 3rem auto 0;
-    padding: 1.5rem 0 0;
-    border-top: 1px solid var(--color-subtle-border);
+    margin: 1rem auto 0;
+    padding: 1.25rem;
+    border-radius: 16px;
+    background: var(--color-subtle);
+    box-shadow: inset 0 0 0 1px var(--color-subtle-border);
     font-family: var(--font-sans);
     color: var(--color-body-text);
   }
 
+  .backlinks-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.85rem;
+  }
+
   .backlinks-heading {
-    font-family: var(--font-serif);
-    font-size: 1.375rem;
-    font-weight: 600;
-    color: var(--color-foreground);
-    letter-spacing: 0;
-    text-transform: none;
-    margin: 0 0 0.75rem;
+    margin: 0;
     padding: 0;
+    color: var(--color-muted-foreground);
+    font-family: var(--font-sans);
+    font-size: 0.7rem;
+    font-weight: 450;
+    letter-spacing: 0.1em;
     line-height: 1.4;
+    text-transform: uppercase;
+  }
+
+  .backlinks-header > span {
+    color: var(--color-muted-foreground);
+    font-size: 0.7rem;
   }
 
   .backlinks-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.45rem;
     margin: 0;
     padding: 0;
   }
@@ -78,29 +116,21 @@ const backlinks = backlinkMap[currentSlug] || [];
   .backlink-item {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    justify-content: space-between;
+    gap: 0.75rem;
     margin: 0;
-    padding: 0.625rem 0.875rem;
+    padding: 0.85rem;
     font-family: var(--font-sans);
-    font-size: 1.125rem;
-    font-weight: 500;
+    font-size: 0.84rem;
+    font-weight: 540;
     color: var(--color-foreground);
     text-decoration: none;
     line-height: 1.5;
     border-radius: 8px;
     border-bottom: none;
-    transition: background 0.15s ease, color 0.15s ease;
-  }
-
-  .backlink-item::before {
-    content: '';
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--color-muted-foreground);
-    flex-shrink: 0;
-    opacity: 0.5;
-    transition: opacity 0.15s ease;
+    transition:
+      background 0.15s ease,
+      color 0.15s ease;
   }
 
   .backlink-item:focus-visible {
@@ -113,7 +143,14 @@ const backlinks = backlinkMap[currentSlug] || [];
     color: var(--color-foreground);
   }
 
-  .backlink-item:hover::before {
-    opacity: 1;
+  .backlink-item svg {
+    flex-shrink: 0;
+    color: var(--color-muted-foreground);
+  }
+
+  @media (max-width: 640px) {
+    .backlinks-list {
+      grid-template-columns: 1fr;
+    }
   }
 </style>

@@ -26,7 +26,7 @@ pnpm-debug.log*
 # AI agent config
 .superset/
 
-# Obsidian
-.obsidian/
-
+# Obsidian local workspace state
+**/.obsidian/workspace*.json
+**/.obsidian/cache/
 

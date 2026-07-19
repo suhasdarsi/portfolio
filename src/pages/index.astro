@@ -1,14 +1,10 @@
 ---
-import { getCollection } from 'astro:content';
+import { getPublishedCardEntriesByOrder } from '../utils/content';
 import { formatDate } from '../utils/date';
 import BlogLayout from '../layouts/BlogLayout.astro';
 
-const allPosts = await getCollection('blog');
-const posts = allPosts
-  .filter((post) => !post.data.draft)
-  .sort((a, b) => new Date(b.data.pubDate).valueOf() - new Date(a.data.pubDate).valueOf());
-
-const recentPosts = posts.slice(0, 3);
+const cards = await getPublishedCardEntriesByOrder();
+const recentCards = cards.slice(0, 3);
 
 const currently = [
   { label: 'Founder', name: 'SuperAlign AI', url: 'https://superalign.ai' },
@@ -23,18 +19,19 @@ const previously = [
 ];
 ---
 
-<BlogLayout title="Suhas Darsi" description="Suhas Darsi - Co-Founder at SuperAlign, writing about AI safety, product, bags, travel, and infrastructure.">
+<BlogLayout title="Suhas Darsi" description="Suhas Darsi — short, connected ideas about AI security, agent systems, and network risk.">
+  <p class="home-kicker">Founder · Researcher · Writer</p>
   <h1 class="home-name">
     Suhas Darsi
   </h1>
-  <p class="home-bio">
+  <p class="home-bio home-lede">
     I'm a co-founder at <a href="https://superalign.ai" class="bio-link link-underline">SuperAlign</a>, where we help security teams see, understand, and control AI adoption across their organizations.
   </p>
   <p class="home-bio">
-    My background is in Computer Vision research at IIIT Hyderabad. These days I spend most of my time thinking about AI governance, the security risks of enterprise AI, and what it takes to build trustworthy systems at scale.
+    My background is in Computer Vision research at IIIT Hyderabad. These days I focus on how AI systems fail, how risk propagates through connected agents, and the controls required to deploy them safely.
   </p>
   <p class="home-bio">
-    This site is my digital garden — a place for thinking in public. Some pieces are polished, most are works in progress. The topics reflect what I'm actively engaged with.
+    This site is where I publish short, connected notes on AI security, agent architecture, and the network dynamics behind systemic failures.
   </p>
 
   <div class="cta-row">
@@ -44,6 +41,15 @@ const previously = [
         <path d="M5 12h14"></path>
         <path d="m12 5 7 7-7 7"></path>
       </svg>
+    </a>
+
+    <a href="/rss.xml" target="_blank" rel="noopener noreferrer" class="rss-link">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M4 11a9 9 0 0 1 9 9"></path>
+        <path d="M4 4a16 16 0 0 1 16 16"></path>
+        <circle cx="5" cy="19" r="1"></circle>
+      </svg>
+      Subscribe via RSS
     </a>
 
     <div class="home-socials">
@@ -84,28 +90,30 @@ const previously = [
   </div>
 
   <div class="recent-section">
-    <h2 class="section-heading">Recent notes</h2>
+    <h2 class="section-heading">Latest notes</h2>
     <div class="recent-posts">
-      {recentPosts.map((post) => (
+      {recentCards.map((card) => (
           <article class="recent-item">
-            <a href={`/notes/${post.id}`} class="recent-link">
+            <a href={`/cards/${card.id}`} class="recent-link">
               <div class="flex flex-col gap-2">
                 <h3 class="recent-title">
-                  {post.data.title}
+                  {card.data.title}
                 </h3>
                 <p class="recent-desc">
-                  {post.data.description}
+                  {card.data.description}
                 </p>
                 <div class="recent-date">
-                  <time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time>
+                  <span>{card.data.topic}</span>
+                  <span aria-hidden="true">·</span>
+                  <time datetime={card.data.pubDate.toISOString()}>{formatDate(card.data.pubDate)}</time>
                 </div>
               </div>
             </a>
           </article>
       ))}
     </div>
-    <a href="/notes" class="view-all-link">
-      View all notes
+    <a href="/cards" class="view-all-link">
+      Explore all notes
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M5 12h14"></path>
         <path d="m12 5 7 7-7 7"></path>
@@ -117,16 +125,39 @@ const previously = [
 <style>
   .home-name {
     font-family: var(--font-serif);
-    font-size: var(--text-display);
-    margin-bottom: 2rem;
-    letter-spacing: 0;
+    font-size: clamp(2.5rem, 10vw, var(--text-display));
+    line-height: 1.08;
+    margin: 0 0 1.75rem;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+    font-weight: 540;
+  }
+
+  .home-kicker {
+    margin: 0 0 0.75rem;
+    color: var(--color-muted-foreground);
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 520;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
   }
 
   .home-bio {
-    font-size: 1.125rem;
+    font-family: var(--font-sans);
+    font-size: 1rem;
     color: var(--color-body-text);
-    line-height: 1.75;
-    margin-bottom: 1.5rem;
+    line-height: 1.72;
+    margin-bottom: 1.25rem;
+    max-width: 44rem;
+    text-wrap: pretty;
+  }
+
+  .home-lede {
+    color: var(--color-foreground);
+    font-size: clamp(1.125rem, 2.25vw, 1.25rem);
+    line-height: 1.65;
+    letter-spacing: -0.012em;
   }
 
   .home-bio:last-of-type {
@@ -137,7 +168,8 @@ const previously = [
     display: flex;
     flex-direction: column;
     gap: 1.25rem;
-    margin-bottom: 2.5rem;
+    margin-top: 1.75rem;
+    margin-bottom: 3.5rem;
   }
 
   @media (min-width: 480px) {
@@ -152,13 +184,17 @@ const previously = [
     align-items: center;
     gap: 0.5rem;
     font-size: var(--text-body);
-    color: var(--color-muted-foreground);
-    background: none;
-    border: 1px solid var(--color-subtle-border);
-    padding: 0.625rem 1.25rem;
+    color: var(--color-accent-foreground);
+    background: var(--color-accent);
+    border: 1px solid var(--color-accent);
+    border-radius: var(--radius-buttons);
+    padding: 0.7rem 1rem;
+    min-height: 3rem;
+    box-sizing: border-box;
     text-decoration: none;
     font-weight: 500;
-    transition: border-color 0.2s ease, color 0.2s ease;
+    box-shadow: var(--shadow-subtle);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
   }
 
   .cta-button:focus-visible {
@@ -167,18 +203,60 @@ const previously = [
   }
 
   .cta-button:hover {
-    border-color: var(--color-foreground);
+    color: var(--color-accent-foreground);
+    filter: brightness(1.05);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-elevated);
+  }
+
+  .rss-link {
+    display: inline-flex;
+    align-items: center;
+    align-self: flex-start;
+    gap: 0.5rem;
+    min-height: 3rem;
+    padding: 0.7rem 1rem;
+    box-sizing: border-box;
+    border-radius: var(--radius-buttons);
+    color: var(--color-muted-foreground);
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    font-weight: 450;
+    text-decoration: none;
+    transition: color 0.2s ease, background-color 0.2s ease;
+  }
+
+  .rss-link:hover {
     color: var(--color-foreground);
+    background: var(--color-muted);
+  }
+
+  .rss-link:focus-visible {
+    outline: 2px solid var(--color-foreground);
+    outline-offset: 2px;
   }
 
   .timeline-section {
-    padding-top: 2.5rem;
-    border-top: 1px solid var(--color-subtle-border);
-    margin-bottom: 2.5rem;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    border: 1px solid var(--color-subtle-border);
+    border-radius: var(--radius-panels);
+    background: var(--color-subtle);
+    box-shadow: var(--shadow-subtle);
+    margin-bottom: 4.5rem;
+  }
+
+  @media (min-width: 640px) {
+    .timeline-section {
+      grid-template-columns: 1fr 1fr;
+      padding: 1.75rem;
+    }
   }
 
   .timeline-group {
-    margin-bottom: 1.5rem;
+    margin-bottom: 0;
   }
 
   .timeline-group:last-child {
@@ -186,10 +264,12 @@ const previously = [
   }
 
   .timeline-label {
+    font-family: var(--font-sans);
     font-size: var(--text-small);
     color: var(--color-muted-foreground);
     text-transform: uppercase;
-    letter-spacing: 0.06em;
+    font-weight: 550;
+    letter-spacing: 0.1em;
     margin: 0 0 0.75rem;
   }
 
@@ -200,9 +280,11 @@ const previously = [
   }
 
   .timeline-item {
-    font-size: 1rem;
+    font-family: var(--font-sans);
+    font-size: 0.9375rem;
     color: var(--color-foreground);
-    margin-bottom: 0.5rem;
+    line-height: 1.55;
+    margin-bottom: 0.6rem;
   }
 
   .timeline-item:last-child {
@@ -210,7 +292,7 @@ const previously = [
   }
 
   .timeline-role {
-    font-weight: 500;
+    font-weight: 450;
     color: var(--color-foreground);
   }
 
@@ -226,7 +308,12 @@ const previously = [
 
   .social-icon {
     color: var(--color-muted-foreground);
-    transition: color 0.3s ease, transform 0.3s ease;
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 999px;
+    transition: color 0.2s ease, transform 0.2s ease, background-color 0.2s ease;
   }
 
   .social-icon:focus-visible {
@@ -237,48 +324,49 @@ const previously = [
 
   .social-icon:hover {
     color: var(--color-foreground);
-    transform: scale(1.1);
+    background: var(--color-muted);
+    transform: translateY(-1px);
   }
 
   .recent-section {
-    border-top: 1px solid var(--color-subtle-border);
-    padding-top: 2.5rem;
+    padding-top: 0;
   }
 
   .section-heading {
     font-family: var(--font-serif);
     font-size: var(--text-title);
-    margin: 0 0 1.5rem;
+    font-size: clamp(1.75rem, 4vw, 2.25rem);
+    margin: 0 0 1.75rem;
   }
 
   .recent-posts {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
-  }
-
-  .recent-item:last-child .recent-link {
-    border-bottom: none;
-    padding-bottom: 0;
+    gap: 0.5rem;
   }
 
   .recent-link {
     display: block;
     text-decoration: none;
     color: inherit;
-    padding-bottom: 1.5rem;
-    border-bottom: 1px solid var(--color-subtle-border);
+    padding: 1.25rem;
+    margin: 0 -1.25rem;
+    border: 1px solid transparent;
+    border-radius: var(--radius-cards);
+    transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
   }
 
   .recent-link:hover {
-    border-bottom-color: var(--color-foreground);
+    border-color: var(--color-subtle-border);
+    background: var(--color-subtle);
+    transform: translateY(-1px);
   }
 
   .recent-title {
     font-family: var(--font-serif);
-    font-size: 1.125rem;
-    font-weight: 500;
-    line-height: 1.3;
+    font-size: 1.2rem;
+    font-weight: 600;
+    line-height: 1.35;
     transition: color 0.2s ease;
   }
 
@@ -287,12 +375,14 @@ const previously = [
   }
 
   .recent-desc {
-    font-size: var(--text-body);
+    font-family: var(--font-sans);
+    font-size: 0.9375rem;
     color: var(--color-muted-foreground);
     line-height: 1.6;
   }
 
   .recent-date {
+    font-family: var(--font-sans);
     font-size: var(--text-small);
     color: var(--color-muted-foreground);
     text-transform: uppercase;
