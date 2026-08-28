@@ -1,20 +1,12 @@
 ---
 import { render } from 'astro:content';
-import {
-  getCardsForSource,
-  getPublishedBlogEntries,
-  getPublishedBlogEntriesByDate,
-  getPublishedCardEntries,
-  validatePublishedCardReferences,
-} from '../../utils/content';
+import { getPublishedBlogEntries } from '../../utils/content';
 import BlogLayout from '../../layouts/BlogLayout.astro';
-import Backlinks from '../../components/Backlinks.astro';
 import ReadingProgress from '../../components/ReadingProgress.astro';
 import CopyCode from '../../components/CopyCode.astro';
 import { formatDateWithYear, getReadingTime } from '../../utils/date';
 
 export async function getStaticPaths() {
-	await validatePublishedCardReferences();
 	const posts = await getPublishedBlogEntries();
 	return posts.map((post) => ({
 		params: { slug: post.id },
@@ -26,14 +18,11 @@ const post = Astro.props;
 const { Content } = await render(post);
 const readingTime = getReadingTime(post.body || '');
 
-const allPosts = await getPublishedBlogEntriesByDate();
-const sourceCards = getCardsForSource(post.id, await getPublishedCardEntries());
-
-const currentIndex = allPosts.findIndex((p) => p.id === post.id);
-const prevPost = currentIndex > 0 ? allPosts[currentIndex - 1] : null;
-const nextPost = currentIndex < allPosts.length - 1 ? allPosts[currentIndex + 1] : null;
-
 const siteUrl = Astro.site?.toString().replace(/\/$/, '') || 'https://suhasdarsi.com';
+const canonicalUrl = `${siteUrl}/notes/${post.id}`;
+const encodedUrl = encodeURIComponent(canonicalUrl);
+const encodedTitle = encodeURIComponent(post.data.title);
+const encodedBlueskyPost = encodeURIComponent(`${post.data.title} ${canonicalUrl}`);
 const structuredData = JSON.stringify({
   "@context": "https://schema.org",
   "@type": "BlogPosting",
@@ -42,7 +31,7 @@ const structuredData = JSON.stringify({
   "datePublished": post.data.pubDate.toISOString(),
   ...(post.data.updatedDate ? { "dateModified": post.data.updatedDate.toISOString() } : {}),
   "author": { "@type": "Person", "name": "Suhas Darsi" },
-  "url": `${siteUrl}/notes/${post.id}`
+  "url": canonicalUrl
 }).replace(/</g, '\\u003c');
 ---
 
@@ -52,41 +41,19 @@ const structuredData = JSON.stringify({
   <script type="application/ld+json" set:html={structuredData} />
   <article>
     <header class="article-header">
-      <a href="/notes" class="back-link">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="m15 18-6-6 6-6"></path>
+      <a href="/" class="back-link">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="15 18 9 12 15 6"></polyline>
         </svg>
-        Notes
+        Suhas Darsi
       </a>
-      {post.data.topics.length > 0 && (
-        <div class="article-topics">
-          {post.data.topics.map((topic) => (
-            <a href={`/notes?topic=${encodeURIComponent(topic)}`} class="topic-tag">{topic}</a>
-          ))}
-        </div>
-      )}
       <h1 class="article-title page-heading">{post.data.title}</h1>
-      <p class="article-description">{post.data.description}</p>
       <div class="article-meta">
-        <div class="article-date">
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect>
-            <line x1="16" x2="16" y1="2" y2="6"></line>
-            <line x1="8" x2="8" y1="2" y2="6"></line>
-            <line x1="3" x2="21" y1="10" y2="10"></line>
-          </svg>
-          <time datetime={post.data.pubDate.toISOString()}>{formatDateWithYear(post.data.pubDate)}</time>
-        </div>
+        <time datetime={post.data.pubDate.toISOString()}>{formatDateWithYear(post.data.pubDate)}</time>
         {post.data.updatedDate && (
-          <div class="article-date">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
-              <polyline points="21 3 21 9 15 9"/>
-            </svg>
-            Updated <time datetime={post.data.updatedDate.toISOString()}>{formatDateWithYear(post.data.updatedDate)}</time>
-          </div>
+          <span>· Updated <time datetime={post.data.updatedDate.toISOString()}>{formatDateWithYear(post.data.updatedDate)}</time></span>
         )}
-        {readingTime && <span class="article-reading-time">{readingTime}</span>}
+        {readingTime && <span>· {readingTime}</span>}
       </div>
     </header>
 
@@ -94,56 +61,21 @@ const structuredData = JSON.stringify({
       <Content />
     </div>
 
-    {sourceCards.length > 0 && (
-      <section class="source-cards" aria-labelledby="source-cards-title">
-        <div class="section-heading">
-          <h2 id="source-cards-title">Ideas from this essay</h2>
-          <span>{sourceCards.length} short-form {sourceCards.length === 1 ? 'card' : 'cards'}</span>
-        </div>
-        <div class="source-cards-list">
-          {sourceCards.map((card) => (
-            <a href={`/cards/${card.id}`}>
-              <span>{card.data.topic}</span>
-              <strong>{card.data.title}</strong>
-              <small>{card.data.description}</small>
-              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M5 12h14"></path>
-                <path d="m13 6 6 6-6 6"></path>
-              </svg>
-            </a>
-          ))}
-        </div>
-      </section>
-    )}
-
-    <Backlinks currentSlug={post.id} />
-
-    {(prevPost || nextPost) && (
-      <nav class="note-nav">
-        {prevPost ? (
-          <a href={`/notes/${prevPost.id}`} class="note-nav-link note-nav-prev">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="m15 18-6-6 6-6"></path>
-            </svg>
-            <div class="note-nav-content">
-              <span class="note-nav-label">Previous</span>
-              <span class="note-nav-title">{prevPost.data.title}</span>
-            </div>
-          </a>
-        ) : <div />}
-        {nextPost ? (
-          <a href={`/notes/${nextPost.id}`} class="note-nav-link note-nav-next">
-            <div class="note-nav-content">
-              <span class="note-nav-label">Next</span>
-              <span class="note-nav-title">{nextPost.data.title}</span>
-            </div>
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="m9 18 6-6-6-6"></path>
-            </svg>
-          </a>
-        ) : <div />}
-      </nav>
-    )}
+    <footer class="article-share" aria-label="Share this essay">
+      <span class="share-label">Share</span>
+      <a href={`https://twitter.com/intent/tweet?text=${encodedTitle}&url=${encodedUrl}`} target="_blank" rel="noopener noreferrer" aria-label="Share on X">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg>
+      </a>
+      <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`} target="_blank" rel="noopener noreferrer" aria-label="Share on LinkedIn">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452z"></path></svg>
+      </a>
+      <a href={`https://bsky.app/intent/compose?text=${encodedBlueskyPost}`} target="_blank" rel="noopener noreferrer" aria-label="Share on Bluesky">
+        <svg viewBox="0 0 600 530" fill="currentColor" aria-hidden="true"><path d="M135.72 44.03C202.216 93.951 273.74 195.17 300 249.49c26.262-54.316 97.782-155.54 164.28-205.46C512.26 8.009 590-19.862 590 68.825c0 17.712-10.155 148.79-16.111 170.07-20.703 73.984-96.144 92.854-163.25 81.433 117.3 19.964 147.14 86.092 82.697 152.22-122.39 125.59-175.91-31.511-189.63-71.766-2.514-7.38-3.69-10.832-3.708-7.896-.017-2.936-1.193.516-3.707 7.896-13.714 40.255-67.233 197.36-189.63 71.766-64.444-66.128-34.605-132.26 82.697-152.22-67.108 11.421-142.55-7.45-163.25-81.433C20.15 217.613 9.997 86.535 9.997 68.825c0-88.687 77.742-60.816 125.72-24.795z"></path></svg>
+      </a>
+      <a href={`mailto:?subject=${encodedTitle}&body=${encodedUrl}`} aria-label="Share by email">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"></path></svg>
+      </a>
+    </footer>
   </article>
 </BlogLayout>
 
@@ -151,241 +83,111 @@ const structuredData = JSON.stringify({
   .back-link {
     display: inline-flex;
     align-items: center;
-    gap: 0.25rem;
+    gap: 0.375rem;
     color: var(--color-muted-foreground);
     text-decoration: none;
     font-family: var(--font-sans);
     font-size: 0.8125rem;
-    font-weight: 550;
-    margin-bottom: 2rem;
-    transition: color 0.2s ease;
+    font-weight: 500;
+    margin-bottom: 1.5rem;
+    padding: 0.3125rem 0.875rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-foreground) 18%, transparent);
+    transition: color 0.15s ease, background-color 0.15s ease;
   }
 
   .back-link:focus-visible {
-    outline: 2px solid var(--color-foreground);
-    outline-offset: 2px;
-    border-radius: 2px;
+    outline: 2px solid var(--color-focus);
+    outline-offset: 3px;
   }
 
   .back-link:hover {
     color: var(--color-foreground);
+    background: rgba(16, 24, 40, 0.05);
   }
 
   .back-link svg {
-    transition: transform 0.2s ease;
+    transition: transform 0.15s ease;
   }
 
   .back-link:hover svg {
-    transform: translateX(-2px);
+    transform: translateX(-3px);
   }
 
   .article-header {
-    margin-bottom: 3.25rem;
-    padding-bottom: 2.5rem;
-    border-bottom: 1px solid var(--color-subtle-border);
-  }
-
-  .article-topics {
     display: flex;
-    gap: 0.375rem;
-    flex-wrap: wrap;
-    margin-bottom: 1.25rem;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin-bottom: 0;
+    padding: 0 0 3rem;
+    border-bottom: 0;
   }
 
   .article-title {
-    margin-bottom: 1.25rem;
-  }
-
-  .article-description {
+    margin: 0 0 1rem;
+    max-width: 40rem;
     font-family: var(--font-sans);
-    font-size: clamp(1.05rem, 2.5vw, 1.2rem);
-    color: var(--color-body-text);
-    line-height: 1.62;
-    margin-bottom: 1.75rem;
-    text-wrap: pretty;
+    font-size: 2.875rem;
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
   }
 
   .article-meta {
-    font-family: var(--font-sans);
+    font-family: var(--font-serif);
     display: flex;
     align-items: center;
-    gap: 0.625rem 1.25rem;
-    flex-wrap: wrap;
-  }
-
-  .article-date {
-    display: flex;
-    align-items: center;
-    gap: 0.375rem;
-    font-size: 0.8125rem;
-    color: var(--color-muted-foreground);
-  }
-
-  .article-date svg {
-    opacity: 0.5;
-  }
-
-  .article-reading-time {
-    font-size: 0.8125rem;
-    color: var(--color-muted-foreground);
-  }
-
-  .source-cards {
-    margin-top: 3.5rem;
-    padding: 1.25rem;
-    border-radius: 16px;
-    background: var(--color-subtle);
-    box-shadow: inset 0 0 0 1px var(--color-subtle-border);
-    font-family: var(--font-sans);
-  }
-
-  .section-heading {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    margin-bottom: 0.85rem;
-  }
-
-  .section-heading h2 {
-    margin: 0;
-    color: var(--color-muted-foreground);
-    font-family: var(--font-sans);
-    font-size: 0.7rem;
-    font-weight: 450;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-  }
-
-  .section-heading > span {
-    color: var(--color-muted-foreground);
-    font-size: 0.7rem;
-  }
-
-  .source-cards-list {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.45rem;
-  }
-
-  .source-cards-list a {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 0.2rem 0.75rem;
-    padding: 0.85rem;
-    border-radius: 10px;
-    color: var(--color-foreground);
-    text-decoration: none;
-    transition: background-color 0.2s ease;
-  }
-
-  .source-cards-list a:hover {
-    background: var(--color-muted);
-  }
-
-  .source-cards-list a > span,
-  .source-cards-list a > small {
-    grid-column: 1;
-    color: var(--color-muted-foreground);
-  }
-
-  .source-cards-list a > span {
-    font-size: 0.68rem;
-  }
-
-  .source-cards-list a > strong {
-    grid-column: 1;
-    font-size: 0.86rem;
-    font-weight: 550;
-    line-height: 1.4;
-  }
-
-  .source-cards-list a > small {
-    margin-top: 0.1rem;
-    font-size: 0.74rem;
-    line-height: 1.45;
-  }
-
-  .source-cards-list svg {
-    grid-column: 2;
-    grid-row: 1 / span 3;
-    align-self: center;
-    color: var(--color-muted-foreground);
-  }
-
-  .note-nav {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.45rem;
-    margin-top: 1rem;
-    padding: 1.25rem;
-    border-radius: 16px;
-    background: var(--color-subtle);
-    box-shadow: inset 0 0 0 1px var(--color-subtle-border);
-  }
-
-  .note-nav-link {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.85rem;
-    border: 0;
-    border-radius: 10px;
-    background: transparent;
-    box-shadow: none;
-    text-decoration: none;
-    color: inherit;
-    transition: background-color 0.2s ease;
-  }
-
-  .note-nav-link:focus-visible {
-    outline: 2px solid var(--color-foreground);
-    outline-offset: 2px;
-  }
-
-  .note-nav-link:hover {
-    background: var(--color-muted);
-  }
-
-  .note-nav-prev {
-    justify-content: flex-start;
-  }
-
-  .note-nav-next {
-    justify-content: flex-end;
-    text-align: right;
-  }
-
-  .note-nav-content {
-    display: flex;
-    flex-direction: column;
+    justify-content: center;
     gap: 0.25rem;
-  }
-
-  .note-nav-label {
-    font-family: var(--font-sans);
-    font-size: 0.68rem;
+    flex-wrap: wrap;
+    font-size: 1rem;
+    font-variant-numeric: oldstyle-nums;
     color: var(--color-muted-foreground);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
   }
 
-  .note-nav-title {
-    font-family: var(--font-sans);
-    font-size: 0.84rem;
-    font-weight: 540;
-    line-height: 1.45;
-    color: var(--color-foreground);
-    transition: color 0.2s ease;
-  }
-
-  .note-nav-link:hover .note-nav-title {
-    color: var(--color-foreground);
-  }
-
-  .note-nav-link svg {
+  .article-share {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid color-mix(in srgb, currentColor 15%, transparent);
     color: var(--color-muted-foreground);
-    flex-shrink: 0;
+    font-family: var(--font-sans);
+  }
+
+  .share-label {
+    font-size: 0.8125rem;
+    font-weight: 500;
+  }
+
+  .article-share a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1rem;
+    height: 1rem;
+    color: #a4a09e;
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  .article-share a:hover {
+    color: var(--color-foreground);
+  }
+
+  .article-share a:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 4px;
+  }
+
+  .article-share svg {
+    width: 1rem;
+    height: 1rem;
   }
 
   @media (max-width: 640px) {
@@ -394,30 +196,8 @@ const structuredData = JSON.stringify({
     }
 
     .article-header {
-      margin-bottom: 2rem;
+      padding-bottom: 2.5rem;
     }
 
-    .article-meta {
-      align-items: flex-start;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .source-cards {
-      margin-top: 2.5rem;
-    }
-
-    .source-cards-list {
-      grid-template-columns: 1fr;
-    }
-
-    .note-nav {
-      grid-template-columns: 1fr;
-    }
-
-    .note-nav-next {
-      text-align: left;
-      justify-content: flex-start;
-    }
   }
 </style>

@@ -1,4 +1,4 @@
-import { getPublishedCardEntries } from './content';
+import { getPublishedBlogEntriesByDate } from './content';
 
 export interface SearchEntry {
   id: string;
@@ -10,18 +10,14 @@ export interface SearchEntry {
 }
 
 export async function getSearchData(): Promise<SearchEntry[]> {
-  const cards = await getPublishedCardEntries();
+  const notes = await getPublishedBlogEntriesByDate();
 
-  return cards
-    .map((card) => ({
-      id: card.id,
-      href: `/cards/${card.id}`,
-      type: 'Note',
-      title: card.data.title,
-      description: card.data.description,
-      body: card.body?.slice(0, 2000) ?? '',
-      pubDate: card.data.pubDate,
-    }))
-    .sort((a, b) => new Date(b.pubDate).valueOf() - new Date(a.pubDate).valueOf())
-    .map(({ pubDate: _pubDate, ...entry }) => entry);
+  return notes.map((note) => ({
+    id: note.id,
+    href: `/notes/${note.id}`,
+    type: 'Note',
+    title: note.data.title,
+    description: note.data.description,
+    body: note.body?.slice(0, 2000) ?? '',
+  }));
 }

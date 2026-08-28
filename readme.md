@@ -19,7 +19,6 @@ A focused collection of practical writing about AI security, agent systems, and 
 │   ├── content/                      # Open this folder as the Obsidian vault
 │   │   ├── .obsidian/                # Shared vault settings
 │   │   ├── blog/                     # Long-form notes published at /notes
-│   │   ├── cards/                    # Short-form cards published at /cards
 │   │   └── templates/note.md         # Template for new blog notes
 │   ├── layouts/
 │   │   └── BlogLayout.astro          # Base layout for note pages

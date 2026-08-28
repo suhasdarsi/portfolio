@@ -8,7 +8,7 @@ import BlogLayout from '../layouts/BlogLayout.astro';
   <p class="error-hint">It might have been moved, deleted, or you may have mistyped the URL.</p>
   <div class="error-actions">
     <a href="/" class="error-link error-link-primary">Go home</a>
-    <a href="/cards" class="error-link">Browse notes</a>
+    <a href="/notes" class="error-link">Browse notes</a>
   </div>
   <p class="error-search-label">Or search across all notes:</p>
   <div class="error-search-wrap">
@@ -18,6 +18,8 @@ import BlogLayout from '../layouts/BlogLayout.astro';
 </BlogLayout>
 
 <script>
+  import { searchDocuments } from '../utils/client-search';
+
   const input = document.getElementById('error-search-input') as HTMLInputElement;
   const results = document.getElementById('error-search-results');
 
@@ -25,22 +27,17 @@ import BlogLayout from '../layouts/BlogLayout.astro';
     href: string;
     title: string;
     description?: string;
+    body?: string;
   };
 
-  let searchReady: Promise<{ search: (query: string) => Array<{ item: SearchPost }> }> | undefined;
+  let searchReady: Promise<SearchPost[]> | undefined;
 
   function loadSearch() {
     if (!searchReady) {
-      searchReady = Promise.all([
-        fetch('/search.json').then((response) => {
-          if (!response.ok) throw new Error('Unable to load search data');
-          return response.json() as Promise<SearchPost[]>;
-        }),
-        import('fuse.js'),
-      ]).then(([searchPosts, { default: Fuse }]) => new Fuse(searchPosts, {
-      keys: ['title', 'description'],
-      threshold: 0.3,
-      }));
+      searchReady = fetch('/search.json').then((response) => {
+        if (!response.ok) throw new Error('Unable to load search data');
+        return response.json() as Promise<SearchPost[]>;
+      });
     }
 
     return searchReady;
@@ -50,13 +47,13 @@ import BlogLayout from '../layouts/BlogLayout.astro';
     const query = input.value.trim();
     if (!query) { if (results) results.replaceChildren(); return; }
 
-    const fuse = await loadSearch();
-    const hits = fuse.search(query).slice(0, 5);
+    const searchPosts = await loadSearch();
+    const hits = searchDocuments(searchPosts, query).slice(0, 5);
     results?.replaceChildren(...hits.map((hit) => {
       const link = document.createElement('a');
-      link.href = hit.item.href;
+      link.href = hit.href;
       link.className = 'error-search-result';
-      link.textContent = hit.item.title;
+      link.textContent = hit.title;
       return link;
     }));
   });
@@ -64,18 +61,19 @@ import BlogLayout from '../layouts/BlogLayout.astro';
 
 <style>
   .error-code {
-    font-family: var(--font-serif);
-    font-size: 6rem;
-    font-weight: 400;
+    font-family: var(--font-sans);
+    font-size: 2.875rem;
+    font-weight: 800;
     color: var(--color-muted-foreground);
     margin: 0 0 1rem;
-    line-height: 1;
-    letter-spacing: 0;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
   }
 
   .error-message {
     font-family: var(--font-serif);
-    font-size: var(--text-title);
+    font-size: 1.375rem;
+    line-height: 1.45;
     color: var(--color-foreground);
     margin: 0 0 0.5rem;
   }
@@ -109,7 +107,7 @@ import BlogLayout from '../layouts/BlogLayout.astro';
   }
 
   .error-link:focus-visible {
-    outline: 2px solid var(--color-foreground);
+    outline: 2px solid var(--color-focus);
     outline-offset: 2px;
   }
 
@@ -147,7 +145,7 @@ import BlogLayout from '../layouts/BlogLayout.astro';
   .error-search-input {
     width: 100%;
     font-family: var(--font-mono);
-    font-size: var(--text-body-sm);
+    font-size: var(--text-body);
     color: var(--color-foreground);
     background: none;
     border: 1px solid var(--color-subtle-border);

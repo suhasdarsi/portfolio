@@ -10,9 +10,9 @@ function readFile(path: string): string {
 }
 
 describe('layout width consistency', () => {
-  it('BlogLayout main uses max-w-3xl with horizontal padding on mobile', () => {
+  it('BlogLayout main uses max-w-[40rem] with horizontal padding on mobile', () => {
     const content = readFile('layouts/BlogLayout.astro');
-    expect(content).toContain('max-w-3xl');
+    expect(content).toContain('max-w-[40rem]');
     expect(content).toContain('mx-auto');
     expect(content).toContain('px-4');
   });
@@ -30,15 +30,14 @@ describe('layout width consistency', () => {
     expect(content).not.toMatch(/padding:\s*0;/);
   });
 
-  it('Footer inner uses 48rem max-width with horizontal padding', () => {
-    const content = readFile('components/Footer.astro');
-    expect(content).toContain('max-width: 48rem');
-    expect(content).toMatch(/padding:\s*2rem\s+1rem/);
+  it('Layout no longer renders Footer', () => {
+    const content = readFile('layouts/BlogLayout.astro');
+    expect(content).not.toContain('Footer');
   });
 
-  it('--max-width-shell is 48rem matching max-w-3xl', () => {
+  it('--max-width-shell is 40rem matching the editorial column', () => {
     const content = readFile('styles/global.css');
-    expect(content).toContain('--max-width-shell: 48rem');
+    expect(content).toContain('--max-width-shell: 40rem');
   });
 
   it('all pages use BlogLayout', () => {

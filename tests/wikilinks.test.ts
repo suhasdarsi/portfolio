@@ -10,17 +10,13 @@ function makeFixture() {
   const root = mkdtempSync(join(tmpdir(), 'wikilinks-'));
   tempDirs.push(root);
   const blog = join(root, 'blog');
-  const cards = join(root, 'cards');
   mkdirSync(blog, { recursive: true });
-  mkdirSync(cards, { recursive: true });
 
   return {
     root,
     blog,
-    cards,
     collections: [
       { name: 'blog', directory: blog, routePrefix: '/notes/' },
-      { name: 'cards', directory: cards, routePrefix: '/cards/' },
     ],
   };
 }
@@ -45,10 +41,6 @@ describe('native wikilinks', () => {
     expect(resolveWikilink('AI as the Ultimate Hub#The Implications')?.href).toBe(
       '/notes/ai-as-the-ultimate-hub#the-implications'
     );
-    expect(resolveWikilink('Agent permissions should expire')).toMatchObject({
-      collection: 'cards',
-      href: '/cards/agent-permissions-should-expire',
-    });
   });
 
   it('extracts linked notes without treating embeds as backlinks', () => {
@@ -69,13 +61,13 @@ describe('native wikilinks', () => {
     const fixture = makeFixture();
     writeMarkdown(join(fixture.blog, 'published.md'), 'title: "Published Note"');
     writeMarkdown(join(fixture.blog, 'draft.md'), 'title: "Draft Note"\ndraft: true');
-    writeMarkdown(join(fixture.cards, 'hidden.md'), 'title: "Hidden Card"\npublished: false');
+    writeMarkdown(join(fixture.blog, 'hidden.md'), 'title: "Hidden Note"\npublished: false');
 
     const index = buildWikilinkIndex(fixture.collections);
 
     expect(resolveWikilink('Published Note', index)?.href).toBe('/notes/published');
     expect(resolveWikilink('Draft Note', index)).toBeUndefined();
-    expect(resolveWikilink('Hidden Card', index)).toBeUndefined();
+    expect(resolveWikilink('Hidden Note', index)).toBeUndefined();
     expect(new Set([...index.values()].map((entry) => entry.id))).toEqual(new Set(['published']));
   });
 

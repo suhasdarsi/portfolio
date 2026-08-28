@@ -1,7 +1,6 @@
 ---
 import '../styles/global.css';
 import Header from '../components/Header.astro';
-import Footer from '../components/Footer.astro';
 import ThemeInit from '../components/ThemeInit.astro';
 
 interface Props {
@@ -9,9 +8,10 @@ interface Props {
   description?: string;
   ogType?: string;
   ogImage?: string;
+  wide?: boolean;
 }
 
-const { title, description, ogType = 'website', ogImage } = Astro.props;
+const { title, description, ogType = 'website', ogImage, wide = false } = Astro.props;
 const siteUrl = Astro.site?.toString().replace(/\/$/, '') || 'https://suhasdarsi.com';
 const canonicalUrl = `${siteUrl}${Astro.url.pathname}`;
 const ogDescription = description || 'Suhas Darsi — practical writing about AI security, agent systems, and network risk.';
@@ -36,8 +36,8 @@ const ogDescription = description || 'Suhas Darsi — practical writing about AI
     <meta name="twitter:card" content={ogImage ? 'summary_large_image' : 'summary'} />
     <meta name="twitter:site" content="@suhas_darsi" />
     <meta name="twitter:creator" content="@suhas_darsi" />
-    <meta name="theme-color" content="#f8f5eb" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#0c0b09" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#f7f0e7" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#14130f" media="(prefers-color-scheme: dark)" />
     <link rel="sitemap" href="/sitemap-index.xml" />
     <link rel="alternate" type="application/rss+xml" title="Suhas Darsi — Notes" href="/rss.xml" />
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self';" />
@@ -47,12 +47,13 @@ const ogDescription = description || 'Suhas Darsi — practical writing about AI
   </head>
   <body class="min-h-screen bg-background">
     <a href="#main-content" class="skip-link">Skip to main content</a>
-    <Header />
+    <Header wide={wide} />
 
-    <main id="main-content" class="max-w-3xl mx-auto pt-16 pb-12 px-4">
+    <main
+      id="main-content"
+      class:list={[wide ? 'max-w-6xl' : 'max-w-[40rem]', 'site-main mx-auto pt-16 pb-48 px-4']}
+    >
       <slot />
     </main>
-
-    <Footer />
   </body>
 </html>

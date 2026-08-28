@@ -2,29 +2,20 @@
 export interface Props {
   showNav?: boolean;
   showSearch?: boolean;
+  wide?: boolean;
 }
 
-const { showNav = true, showSearch = true } = Astro.props;
+const { showNav = true, showSearch = true, wide = false } = Astro.props;
 const currentPath = Astro.url.pathname;
 ---
 
 <header class="header">
-  <div class="header-inner">
-    {showNav ? (
-      <nav class="nav-links">
-        <a href="/" class="nav-link" aria-current={currentPath === '/' ? 'page' : undefined}>Home</a>
-        <a href="/cards" class="nav-link" aria-current={currentPath.startsWith('/cards') ? 'page' : undefined}>Notes</a>
-        <a href="/uses" class="nav-link" aria-current={currentPath === '/uses' ? 'page' : undefined}>Uses</a>
-      </nav>
-    ) : (
-      <a href="/" class="nav-link">Home</a>
-    )}
+  <div class:list={['header-inner', { wide }]}>
     <div class="header-actions">
       {showSearch && (
         <button type="button" class="search-trigger" id="global-search-toggle" aria-label="Open search" aria-expanded="false" aria-controls="global-search-overlay">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-trigger-icon"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.34-4.34"></path></svg>
           <span class="search-trigger-label">Search</span>
-          <kbd class="search-trigger-kbd">⌘K</kbd>
         </button>
       )}
       <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch to dark theme">
@@ -57,6 +48,8 @@ const currentPath = Astro.url.pathname;
 )}
 
 <script>
+  import { searchDocuments } from '../utils/client-search';
+
   const themeToggle = document.getElementById('theme-toggle');
   const html = document.documentElement;
   const searchToggle = document.getElementById('global-search-toggle');
@@ -75,30 +68,18 @@ const currentPath = Astro.url.pathname;
 
   let searchPosts: SearchPost[] = [];
   let searchReady: Promise<void> | undefined;
-  let fuse: { search: (query: string) => Array<{ item: SearchPost }> } | undefined;
 
   async function loadSearch() {
     if (!searchReady) {
-      searchReady = Promise.all([
-        fetch('/search.json').then((response) => {
-          if (!response.ok) throw new Error('Unable to load search data');
-          return response.json() as Promise<SearchPost[]>;
-        }),
-        import('fuse.js'),
-      ]).then(([posts, { default: Fuse }]) => {
+      searchReady = fetch('/search.json').then((response) => {
+        if (!response.ok) throw new Error('Unable to load search data');
+        return response.json() as Promise<SearchPost[]>;
+      }).then((posts) => {
         searchPosts = posts;
-        fuse = new Fuse(searchPosts, {
-          keys: [
-            { name: 'title', weight: 0.5 },
-            { name: 'description', weight: 0.3 },
-            { name: 'body', weight: 0.2 },
-          ],
-          threshold: 0.3,
-          ignoreLocation: true,
-        });
       }).catch((error) => {
         searchReady = undefined;
         console.error(error);
+        throw error;
       });
     }
 
@@ -179,11 +160,18 @@ const currentPath = Astro.url.pathname;
     searchOverlay?.setAttribute('aria-hidden', 'false');
     searchToggle?.setAttribute('aria-expanded', 'true');
     searchInput?.focus();
-    await loadSearch();
-    if (!searchOverlay?.classList.contains('open')) return;
-    renderResults(searchPosts);
-    searchEmpty?.classList.add('hidden');
     document.body.style.overflow = 'hidden';
+    try {
+      await loadSearch();
+      if (!searchOverlay?.classList.contains('open')) return;
+      renderResults(searchPosts);
+      if (searchEmpty) searchEmpty.textContent = 'No notes found.';
+      searchEmpty?.classList.add('hidden');
+    } catch {
+      searchResults?.replaceChildren();
+      if (searchEmpty) searchEmpty.textContent = 'Search is unavailable. Please try again.';
+      searchEmpty?.classList.remove('hidden');
+    }
   }
 
   function closeSearch() {
@@ -209,7 +197,14 @@ const currentPath = Astro.url.pathname;
   searchOverlay?.addEventListener('click', handleOverlayClick);
 
   searchInput?.addEventListener('input', async () => {
-    await loadSearch();
+    try {
+      await loadSearch();
+    } catch {
+      searchResults?.replaceChildren();
+      if (searchEmpty) searchEmpty.textContent = 'Search is unavailable. Please try again.';
+      searchEmpty?.classList.remove('hidden');
+      return;
+    }
     const query = searchInput.value.trim();
     if (!query) {
       renderResults(searchPosts);
@@ -217,7 +212,7 @@ const currentPath = Astro.url.pathname;
       return;
     }
 
-    const results = fuse?.search(query).map((result) => result.item) ?? [];
+    const results = searchDocuments(searchPosts, query);
     if (results.length === 0) {
       searchResults?.replaceChildren();
       searchEmpty?.classList.remove('hidden');
@@ -239,17 +234,17 @@ const currentPath = Astro.url.pathname;
     if (!searchOverlay?.classList.contains('open')) return;
 
     if (e.key === 'Tab') {
-      e.preventDefault();
       const focusable = getFocusableElements();
       if (focusable.length === 0) return;
       const first = focusable[0];
       const last = focusable[focusable.length - 1];
-      if (e.shiftKey) {
-        (document.activeElement === first ? last : first).focus();
-      } else {
-        (document.activeElement === last ? first : last).focus();
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
       }
-      return;
     }
 
     if (e.key === 'ArrowDown') {
@@ -290,69 +285,33 @@ const currentPath = Astro.url.pathname;
 
 <style>
   .header {
-    position: sticky;
+    position: absolute;
     top: 0;
+    left: 0;
+    right: 0;
     z-index: 50;
-    border-bottom: 0;
-    background-color: color-mix(in srgb, var(--color-background) 88%, transparent);
-    backdrop-filter: blur(18px) saturate(1.2);
-    -webkit-backdrop-filter: blur(18px) saturate(1.2);
+    pointer-events: none;
   }
 
   .header-inner {
     max-width: var(--max-width-shell);
     margin: 0 auto;
     padding: 0 1rem;
-    height: 4rem;
+    height: 3rem;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-end;
   }
 
-  .nav-links {
-    display: flex;
-    align-items: center;
-    gap: 1.75rem;
-    font-family: var(--font-sans);
-    font-size: 0.875rem;
-    font-weight: 440;
-    color: var(--color-muted-foreground);
-  }
-
-  .nav-link {
-    color: var(--color-muted-foreground);
-    text-decoration: none;
-    padding: 0.4rem 0;
-    transition: color 0.2s ease;
-    position: relative;
-  }
-
-  .nav-link:hover,
-  .nav-link[aria-current="page"] {
-    color: var(--color-foreground);
-  }
-
-  .nav-link[aria-current="page"] {
-    font-weight: 560;
-  }
-
-  .nav-link[aria-current="page"]::after {
-    content: none;
-  }
-
-  .nav-link:focus-visible {
-    outline: 2px solid var(--color-foreground);
-    outline-offset: 2px;
-  }
-
-  .nav-sep {
-    display: none;
+  .header-inner.wide {
+    max-width: 72rem;
   }
 
   .header-actions {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    pointer-events: auto;
   }
 
   .theme-toggle {
@@ -372,14 +331,14 @@ const currentPath = Astro.url.pathname;
   }
 
   .theme-toggle:focus-visible {
-    outline: 2px solid var(--color-foreground);
+    outline: 2px solid var(--color-focus);
     outline-offset: 2px;
   }
 
   .theme-toggle:hover {
     color: var(--color-foreground);
     border-color: var(--color-muted-foreground);
-    background: var(--color-muted);
+    background: rgba(0, 0, 0, 0.03);
   }
 
   :global(html:not(.dark)) .theme-toggle .icon-sun {
@@ -408,25 +367,25 @@ const currentPath = Astro.url.pathname;
     align-items: center;
     gap: 0.4rem;
     border: 0;
-    border-radius: var(--radius-buttons);
+    border-radius: 0.375rem;
     background: transparent;
     color: var(--color-muted-foreground);
     cursor: pointer;
-    padding: 0.48rem 0.6rem;
+    padding: 0.4rem 0.5rem;
     font-family: var(--font-sans);
     font-size: 0.8125rem;
     box-shadow: none;
-    transition: border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+    transition: color 0.2s ease, background-color 0.2s ease;
   }
 
   .search-trigger:focus-visible {
-    outline: 2px solid var(--color-foreground);
+    outline: 2px solid var(--color-focus);
     outline-offset: 2px;
   }
 
   .search-trigger:hover {
     color: var(--color-foreground);
-    background: var(--color-muted);
+    background: rgba(0, 0, 0, 0.03);
   }
 
   .search-trigger-icon {
@@ -436,17 +395,6 @@ const currentPath = Astro.url.pathname;
 
   .search-trigger-label {
     display: inline;
-  }
-
-  .search-trigger-kbd {
-    display: none !important;
-    border: 1px solid var(--color-subtle-border);
-    background-color: var(--color-muted);
-    border-radius: var(--radius-buttons);
-    padding: 0.05rem 0.3rem;
-    font-family: var(--font-mono);
-    font-size: 0.65rem;
-    color: var(--color-muted-foreground);
   }
 
   .search-overlay {
@@ -480,7 +428,7 @@ const currentPath = Astro.url.pathname;
     margin: 0 1rem;
     background-color: var(--color-background);
     border: 1px solid var(--color-border);
-    border-radius: 16px;
+    border-radius: 8px;
     overflow: hidden;
     box-shadow: 0 24px 80px rgba(0, 0, 0, 0.3);
   }
@@ -536,7 +484,7 @@ const currentPath = Astro.url.pathname;
     justify-content: space-between;
     gap: 1rem;
     padding: 0.8rem 0.75rem;
-    border-radius: 8px;
+    border-radius: 6px;
     text-decoration: none;
     border-bottom: 0;
     transition: background-color 0.2s ease, color 0.2s ease;
@@ -567,7 +515,7 @@ const currentPath = Astro.url.pathname;
 
   :global(.search-result-type) {
     font-family: var(--font-sans);
-    font-size: var(--text-small);
+    font-size: var(--text-body);
     color: var(--color-muted-foreground);
     flex-shrink: 0;
   }
@@ -588,7 +536,7 @@ const currentPath = Astro.url.pathname;
     padding: 0.75rem 1rem;
     border-top: 1px solid var(--color-subtle-border);
     color: var(--color-muted-foreground);
-    font-size: var(--text-small);
+    font-size: var(--text-body);
   }
 
   .search-footer kbd {
@@ -605,11 +553,6 @@ const currentPath = Astro.url.pathname;
   @media (max-width: 40rem) {
     .header-inner {
       padding-inline: 0.875rem;
-    }
-
-    .nav-links {
-      gap: 1rem;
-      font-size: 0.8125rem;
     }
 
     .header-actions {

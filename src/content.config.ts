@@ -21,21 +21,4 @@ const blog = defineCollection({
   }),
 });
 
-const cards = defineCollection({
-  loader: glob({ pattern: "**/*.md", base: "./src/content/cards" }),
-  schema: z.object({
-    title: z.string(),
-    description: z.string(),
-    pubDate: dateSchema,
-    updatedDate: dateSchema.optional(),
-    topic: z.enum(['AI Security', 'Agent Systems', 'Network Risk', 'Resilience']),
-    related: z.array(z.string()).default([]),
-    source: z.string().optional(),
-    order: z.number(),
-    draft: z.boolean().default(false),
-    published: z.boolean().optional(),
-    dueDate: dateSchema.optional(),
-  }),
-});
-
-export const collections = { blog, cards };
+export const collections = { blog };

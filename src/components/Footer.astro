@@ -1,5 +1,13 @@
+---
+interface Props {
+  wide?: boolean;
+}
+
+const { wide = false } = Astro.props;
+---
+
 <footer class="footer">
-  <div class="footer-inner">
+  <div class:list={['footer-inner', { wide }]}>
     <div class="footer-links">
       <a href="https://www.linkedin.com/in/suhasdarsi/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
@@ -28,9 +36,13 @@
   }
 
   .footer-inner {
-    max-width: 48rem;
+    max-width: 40rem;
     margin: 0 auto;
-    padding: 2rem 1rem;
+    padding: 3rem 1rem 4rem;
+  }
+
+  .footer-inner.wide {
+    max-width: 72rem;
   }
 
   .footer-links {

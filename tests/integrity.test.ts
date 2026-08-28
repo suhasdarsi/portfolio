@@ -56,6 +56,12 @@ describe('file structure', () => {
     expect(existsSync(join(SRC, 'pages', 'notes', 'slug.astro'))).toBe(false);
   });
 
+  it('short-form card routes, components, and content are removed', () => {
+    expect(existsSync(join(SRC, 'pages', 'cards'))).toBe(false);
+    expect(existsSync(join(SRC, 'components', 'CardPreview.astro'))).toBe(false);
+    expect(existsSync(join(SRC, 'content', 'cards'))).toBe(false);
+  });
+
 
   it('no files with _1 suffix exist in src/', () => {
     const allFiles = readAllFiles(SRC);
@@ -73,8 +79,6 @@ describe('typography system', () => {
   it('uses the shared page heading treatment on primary portfolio pages', () => {
     const pages = [
       join(SRC, 'pages', 'index.astro'),
-      join(SRC, 'pages', 'cards', 'index.astro'),
-      join(SRC, 'pages', 'cards', '[slug].astro'),
       join(SRC, 'pages', 'uses.astro'),
       join(SRC, 'pages', 'notes', 'index.astro'),
       join(SRC, 'pages', 'notes', '[slug].astro'),
@@ -139,15 +143,10 @@ describe('build', () => {
 
     const blogSlugs = publishedSlugs(blogDir);
 
-    const cardDir = join(SRC, 'content', 'cards');
-    const cardSlugs = publishedSlugs(cardDir);
-
     const expectedPages = [
       'dist/index.html',
       'dist/notes/index.html',
-      'dist/cards/index.html',
       ...blogSlugs.map((slug) => `dist/notes/${slug}/index.html`),
-      ...cardSlugs.map((slug) => `dist/cards/${slug}/index.html`),
     ];
 
     for (const page of expectedPages) {
@@ -157,26 +156,28 @@ describe('build', () => {
 });
 
 describe('content publication graph', () => {
-  it('exposes centralized published collection and validation APIs', () => {
+  it('exposes centralized long-form publication APIs only', () => {
     const contentUtil = readFileSync(join(SRC, 'utils', 'content.ts'), 'utf-8');
 
     expect(contentUtil).toContain('getPublishedBlogEntries');
     expect(contentUtil).toContain('getPublishedBlogEntriesByDate');
-    expect(contentUtil).toContain('getPublishedCardEntries');
-    expect(contentUtil).toContain('getPublishedCardEntriesByOrder');
-    expect(contentUtil).toContain('validatePublishedCardReferences');
-    expect(contentUtil).toContain('Invalid published content references');
-    expect(contentUtil).toContain('related entry');
-    expect(contentUtil).toContain('source');
-    expect(contentUtil).toContain('existing published card');
-    expect(contentUtil).toContain('existing published blog note');
+    expect(contentUtil).not.toContain('CardEntry');
+    expect(contentUtil).not.toContain('getPublishedCardEntries');
+    expect(contentUtil).not.toContain("getCollection('cards')");
   });
 
-  it('note detail navigation uses the same published date ordering as the notes index', () => {
+  it('note detail pages expose sharing without recommendation or sequence panels', () => {
     const noteDetail = readFileSync(join(SRC, 'pages', 'notes', '[slug].astro'), 'utf-8');
     const notesIndex = readFileSync(join(SRC, 'pages', 'notes', 'index.astro'), 'utf-8');
 
-    expect(noteDetail).toContain('getPublishedBlogEntriesByDate');
+    expect(noteDetail).toContain('class="article-share"');
+    expect(noteDetail).toContain('Share on X');
+    expect(noteDetail).toContain('Share on LinkedIn');
+    expect(noteDetail).toContain('Share on Bluesky');
+    expect(noteDetail).not.toContain('source-cards');
+    expect(noteDetail).not.toContain('<Backlinks');
+    expect(noteDetail).not.toContain('note-nav');
+    expect(noteDetail).not.toContain('article-description');
     expect(notesIndex).toContain('getPublishedBlogEntriesByDate');
     expect(noteDetail).not.toContain('!p.data.draft');
   });
@@ -184,8 +185,6 @@ describe('content publication graph', () => {
   it('practical published content consumers use centralized helpers', () => {
     const consumers = [
       join(SRC, 'components', 'Backlinks.astro'),
-      join(SRC, 'pages', 'cards', '[slug].astro'),
-      join(SRC, 'pages', 'cards', 'index.astro'),
       join(SRC, 'pages', 'index.astro'),
       join(SRC, 'pages', 'notes', '[slug].astro'),
       join(SRC, 'pages', 'notes', 'index.astro'),
@@ -194,7 +193,7 @@ describe('content publication graph', () => {
 
     for (const file of consumers) {
       const content = readFileSync(file, 'utf-8');
-      expect(content, file).not.toMatch(/getCollection\(['"](?:blog|cards)['"]\)/);
+      expect(content, file).not.toMatch(/getCollection\(['"]blog['"]\)/);
       expect(content, file).not.toMatch(/\.filter\(\([^)]*\) => isPublished\(/);
     }
   });
@@ -202,7 +201,8 @@ describe('content publication graph', () => {
   it('uses centralized publication policy for search too', () => {
     const searchUtil = readFileSync(join(SRC, 'utils', 'search.ts'), 'utf-8');
 
-    expect(searchUtil).toContain('getPublishedCardEntries');
-    expect(searchUtil).not.toContain("getCollection('cards')");
+    expect(searchUtil).toContain('getPublishedBlogEntriesByDate');
+    expect(searchUtil).not.toContain('/cards/');
+    expect(searchUtil).not.toContain("getCollection('blog')");
   });
 });
