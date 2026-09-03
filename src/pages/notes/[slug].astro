@@ -98,7 +98,7 @@ const structuredData = JSON.stringify({
   }
 
   .back-link:focus-visible {
-    outline: 2px solid var(--color-focus);
+    outline: 2px solid var(--color-foreground);
     outline-offset: 3px;
   }
 
@@ -152,7 +152,7 @@ const structuredData = JSON.stringify({
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 1rem;
+    gap: 1.75rem;
     margin-top: 2.5rem;
     padding-top: 1.5rem;
     border-top: 1px solid color-mix(in srgb, currentColor 15%, transparent);
@@ -169,8 +169,9 @@ const structuredData = JSON.stringify({
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 1rem;
-    height: 1rem;
+    /* 16px visual icon, 44px hit area: padding expands, negative margin restores flow. */
+    padding: 0.875rem;
+    margin: -0.875rem;
     color: #a4a09e;
     text-decoration: none;
     transition: color 0.15s ease;
@@ -181,8 +182,8 @@ const structuredData = JSON.stringify({
   }
 
   .article-share a:focus-visible {
-    outline: 2px solid var(--color-focus);
-    outline-offset: 4px;
+    outline: 2px solid var(--color-foreground);
+    outline-offset: 2px;
   }
 
   .article-share svg {

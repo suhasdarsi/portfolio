@@ -16,9 +16,6 @@
   --color-ember: #5d5751;
   --color-link: oklch(54.6% 0.245 262.881);
   --color-link-hover: oklch(48.8% 0.243 264.376);
-  --color-focus: #f7b76e;
-  --color-focus-special: #df4b91;
-
   --color-background: #f7f0e7;
   --color-foreground: #5d5751;
   --color-muted: #eee7db;
@@ -121,8 +118,10 @@ html {
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
   }
 }
 
@@ -218,8 +217,21 @@ h3 {
   color: #6e2841;
 }
 
+/* Focus floor: every focusable element gets the same visible 2px ring
+   unless a component declares its own (higher specificity) rule. */
 :focus-visible {
-  outline-color: var(--color-focus);
+  outline: 2px solid var(--color-foreground);
+  outline-offset: 2px;
+}
+
+button,
+[role='button'],
+a,
+summary,
+input,
+select,
+textarea {
+  touch-action: manipulation;
 }
 
 main {

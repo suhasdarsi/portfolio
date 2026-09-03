@@ -33,8 +33,8 @@ const currentPath = Astro.url.pathname;
         <div class="search-input-wrap">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-dialog-icon"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.34-4.34"></path></svg>
           <input type="text" id="global-search-input" class="search-input-dialog" placeholder="Search notes..." aria-label="Search site" autocomplete="off" />
-          <kbd class="search-esc">Esc</kbd>
         </div>
+        <p class="search-status" role="status" id="global-search-status"></p>
         <div class="search-results" id="global-search-results"></div>
         <p class="search-empty hidden" id="global-search-empty">No notes found.</p>
         <div class="search-footer">
@@ -57,6 +57,7 @@ const currentPath = Astro.url.pathname;
   const searchInput = document.getElementById('global-search-input') as HTMLInputElement;
   const searchResults = document.getElementById('global-search-results');
   const searchEmpty = document.getElementById('global-search-empty');
+  const searchStatus = document.getElementById('global-search-status');
   let activeResultIndex = -1;
 
   type SearchPost = {
@@ -153,6 +154,21 @@ const currentPath = Astro.url.pathname;
     );
   }
 
+  function announce(message: string) {
+    if (searchStatus) searchStatus.textContent = message;
+  }
+
+  function showEmpty(message: string | null) {
+    if (!searchEmpty) return;
+    if (message === null) {
+      searchEmpty.textContent = 'No notes found.';
+      searchEmpty.classList.add('hidden');
+    } else {
+      searchEmpty.textContent = message;
+      searchEmpty.classList.remove('hidden');
+    }
+  }
+
   async function openSearch() {
     searchOverlay?.removeAttribute('hidden');
     searchOverlay?.classList.add('open');
@@ -161,16 +177,18 @@ const currentPath = Astro.url.pathname;
     searchToggle?.setAttribute('aria-expanded', 'true');
     searchInput?.focus();
     document.body.style.overflow = 'hidden';
+    showEmpty('Loading notes…');
+    announce('Loading notes');
     try {
       await loadSearch();
       if (!searchOverlay?.classList.contains('open')) return;
       renderResults(searchPosts);
-      if (searchEmpty) searchEmpty.textContent = 'No notes found.';
-      searchEmpty?.classList.add('hidden');
+      showEmpty(null);
+      announce(`${searchPosts.length} notes`);
     } catch {
       searchResults?.replaceChildren();
-      if (searchEmpty) searchEmpty.textContent = 'Search is unavailable. Please try again.';
-      searchEmpty?.classList.remove('hidden');
+      showEmpty('Search is unavailable. Please try again.');
+      announce('Search is unavailable');
     }
   }
 
@@ -201,27 +219,30 @@ const currentPath = Astro.url.pathname;
       await loadSearch();
     } catch {
       searchResults?.replaceChildren();
-      if (searchEmpty) searchEmpty.textContent = 'Search is unavailable. Please try again.';
-      searchEmpty?.classList.remove('hidden');
+      showEmpty('Search is unavailable. Please try again.');
+      announce('Search is unavailable');
       return;
     }
     const query = searchInput.value.trim();
     if (!query) {
       renderResults(searchPosts);
-      searchEmpty?.classList.add('hidden');
+      showEmpty(null);
+      announce(`${searchPosts.length} notes`);
       return;
     }
 
     const results = searchDocuments(searchPosts, query);
     if (results.length === 0) {
       searchResults?.replaceChildren();
-      searchEmpty?.classList.remove('hidden');
+      showEmpty('No notes match. Try fewer or different words.');
+      announce('No notes found');
       setActiveResult(-1);
       return;
     }
 
     renderResults(results);
-    searchEmpty?.classList.add('hidden');
+    showEmpty(null);
+    announce(`${results.length} ${results.length === 1 ? 'note' : 'notes'} found`);
   });
 
   const handleKeydown = (e: KeyboardEvent) => {
@@ -315,6 +336,7 @@ const currentPath = Astro.url.pathname;
   }
 
   .theme-toggle {
+    position: relative;
     width: 2.25rem;
     height: 2.25rem;
     padding-inline: 0;
@@ -324,14 +346,17 @@ const currentPath = Astro.url.pathname;
     border: 0;
     border-radius: var(--radius-buttons);
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+    display: grid;
+    place-items: center;
+    transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease, scale 0.15s ease;
+  }
+
+  .theme-toggle:active {
+    scale: 0.97;
   }
 
   .theme-toggle:focus-visible {
-    outline: 2px solid var(--color-focus);
+    outline: 2px solid var(--color-foreground);
     outline-offset: 2px;
   }
 
@@ -341,25 +366,48 @@ const currentPath = Astro.url.pathname;
     background: rgba(0, 0, 0, 0.03);
   }
 
+  /* Both icons stay stacked; the swap is a cross-fade, not a visibility toggle. */
+  .theme-toggle svg {
+    grid-area: 1 / 1;
+    width: 1rem;
+    height: 1rem;
+    transition:
+      opacity 0.2s cubic-bezier(0.2, 0, 0, 1),
+      scale 0.2s cubic-bezier(0.2, 0, 0, 1),
+      filter 0.2s cubic-bezier(0.2, 0, 0, 1);
+  }
+
   :global(html:not(.dark)) .theme-toggle .icon-sun {
-    display: none;
+    opacity: 0;
+    scale: 0.25;
+    filter: blur(4px);
   }
 
   :global(html:not(.dark)) .theme-toggle .icon-moon {
-    display: block;
+    opacity: 1;
+    scale: 1;
+    filter: blur(0);
   }
 
   :global(html.dark) .theme-toggle .icon-sun {
-    display: block;
+    opacity: 1;
+    scale: 1;
+    filter: blur(0);
   }
 
   :global(html.dark) .theme-toggle .icon-moon {
-    display: none;
+    opacity: 0;
+    scale: 0.25;
+    filter: blur(4px);
   }
 
-  .theme-toggle svg {
-    width: 1rem;
-    height: 1rem;
+  /* Fingers need real targets; cursors do not. */
+  @media (pointer: coarse) {
+    .theme-toggle,
+    .search-trigger {
+      width: 2.75rem;
+      height: 2.75rem;
+    }
   }
 
   .search-trigger {
@@ -375,11 +423,15 @@ const currentPath = Astro.url.pathname;
     font-family: var(--font-sans);
     font-size: 0.8125rem;
     box-shadow: none;
-    transition: color 0.2s ease, background-color 0.2s ease;
+    transition: color 0.2s ease, background-color 0.2s ease, scale 0.15s ease;
+  }
+
+  .search-trigger:active {
+    scale: 0.97;
   }
 
   .search-trigger:focus-visible {
-    outline: 2px solid var(--color-focus);
+    outline: 2px solid var(--color-foreground);
     outline-offset: 2px;
   }
 
@@ -431,6 +483,18 @@ const currentPath = Astro.url.pathname;
     border-radius: 8px;
     overflow: hidden;
     box-shadow: 0 24px 80px rgba(0, 0, 0, 0.3);
+    /* Enters from the trigger above; leaves faster than it arrived. */
+    opacity: 0;
+    transform: translateY(-8px);
+    transition: opacity 0.15s ease, transform 0.15s ease;
+  }
+
+  .search-overlay.open .search-dialog {
+    opacity: 1;
+    transform: translateY(0);
+    transition:
+      opacity 0.2s cubic-bezier(0.2, 0, 0, 1),
+      transform 0.2s cubic-bezier(0.2, 0, 0, 1);
   }
 
   .search-input-wrap {
@@ -462,8 +526,15 @@ const currentPath = Astro.url.pathname;
     color: var(--color-muted-foreground);
   }
 
-  .search-esc {
-    display: none;
+  .search-status {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
   }
 
   .search-results {
@@ -478,6 +549,12 @@ const currentPath = Astro.url.pathname;
     display: none;
   }
 
+  @keyframes result-in {
+    from {
+      opacity: 0;
+    }
+  }
+
   :global(.search-result-item) {
     display: flex;
     align-items: center;
@@ -487,6 +564,7 @@ const currentPath = Astro.url.pathname;
     border-radius: 6px;
     text-decoration: none;
     border-bottom: 0;
+    animation: result-in 0.12s ease-out;
     transition: background-color 0.2s ease, color 0.2s ease;
   }
 
@@ -497,8 +575,8 @@ const currentPath = Astro.url.pathname;
   }
 
   :global(.search-result-item:focus-visible) {
-    outline: 1px solid var(--color-foreground);
-    outline-offset: -1px;
+    outline: 2px solid var(--color-foreground);
+    outline-offset: -2px;
   }
 
   :global(.search-result-title) {
@@ -513,13 +591,6 @@ const currentPath = Astro.url.pathname;
     text-overflow: ellipsis;
   }
 
-  :global(.search-result-type) {
-    font-family: var(--font-sans);
-    font-size: var(--text-body);
-    color: var(--color-muted-foreground);
-    flex-shrink: 0;
-  }
-
   .search-empty {
     font-family: var(--font-serif);
     font-size: var(--text-body);
@@ -530,13 +601,20 @@ const currentPath = Astro.url.pathname;
   }
 
   .search-footer {
-    display: none;
+    display: flex;
     align-items: center;
     gap: 1.25rem;
     padding: 0.75rem 1rem;
     border-top: 1px solid var(--color-subtle-border);
     color: var(--color-muted-foreground);
     font-size: var(--text-body);
+  }
+
+  /* The hints describe keyboard behavior that does not exist on touch. */
+  @media (hover: none), (pointer: coarse) {
+    .search-footer {
+      display: none;
+    }
   }
 
   .search-footer kbd {
@@ -565,6 +643,11 @@ const currentPath = Astro.url.pathname;
       padding-inline: 0;
       padding-block: 0;
       justify-content: center;
+    }
+
+    .search-trigger-icon {
+      width: 1rem;
+      height: 1rem;
     }
 
     .search-trigger-label {

@@ -1,94 +1,75 @@
-# Design Review — Suhas Darsi Portfolio
+# Design Review — Bag Finder (/bags)
 
-**Date**: 2026-06-30
+**Date**: 2026-08-01
 **Mode**: review
-**Score**: 33/50
+**Score**: 31/50
 
 ## Gut Reaction
 
-This reads like a person, not a template. The warm eggshell palette, Literata-everywhere commitment, and zero-radius aesthetic combine into something that feels like a well-made journal rather than a templated blog. The "digital garden" framing sets expectations honestly, and the reading experience on article pages is genuinely pleasant.
+The Bag Finder is the most "product-like" surface on this portfolio, and it shows. A genuine two-column compare layout, a compliance meter that reads as a real metric, a sticky filter rail, and a price slider that behaves like a filter control should. It is the first page on the site that stops being a centered article and becomes a tool.
 
-What holds it back is execution discipline. The design system declares rules that components then ignore. Accessibility coverage is spotty on the most-used controls. The mobile experience has a fundamental padding problem.
+What holds it back is that the rest of the site's design system has not caught up. The whole surface is crammed into the site-wide 48rem shell, so the two-column layout has to fight for room it never gets. The accent color (`--color-ember`) is literal near-black in light mode, so the compliance meter — the one element that should feel like a signal — reads as a flat dark bar. And the card grid, at 15.5rem columns inside a 48rem shell, produces cards so narrow they feel like an afterthought rather than a deliberate comparison grid.
 
 ## Scores
 
 | Lens | Score | One-line takeaway |
 |------|:-----:|-------------------|
-| First impression | 7/10 | Distinctive editorial identity undermined by missing mobile padding and radius inconsistencies |
-| Hierarchy | 6/10 | Three identical text-size tokens and a counterintuitive dim-on-hover pattern flatten the visual structure |
-| Color voice | 7/10 | Warm, cohesive palette with thoughtful dark mode, but no real accent and muted text likely fails WCAG AA in light mode |
-| Type voice | 7/10 | Committed Literata-everywhere identity with excellent prose settings, but serif at 14px for UI chrome and inconsistent input font choices |
-| Interaction feel | 6/10 | Search and copy-code are genuinely excellent, but focus ring gaps on primary controls, no system theme detection, and missing input labels are significant accessibility failures |
+| First impression | 7/10 | A real tool exists, but it is compressed into a shell that cannot show it off |
+| Hierarchy | 6/10 | Compliance meter leads, but shell width flattens the rail/grid relationship |
+| Color voice | 5/10 | Accent is near-black in light mode; the one color moment reads as no color |
+| Type voice | 7/10 | Fira Mono for the metric and prices is a genuine improvement; serif title still wins |
+| Interaction feel | 6/10 | Price slider and URL sync are excellent; compliance tooltip is not a real state |
 
 ## Primary Flow Walkthrough
 
-**Arrive** → Homepage greets with a large serif name, three bio paragraphs, a CTA row, a "currently/previously" timeline, and three recent notes. Header is sticky with nav, ⌘K search trigger, and theme toggle.
+**Arrive** → The page opens with a kicker, serif "Bag Finder" heading, intro copy, and a meta line (6 bags · 50 airlines · data verified). Below that, a two-column layout: a filter rail on the left (airline select, compliance slider, price slider, brand input, clear button) and a grid of bag cards on the right.
 
-**Read** → Clicking a note opens the article page with a back-link, topic tags, title, description, date/reading-time meta, the prose body, backlinks section, and prev/next navigation. A reading progress bar sits at the top.
+**Filter** → The user picks an airline, drags the compliance or price slider, or types a brand. The grid updates instantly, the URL gains query params, and an empty state appears if nothing matches. The rail is sticky on desktop so filters stay reachable while scanning.
 
-**Navigate** → The Notes listing provides topic filter pills, a text filter input, and a count display. Global ⌘K search opens a Fuse.js-powered overlay with keyboard navigation. The Uses page is a flat list. A 404 page offers recovery paths plus inline search.
+**Compare** → Each card shows brand, name, a compliance % with a meter bar, a description, a dim/cap/wt spec row, a price, and an affiliate "Check price" button. Hovering the compliance number reveals a tooltip listing example airlines that fit and those that are tight.
+
+**Act** → The user clicks "Check price", which opens the affiliate link in a new tab with `rel="sponsored noopener noreferrer"`. An FTC-style disclosure sits above the grid.
 
 ## Findings by Lens
 
 ### First Impression (7/10)
 
-**Working**: Distinct, committed identity. Warm eggshell palette, Literata serif everywhere, zero-radius aesthetic. The "digital garden" framing sets expectations honestly. Prose settings show someone who cares about long-form reading.
+**Working**: The page is clearly a tool, not another article. The two-column split reads differently from every other page on the site. The compliance % as the hero number per card is the right call.
 
-**Not working**:
-- No horizontal padding on mobile — `<main>` is `max-w-3xl mx-auto` with no `px-*`. On 375px viewport, content touches both screen edges. Header-inner explicitly sets `padding: 0`. Footer is `padding: 2rem 0`. The entire site looks broken on phones.
-- Radius system says 0px, components override with hardcoded values: topic tags `6px`, code blocks `8px`, backlink items `8px`, copy-code buttons `4px`, kbd elements `4px`. Visual inconsistency undermines the intended architectural feel.
+**Not working**: The entire surface is constrained by `max-w-3xl mx-auto` (48rem) from `BlogLayout`. A 48rem shell with a 15.5rem filter rail leaves ~28rem for the grid — roughly two narrow cards. The layout "wants" to be a wide comparison surface but is forced into article width. This is the single biggest structural issue.
 
 ### Hierarchy (6/10)
 
-**Working**: Within article prose, hierarchy is well-tuned: H2 at 1.75rem, H3 at 1.375rem, body at 1rem→1.25rem, with `scroll-margin-top: 5rem`. Article title uses responsive `clamp()`. Timeline uses uppercase tracked labels for clear section breaks.
+**Working**: Within a card, the compliance meter is unambiguously first, specs second, price third. The mono font on the metric separates it from the serif title. The rail/grid split is a real hierarchy device.
 
-**Not working**:
-- Three type tokens collapse to the same size: `--text-body: 0.875rem`, `--text-body-sm: 0.875rem`, `--text-small: 0.875rem`. Three "levels" of text are identical at 14px. Nav links, body text, metadata, and "small" labels all read at the same visual weight.
-- The dim-on-hover pattern inverts expectations. Hovering over a link reduces prominence to muted-foreground. Users expect hover to signal interactivity by increasing prominence. This reads more like a state error than a hover cue.
+**Not working**: At 48rem the rail and grid compete for the same visual space rather than the rail supporting the grid. The intro paragraph sits above the fold alongside the meta line, diluting the immediate "this is a filterable finder" message. The compliance % number and the meter bar are good, but the label under the meter ("fits 50/50 airlines") is the same muted color as everything else and reads as noise at small size.
 
-### Color Voice (7/10)
+### Color Voice (5/10)
 
-**Working**: Cohesive and intentional palette. Warm earthy spectrum creates a paper-like warmth. Dark mode maintains warm character. Two accent colors (signal-blue for external links, ember on link hover) used exclusively within prose. Body text color deliberately lighter than foreground for tonal step.
+**Working**: The palette stays warm and on-brand. The meter fill uses `--color-accent`, which is at least the designated accent.
 
-**Not working**:
-- No real accent color in the UI. `--color-accent` is literally the foreground. No visual "pop" anywhere in interface chrome. Every interactive element is some combination of foreground/muted-foreground/border.
-- Muted text likely fails WCAG AA in light mode. `#847f6b` on `#f8f5eb` yields ~3.7:1 contrast — below 4.5:1 threshold. Used extensively for nav links, dates, reading time, section labels, footer text.
-- Redundant tokens: `--color-chalk` and `--color-fog` are both `#d8d3c1`. `--color-subtle` (`#fefcf6`) nearly indistinguishable from background (`#f8f5eb`).
+**Not working**: In light mode, `--color-accent` resolves to `--color-ember: #242421` — essentially near-black. The compliance meter, the single element that should feel like a live signal (green = good, amber = marginal, red = tight), renders as a dark gray bar. There is no compliance color coding at all: 100% and 82% look identical. The affiliate CTA button is also near-black-on-cream, which reads as a primary action but with no distinct hue. The `--color-signal-blue` token exists in the theme but is unused.
 
 ### Type Voice (7/10)
 
-**Working**: Literata everywhere is a bold, successful commitment. Variable font with good optical sizing, designed for screen reading, literary character. Prose readability is excellent: 1rem→1.25rem, 1.7 line-height, dark mode bumps to 1.8. `text-wrap: pretty` on paragraphs, `balance` on headings. Fira Code for monospace is a good pairing.
+**Working**: Fira Mono for compliance % and price is a sharp, data-forward choice that fits a comparison surface. Inter for labels/specs keeps density legible. The Literata serif title keeps continuity with the rest of the site.
 
-**Not working**:
-- Serif at 14px for UI text hurts legibility. Nav links, kbd elements, topic filter labels, meta info, search footer text all render at 14px in Literata. Serifs get muddy at small sizes on lower-DPI displays.
-- Inconsistent font choices for search inputs: header search dialog uses `--font-mono`, notes page filter uses `--font-serif`, 404 page search uses `--font-mono`.
-- `font-weight: 500` on headings sits in awkward middle ground. H3 at 1.125rem/500 vs body at 1rem/400 is a subtle step. Using 600 for headings would create stronger separation.
+**Not working**: Small mono label under the meter at 0.66rem is very small for the amount of information it carries. The `dt` spec labels (Dim/Cap/Wt) at 0.62rem uppercase approach illegibility. The card title at 1.05rem serif inside a 15.5rem column wraps to three lines for longer names like "Peak Design Travel Backpack 45L", and the description at 0.82rem compounds the density.
 
 ### Interaction Feel (6/10)
 
-**Working**: The ⌘K search is genuinely excellent — keyboard nav, Tab trap, focus return, body scroll lock, fuzzy search, styled empty state. Copy-code button is well-executed with toast feedback. Reading progress bar is minimal and correct. Topic filters with URL sync. `prefers-reduced-motion` globally respected.
+**Working**: The price slider replacing the select is a genuine improvement — direct manipulation with a live `$` output, synced to `?maxPrice=` in the URL. All four filters compose correctly (verified against real data). The affiliate links carry correct `rel` attributes. Focus-visible rings exist on filters and the CTA.
 
-**Not working**:
-- Focus ring coverage has significant gaps. Search trigger and theme toggle — the two most important header controls — have no focus indicators. Card-style links (note items, recent items, backlinks, uses items) also lack focus rings.
-- Theme toggle ignores `prefers-color-scheme`. Defaults to `'light'` when no localStorage value exists. A user with OS set to dark mode gets blasted with light mode on first visit.
-- Inputs lack labels. All three search inputs use `placeholder` as the only label. Screen readers may not announce these clearly.
-- Search dialog lacks `role="dialog"` and `aria-modal="true"`.
-- Duplicate `outline-offset` in nav links CSS.
-- Transition timing inconsistent: `0.15s`, `0.2s`, `0.3s` across components with no rationale.
+**Not working**: The compliance tooltip is a `title` attribute — hover-only, no keyboard access, no visible affordance (no info glyph or underline on the number), and no mobile equivalent. The "Clear filters" button only appears once a filter is active, which is good, but there is no visible count of how many bags match. The empty state text ("No bags match those filters. Try widening them.") is serviceable but does not tell the user which filter to loosen. The compliance meter has no hover state of its own, so the only interactive signal on a card is the pill CTA.
 
 ## Priority Recommendations
 
 | Priority | Issue | Fix mode |
-|---|---|---|
-| P0 | No mobile horizontal padding | `finish` — add `px-4` to main, header, footer |
-| P0 | Focus ring gaps on search trigger, theme toggle, card links | `finish` — add `:focus-visible` to all interactive elements |
-| P0 | Theme toggle ignores system preference | `finish` — use `matchMedia('(prefers-color-scheme: dark)')` as fallback |
-| P1 | Three identical text-size tokens | `tokenize` — differentiate `--text-small` from `--text-body` |
-| P1 | Radius overrides contradict 0px system | `finish` — remove hardcoded radii or commit to a radius scale |
-| P1 | Muted text fails WCAG AA in light mode | `recolor` — darken `--color-muted-foreground` to pass 4.5:1 |
-| P1 | Inputs lack accessible labels | `finish` — add `aria-label` to all search inputs |
-| P2 | Dim-on-hover pattern inverts expectations | `refine` — change to foreground-on-hover |
-| P2 | Inconsistent search input fonts | `finish` — standardize to one font family |
-| P2 | Search dialog missing ARIA roles | `finish` — add `role="dialog"` and `aria-modal="true"` |
-| P3 | Redundant color tokens | `tokenize` — consolidate duplicate tokens |
-| P3 | Heading weight too light | `typeset` — bump headings to 600 |
+|----------|-------|----------|
+| P0 | The 48rem shell starves the two-column compare layout; grid cards are too narrow | `relayout` — widen the /bags page container (e.g. max-w-6xl) so the rail + grid breathe |
+| P0 | Compliance meter and CTA use near-black accent; no compliance color coding (100% vs 82% look identical) | `recolor` — introduce a real signal hue (or use `--color-signal-blue`) for the meter fill; keep ember for the CTA |
+| P1 | Compliance tooltip is a hover-only `title` attribute with no keyboard/mobile access | `interaction` — replace with a real disclosure pattern (button + accessible tooltip, or an inline "which airlines" toggle) |
+| P1 | Cards at 15.5rem inside 48rem shell wrap long titles to 3 lines; specs labels near illegible | `typeset` — bump title/label sizes and widen the grid as part of the P0 relayout |
+| P2 | No visible match count; empty state doesn't say which filter to loosen | `interaction` — show "N of 6 bags" in the rail, make empty state prescriptive |
+| P2 | Intro paragraph + meta line crowd the top of a tool surface | `refine` — tighten header so the tool starts sooner |
+| P2 | Unused `--color-signal-blue` token | `recolor` — either use it or remove it |
