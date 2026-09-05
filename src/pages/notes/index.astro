@@ -5,7 +5,6 @@ import { formatDate } from '../../utils/date';
 import BlogLayout from '../../layouts/BlogLayout.astro';
 
 const posts = await getPublishedBlogEntriesByDate();
-const allTopicsUsed = [...new Set(posts.flatMap((p) => p.data.topics))].sort();
 ---
 
 <BlogLayout title="AI Security Notes | Suhas Darsi" description="Practical field notes on AI security, agent systems, and network risk.">
@@ -16,24 +15,19 @@ const allTopicsUsed = [...new Set(posts.flatMap((p) => p.data.topics))].sort();
         <p class="notes-intro">Practical essays on how AI systems fail, how attacks propagate through connected agents, and how builders can contain the risk.</p>
       </div>
     </div>
-    {allTopicsUsed.length > 1 && (
-      <div class="topic-filters" id="topic-filters">
-        <button type="button" class="topic-filter active" data-topic="all" aria-pressed="true">All</button>
-        {allTopicsUsed.map((topic) => (
-          <button type="button" class="topic-filter" data-topic={topic} aria-pressed="false">{topic}</button>
-        ))}
-      </div>
-    )}
   </div>
 
+  <form class="notes-search" role="search" action="/notes">
+    <label for="notes-query">Search notes</label>
+    <div class="notes-search-controls">
+      <input id="notes-query" name="q" type="search" placeholder="Search titles and full text" />
+      <button type="submit">Search</button>
+    </div>
+    <p id="notes-search-status" role="status"></p>
+  </form>
   <div class="note-list" id="note-list">
     {posts.map((post) => (
-      <article
-        class="note-item"
-        data-searchable
-        data-post-id={post.id}
-        data-topics={JSON.stringify(post.data.topics)}
-      >
+      <article class="note-item" data-note-id={post.id}>
         <a href={`/notes/${post.id}`} class="note-link">
           <div class="note-meta-top">
             {post.data.topics.length > 0 && (
@@ -58,75 +52,87 @@ const allTopicsUsed = [...new Set(posts.flatMap((p) => p.data.topics))].sort();
         </a>
       </article>
     ))}
-    <p class="search-empty hidden" id="search-empty">No notes found.</p>
+    {posts.length === 0 && <p>No notes found.</p>}
   </div>
 </BlogLayout>
 
 <script>
-  const articles = document.querySelectorAll('[data-searchable]');
-  const emptyMsg = document.getElementById('search-empty');
-  const topicFilters = document.getElementById('topic-filters');
+  import { searchDocuments } from '../../utils/client-search';
+  import { highlightText, searchExcerpt } from '../../utils/search-display';
+  import type { SearchEntry } from '../../utils/search';
 
-  let activeTopic = 'all';
+  const form = document.querySelector<HTMLFormElement>('.notes-search')!;
+  const input = document.querySelector<HTMLInputElement>('#notes-query')!;
+  const status = document.querySelector<HTMLElement>('#notes-search-status')!;
+  const list = document.querySelector<HTMLElement>('#note-list')!;
+  const articles = Array.from(list.querySelectorAll<HTMLElement>('[data-note-id]'));
+  const originals = articles.map((article) => ({
+    article,
+    title: article.querySelector('.note-title')!.textContent!.trim(),
+    description: article.querySelector('.note-desc')!.textContent!.trim(),
+  }));
+  let data: Promise<SearchEntry[]> | undefined;
+  let version = 0;
 
-  const urlParams = new URLSearchParams(window.location.search);
-  const topicFromUrl = urlParams.get('topic');
-  const availableTopics = topicFilters
-    ? Array.from(topicFilters.querySelectorAll<HTMLElement>('.topic-filter')).map((button) => button.dataset.topic)
-    : [];
-  if (topicFromUrl && availableTopics.includes(topicFromUrl) && topicFilters) {
-    activeTopic = topicFromUrl;
-    topicFilters.querySelectorAll('.topic-filter').forEach((b) => {
-      const isActive = b.getAttribute('data-topic') === activeTopic;
-      b.classList.toggle('active', isActive);
-      b.setAttribute('aria-pressed', String(isActive));
-    });
-  }
-
-  function applyFilters() {
-    let visibleCount = 0;
-
-    articles.forEach((el) => {
-      const topics = JSON.parse(el.getAttribute('data-topics') || '[]') as string[];
-      const matchesTopic = activeTopic === 'all' || topics.includes(activeTopic);
-
-      if (matchesTopic) {
-        el.classList.remove('hidden');
-        visibleCount++;
-      } else {
-        el.classList.add('hidden');
-      }
-    });
-
-    if (emptyMsg) {
-      emptyMsg.classList.toggle('hidden', visibleCount > 0);
+  async function applySearch(query: string) {
+    const current = ++version;
+    input.value = query;
+    if (!query.trim()) {
+      originals.forEach(({ article, title, description }) => {
+        article.hidden = false;
+        article.querySelector('.note-title')!.textContent = title;
+        article.querySelector('.note-desc')!.textContent = description;
+        list.append(article);
+      });
+      status.textContent = '';
+      return;
     }
-
+    status.textContent = 'Searching notes…';
+    try {
+      data ??= fetch('/search.json').then((response) => {
+        if (!response.ok) throw new Error('Search unavailable');
+        return response.json();
+      }).catch((error) => { data = undefined; throw error; });
+      const documents = await data;
+      if (current !== version) return;
+      const results = searchDocuments(documents, query);
+      articles.forEach((article) => { article.hidden = true; });
+      results.forEach((result) => {
+        const article = articles.find((item) => item.dataset.noteId === result.id);
+        if (!article) return;
+        article.hidden = false;
+        highlightText(article.querySelector<HTMLElement>('.note-title')!, result.title, query);
+        highlightText(article.querySelector<HTMLElement>('.note-desc')!, searchExcerpt(result.body, query, result.description), query);
+        list.append(article);
+      });
+      status.textContent = results.length ? `${results.length} ${results.length === 1 ? 'note' : 'notes'} found` : 'No notes match. Try different words.';
+    } catch {
+      if (current !== version) return;
+      status.textContent = 'Search is unavailable. Submit again to retry.';
+    }
   }
 
-  const handleTopicClick = (e: Event) => {
-    const btn = (e.target as HTMLElement).closest('.topic-filter');
-    if (!btn) return;
-
-    activeTopic = btn.getAttribute('data-topic') || 'all';
-    topicFilters?.querySelectorAll('.topic-filter').forEach((b) => {
-      const isActive = b.getAttribute('data-topic') === activeTopic;
-      b.classList.toggle('active', isActive);
-      b.setAttribute('aria-pressed', String(isActive));
-    });
-    applyFilters();
-  };
-
-  topicFilters?.addEventListener('click', handleTopicClick);
-
-  applyFilters();
-
-  window.addEventListener('beforeunload', () => {
-    topicFilters?.removeEventListener('click', handleTopicClick);
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const url = new URL(window.location.href);
+    const query = input.value.trim();
+    query ? url.searchParams.set('q', query) : url.searchParams.delete('q');
+    if (url.href !== window.location.href) history.pushState(null, '', url);
+    void applySearch(query);
   });
+  window.addEventListener('popstate', () => void applySearch(new URLSearchParams(location.search).get('q') ?? ''));
+  void applySearch(new URLSearchParams(location.search).get('q') ?? '');
 </script>
 
 <style>
+  .notes-search { margin-bottom: 2rem; }
+  .notes-search label { display: block; margin-bottom: .5rem; }
+  .notes-search-controls { display: flex; gap: .5rem; }
+  .notes-search input { flex: 1; min-width: 0; padding: .65rem; border: 1px solid var(--color-subtle-border); border-radius: 4px; background: var(--color-background); color: var(--color-foreground); }
+  .notes-search button { padding: .65rem 1rem; border: 1px solid var(--color-foreground); border-radius: 4px; background: var(--color-foreground); color: var(--color-background); cursor: pointer; }
+  #notes-search-status { font-size: .875rem; }
+  .note-item[hidden] { display: none; }
+
   .notes-header {
     margin-bottom: 3rem;
   }
@@ -152,46 +158,6 @@ const allTopicsUsed = [...new Set(posts.flatMap((p) => p.data.topics))].sort();
     font-size: var(--text-body);
     line-height: 1.6;
     text-wrap: pretty;
-  }
-
-  .topic-filters {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.55rem;
-  }
-
-  .topic-filter {
-    font-family: var(--font-sans);
-    font-size: var(--text-body);
-    line-height: 1.25rem;
-    font-weight: 500;
-    padding: 0.45rem 0.8rem;
-    border: 1px solid transparent;
-    border-radius: 999px;
-    background: var(--color-muted);
-    color: var(--color-muted-foreground);
-    cursor: pointer;
-    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, scale 0.15s ease;
-  }
-
-  .topic-filter:active {
-    scale: 0.97;
-  }
-
-  .topic-filter:focus-visible {
-    outline: 2px solid var(--color-foreground);
-    outline-offset: 2px;
-  }
-
-  .topic-filter:hover {
-    border-color: var(--color-foreground);
-    color: var(--color-foreground);
-  }
-
-  .topic-filter.active {
-    background: var(--color-accent);
-    color: var(--color-accent-foreground);
-    border-color: var(--color-accent);
   }
 
   .note-list {
@@ -227,7 +193,7 @@ const allTopicsUsed = [...new Set(posts.flatMap((p) => p.data.topics))].sort();
     background: rgba(0, 0, 0, 0.03);
   }
 
-  html.dark .note-link:hover {
+  :global(html.dark) .note-link:hover {
     background: rgba(255, 255, 255, 0.04);
   }
 
@@ -275,12 +241,4 @@ const allTopicsUsed = [...new Set(posts.flatMap((p) => p.data.topics))].sort();
     font-size: var(--text-body);
     color: var(--color-muted-foreground);
   }
-
-  .search-empty {
-    font-family: var(--font-serif);
-    font-size: var(--text-body);
-    font-style: italic;
-    color: var(--color-muted-foreground);
-    padding: 2rem 0;
-    text-align: center;
-  }</style>
+</style>

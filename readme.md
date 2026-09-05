@@ -9,13 +9,10 @@ A focused collection of practical writing about AI security, agent systems, and 
 ├── public/
 ├── src/
 │   ├── components/
-│   │   ├── Backlinks.astro           # Shows notes that link to the current note
 │   │   ├── CopyCode.astro            # Copy-to-clipboard button for code blocks
-│   │   ├── Footer.astro              # Site footer
 │   │   ├── Header.astro              # Site header with global search
 │   │   ├── ReadingProgress.astro     # Reading progress bar at top of viewport
-│   │   ├── SearchData.astro          # Injects search data on every page
-│   │   └── TableOfContents.astro     # Auto-generated TOC from headings
+│   │   └── ThemeInit.astro           # Initial theme before first paint
 │   ├── content/                      # Open this folder as the Obsidian vault
 │   │   ├── .obsidian/                # Shared vault settings
 │   │   ├── blog/                     # Long-form notes published at /notes
@@ -27,8 +24,8 @@ A focused collection of practical writing about AI security, agent systems, and 
 │   │   ├── 404.astro                 # 404 page with inline search
 │   │   ├── rss.xml.ts                # RSS feed endpoint
 │   │   └── notes/
-│   │       ├── index.astro           # Notes listing with topic filters + search
-│   │       └── [slug].astro          # Dynamic note pages with prev/next nav
+│   │       ├── index.astro           # Notes listing with topic labels
+│   │       └── [slug].astro          # Static note pages with sharing
 │   ├── styles/
 │   │   └── global.css                # Global styles and design tokens
 │   └── utils/
@@ -49,7 +46,6 @@ A focused collection of practical writing about AI security, agent systems, and 
 - [Bun](https://bun.sh) — Fast JavaScript runtime & package manager
 - [TypeScript](https://www.typescriptlang.org) — Type safety
 - [Vite](https://vitejs.dev) — Build tool (via Astro)
-- [Fuse.js](https://fusejs.io) — Client-side fuzzy search
 - [Obsidian](https://obsidian.md) — Local Markdown authoring and linked-note graph
 
 ## 🧞 Commands
@@ -63,7 +59,7 @@ All commands run from the project root:
 | `bun build`      | Build production site to `./dist/`   |
 | `bun preview`    | Preview production build locally     |
 | `bun astro`      | Run Astro CLI commands               |
-| `bun test`       | Run integrity tests                  |
+| `bun run test`       | Run integrity tests                  |
 | `bun test:watch` | Run tests in watch mode              |
 
 ## 📝 Writing in Obsidian
@@ -86,11 +82,10 @@ Open `src/content/` as a vault in Obsidian using **Open folder as vault**. The v
 - Builds fail when a target is missing or ambiguous.
 - Obsidian block references such as `[[note#^block-id]]` are not supported.
 
-Backlinks are generated from these wikilinks during the Astro build.
 
 ### Draft notes
 
-Set `draft: true` to hide a note from listings, search, and RSS. It remains accessible by direct URL.
+Set `draft: true` to exclude a note from generated pages, listings, search, and RSS. A draft with a past `dueDate` is published on the next build. Set `published: false` to keep it excluded regardless of due date.
 
 ## 🌐 Deployment
 
@@ -109,13 +104,9 @@ Can also be deployed to any static host: Vercel, Netlify, GitHub Pages, etc.
 
 ## 🎯 Features
 
-- **Digital garden structure** — Notes with maturity indicators and wiki-style linking
-- **Global search** — Fuse.js-powered fuzzy search across all notes (title, description, body)
-- **Topic filtering** — Filter notes by topic on the notes listing page
+- **Digital garden structure** — Notes with wiki-style linking
+- **Global search** — Local ranked search across all notes (title, description, body)
 - **Dark/light mode** — System-aware with manual toggle, persisted in localStorage
-- **Table of contents** — Auto-generated from h2 headings with scroll-spy highlighting
-- **Backlinks** — Shows which notes link to the current note
-- **Prev/next navigation** — Chronological navigation between notes
 - **Reading time** — Calculated from word count, displayed on note pages
 - **Last updated timestamps** — Optional `updatedDate` field shows when a note was revised
 - **RSS feed** — Available at `/rss.xml`
@@ -126,3 +117,33 @@ Can also be deployed to any static host: Vercel, Netlify, GitHub Pages, etc.
 ---
 
 _Built with ❤️ by Suhas Darsi_
+
+## Quality checks and publishing
+
+- `bun run lint` checks source and tests.
+- `bun run test` runs unit and generated-site checks.
+- `bunx playwright install chromium` installs the browser once.
+- `bun run test:browser` builds the site and tests desktop and mobile Chromium, keyboard search, URL history, storage failures, preview images, viewport overflow, and accessibility in light and dark themes.
+- `bun run check` runs the complete suite. Automated accessibility checks supplement manual keyboard and screen-reader review.
+
+The `Quality and publishing` GitHub Actions workflow checks pull requests and main-branch pushes. After checks pass on main, it deploys the exact tested `dist` artifact to Cloudflare. It also rebuilds and publishes daily at 00:17 UTC (05:47 India time), so due drafts are published on the next successful run. GitHub schedules can run late; they are not exact-time publishing guarantees.
+
+To activate publishing, commit the workflow to the default branch and configure repository secrets `CLOUDFLARE_API_TOKEN` (scoped to deploying this Worker) and `CLOUDFLARE_ACCOUNT_ID`. Avoid a second automatic production deploy in Cloudflare that bypasses these checks. In GitHub branch protection, require the workflow's `checks` job before merging. Manual runs are available through Actions → Quality and publishing → Run workflow.
+
+## Search links and previews
+
+`/notes?q=network` opens a shareable search. Submit a new query to add it to browser history; Back and Forward restore earlier searches. Results show matching excerpts with highlighted terms. The global search dialog also links to the shareable search page.
+
+Each published note receives a generated 1200×630 PNG at `/og/<note-id>.png`, referenced by Open Graph and Twitter metadata. Published notes are included in the sitemap; unpublished notes and their preview images are omitted.
+
+## Article revisions
+
+Add factual changes to a note's frontmatter when you revise it:
+
+```yaml
+revisions:
+  - date: '2026-09-05'
+    summary: 'Describe the substantive change you actually made.'
+```
+
+The article displays these entries in a collapsible revision history, newest first. Its updated date and structured metadata use the latest revision or explicit `updatedDate`. Leave `revisions` out when there is no recorded history.

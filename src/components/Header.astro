@@ -1,12 +1,10 @@
 ---
 export interface Props {
-  showNav?: boolean;
   showSearch?: boolean;
   wide?: boolean;
 }
 
-const { showNav = true, showSearch = true, wide = false } = Astro.props;
-const currentPath = Astro.url.pathname;
+const { showSearch = true, wide = false } = Astro.props;
 ---
 
 <header class="header">
@@ -37,6 +35,7 @@ const currentPath = Astro.url.pathname;
         <p class="search-status" role="status" id="global-search-status"></p>
         <div class="search-results" id="global-search-results"></div>
         <p class="search-empty hidden" id="global-search-empty">No notes found.</p>
+        <a class="search-all" id="search-all" href="/notes">Browse or share this search</a>
         <div class="search-footer">
           <span><kbd>↑</kbd><kbd>↓</kbd> navigate</span>
           <span><kbd>↵</kbd> open</span>
@@ -48,6 +47,7 @@ const currentPath = Astro.url.pathname;
 )}
 
 <script>
+  import { highlightText, searchExcerpt } from '../utils/search-display';
   import { searchDocuments } from '../utils/client-search';
 
   const themeToggle = document.getElementById('theme-toggle');
@@ -88,13 +88,17 @@ const currentPath = Astro.url.pathname;
   }
 
   function getTheme() {
-    const stored = localStorage.getItem('theme');
-    if (stored) return stored;
+    try {
+      const stored = localStorage.getItem('theme');
+      if (stored === 'dark' || stored === 'light') return stored;
+    } catch { /* Storage may be disabled by the browser. */ }
     return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   }
 
   function setTheme(theme: string) {
-    localStorage.setItem('theme', theme);
+    try {
+      localStorage.setItem('theme', theme);
+    } catch { /* The selected theme still applies for this page. */ }
     if (theme === 'dark') {
       html.classList.add('dark');
     } else {
@@ -127,7 +131,7 @@ const currentPath = Astro.url.pathname;
     items[safeIndex]?.scrollIntoView({ block: 'nearest' });
   }
 
-  function renderResults(items: SearchPost[]) {
+  function renderResults(items: SearchPost[], query = '') {
     if (!searchResults) return;
     searchResults.replaceChildren();
 
@@ -138,9 +142,12 @@ const currentPath = Astro.url.pathname;
 
       const title = document.createElement('span');
       title.className = 'search-result-title';
-      title.textContent = post.title;
+      highlightText(title, post.title, query);
+      const excerpt = document.createElement('span');
+      excerpt.className = 'search-result-excerpt';
+      highlightText(excerpt, searchExcerpt(post.body ?? '', query, post.description), query);
 
-      link.append(title);
+      link.append(title, excerpt);
       searchResults.appendChild(link);
     });
 
@@ -199,6 +206,7 @@ const currentPath = Astro.url.pathname;
     searchOverlay?.setAttribute('hidden', '');
     searchToggle?.setAttribute('aria-expanded', 'false');
     if (searchInput) searchInput.value = '';
+    document.getElementById('search-all')?.setAttribute('href', '/notes');
     searchResults?.replaceChildren();
     searchEmpty?.classList.add('hidden');
     activeResultIndex = -1;
@@ -223,7 +231,10 @@ const currentPath = Astro.url.pathname;
       announce('Search is unavailable');
       return;
     }
+    if (!searchOverlay?.classList.contains('open')) return;
     const query = searchInput.value.trim();
+    const allLink = document.getElementById('search-all');
+    allLink?.setAttribute('href', query ? `/notes?q=${encodeURIComponent(query)}` : '/notes');
     if (!query) {
       renderResults(searchPosts);
       showEmpty(null);
@@ -240,13 +251,14 @@ const currentPath = Astro.url.pathname;
       return;
     }
 
-    renderResults(results);
+    renderResults(results, query);
     showEmpty(null);
     announce(`${results.length} ${results.length === 1 ? 'note' : 'notes'} found`);
   });
 
   const handleKeydown = (e: KeyboardEvent) => {
     if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+      if (!searchOverlay) return;
       e.preventDefault();
       searchOverlay?.classList.contains('open') ? closeSearch() : openSearch();
       return;
@@ -284,7 +296,8 @@ const currentPath = Astro.url.pathname;
       return;
     }
 
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && document.activeElement === searchInput) {
+      e.preventDefault();
       const items = getResultItems();
       if (items.length === 0) return;
       const targetIndex = activeResultIndex >= 0 ? activeResultIndex : 0;
@@ -557,9 +570,9 @@ const currentPath = Astro.url.pathname;
 
   :global(.search-result-item) {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.25rem;
     padding: 0.8rem 0.75rem;
     border-radius: 6px;
     text-decoration: none;
@@ -590,6 +603,9 @@ const currentPath = Astro.url.pathname;
     overflow: hidden;
     text-overflow: ellipsis;
   }
+
+  :global(.search-result-excerpt) { font-size: .875rem; line-height: 1.5; color: var(--color-muted-foreground); }
+  .search-all { display: block; padding: .75rem 1rem; font-size: .875rem; }
 
   .search-empty {
     font-family: var(--font-serif);

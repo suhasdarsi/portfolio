@@ -13,6 +13,7 @@ import BlogLayout from '../layouts/BlogLayout.astro';
   <p class="error-search-label">Or search across all notes:</p>
   <div class="error-search-wrap">
     <input type="text" id="error-search-input" class="error-search-input" placeholder="Search notes..." aria-label="Search all notes" autocomplete="off" />
+    <p id="error-search-status" role="status"></p>
     <div class="error-search-results" id="error-search-results"></div>
   </div>
 </BlogLayout>
@@ -22,6 +23,8 @@ import BlogLayout from '../layouts/BlogLayout.astro';
 
   const input = document.getElementById('error-search-input') as HTMLInputElement;
   const results = document.getElementById('error-search-results');
+  const status = document.getElementById('error-search-status');
+  let requestId = 0;
 
   type SearchPost = {
     href: string;
@@ -37,6 +40,9 @@ import BlogLayout from '../layouts/BlogLayout.astro';
       searchReady = fetch('/search.json').then((response) => {
         if (!response.ok) throw new Error('Unable to load search data');
         return response.json() as Promise<SearchPost[]>;
+      }).catch((error) => {
+        searchReady = undefined;
+        throw error;
       });
     }
 
@@ -44,18 +50,28 @@ import BlogLayout from '../layouts/BlogLayout.astro';
   }
 
   input?.addEventListener('input', async () => {
+    const currentRequest = ++requestId;
     const query = input.value.trim();
-    if (!query) { if (results) results.replaceChildren(); return; }
+    results?.replaceChildren();
+    if (status) status.textContent = query ? 'Loading notes…' : '';
+    if (!query) return;
 
-    const searchPosts = await loadSearch();
-    const hits = searchDocuments(searchPosts, query).slice(0, 5);
-    results?.replaceChildren(...hits.map((hit) => {
-      const link = document.createElement('a');
-      link.href = hit.href;
-      link.className = 'error-search-result';
-      link.textContent = hit.title;
-      return link;
-    }));
+    try {
+      const searchPosts = await loadSearch();
+      if (currentRequest !== requestId) return;
+      const hits = searchDocuments(searchPosts, query).slice(0, 5);
+      if (status) status.textContent = hits.length ? '' : 'No notes match. Try different words.';
+      results?.replaceChildren(...hits.map((hit) => {
+        const link = document.createElement('a');
+        link.href = hit.href;
+        link.className = 'error-search-result';
+        link.textContent = hit.title;
+        return link;
+      }));
+    } catch {
+      if (currentRequest !== requestId) return;
+      if (status) status.textContent = 'Search is unavailable. Type again to retry.';
+    }
   });
 </script>
 
@@ -164,7 +180,7 @@ import BlogLayout from '../layouts/BlogLayout.astro';
     margin-top: 0.25rem;
   }
 
-  .error-search-result {
+  :global(.error-search-result) {
     display: block;
     padding: 0.5rem 0.75rem;
     font-size: var(--text-body);
@@ -175,11 +191,11 @@ import BlogLayout from '../layouts/BlogLayout.astro';
     transition: background 0.15s ease;
   }
 
-  .error-search-result:hover {
+  :global(.error-search-result:hover) {
     background: var(--color-muted);
   }
 
-  .error-search-result:first-child {
+  :global(.error-search-result:first-child) {
     border-top: 1px solid var(--color-subtle-border);
   }
 </style>

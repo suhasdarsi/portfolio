@@ -13,6 +13,7 @@ const blog = defineCollection({
     description: z.string(),
     pubDate: dateSchema,
     updatedDate: dateSchema.optional(),
+    revisions: z.array(z.object({ date: dateSchema, summary: z.string().trim().min(1) })).default([]),
     author: z.string().default('Suhas Darsi'),
     draft: z.boolean().default(false),
     published: z.boolean().optional(),

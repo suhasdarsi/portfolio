@@ -19,7 +19,7 @@
   --color-background: #f7f0e7;
   --color-foreground: #5d5751;
   --color-muted: #eee7db;
-  --color-muted-foreground: #8a8782;
+  --color-muted-foreground: #69645e;
   --color-subtle: #ffffff;
   --color-subtle-border: #ddd2bf;
   --color-accent: #2b2825;
@@ -81,10 +81,12 @@
 }
 
 html.dark {
+  --color-link: #8ab4ff;
+  --color-link-hover: #b6d0ff;
   --color-background: #14130f;
   --color-foreground: #f7f0e7;
   --color-muted: #2b2825;
-  --color-muted-foreground: #76716e;
+  --color-muted-foreground: #aaa49a;
   --color-subtle: #1c1a17;
   --color-subtle-border: #3a3631;
   --color-accent: #f7f0e7;
@@ -588,3 +590,5 @@ html.dark .list-row:hover {
 .tabular-nums {
   font-variant-numeric: tabular-nums;
 }
+
+mark { background: var(--color-muted); color: var(--color-foreground); font-weight: 600; padding: 0 .05em; }

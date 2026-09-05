@@ -12,7 +12,7 @@ export default defineConfig({
   output: 'static',
   trailingSlash: 'never',
   compressHTML: true,
-  integrations: [sitemap({ filter: (page) => !page.includes('/notes') })],
+  integrations: [sitemap()],
   vite: {
     plugins: [tailwindcss()],
   },

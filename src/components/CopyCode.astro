@@ -76,7 +76,7 @@
 </script>
 
 <style>
-  .copy-code-button {
+  :global(.copy-code-button) {
     position: absolute;
     top: 0.75rem;
     right: 0.75rem;
@@ -94,35 +94,35 @@
     transition: opacity 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, scale 0.15s ease;
   }
 
-  .copy-code-button:active {
+  :global(.copy-code-button:active) {
     scale: 0.97;
   }
 
-  .prose-custom pre:hover .copy-code-button,
-  .copy-code-button:focus-visible {
+  :global(.prose-custom pre:hover .copy-code-button),
+  :global(.copy-code-button:focus-visible) {
     opacity: 1;
   }
 
   /* Touch devices never hover: the copy affordance must stay reachable. */
   @media (hover: none) {
-    .copy-code-button {
+    :global(.copy-code-button) {
       opacity: 1;
     }
   }
 
-  .copy-code-button:hover {
+  :global(.copy-code-button:hover) {
     background: var(--color-muted);
     border-color: var(--color-foreground);
     color: var(--color-foreground);
   }
 
-  .copy-code-button.copied {
+  :global(.copy-code-button.copied) {
     background: var(--color-foreground);
     color: var(--color-background);
     border-color: var(--color-foreground);
   }
 
-  .copy-code-lang {
+  :global(.copy-code-lang) {
     position: absolute;
     bottom: 0.5rem;
     right: 0.75rem;
@@ -133,7 +133,7 @@
     pointer-events: none;
   }
 
-  .copy-code-tooltip {
+  :global(.copy-code-tooltip) {
     font-size: 0.75rem;
   }
 

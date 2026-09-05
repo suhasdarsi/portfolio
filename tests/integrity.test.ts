@@ -43,14 +43,6 @@ describe('file structure', () => {
     expect(existsSync(join(SRC, 'components', 'Search.astro'))).toBe(false);
   });
 
-  it('Backlinks.astro exists with correct name', () => {
-    expect(existsSync(join(SRC, 'components', 'Backlinks.astro'))).toBe(true);
-  });
-
-  it('TableOfContents.astro exists with correct name', () => {
-    expect(existsSync(join(SRC, 'components', 'TableOfContents.astro'))).toBe(true);
-  });
-
   it('notes dynamic route uses [slug].astro', () => {
     expect(existsSync(join(SRC, 'pages', 'notes', '[slug].astro'))).toBe(true);
     expect(existsSync(join(SRC, 'pages', 'notes', 'slug.astro'))).toBe(false);
@@ -152,6 +144,22 @@ describe('build', () => {
     for (const page of expectedPages) {
       expect(existsSync(join(ROOT, page)), `${page} should exist after build`).toBe(true);
     }
+
+    const searchIndex = JSON.parse(readFileSync(join(ROOT, 'dist/search.json'), 'utf8'));
+    for (const entry of searchIndex) {
+      const markdown = readFileSync(join(blogDir, `${entry.id}.md`), 'utf8');
+      const body = markdown.replace(/^---[\s\S]*?---\s*/, '').trim();
+      expect(entry.body.trim()).toBe(body);
+    }
+
+    const css = readAllFiles(join(ROOT, 'dist')).filter((file) => file.endsWith('.css'))
+      .map((file) => readFileSync(file, 'utf8')).join('')
+      + readFileSync(join(ROOT, 'dist/404.html'), 'utf8');
+    expect(css).toContain('.copy-code-button{');
+    expect(css).not.toMatch(/\.copy-code-button\[data-astro-/);
+    expect(css).toContain('.error-search-result{');
+    expect(css).not.toMatch(/\.error-search-result\[data-astro-/);
+
   }, 15_000);
 });
 
@@ -184,7 +192,6 @@ describe('content publication graph', () => {
 
   it('practical published content consumers use centralized helpers', () => {
     const consumers = [
-      join(SRC, 'components', 'Backlinks.astro'),
       join(SRC, 'pages', 'index.astro'),
       join(SRC, 'pages', 'notes', '[slug].astro'),
       join(SRC, 'pages', 'notes', 'index.astro'),

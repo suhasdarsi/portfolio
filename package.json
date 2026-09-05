@@ -12,7 +12,10 @@
     "preview": "astro preview",
     "astro": "astro",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "lint": "eslint src tests playwright.config.ts",
+    "test:browser": "playwright test",
+    "check": "bun run lint && bun run test && bun run test:browser"
   },
   "dependencies": {
     "@astrojs/markdown-satteri": "^0.3.8",
@@ -23,11 +26,12 @@
     "@fontsource/fira-code": "^5.3.0",
     "@tailwindcss/vite": "^4.3.3",
     "astro": "^7.2.9",
-    "fuse.js": "^7.5.0",
-    "tailwindcss": "^4.3.3",
-    "zod": "^4.4.3"
+    "sharp": "^0.35.4",
+    "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
+    "@playwright/test": "^1.63.0",
     "@typescript-eslint/parser": "^8.68.0",
     "eslint": "^9.39.5",
     "eslint-plugin-astro": "^1.7.0",

@@ -6,5 +6,6 @@ export default defineConfig({
     // .astro cache dir. Running files sequentially avoids rename collisions
     // on that shared cache.
     fileParallelism: false,
+    exclude: ['tests/browser/**', '**/node_modules/**', '**/dist/**'],
   },
 });

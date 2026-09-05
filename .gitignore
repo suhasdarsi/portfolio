@@ -30,3 +30,7 @@ pnpm-debug.log*
 **/.obsidian/workspace*.json
 **/.obsidian/cache/
 
+
+# Browser test artifacts
+playwright-report/
+test-results/

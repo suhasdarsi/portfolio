@@ -2,6 +2,7 @@
 import { render } from 'astro:content';
 import { getPublishedBlogEntries } from '../../utils/content';
 import BlogLayout from '../../layouts/BlogLayout.astro';
+import RevisionHistory from '../../components/RevisionHistory.astro';
 import ReadingProgress from '../../components/ReadingProgress.astro';
 import CopyCode from '../../components/CopyCode.astro';
 import { formatDateWithYear, getReadingTime } from '../../utils/date';
@@ -16,6 +17,9 @@ export async function getStaticPaths() {
 
 const post = Astro.props;
 const { Content } = await render(post);
+const revisionDates = post.data.revisions.map((revision) => revision.date.valueOf());
+const modifiedDates = [...revisionDates, ...(post.data.updatedDate ? [post.data.updatedDate.valueOf()] : [])];
+const updatedDate = modifiedDates.length ? new Date(Math.max(...modifiedDates, post.data.pubDate.valueOf())) : undefined;
 const readingTime = getReadingTime(post.body || '');
 
 const siteUrl = Astro.site?.toString().replace(/\/$/, '') || 'https://suhasdarsi.com';
@@ -29,13 +33,13 @@ const structuredData = JSON.stringify({
   "headline": post.data.title,
   "description": post.data.description,
   "datePublished": post.data.pubDate.toISOString(),
-  ...(post.data.updatedDate ? { "dateModified": post.data.updatedDate.toISOString() } : {}),
+  ...(updatedDate ? { "dateModified": updatedDate.toISOString() } : {}),
   "author": { "@type": "Person", "name": "Suhas Darsi" },
   "url": canonicalUrl
 }).replace(/</g, '\\u003c');
 ---
 
-<BlogLayout title={`${post.data.title} | Suhas Darsi`} description={post.data.description} ogType="article">
+<BlogLayout title={`${post.data.title} | Suhas Darsi`} description={post.data.description} ogType="article" ogImage={`${siteUrl}/og/${post.id}.png`}>
   <ReadingProgress />
   <CopyCode />
   <script type="application/ld+json" set:html={structuredData} />
@@ -50,8 +54,8 @@ const structuredData = JSON.stringify({
       <h1 class="article-title page-heading">{post.data.title}</h1>
       <div class="article-meta">
         <time datetime={post.data.pubDate.toISOString()}>{formatDateWithYear(post.data.pubDate)}</time>
-        {post.data.updatedDate && (
-          <span>· Updated <time datetime={post.data.updatedDate.toISOString()}>{formatDateWithYear(post.data.updatedDate)}</time></span>
+        {updatedDate && (
+          <span>· Updated <time datetime={updatedDate.toISOString()}>{formatDateWithYear(updatedDate)}</time></span>
         )}
         {readingTime && <span>· {readingTime}</span>}
       </div>
@@ -60,6 +64,8 @@ const structuredData = JSON.stringify({
     <div class="prose-custom">
       <Content />
     </div>
+
+    <RevisionHistory revisions={post.data.revisions} />
 
     <footer class="article-share" aria-label="Share this essay">
       <span class="share-label">Share</span>
@@ -92,7 +98,7 @@ const structuredData = JSON.stringify({
     margin-bottom: 1.5rem;
     padding: 0.3125rem 0.875rem;
     border-radius: 999px;
-    background: rgba(255, 255, 255, 0.5);
+    background: var(--color-muted);
     box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-foreground) 18%, transparent);
     transition: color 0.15s ease, background-color 0.15s ease;
   }

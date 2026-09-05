@@ -18,6 +18,6 @@ export async function getSearchData(): Promise<SearchEntry[]> {
     type: 'Note',
     title: note.data.title,
     description: note.data.description,
-    body: note.body?.slice(0, 2000) ?? '',
+    body: note.body ?? '',
   }));
 }
