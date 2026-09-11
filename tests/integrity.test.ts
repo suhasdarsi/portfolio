@@ -159,12 +159,8 @@ describe('build', () => {
     }
     expect(searchIndex.some((entry: { id: string }) => queuedIds.has(entry.id))).toBe(false);
 
-    const reviewPage = join(ROOT, 'dist', 'review', 'index.html');
-    if (existsSync(reviewPage)) {
-      const html = readFileSync(reviewPage, 'utf8');
-      expect(html).not.toContain('Shadow AI as Unauthorized Hubs');
-      expect(html).not.toContain('Review queue — not public');
-    }
+    expect(existsSync(join(ROOT, 'dist', 'review', 'index.html'))).toBe(false);
+    expect(existsSync(join(ROOT, 'dist', 'review.html'))).toBe(false);
 
     const css = readAllFiles(join(ROOT, 'dist')).filter((file) => file.endsWith('.css'))
       .map((file) => readFileSync(file, 'utf8')).join('')

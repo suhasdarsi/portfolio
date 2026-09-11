@@ -3,7 +3,7 @@ import { getCollection, render } from 'astro:content';
 import BlogLayout from '../layouts/BlogLayout.astro';
 import { getCurrentReviewItem, getWaitingReviewItems } from '../utils/editorial-queue';
 
-if (import.meta.env.PROD) {
+if (import.meta.env.MODE !== 'development') {
   return Astro.rewrite('/404');
 }
 
