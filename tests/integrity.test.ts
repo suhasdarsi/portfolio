@@ -5,6 +5,7 @@ import { readFileSync, readdirSync } from 'fs';
 import { execSync } from 'child_process';
 import { parseFrontmatter } from 'astro/markdown';
 import { isPublishedContent } from '../src/utils/content-routes.mjs';
+import { editorialQueue } from '../src/utils/editorial-queue';
 
 const ROOT = join(__dirname, '..');
 const SRC = join(ROOT, 'src');
@@ -150,6 +151,19 @@ describe('build', () => {
       const markdown = readFileSync(join(blogDir, `${entry.id}.md`), 'utf8');
       const body = markdown.replace(/^---[\s\S]*?---\s*/, '').trim();
       expect(entry.body.trim()).toBe(body);
+    }
+
+    const queuedIds = new Set(editorialQueue.map((item) => item.id));
+    for (const item of editorialQueue) {
+      expect(existsSync(join(ROOT, 'dist', 'notes', item.id, 'index.html')), `${item.id} must stay unpublished`).toBe(false);
+    }
+    expect(searchIndex.some((entry: { id: string }) => queuedIds.has(entry.id))).toBe(false);
+
+    const reviewPage = join(ROOT, 'dist', 'review', 'index.html');
+    if (existsSync(reviewPage)) {
+      const html = readFileSync(reviewPage, 'utf8');
+      expect(html).not.toContain('Shadow AI as Unauthorized Hubs');
+      expect(html).not.toContain('Review queue — not public');
     }
 
     const css = readAllFiles(join(ROOT, 'dist')).filter((file) => file.endsWith('.css'))

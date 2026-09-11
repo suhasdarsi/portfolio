@@ -9,9 +9,10 @@ interface Props {
   ogType?: string;
   ogImage?: string;
   wide?: boolean;
+  noindex?: boolean;
 }
 
-const { title, description, ogType = 'website', ogImage, wide = false } = Astro.props;
+const { title, description, ogType = 'website', ogImage, wide = false, noindex = false } = Astro.props;
 const siteUrl = Astro.site?.toString().replace(/\/$/, '') || 'https://suhasdarsi.com';
 const canonicalUrl = `${siteUrl}${Astro.url.pathname}`;
 const ogDescription = description || 'Suhas Darsi — practical writing about AI security, agent systems, and network risk.';
@@ -26,6 +27,7 @@ const ogDescription = description || 'Suhas Darsi — practical writing about AI
     <meta name="generator" content="Astro" />
     <meta name="description" content={description || "Blog posts"} />
     <meta name="author" content="Suhas Darsi" />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
     <link rel="canonical" href={canonicalUrl} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={ogDescription} />
