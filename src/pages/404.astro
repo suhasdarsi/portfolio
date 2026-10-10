@@ -3,19 +3,24 @@ import BlogLayout from '../layouts/BlogLayout.astro';
 ---
 
 <BlogLayout title="404 — Page Not Found | Suhas Darsi" description="Page not found — Suhas Darsi">
-  <h1 class="error-code">404</h1>
-  <p class="error-message">This page doesn't exist.</p>
-  <p class="error-hint">It might have been moved, deleted, or you may have mistyped the URL.</p>
+  <header class="error-header">
+    <p class="eyebrow">Error 404</p>
+    <h1 class="page-heading">This page doesn’t exist.</h1>
+    <p class="page-intro">It might have been moved or deleted, or the URL may have a typo.</p>
+  </header>
   <div class="error-actions">
-    <a href="/" class="error-link error-link-primary">Go home</a>
-    <a href="/notes" class="error-link">Browse notes</a>
+    <a href="/" class="button">Go home</a>
+    <a href="/notes" class="button-quiet">Browse notes</a>
   </div>
-  <p class="error-search-label">Or search across all notes:</p>
-  <div class="error-search-wrap">
-    <input type="text" id="error-search-input" class="error-search-input" placeholder="Search notes..." aria-label="Search all notes" autocomplete="off" />
+  <section class="error-search-wrap">
+    <h2 class="section-label">Or search the notes</h2>
+    <div class="error-search-control">
+      <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+      <input type="search" id="error-search-input" class="field" placeholder="Try “network risk”" aria-label="Search all notes" autocomplete="off" />
+    </div>
     <p id="error-search-status" role="status"></p>
-    <div class="error-search-results" id="error-search-results"></div>
-  </div>
+    <div class="rows error-search-results" id="error-search-results"></div>
+  </section>
 </BlogLayout>
 
 <script>
@@ -51,7 +56,7 @@ import BlogLayout from '../layouts/BlogLayout.astro';
       results?.replaceChildren(...hits.map((hit) => {
         const link = document.createElement('a');
         link.href = hit.href;
-        link.className = 'error-search-result';
+        link.className = 'row error-search-result';
         link.textContent = hit.title;
         return link;
       }));
@@ -65,126 +70,12 @@ import BlogLayout from '../layouts/BlogLayout.astro';
 </script>
 
 <style>
-  .error-code {
-    font-family: var(--font-sans);
-    font-size: 2.875rem;
-    font-weight: 800;
-    color: var(--color-muted-foreground);
-    margin: 0 0 1rem;
-    line-height: 1.15;
-    letter-spacing: -0.02em;
-  }
-
-  .error-message {
-    font-family: var(--font-serif);
-    font-size: 1.375rem;
-    line-height: 1.45;
-    color: var(--color-foreground);
-    margin: 0 0 0.5rem;
-  }
-
-  .error-hint {
-    font-size: var(--text-body);
-    color: var(--color-muted-foreground);
-    margin: 0 0 2rem;
-    line-height: 1.6;
-  }
-
-  .error-actions {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
-    flex-wrap: wrap;
-  }
-
-  .error-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: var(--text-body);
-    color: var(--color-muted-foreground);
-    text-decoration: none;
-    padding: 0.625rem 1.25rem;
-    border: 1px solid var(--color-subtle-border);
-    border-radius: var(--radius-sm);
-    transition: all 0.3s ease;
-  }
-
-  .error-link:focus-visible {
-    outline: 2px solid var(--color-foreground);
-    outline-offset: 2px;
-  }
-
-  .error-link:hover {
-    border-color: var(--color-foreground);
-    color: var(--color-foreground);
-  }
-
-  .error-link-primary {
-    background: var(--color-foreground);
-    color: var(--color-background);
-    border-color: var(--color-foreground);
-  }
-
-  .error-link-primary:hover {
-    background: var(--color-muted-foreground);
-    border-color: var(--color-muted-foreground);
-    color: var(--color-background);
-  }
-
-  .error-search-label {
-    font-size: var(--text-body);
-    color: var(--color-muted-foreground);
-    margin-top: 2rem;
-    margin-bottom: 0.75rem;
-    text-align: center;
-  }
-
-  .error-search-wrap {
-    max-width: 24rem;
-    margin: 0 auto;
-    text-align: left;
-  }
-
-  .error-search-input {
-    width: 100%;
-    font-family: var(--font-mono);
-    font-size: var(--text-body);
-    color: var(--color-foreground);
-    background: none;
-    border: 1px solid var(--color-subtle-border);
-    padding: 0.5rem 0.75rem;
-    outline: none;
-    transition: border-color 0.2s ease;
-  }
-
-  .error-search-input:focus {
-    border-color: var(--color-foreground);
-  }
-
-  .error-search-results {
-    display: flex;
-    flex-direction: column;
-    margin-top: 0.25rem;
-  }
-
-  :global(.error-search-result) {
-    display: block;
-    padding: 0.5rem 0.75rem;
-    font-size: var(--text-body);
-    color: var(--color-foreground);
-    text-decoration: none;
-    border: 1px solid var(--color-subtle-border);
-    border-top: none;
-    transition: background 0.15s ease;
-  }
-
-  :global(.error-search-result:hover) {
-    background: var(--color-muted);
-  }
-
-  :global(.error-search-result:first-child) {
-    border-top: 1px solid var(--color-subtle-border);
-  }
+  .error-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 2rem 0 3.5rem; }
+  .error-actions .button-quiet { margin-left: -0.25rem; }
+  .error-search-control { position: relative; display: flex; align-items: center; margin-top: 0.5rem; }
+  .search-icon { position: absolute; left: 0.875rem; color: var(--color-muted-foreground); pointer-events: none; }
+  .error-search-control .field { padding-left: 2.5rem; }
+  #error-search-status { margin-top: 0.75rem; color: var(--color-muted-foreground); }
+  #error-search-status:empty { display: none; }
+  .error-search-results { margin-top: 0.75rem; }
 </style>

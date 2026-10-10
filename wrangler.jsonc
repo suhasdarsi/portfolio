@@ -1,9 +1,14 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "suhas-blog",
+  "main": "worker/index.ts",
+  "compatibility_flags": ["nodejs_compat"],
   "compatibility_date": "2026-07-20",
   "assets": {
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*"],
     "directory": "./dist",
     "not_found_handling": "404-page"
-  }
+  },
+  "ratelimits": [{ "name": "WALLET_LIMIT", "namespace_id": "1001", "simple": { "limit": 5, "period": 60 } }]
 }

@@ -1,0 +1,82 @@
+---
+import BlogLayout from '../layouts/BlogLayout.astro';
+import { designSystems } from '../data/design-systems';
+import AppMark from '../components/AppMark.astro';
+
+const categories = ['All', 'Product', 'Platform', 'Public service'];
+---
+
+<BlogLayout title="Swatchbook | Suhas Darsi" description="Swatchbook: a searchable collection of company and public-service design systems, with links to their official documentation.">
+  <header class="directory-header">
+    <h1 class="page-heading app-title"><AppMark mark="swatchbook" />Swatchbook</h1>
+    <p class="page-intro">A collection of design systems to study, reference, and build with. Explore how teams approach components, typography, accessibility, and interaction.</p>
+  </header>
+
+  <form class="directory-search" role="search">
+    <label for="system-search" class="sr-only">Find a design system</label>
+    <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+    <input id="system-search" class="field" type="search" placeholder="Search by system or company" autocomplete="off" aria-controls="system-list" />
+  </form>
+  <div class="filters" role="group" aria-label="Filter design systems">
+    {categories.map(category => <button type="button" class="chip-toggle" data-category={category} aria-pressed={category === 'All'}>{category}</button>)}
+  </div>
+  <p class="section-label result-count" id="system-count" role="status" aria-live="polite">{designSystems.length} systems</p>
+
+  <ul id="system-list" class="rows">
+    {designSystems.map(system => (
+      <li data-system data-category={system.category} data-search={`${system.name} ${system.owner} ${system.category}`.toLowerCase()}>
+        <a href={system.url} target="_blank" rel="noopener noreferrer" class="row">
+          <span class="system-info"><span class="row-title">{system.name}</span><span class="system-owner">{system.owner} <span aria-hidden="true">·</span> {new URL(system.url).hostname.replace(/^www\./, '')}</span></span>
+          <span class="row-meta"><span class="system-category">{system.category}</span><span class="row-arrow" aria-hidden="true">↗</span></span>
+          <span class="sr-only"> (opens in a new tab)</span>
+        </a>
+      </li>
+    ))}
+  </ul>
+  <p id="system-empty" hidden>No systems match. Try another search or choose All.</p>
+</BlogLayout>
+
+<script>
+  const input = document.querySelector<HTMLInputElement>('#system-search');
+  const buttons = Array.from(document.querySelectorAll<HTMLButtonElement>('.filters button'));
+  const items = Array.from(document.querySelectorAll<HTMLLIElement>('[data-system]'));
+  const count = document.getElementById('system-count');
+  const empty = document.getElementById('system-empty');
+  let category = 'All';
+
+  function filterSystems() {
+    const query = input?.value.trim().toLowerCase() ?? '';
+    let visible = 0;
+    for (const item of items) {
+      const matches = (category === 'All' || item.dataset.category === category) && (item.dataset.search ?? '').includes(query);
+      item.hidden = !matches;
+      if (matches) visible++;
+    }
+    if (count) count.textContent = `${visible} ${visible === 1 ? 'system' : 'systems'}`;
+    if (empty) empty.hidden = visible > 0;
+  }
+
+  input?.addEventListener('input', filterSystems);
+  document.querySelector('.directory-search')?.addEventListener('submit', event => event.preventDefault());
+  for (const button of buttons) {
+    button.addEventListener('click', () => {
+      category = button.dataset.category ?? 'All';
+      for (const candidate of buttons) candidate.setAttribute('aria-pressed', String(candidate === button));
+      filterSystems();
+    });
+  }
+</script>
+
+<style>
+  .directory-header { margin-bottom: 2.5rem; }
+  .app-title { display: flex; align-items: center; gap: 0.5rem; }
+  .directory-search { position: relative; display: flex; align-items: center; }
+  .search-icon { position: absolute; left: 0.875rem; color: var(--color-muted-foreground); pointer-events: none; }
+  .directory-search .field { padding-left: 2.5rem; }
+  .filters { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0 2.5rem; }
+  .system-info { display: grid; gap: 0.125rem; min-width: 0; }
+  .system-owner { font-family: var(--font-serif); color: var(--color-muted-foreground); overflow-wrap: anywhere; }
+  #system-empty { color: var(--color-muted-foreground); padding: 1rem 0; }
+  [hidden] { display: none !important; }
+  @media (max-width: 480px) { .system-category { display: none; } }
+</style>

@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test('Libron is self-hosted, loads all reading styles, and keeps page headings consistent', async ({ page }) => {
   let headingStyle: string[] | undefined;
-  for (const path of ['/', '/about', '/notes', '/notes/ai-as-the-ultimate-hub', '/uses', '/design-systems']) {
+  for (const path of ['/', '/about', '/notes', '/notes/ai-as-the-ultimate-hub', '/uses', '/swatchbook']) {
     await page.goto(path);
     const styles = await page.evaluate(async () => {
       const fonts = await Promise.all([

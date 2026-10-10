@@ -154,11 +154,15 @@ describe('build', () => {
 
     const css = readAllFiles(join(ROOT, 'dist')).filter((file) => file.endsWith('.css'))
       .map((file) => readFileSync(file, 'utf8')).join('')
-      + readFileSync(join(ROOT, 'dist/404.html'), 'utf8');
+      + readFileSync(join(ROOT, 'dist/404.html'), 'utf8')
+      // Small page stylesheets are inlined by Astro, so include a built note page.
+      + readFileSync(join(ROOT, 'dist/notes/ai-as-the-ultimate-hub/index.html'), 'utf8');
     expect(css).toContain('.copy-code-button{');
     expect(css).not.toMatch(/\.copy-code-button\[data-astro-/);
-    expect(css).toContain('.error-search-result{');
-    expect(css).not.toMatch(/\.error-search-result\[data-astro-/);
+    // 404 results are created at runtime, so they rely on the global (unscoped) row style.
+    expect(readFileSync(join(SRC, 'pages/404.astro'), 'utf8')).toContain("link.className = 'row error-search-result'");
+    expect(css).toMatch(/\.row\{/);
+    expect(css).not.toMatch(/\.row\[data-astro-/);
 
   }, 15_000);
 });

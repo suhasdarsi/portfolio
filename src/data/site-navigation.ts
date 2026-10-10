@@ -1,19 +1,28 @@
+// Micro-app marks drawn by src/components/AppMark.astro.
+export type AppMarkName = 'pocket' | 'swatchbook';
+
+// The one action the homepage leads with.
+export const primaryCta = {
+  label: 'Say hello',
+  href: 'https://booking.akiflow.com/suhas--a84d',
+};
+
 // Add new homepage destinations here, grouped by what visitors want to do.
 export const homeLinkGroups = [
   {
     label: 'On this site',
     links: [
-      { label: 'About', href: '/about', external: false },
-      { label: 'Notes', href: '/notes', external: false },
-      { label: 'Uses', href: '/uses', external: false },
-      { label: 'Design systems', href: '/design-systems', external: false },
+      { label: 'About', href: '/about', meta: 'Background and current work' },
+      { label: 'Notes', href: '/notes', meta: 'Essays on AI security' },
+      { label: 'Uses', href: '/uses', meta: 'Tools and gear' },
     ],
   },
   {
-    label: 'Stay in touch',
+    label: 'Micro-apps',
+    description: 'Small, standalone tools I’m building.',
     links: [
-      { label: 'Say Hello', href: 'https://booking.akiflow.com/suhas--e823', external: true },
-      { label: 'Subscribe via RSS', href: '/rss.xml', external: true },
+      { label: 'Pocket Card', href: '/pocket-card', meta: 'Business card for Apple Wallet', mark: 'pocket' as AppMarkName },
+      { label: 'Swatchbook', href: '/swatchbook', meta: 'Directory of design systems', mark: 'swatchbook' as AppMarkName },
     ],
   },
 ];

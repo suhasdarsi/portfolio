@@ -1,10 +1,11 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
-test('design systems can be found from home, searched and filtered', async ({ page }) => {
+test('Swatchbook can be found from home, searched and filtered', async ({ page }) => {
   await page.goto('/');
-  await page.getByRole('link', { name: 'Design systems', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Design systems', level: 1 })).toBeVisible();
+  await page.getByRole('link', { name: /^Swatchbook/ }).click();
+  await expect(page).toHaveURL(/\/swatchbook$/);
+  await expect(page.getByRole('heading', { name: 'Swatchbook', level: 1 })).toBeVisible();
   const search = page.getByLabel('Find a design system');
   await search.fill('github');
   await expect(page.locator('[data-system]:visible')).toHaveCount(1);

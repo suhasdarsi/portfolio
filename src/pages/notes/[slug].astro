@@ -45,11 +45,11 @@ const structuredData = JSON.stringify({
   <script type="application/ld+json" set:html={structuredData} />
   <article>
     <header class="article-header">
-      <a href="/" class="back-link">
+      <a href="/notes" class="back-link">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <polyline points="15 18 9 12 15 6"></polyline>
         </svg>
-        Suhas Darsi
+        All notes
       </a>
       <h1 class="article-title page-heading">{post.data.title}</h1>
       <div class="article-meta">
@@ -90,80 +90,47 @@ const structuredData = JSON.stringify({
     display: inline-flex;
     align-items: center;
     gap: 0.375rem;
+    margin: 0 0 1.5rem -0.5rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-buttons);
     color: var(--color-muted-foreground);
-    text-decoration: none;
     font-family: var(--font-sans);
-    font-size: 0.8125rem;
-    font-weight: 500;
-    margin-bottom: 1.5rem;
-    padding: 0.3125rem 0.875rem;
-    border-radius: 999px;
-    background: var(--color-muted);
-    box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-foreground) 18%, transparent);
+    text-decoration: none;
     transition: color 0.15s ease, background-color 0.15s ease;
-  }
-
-  .back-link:focus-visible {
-    outline: 2px solid var(--color-foreground);
-    outline-offset: 3px;
   }
 
   .back-link:hover {
     color: var(--color-foreground);
-    background: rgba(16, 24, 40, 0.05);
+    background: var(--color-muted);
   }
 
-  .back-link svg {
-    transition: transform 0.15s ease;
-  }
+  .back-link svg { transition: transform 0.15s ease; }
+  .back-link:hover svg { transform: translateX(-2px); }
 
-  .back-link:hover svg {
-    transform: translateX(-3px);
-  }
-
-  .article-header {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    margin-bottom: 0;
-    padding: 0 0 3rem;
-    border-bottom: 0;
-  }
-
-  .article-title {
-    margin: 0 0 1rem;
-    max-width: 40rem;
-  }
+  .article-header { padding-bottom: 2.5rem; }
+  .article-title { margin: 0 0 0.5rem; }
 
   .article-meta {
-    font-family: var(--font-serif);
     display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.25rem;
     flex-wrap: wrap;
-    font-size: 1rem;
-    font-variant-numeric: oldstyle-nums;
+    gap: 0.25rem;
+    font-family: var(--font-sans);
+    font-variant-numeric: tabular-nums;
     color: var(--color-muted-foreground);
   }
 
   .article-share {
     display: flex;
     align-items: center;
-    justify-content: center;
     gap: 1.75rem;
-    margin-top: 2.5rem;
+    margin-top: 3rem;
     padding-top: 1.5rem;
-    border-top: 1px solid color-mix(in srgb, currentColor 15%, transparent);
+    border-top: 1px solid var(--color-border);
     color: var(--color-muted-foreground);
     font-family: var(--font-sans);
   }
 
-  .share-label {
-    font-size: 0.8125rem;
-    font-weight: 500;
-  }
+  .share-label { font-weight: 500; }
 
   .article-share a {
     display: inline-flex;
@@ -172,33 +139,11 @@ const structuredData = JSON.stringify({
     /* 16px visual icon, 44px hit area: padding expands, negative margin restores flow. */
     padding: 0.875rem;
     margin: -0.875rem;
-    color: #a4a09e;
+    color: var(--color-muted-foreground);
     text-decoration: none;
     transition: color 0.15s ease;
   }
 
-  .article-share a:hover {
-    color: var(--color-foreground);
-  }
-
-  .article-share a:focus-visible {
-    outline: 2px solid var(--color-foreground);
-    outline-offset: 2px;
-  }
-
-  .article-share svg {
-    width: 1rem;
-    height: 1rem;
-  }
-
-  @media (max-width: 640px) {
-    .back-link {
-      margin-bottom: 1rem;
-    }
-
-    .article-header {
-      padding-bottom: 2.5rem;
-    }
-
-  }
+  .article-share a:hover { color: var(--color-foreground); }
+  .article-share svg { width: 1rem; height: 1rem; }
 </style>

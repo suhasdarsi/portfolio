@@ -12,7 +12,7 @@ export default defineConfig({
   output: 'static',
   trailingSlash: 'never',
   compressHTML: true,
-  integrations: [sitemap()],
+  integrations: [sitemap({ filter: (page) => new URL(page).pathname.replace(/\/$/, '') !== '/pocket-card' })],
   vite: {
     plugins: [tailwindcss()],
   },
