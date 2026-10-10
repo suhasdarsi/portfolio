@@ -1,0 +1,22 @@
+---
+import { formatDateWithYear } from '../utils/date';
+interface Props { revisions: { date: Date; summary: string }[] }
+const revisions = [...Astro.props.revisions].sort((a, b) => b.date.valueOf() - a.date.valueOf());
+---
+{revisions.length > 0 && (
+  <details class="revision-history">
+    <summary>Revision history</summary>
+    <ol>
+      {revisions.map((revision) => (
+        <li><time datetime={revision.date.toISOString()}>{formatDateWithYear(revision.date)}</time><p>{revision.summary}</p></li>
+      ))}
+    </ol>
+  </details>
+)}
+<style>
+  .revision-history { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid var(--color-subtle-border); }
+  summary { cursor: pointer; font-weight: 600; }
+  li { margin-top: 1rem; }
+  time { color: var(--color-muted-foreground); font-size: .875rem; }
+  p { margin: .25rem 0 0; }
+</style>

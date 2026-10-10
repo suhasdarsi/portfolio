@@ -5,7 +5,7 @@
 
 <script>
   function initCopyButtons() {
-    const codeBlocks = document.querySelectorAll('.prose-custom pre');
+    const codeBlocks = document.querySelectorAll<HTMLElement>('.prose-custom pre');
     
     codeBlocks.forEach((pre) => {
       if (pre.querySelector('.copy-code-button')) return;

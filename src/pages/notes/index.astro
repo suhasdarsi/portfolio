@@ -59,6 +59,7 @@ const posts = await getPublishedBlogEntriesByDate();
 <script>
   import { searchDocuments } from '../../utils/client-search';
   import { highlightText, searchExcerpt } from '../../utils/search-display';
+  import { createSearchLoader } from '../../utils/search-loader';
   import type { SearchEntry } from '../../utils/search';
 
   const form = document.querySelector<HTMLFormElement>('.notes-search')!;
@@ -71,7 +72,7 @@ const posts = await getPublishedBlogEntriesByDate();
     title: article.querySelector('.note-title')!.textContent!.trim(),
     description: article.querySelector('.note-desc')!.textContent!.trim(),
   }));
-  let data: Promise<SearchEntry[]> | undefined;
+  const loadSearch = createSearchLoader<SearchEntry>();
   let version = 0;
 
   async function applySearch(query: string) {
@@ -89,11 +90,7 @@ const posts = await getPublishedBlogEntriesByDate();
     }
     status.textContent = 'Searching notes…';
     try {
-      data ??= fetch('/search.json').then((response) => {
-        if (!response.ok) throw new Error('Search unavailable');
-        return response.json();
-      }).catch((error) => { data = undefined; throw error; });
-      const documents = await data;
+      const documents = await loadSearch();
       if (current !== version) return;
       const results = searchDocuments(documents, query);
       articles.forEach((article) => { article.hidden = true; });
@@ -145,9 +142,6 @@ const posts = await getPublishedBlogEntriesByDate();
 
   .notes-heading {
     margin: 0 0 0.75rem;
-    font-size: 1.25rem;
-    font-weight: 700;
-    line-height: 1.05;
   }
 
   .notes-intro {

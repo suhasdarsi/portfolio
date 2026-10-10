@@ -1,0 +1,171 @@
+---
+import BlogLayout from '../layouts/BlogLayout.astro';
+import SocialLinks from '../components/SocialLinks.astro';
+
+const currently = [
+  { label: 'Founder', name: 'SuperAlign AI', url: 'https://superalign.ai' },
+  { label: 'Chair at AI Alignment Chapter', name: 'RIMAS Singapore', url: 'https://www.rimas.org.sg/' },
+  { label: 'Guest Lecturer', name: 'SUSS', url: 'https://www.suss.edu.sg/' },
+];
+
+const previously = [
+  { label: 'Founder', name: 'Aztlan', url: 'https://www.linkedin.com/company/aztlan/' },
+  { label: 'Masters in AI', name: 'IIIT Hyderabad', url: 'https://www.iiit.ac.in/' },
+  { label: 'Bachelors', name: 'IIIT Hyderabad', url: 'https://www.iiit.ac.in/' },
+];
+---
+
+<BlogLayout title="About — Suhas Darsi" description="About Suhas Darsi — founder, researcher, and writer working on AI security.">
+  <header class="home-header">
+    <h1 class="home-name page-heading">About</h1>
+    <SocialLinks />
+  </header>
+
+  <p class="home-bio"><b>I'm a co-founder at <a href="https://superalign.ai" class="bio-link link-underline">SuperAlign</a></b>, where we help security teams see, understand, and control AI adoption across their organizations.</p>
+  <p class="home-bio">My background is in Computer Vision research at IIIT Hyderabad. These days I focus on how AI systems fail, how risk propagates through connected agents, and the controls required to deploy them safely.</p>
+  <p class="home-bio">This site is where I publish long-form notes on AI security, agent architecture, and the network dynamics behind systemic failures.</p>
+
+  <section class="timeline-section">
+    <h2 class="section-heading">Currently</h2>
+    <ul class="timeline-list">
+      {currently.map((item) => (
+        <li>
+          <a href={item.url} class="timeline-row" target="_blank" rel="noopener noreferrer">
+            <span class="timeline-name">{item.name}</span>
+            <span class="timeline-role">{item.label}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+
+    <h2 class="section-heading">Previously</h2>
+    <ul class="timeline-list">
+      {previously.map((item) => (
+        <li>
+          <a href={item.url} class="timeline-row" target="_blank" rel="noopener noreferrer">
+            <span class="timeline-name">{item.name}</span>
+            <span class="timeline-role">{item.label}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+</BlogLayout>
+
+
+
+<style>
+  .home-header {
+    margin-bottom: 2rem;
+  }
+
+  .home-name {
+    margin: 0 0 1.25rem;
+    font-size: var(--text-title);
+  }
+
+
+  .home-bio {
+    font-family: var(--font-serif);
+    font-size: 1rem;
+    color: var(--color-body-text);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    max-width: 40rem;
+    text-wrap: pretty;
+  }
+
+  .home-bio b {
+    color: var(--color-foreground);
+    font-weight: 700;
+  }
+
+  .home-bio:last-of-type {
+    margin-bottom: 1.5rem;
+  }
+
+  .timeline-section {
+    margin-bottom: 4rem;
+  }
+
+  .section-heading {
+    font-family: var(--font-sans);
+    font-size: 0.9375rem;
+    color: var(--color-muted-foreground);
+    font-weight: 600;
+    margin: 0 0 0.75rem;
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+  }
+
+  .section-heading::after {
+    content: '';
+    flex: 1 1 auto;
+    border-bottom: 1px solid currentColor;
+    opacity: 0.16;
+    transform: translateY(-0.25em);
+  }
+
+  .timeline-section .section-heading:not(:first-child) {
+    margin-top: 2rem;
+  }
+
+  .timeline-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .timeline-list li {
+    margin: 0;
+  }
+
+  .timeline-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.875rem 1rem;
+    margin: 0 -1rem;
+    border-radius: 0.375rem;
+    color: var(--color-foreground);
+    text-decoration: none;
+    transition: background-color 0.15s ease;
+  }
+
+  .timeline-row:hover {
+    background: rgba(0, 0, 0, 0.03);
+  }
+
+  html.dark .timeline-row:hover {
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  .timeline-row:focus-visible {
+    outline: 2px solid var(--color-foreground);
+    outline-offset: 2px;
+    border-radius: 0.375rem;
+  }
+
+  .timeline-name {
+    font-family: var(--font-sans);
+    font-size: 0.9375rem;
+    font-weight: 500;
+  }
+
+  .timeline-role {
+    font-family: var(--font-sans);
+    font-size: 0.9375rem;
+    color: var(--color-muted-foreground);
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+
+  @media (max-width: 520px) {
+    .timeline-row { flex-direction: column; gap: 0.25rem; }
+    .timeline-role { text-align: left; flex-shrink: 1; }
+  }
+</style>

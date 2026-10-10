@@ -1,0 +1,95 @@
+---
+import BlogLayout from '../layouts/BlogLayout.astro';
+import { designSystems } from '../data/design-systems';
+
+const categories = ['All', 'Product', 'Platform', 'Public service'];
+---
+
+<BlogLayout title="Design systems | Suhas Darsi" description="A searchable collection of company and public-service design systems, with links to their official documentation.">
+  <a class="back-link" href="/">← Home</a>
+  <header class="directory-header">
+    <h1 class="page-heading">Design systems</h1>
+    <p>A collection of design systems to study, reference, and build with. Explore how teams approach components, typography, accessibility, and interaction.</p>
+  </header>
+
+  <form class="directory-search" role="search">
+    <label for="system-search">Find a design system</label>
+    <input id="system-search" type="search" placeholder="Search by system or company…" autocomplete="off" aria-controls="system-list" />
+  </form>
+  <div class="filters" role="group" aria-label="Filter design systems">
+    {categories.map(category => <button type="button" data-category={category} aria-pressed={category === 'All'}>{category}</button>)}
+  </div>
+  <p class="result-count" id="system-count" role="status" aria-live="polite">{designSystems.length} systems · A–Z</p>
+
+  <ul id="system-list" class="system-list">
+    {designSystems.map(system => (
+      <li data-system data-category={system.category} data-search={`${system.name} ${system.owner} ${system.category}`.toLowerCase()}>
+        <a href={system.url} target="_blank" rel="noopener noreferrer">
+          <span class="system-info"><span class="system-name">{system.name}</span><span class="system-owner">{system.owner} <span aria-hidden="true">·</span> {new URL(system.url).hostname.replace(/^www\./, '')}</span></span>
+          <span class="system-category">{system.category}</span>
+          <span class="external-arrow" aria-hidden="true">↗</span>
+          <span class="sr-only"> (opens in a new tab)</span>
+        </a>
+      </li>
+    ))}
+  </ul>
+  <p id="system-empty" hidden>No systems match. Try another search or choose All.</p>
+  <p class="directory-credit">Inspired by <a href="https://design.how/directory/design-systems" target="_blank" rel="noopener noreferrer">design.how’s directory</a>. Each link takes you to the system’s official documentation.</p>
+</BlogLayout>
+
+<script>
+  const input = document.querySelector<HTMLInputElement>('#system-search');
+  const buttons = Array.from(document.querySelectorAll<HTMLButtonElement>('.filters button'));
+  const items = Array.from(document.querySelectorAll<HTMLLIElement>('[data-system]'));
+  const count = document.getElementById('system-count');
+  const empty = document.getElementById('system-empty');
+  let category = 'All';
+
+  function filterSystems() {
+    const query = input?.value.trim().toLowerCase() ?? '';
+    let visible = 0;
+    for (const item of items) {
+      const matches = (category === 'All' || item.dataset.category === category) && (item.dataset.search ?? '').includes(query);
+      item.hidden = !matches;
+      if (matches) visible++;
+    }
+    if (count) count.textContent = `${visible} ${visible === 1 ? 'system' : 'systems'} · A–Z`;
+    if (empty) empty.hidden = visible > 0;
+  }
+
+  input?.addEventListener('input', filterSystems);
+  document.querySelector('.directory-search')?.addEventListener('submit', event => event.preventDefault());
+  for (const button of buttons) {
+    button.addEventListener('click', () => {
+      category = button.dataset.category ?? 'All';
+      for (const candidate of buttons) candidate.setAttribute('aria-pressed', String(candidate === button));
+      filterSystems();
+    });
+  }
+</script>
+
+<style>
+  .back-link { display: inline-block; margin-bottom: 2rem; color: var(--color-muted-foreground); font-size: 0.875rem; }
+  .directory-header h1 { margin-bottom: 0.75rem; }
+  .directory-header p { color: var(--color-body-text); line-height: 1.7; margin-bottom: 2rem; }
+  .directory-search label { display: block; font-size: 0.8125rem; color: var(--color-muted-foreground); margin-bottom: 0.5rem; }
+  .directory-search input { width: 100%; padding: 0.8rem 1rem; border: 1px solid var(--color-border); border-radius: 10px; background: var(--color-subtle); color: var(--color-foreground); font: inherit; }
+  .directory-search input::placeholder { color: var(--color-muted-foreground); }
+  .filters { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0; }
+  .filters button { padding: 0.4rem 0.75rem; border-radius: 8px; background: var(--color-muted); color: var(--color-body-text); font: inherit; font-size: 0.8125rem; cursor: pointer; }
+  .filters button[aria-pressed='true'] { background: var(--color-foreground); color: var(--color-background); }
+  .result-count { margin: 1.5rem 0 0.75rem; font-size: 0.8125rem; color: var(--color-muted-foreground); }
+  .system-list { list-style: none; padding: 0; margin: 0; }
+  .system-list a { display: flex; align-items: center; gap: 1rem; padding: 1rem 0.75rem; border-radius: 10px; text-decoration: none; color: var(--color-foreground); }
+  .system-list a:hover { background: var(--color-muted); }
+  .system-info { flex: 1; min-width: 0; }
+  .system-name { display: block; font-weight: 550; line-height: 1.5; }
+  .system-owner { display: block; margin-top: 0.2rem; color: var(--color-muted-foreground); font-size: 0.8125rem; overflow-wrap: anywhere; }
+  .system-category { font-size: 0.75rem; color: var(--color-muted-foreground); }
+  .external-arrow { color: var(--color-muted-foreground); }
+  .directory-credit { margin-top: 2.5rem; color: var(--color-muted-foreground); font-size: 0.8125rem; line-height: 1.7; }
+  .directory-credit a { text-decoration: underline; text-underline-offset: 3px; }
+  #system-empty { color: var(--color-muted-foreground); padding: 2rem 0; }
+  [hidden] { display: none !important; }
+  @media (max-width: 480px) { .system-category { display: none; } .system-list a { padding-inline: 0.5rem; } }
+</style>

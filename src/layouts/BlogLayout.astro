@@ -9,9 +9,10 @@ interface Props {
   ogType?: string;
   ogImage?: string;
   wide?: boolean;
+  centered?: boolean;
 }
 
-const { title, description, ogType = 'website', ogImage, wide = false } = Astro.props;
+const { title, description, ogType = 'website', ogImage, wide = false, centered = false } = Astro.props;
 const siteUrl = Astro.site?.toString().replace(/\/$/, '') || 'https://suhasdarsi.com';
 const canonicalUrl = `${siteUrl}${Astro.url.pathname}`;
 const ogDescription = description || 'Suhas Darsi — practical writing about AI security, agent systems, and network risk.';
@@ -22,6 +23,7 @@ const ogDescription = description || 'Suhas Darsi — practical writing about AI
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="preload" href="/fonts/libron/Libron-Regular.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content="Astro" />
     <meta name="description" content={description || "Blog posts"} />
@@ -58,7 +60,7 @@ const ogDescription = description || 'Suhas Darsi — practical writing about AI
 
     <main
       id="main-content"
-      class:list={[wide ? 'max-w-6xl' : 'max-w-[40rem]', 'site-main mx-auto pt-16 pb-48 px-4']}
+      class:list={[wide ? 'max-w-6xl' : 'max-w-[40rem]', 'site-main w-full mx-auto px-4', centered ? 'flex items-center justify-center py-12' : 'pt-16 pb-48']}
     >
       <slot />
     </main>

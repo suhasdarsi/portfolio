@@ -1,8 +1,39 @@
 @import 'tailwindcss';
 @import '@fontsource-variable/inter/opsz.css';
-@import '@fontsource-variable/literata';
 @import '@fontsource/fira-code/400.css';
 @import '@fontsource/fira-code/500.css';
+
+@font-face {
+  font-family: 'Libron';
+  src: url('/fonts/libron/Libron-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Libron';
+  src: url('/fonts/libron/Libron-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Libron';
+  src: url('/fonts/libron/Libron-Italic.woff2') format('woff2');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Libron';
+  src: url('/fonts/libron/Libron-BoldItalic.woff2') format('woff2');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
 
 @theme {
   --color-obsidian: #5d5751;
@@ -29,9 +60,9 @@
   --color-code-bg: #eee7db;
   --color-body-text: #5d5751;
 
-  --font-display: 'Inter Variable', Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-display: 'Libron', Georgia, 'Times New Roman', serif;
   --font-mono-stack: 'Fira Code', 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  --font-serif: 'Literata Variable', Literata, Georgia, 'Times New Roman', serif;
+  --font-serif: 'Libron', Georgia, 'Times New Roman', serif;
   --font-sans: 'Inter Variable', Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-mono: var(--font-mono-stack);
 
@@ -187,10 +218,9 @@ body {
 h1,
 h2,
 h3 {
-  font-family: var(--font-sans);
-  font-weight: 600;
+  font-family: var(--font-display);
+  font-weight: 700;
   letter-spacing: -0.01em;
-  font-variation-settings: 'opsz' 32;
 }
 
 h1 {
@@ -200,9 +230,9 @@ h1 {
 
 /* Shared H1 treatment for the portfolio's primary pages. */
 .page-heading {
-  font-family: var(--font-sans);
+  font-family: var(--font-display);
   font-size: var(--text-title);
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.25;
   letter-spacing: -0.01em;
   text-wrap: balance;

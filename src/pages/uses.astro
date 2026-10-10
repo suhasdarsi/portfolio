@@ -72,9 +72,6 @@ const physical = [
           <div class="item-content">
             <div class="item-main">
               <a href={item.url} target="_blank" rel="noopener noreferrer" class="item-name">{item.name}</a>
-              {item.review && (
-                <a href={item.review} class="item-review">Review</a>
-              )}
             </div>
             <span class="item-arrow" aria-hidden="true">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -202,25 +199,6 @@ const physical = [
   .item-name:hover {
     text-decoration: underline;
     text-underline-offset: 3px;
-  }
-
-  .item-review {
-    position: relative;
-    z-index: 1;
-    font-size: var(--text-body);
-    font-weight: 500;
-    color: var(--color-muted-foreground);
-    text-decoration: none;
-    padding: 0.25rem 0.625rem;
-    border: 1px solid var(--color-subtle-border);
-    border-radius: 0.375rem;
-    transition: color 0.2s ease, border-color 0.2s ease;
-    white-space: nowrap;
-  }
-
-  .item-review:hover {
-    color: var(--color-foreground);
-    border-color: var(--color-foreground);
   }
 
   .item-arrow {

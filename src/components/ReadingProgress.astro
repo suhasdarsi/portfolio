@@ -27,8 +27,22 @@
 
   }
 
-  window.addEventListener('scroll', updateReadingProgress, { passive: true });
-  window.addEventListener('resize', updateReadingProgress, { passive: true });
+  let progressScheduled = false;
+
+  function scheduleReadingProgress() {
+    if (progressScheduled) return;
+    progressScheduled = true;
+    const frame = typeof requestAnimationFrame === 'function'
+      ? requestAnimationFrame
+      : (callback: FrameRequestCallback) => { callback(0); return 0; };
+    frame(() => {
+      progressScheduled = false;
+      updateReadingProgress();
+    });
+  }
+
+  window.addEventListener('scroll', scheduleReadingProgress, { passive: true });
+  window.addEventListener('resize', scheduleReadingProgress, { passive: true });
   document.addEventListener('DOMContentLoaded', updateReadingProgress);
 </script>
 

@@ -20,6 +20,7 @@ import BlogLayout from '../layouts/BlogLayout.astro';
 
 <script>
   import { searchDocuments } from '../utils/client-search';
+  import { createSearchLoader, debounce } from '../utils/search-loader';
 
   const input = document.getElementById('error-search-input') as HTMLInputElement;
   const results = document.getElementById('error-search-results');
@@ -33,23 +34,9 @@ import BlogLayout from '../layouts/BlogLayout.astro';
     body?: string;
   };
 
-  let searchReady: Promise<SearchPost[]> | undefined;
+  const loadSearch = createSearchLoader<SearchPost>();
 
-  function loadSearch() {
-    if (!searchReady) {
-      searchReady = fetch('/search.json').then((response) => {
-        if (!response.ok) throw new Error('Unable to load search data');
-        return response.json() as Promise<SearchPost[]>;
-      }).catch((error) => {
-        searchReady = undefined;
-        throw error;
-      });
-    }
-
-    return searchReady;
-  }
-
-  input?.addEventListener('input', async () => {
+  const handleSearchInput = debounce(async () => {
     const currentRequest = ++requestId;
     const query = input.value.trim();
     results?.replaceChildren();
@@ -73,6 +60,8 @@ import BlogLayout from '../layouts/BlogLayout.astro';
       if (status) status.textContent = 'Search is unavailable. Type again to retry.';
     }
   });
+
+  input?.addEventListener('input', () => handleSearchInput());
 </script>
 
 <style>

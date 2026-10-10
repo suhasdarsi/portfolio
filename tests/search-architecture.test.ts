@@ -12,16 +12,28 @@ describe('search architecture', () => {
     expect(read('src/components/Header.astro')).not.toContain('id="search-data"');
   });
 
-  it('uses local ranked search without a runtime package request', () => {
+  it('shares one search loader instead of triplicating fetch logic', () => {
     const header = read('src/components/Header.astro');
     const notFound = read('src/pages/404.astro');
+    const notes = read('src/pages/notes/index.astro');
+    const loader = read('src/utils/search-loader.ts');
 
-    expect(header).toContain("fetch('/search.json')");
-    expect(notFound).toContain("fetch('/search.json')");
-    expect(header).toContain("import { searchDocuments } from '../utils/client-search'");
-    expect(notFound).toContain("import { searchDocuments } from '../utils/client-search'");
-    expect(header).not.toContain("import('fuse.js')");
-    expect(notFound).not.toContain("import('fuse.js')");
+    expect(loader).toContain("'/search.json'");
+    for (const consumer of [header, notFound, notes]) {
+      expect(consumer).toContain('createSearchLoader');
+      expect(consumer).toContain('utils/search-loader');
+      expect(consumer).not.toContain("fetch('/search.json')");
+    }
+  });
+
+  it('debounces keystroke search inputs', () => {
+    const header = read('src/components/Header.astro');
+    const notFound = read('src/pages/404.astro');
+    const loader = read('src/utils/search-loader.ts');
+
+    expect(loader).toContain('debounce');
+    expect(header).toContain('debounce');
+    expect(notFound).toContain('debounce');
   });
 
   it('ranks title matches ahead of body-only matches', () => {

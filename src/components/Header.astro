@@ -49,6 +49,7 @@ const { showSearch = true, wide = false } = Astro.props;
 <script>
   import { highlightText, searchExcerpt } from '../utils/search-display';
   import { searchDocuments } from '../utils/client-search';
+  import { createSearchLoader, debounce } from '../utils/search-loader';
 
   const themeToggle = document.getElementById('theme-toggle');
   const html = document.documentElement;
@@ -68,23 +69,10 @@ const { showSearch = true, wide = false } = Astro.props;
   };
 
   let searchPosts: SearchPost[] = [];
-  let searchReady: Promise<void> | undefined;
+  const loadSearchPosts = createSearchLoader<SearchPost>();
 
-  async function loadSearch() {
-    if (!searchReady) {
-      searchReady = fetch('/search.json').then((response) => {
-        if (!response.ok) throw new Error('Unable to load search data');
-        return response.json() as Promise<SearchPost[]>;
-      }).then((posts) => {
-        searchPosts = posts;
-      }).catch((error) => {
-        searchReady = undefined;
-        console.error(error);
-        throw error;
-      });
-    }
-
-    return searchReady;
+  async function refreshSearchPosts() {
+    searchPosts = await loadSearchPosts();
   }
 
   function getTheme() {
@@ -187,7 +175,7 @@ const { showSearch = true, wide = false } = Astro.props;
     showEmpty('Loading notes…');
     announce('Loading notes');
     try {
-      await loadSearch();
+      await refreshSearchPosts();
       if (!searchOverlay?.classList.contains('open')) return;
       renderResults(searchPosts);
       showEmpty(null);
@@ -222,9 +210,9 @@ const { showSearch = true, wide = false } = Astro.props;
   searchToggle?.addEventListener('click', handleSearchToggle);
   searchOverlay?.addEventListener('click', handleOverlayClick);
 
-  searchInput?.addEventListener('input', async () => {
+  const handleSearchInput = debounce(async () => {
     try {
-      await loadSearch();
+      await refreshSearchPosts();
     } catch {
       searchResults?.replaceChildren();
       showEmpty('Search is unavailable. Please try again.');
@@ -255,6 +243,8 @@ const { showSearch = true, wide = false } = Astro.props;
     showEmpty(null);
     announce(`${results.length} ${results.length === 1 ? 'note' : 'notes'} found`);
   });
+
+  searchInput?.addEventListener('input', () => void handleSearchInput());
 
   const handleKeydown = (e: KeyboardEvent) => {
     if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {

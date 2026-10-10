@@ -15,7 +15,8 @@
     "test:watch": "vitest",
     "lint": "eslint src tests playwright.config.ts",
     "test:browser": "playwright test",
-    "check": "bun run lint && bun run test && bun run test:browser"
+    "typecheck": "astro check",
+    "check": "bun run lint && bun run typecheck && bun run test && bun run test:browser"
   },
   "dependencies": {
     "@astrojs/markdown-satteri": "^0.3.8",
@@ -30,6 +31,7 @@
     "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
+    "@astrojs/check": "^0.9.10",
     "@axe-core/playwright": "^4.13.0",
     "@playwright/test": "^1.63.0",
     "@typescript-eslint/parser": "^8.68.0",
