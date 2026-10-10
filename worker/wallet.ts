@@ -1,6 +1,6 @@
 import forge from 'node-forge';
 import { strToU8, zipSync } from 'fflate';
-import { generateVCard, validateContact } from '../src/utils/contact-card';
+import { cardRoleLine, generateVCard, validateContact } from '../src/utils/contact-card';
 
 export interface WalletEnv {
   WALLET_SIGNER_CERT?: string;
@@ -37,13 +37,13 @@ export async function walletResponse(request: Request, env: WalletEnv): Promise<
   try {
     const pass = {
       formatVersion: 1, passTypeIdentifier: 'pass.com.suhasdarsi.contact', teamIdentifier: 'Q24Y9Q3T67',
-      serialNumber: payload.id, organizationName: 'PureML Inc.', description: 'Pocket Card', logoText: details.company || 'Pocket Card',
+      serialNumber: payload.id, organizationName: 'PureML Inc.', description: 'Pocket Card', logoText: 'Pocket Card',
       // The one Pocket Card look: stone grey with ink text. Keep in sync with the preview in src/pages/pocket-card.astro.
       backgroundColor: 'rgb(232, 229, 224)', foregroundColor: 'rgb(43, 40, 37)', labelColor: 'rgb(105, 100, 94)',
       generic: {
         primaryFields: [{ key: 'name', value: details.name }],
-        secondaryFields: details.title ? [{ key: 'role', label: 'Role', value: details.title }] : [],
-        auxiliaryFields: [['email', 'Email', details.email], ['phone', 'Phone', details.phone]].filter(([, , value]) => value).map(([key, label, value]) => ({ key, label, value })),
+        // Front stays minimal: name and "Role · Company". Everything else is on the back and in the QR.
+        secondaryFields: [cardRoleLine(details)].filter(role => role.value).map(role => ({ key: 'role', ...role })),
         backFields: Object.entries(details).filter(([, value]) => value).map(([key, value]) => ({ key, label: backLabels[key as keyof typeof details], value })),
       },
       barcodes: [{ format: 'PKBarcodeFormatQR', message: generateVCard(details), messageEncoding: 'utf-8' }],

@@ -61,3 +61,9 @@ export function generateVCard(input: unknown): string {
   rows.push('END:VCARD', '');
   return rows.join('\r\n');
 }
+
+// The single line under the name on the front of a Pocket Card: "Role · Company".
+// Email, phone and links stay in the QR and on the back of the pass.
+export function cardRoleLine({ title = '', company = '' }: { title?: string; company?: string }) {
+  return { label: title ? 'Role' : 'Company', value: [title, company].filter(Boolean).join(' · ') };
+}

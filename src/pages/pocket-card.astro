@@ -30,22 +30,20 @@ const groups: { legend: string; fields: Field[] }[] = [
   <figure class="stage" aria-label="Card preview">
     <article id="wallet-preview" class="pass">
       <!-- Same artwork files the Wallet pass ships (public/wallet), so preview and pass match. -->
-      <p class="pass-logo"><img src="/wallet/logo@3x.png" width="32" height="32" alt="" /><span id="preview-logo">Pocket Card</span></p>
+      <p class="pass-logo"><img src="/wallet/logo@3x.png" width="32" height="32" alt="" /><span>Pocket Card</span></p>
       <div class="pass-primary">
         <h2 class="pass-name" id="preview-name" data-empty>Your name</h2>
         <img class="pass-thumbnail" src="/wallet/thumbnail@3x.png" width="90" height="90" alt="" />
       </div>
       <dl class="pass-fields">
-        <div id="row-role" hidden><dt>Role</dt><dd id="preview-role"></dd></div>
-        <div id="row-email" hidden><dt>Email</dt><dd id="preview-email"></dd></div>
-        <div id="row-phone" hidden><dt>Phone</dt><dd id="preview-phone"></dd></div>
+        <div id="row-role" hidden><dt id="preview-role-label">Role</dt><dd id="preview-role"></dd></div>
       </dl>
       <div class="pass-code">
         <img id="contact-qr" width="720" height="720" alt="Your contact QR" hidden />
         <p id="qr-placeholder">Add your name to create your QR.</p>
       </div>
     </article>
-    <figcaption>Live preview. Apple Wallet sets the final layout.</figcaption>
+    <figcaption id="stage-caption">Live preview. Apple Wallet sets the final layout.</figcaption>
   </figure>
 
   <form id="contact-form" class="form" novalidate>
@@ -66,7 +64,10 @@ const groups: { legend: string; fields: Field[] }[] = [
   </form>
 
   <section class="export" aria-label="Save your card">
-    <button id="save-wallet" class="primary" type="button">Download for Apple Wallet</button>
+    <button id="save-wallet" class="primary" type="button">
+      <svg class="btn-check" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
+      <span class="btn-label">Download for Apple Wallet</span>
+    </button>
     <div class="quiet-row">
       <button id="save-qr" class="quiet" type="button">Save QR</button>
       <button id="save-contact" class="quiet" type="button">Download contact</button>
@@ -80,7 +81,7 @@ const groups: { legend: string; fields: Field[] }[] = [
 
 <script>
   import QRCode from 'qrcode';
-  import { contactFields, generateVCard, validateContact } from '../utils/contact-card';
+  import { cardRoleLine, contactFields, generateVCard, validateContact } from '../utils/contact-card';
   const $ = <T extends Element = HTMLElement>(selector: string) => document.querySelector<T>(selector)!;
   const status = $('#contact-status');
   const image = $<HTMLImageElement>('#contact-qr');
@@ -90,7 +91,25 @@ const groups: { legend: string; fields: Field[] }[] = [
   const read = () => validateContact(Object.fromEntries(contactFields.map(name => [name, inputs[name].value])));
   const message = (error: unknown, tone: 'error' | 'info' = error instanceof Error ? 'error' : 'info') => {
     status.textContent = error instanceof Error ? error.message : String(error); status.dataset.tone = tone;
+    if (status.textContent) play(status, 'is-in');
   };
+  // Motion helpers. CSS turns animations off for prefers-reduced-motion; JS skips pointer tilt and smooth scroll.
+  const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function play(element: Element, className: string) {
+    element.classList.remove(className); void (element as HTMLElement).offsetWidth; element.classList.add(className);
+    // Only this element's own animation ends the class, not one bubbling up from a child or pseudo-element.
+    const end = (event: AnimationEvent) => {
+      if (event.target !== element || event.pseudoElement) return;
+      element.classList.remove(className); element.removeEventListener('animationend', end as EventListener);
+    };
+    element.addEventListener('animationend', end as EventListener);
+  }
+  function flash(button: HTMLButtonElement, text: string, ms = 1600) {
+    const label = button.dataset.label ??= button.textContent!.trim();
+    button.textContent = text; button.classList.add('is-flash');
+    clearTimeout(Number(button.dataset.timer));
+    button.dataset.timer = String(setTimeout(() => { button.textContent = label; button.classList.remove('is-flash'); }, ms));
+  }
   function download(data: Blob | string, name: string) {
     const url = typeof data === 'string' ? data : URL.createObjectURL(data); const link = document.createElement('a');
     link.href = url; link.download = name; document.body.append(link); link.click(); link.remove();
@@ -101,17 +120,20 @@ const groups: { legend: string; fields: Field[] }[] = [
   function render() {
     const value = (name: string) => inputs[name].value.trim();
     const name = $('#preview-name'); name.textContent = value('name') || 'Your name'; name.toggleAttribute('data-empty', !value('name'));
-    $('#preview-logo').textContent = value('company') || 'Pocket Card';
-    for (const [row, text] of [['role', value('title')], ['email', value('email')], ['phone', value('phone')]]) {
-      $(`#preview-${row}`).textContent = text; $(`#row-${row}`).hidden = !text;
-    }
+    name.toggleAttribute('data-long', value('name').length > 18);
+    const role = cardRoleLine({ title: value('title'), company: value('company') });
+    const row = $('#row-role'); const appearing = row.hidden && !!role.value;
+    $('#preview-role-label').textContent = role.label; $('#preview-role').textContent = role.value; row.hidden = !role.value;
+    if (appearing) play(row, 'is-new');
   }
   let generation = 0;
   async function preview() {
     const ticket = ++generation; const d = read();
     const src = await QRCode.toDataURL(generateVCard(d), { width: 720, margin: 2, errorCorrectionLevel: 'M', color: { dark: '#2b2825', light: '#ffffff' } });
     if (ticket !== generation) return;
+    const appearing = image.hidden;
     image.src = src; image.hidden = false; placeholder.hidden = true;
+    if (appearing) play(image, 'is-new');
   }
   async function refresh(announce: boolean) {
     render();
@@ -127,18 +149,59 @@ const groups: { legend: string; fields: Field[] }[] = [
   form.addEventListener('change', () => { clearTimeout(timer); void refresh(true); });
   form.addEventListener('submit', event => event.preventDefault());
 
+  // Focusing a field highlights where it lands on the card; contact details, links and notes live in the QR.
+  const card = $('#wallet-preview');
+  // Once the opening stitch is sewn, retire the arrival animations so later effects never replay them.
+  card.addEventListener('animationend', event => { if (event.animationName === 'sew') card.classList.add('has-arrived'); });
+  const targets: Record<string, string> = { name: '#preview-name', title: '#row-role', company: '#row-role' };
+  const clearFocus = () => card.querySelectorAll('.is-focus').forEach(element => element.classList.remove('is-focus'));
+  form.addEventListener('focusin', event => { clearFocus(); card.querySelector(targets[(event.target as HTMLInputElement).name] ?? '.pass-code')?.classList.add('is-focus'); });
+  form.addEventListener('focusout', clearFocus);
+
+  // A slight tilt toward the pointer, like holding a real card. Fine pointers only.
+  if (matchMedia('(pointer: fine)').matches && !reducedMotion()) {
+    const stage = $('.stage');
+    stage.addEventListener('pointermove', event => {
+      const box = card.getBoundingClientRect();
+      const x = (event.clientX - box.left) / box.width - 0.5; const y = (event.clientY - box.top) / box.height - 0.5;
+      card.style.setProperty('--tilt-x', `${(-y * 4).toFixed(2)}deg`); card.style.setProperty('--tilt-y', `${(x * 5).toFixed(2)}deg`);
+    });
+    stage.addEventListener('pointerleave', () => { card.style.removeProperty('--tilt-x'); card.style.removeProperty('--tilt-y'); });
+  }
+
+  // Success: bring the card back into view, tuck it into the pocket and re-sew the stitch.
+  const caption = $('#stage-caption'); const captionText = caption.textContent!;
+  function celebrate() {
+    card.scrollIntoView({ behavior: reducedMotion() ? 'auto' : 'smooth', block: 'center' });
+    setTimeout(() => {
+      play(card, 'is-tucked'); play($('.pass-thumbnail'), 'is-sewing');
+      caption.textContent = 'Ready. Open the download to add it to Wallet.'; play(caption, 'is-in');
+      setTimeout(() => { caption.textContent = captionText; }, 6000);
+    }, reducedMotion() ? 0 : 350);
+  }
+
   const on = (selector: string, fn: () => Promise<void> | void) => $(selector).addEventListener('click', () => Promise.resolve().then(fn).catch(error => message(error)));
-  on('#save-qr', async () => { await preview(); download(image.src, 'contact-qr.png'); });
-  on('#save-contact', () => download(new Blob([generateVCard(read())], { type: 'text/vcard;charset=utf-8' }), 'contact.vcf'));
+  on('#save-qr', async () => { await preview(); download(image.src, 'contact-qr.png'); flash($('#save-qr'), 'Saved ✓'); });
+  on('#save-contact', () => { download(new Blob([generateVCard(read())], { type: 'text/vcard;charset=utf-8' }), 'contact.vcf'); flash($('#save-contact'), 'Saved ✓'); });
   on('#save-wallet', async () => {
     // Every download is a fresh card; the ID only exists to identify this pass.
-    const payload = { version: 1, id: crypto.randomUUID(), contact: read() }; const button = $<HTMLButtonElement>('#save-wallet'); button.disabled = true; message('Creating your Wallet card…');
+    const payload = { version: 1, id: crypto.randomUUID(), contact: read() }; const button = $<HTMLButtonElement>('#save-wallet');
+    const label = button.querySelector('.btn-label')!; const idle = 'Download for Apple Wallet';
+    button.disabled = true; button.classList.add('is-busy'); label.textContent = 'Stitching your card…'; message('Creating your Wallet card…');
+    let done = false;
     try {
       const response = await fetch('/api/wallet', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
       if (!response.ok) { const error = await response.json().catch(() => null); throw new Error(error?.error ?? 'Wallet service unavailable. QR and contact downloads still work.'); }
       if (!response.headers.get('content-type')?.includes('application/vnd.apple.pkpass')) throw new Error('Wallet generation is not activated yet.');
       download(await response.blob(), 'contact.pkpass'); message('Downloaded. Open it on your iPhone and choose Add to Wallet.');
-    } finally { button.disabled = false; }
+      done = true; button.classList.add('is-done'); label.textContent = 'Card ready'; celebrate();
+      setTimeout(() => { button.classList.remove('is-done'); label.textContent = idle; }, 2800);
+    } catch (error) {
+      play(button, 'is-shake'); throw error;
+    } finally {
+      button.disabled = false; button.classList.remove('is-busy');
+      if (!done) label.textContent = idle;
+    }
   });
   render();
 </script>
@@ -152,6 +215,9 @@ const groups: { legend: string; fields: Field[] }[] = [
   .stage { margin: 0 0 3.5rem; padding: 2.5rem 1rem 1.25rem; border-radius: var(--radius-panel); background: var(--color-muted); display: grid; justify-items: center; gap: 1.25rem; }
   .stage figcaption { color: var(--color-muted-foreground); text-align: center; }
   .pass {
+    position: relative; overflow: hidden;
+    transform: perspective(900px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
+    animation: card-arrive .7s cubic-bezier(.2, .8, .2, 1) both;
     /* The one Pocket Card look: stone grey with ink text. Keep in sync with worker/wallet.ts. */
     --pass-bg: #e8e5e0; --pass-fg: #2b2825; --pass-label: #69645e; --pass-edge: rgb(43 40 37 / .08);
     width: min(100%, 20rem); min-height: 27rem; padding: 1.25rem 1.25rem 1.5rem; border-radius: 14px;
@@ -159,19 +225,33 @@ const groups: { legend: string; fields: Field[] }[] = [
     background: var(--pass-bg);
     box-shadow: inset 0 0 0 1px var(--pass-edge), 0 1px 2px rgb(43 40 37 / .08), 0 18px 40px -16px rgb(43 40 37 / .35);
     /* Wallet renders passes in Apple's system font, so the preview does too. */
-    font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif; transition: background-color .3s ease, color .3s ease;
+    font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif; transition: transform .45s cubic-bezier(.2, .7, .2, 1);
   }
-  .pass p, .pass h2, .pass dd { overflow-wrap: anywhere; }
+  /* Sheen that sweeps across the card on success. */
+  .pass::after { content: ''; position: absolute; inset: 0; pointer-events: none; opacity: 0; background: linear-gradient(105deg, transparent 35%, rgb(255 255 255 / .55) 50%, transparent 65%); translate: -100% 0; }
+  .pass.has-arrived, .pass.has-arrived .pass-thumbnail { animation: none; }
+  .pass.is-tucked { animation: card-tuck .9s cubic-bezier(.3, .7, .2, 1); }
+  .pass.is-tucked::after { animation: sheen 1s .25s ease-out; }
+  /* Focused field → where it lands on the card. */
+  .pass-logo, .pass-name, .pass-fields > div, .pass-code { border-radius: 6px; transition: background-color .25s ease, box-shadow .25s ease, color .3s ease; }
+  .pass .is-focus { background: rgb(43 40 37 / .05); box-shadow: 0 0 0 6px rgb(43 40 37 / .05); }
+  .pass-fields > div.is-new, .pass-code img.is-new { animation: rise-in .35s cubic-bezier(.2, .8, .2, 1); }
+  .pass-code img.is-new { animation-name: qr-in; }
   .pass-logo { display: flex; align-items: center; gap: .5rem; font-weight: 600; letter-spacing: -.01em; }
   .pass-logo img { width: 1.5rem; height: 1.5rem; }
   .pass-primary { display: flex; align-items: center; justify-content: space-between; gap: .75rem; margin-top: 1.75rem; }
-  .pass-thumbnail { width: 4.5rem; height: 4.5rem; flex-shrink: 0; }
+  .pass-thumbnail { width: 4.5rem; height: 4.5rem; flex-shrink: 0; animation: sew .9s .45s cubic-bezier(.4, .6, .2, 1) both; }
+  .pass .pass-thumbnail.is-sewing { animation: resew .9s .2s cubic-bezier(.4, .6, .2, 1) both; }
   .pass-name { font-family: inherit; margin: 0; min-width: 0; font-size: 1.75rem; font-weight: 600; line-height: 1.15; letter-spacing: -.025em; text-wrap: balance; }
   .pass-name[data-empty] { color: var(--pass-label); }
-  .pass-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem .75rem; margin: 1.5rem 0 0; }
-  .pass-fields > div:first-child { grid-column: 1 / -1; }
+  /* Long names: smaller type, whole words only, at most two lines ending in "…". */
+  .pass-name { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; overflow-wrap: normal; }
+  .pass-name[data-long] { font-size: 1.375rem; }
+  .pass-fields { margin: 1.5rem 0 0; min-width: 0; }
+  .pass-fields > div { min-width: 0; }
   .pass-fields dt { font-size: .8125rem; color: var(--pass-label); }
-  .pass-fields dd { margin: .125rem 0 0; line-height: 1.35; }
+  .pass-fields dd { margin: .125rem 0 0; line-height: 1.35; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pass-logo span { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .pass-code { margin: auto auto 0; padding-top: 1.75rem; }
   .pass-code img, .pass-code p { display: block; width: 9.5rem; aspect-ratio: 1; padding: .25rem; border-radius: 10px; background: #fff; }
   .pass-code img[hidden], .pass-code p[hidden] { display: none; }
@@ -200,14 +280,23 @@ const groups: { legend: string; fields: Field[] }[] = [
   .export { margin-top: 3rem; }
   button { font: inherit; cursor: pointer; }
   button:disabled { opacity: .55; cursor: wait; }
-  .primary { width: 100%; padding: .8125rem 1rem; border-radius: var(--radius-buttons); font-weight: 600; background: var(--color-accent); color: var(--color-accent-foreground); transition: opacity .15s ease; }
+  .primary { position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; gap: .5rem; width: 100%; padding: .8125rem 1rem; border-radius: var(--radius-buttons); font-weight: 600; background: var(--color-accent); color: var(--color-accent-foreground); transition: opacity .15s ease, scale .15s ease; }
   .primary:hover:not(:disabled) { opacity: .88; }
+  .primary:active:not(:disabled), .quiet:active { scale: .98; }
+  /* Busy: a stitch runs along the bottom of the button. */
+  .primary.is-busy:disabled { opacity: 1; cursor: progress; }
+  .primary.is-busy::after { content: ''; position: absolute; left: 1rem; right: 1rem; bottom: .4rem; height: 2px; opacity: .55; background: repeating-linear-gradient(90deg, currentColor 0 6px, transparent 6px 11px); animation: stitch-run .7s linear infinite; }
+  .btn-check { display: none; }
+  .primary.is-done .btn-check { display: block; stroke-dasharray: 24; stroke-dashoffset: 24; animation: draw .45s .05s ease-out forwards; }
+  .primary.is-shake, #contact-status.is-in[data-tone='error'] { animation: shake .35s ease; }
+  .quiet.is-flash { color: var(--color-foreground); background: var(--color-muted); }
   .quiet-row { display: flex; flex-wrap: wrap; gap: .25rem; margin: .75rem -.625rem 0; }
   .quiet { position: relative; padding: .375rem .625rem; border-radius: var(--radius-buttons); color: var(--color-foreground); background: transparent; cursor: pointer; transition: background-color .15s ease; }
   .quiet:hover { background: var(--color-muted); }
   #contact-status { margin-top: 1rem; color: var(--color-foreground); }
   #contact-status:empty { display: none; }
   #contact-status[data-tone='error'] { color: var(--status-error); }
+  #contact-status.is-in, .stage figcaption.is-in { animation: fade-up .3s ease-out; }
   .fine { color: var(--color-muted-foreground); margin-top: 1rem; }
 
   :global(:root) { --status-error: #a3412a; }
@@ -218,5 +307,17 @@ const groups: { legend: string; fields: Field[] }[] = [
     .grid { grid-template-columns: 1fr; }
     .stage { padding: 1.5rem .75rem 1rem; }
   }
-  @media (prefers-reduced-motion: reduce) { .pass, input, .quiet, .primary { transition: none; } }
+  @media (prefers-reduced-motion: reduce) { .pass, input, .quiet, .primary { transition: none; } .pass { transform: none; } }
+
+  @keyframes card-arrive { from { opacity: 0; translate: 0 18px; } }
+  @keyframes card-tuck { 0% { translate: 0 0; } 35% { translate: 0 14px; scale: .975; } 70% { translate: 0 -3px; scale: 1.005; } 100% { translate: 0 0; scale: 1; } }
+  @keyframes sheen { 0% { opacity: 1; translate: -100% 0; } 100% { opacity: 1; translate: 100% 0; } }
+  @keyframes sew { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
+  @keyframes resew { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
+  @keyframes rise-in { from { opacity: 0; translate: 0 6px; } }
+  @keyframes qr-in { from { opacity: 0; scale: .94; } }
+  @keyframes fade-up { from { opacity: 0; translate: 0 4px; } }
+  @keyframes stitch-run { to { background-position: 11px 0; } }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+  @keyframes shake { 0%, 100% { translate: 0; } 20% { translate: -4px 0; } 40% { translate: 4px 0; } 60% { translate: -2px 0; } 80% { translate: 2px 0; } }
 </style>
