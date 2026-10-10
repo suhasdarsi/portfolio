@@ -1,0 +1,30 @@
+---
+// Micro-app marks for the website. Each draws in the current text colour so it follows light/dark mode.
+// Family rule: one solid shape plus one dashed detail.
+import { pocketMark } from '../utils/pocket-mark';
+import { swatchbookMark } from '../utils/swatchbook-mark';
+import type { AppMarkName } from '../data/site-navigation';
+
+interface Props { mark: AppMarkName; size?: string; class?: string; }
+const { mark, size = '1.25em', class: className } = Astro.props;
+const dash = '2.3 2.7';
+---
+
+<svg class:list={['app-mark', className]} width={size} height={size} viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  {mark === 'pocket' && (
+    <>
+      <path d={pocketMark.hem} />
+      <path d={pocketMark.stitch} stroke-dasharray={dash} />
+    </>
+  )}
+  {mark === 'swatchbook' && (
+    <>
+      <rect {...swatchbookMark.strip} />
+      <path d={swatchbookMark.dividers} stroke-dasharray={dash} />
+    </>
+  )}
+</svg>
+
+<style>
+  .app-mark { display: inline-block; flex-shrink: 0; vertical-align: -0.2em; }
+</style>

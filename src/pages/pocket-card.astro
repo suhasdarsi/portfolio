@@ -1,0 +1,222 @@
+---
+import BlogLayout from '../layouts/BlogLayout.astro';
+import AppMark from '../components/AppMark.astro';
+
+type Field = { name: string; label: string; placeholder: string; type?: 'text' | 'tel' | 'email' | 'url'; autocomplete?: string; wide?: boolean };
+const groups: { legend: string; fields: Field[] }[] = [
+  { legend: 'You', fields: [
+    { name: 'name', label: 'Full name', placeholder: 'Alex Morgan', autocomplete: 'name', wide: true },
+    { name: 'title', label: 'Role', placeholder: 'Product designer', autocomplete: 'organization-title' },
+    { name: 'company', label: 'Company', placeholder: 'Acme Inc.', autocomplete: 'organization' },
+  ] },
+  { legend: 'Reach', fields: [
+    { name: 'phone', label: 'Phone (+country code)', placeholder: '+1 202 555 0123', type: 'tel', autocomplete: 'tel' },
+    { name: 'email', label: 'Email', placeholder: 'alex@acme.com', type: 'email', autocomplete: 'email' },
+  ] },
+  { legend: 'Links', fields: [
+    { name: 'website', label: 'Website URL', placeholder: 'https://acme.com', type: 'url', autocomplete: 'url', wide: true },
+    { name: 'linkedin', label: 'LinkedIn URL', placeholder: 'https://linkedin.com/in/alex', type: 'url' },
+    { name: 'twitter', label: 'X / Twitter URL', placeholder: 'https://x.com/alex', type: 'url' },
+    { name: 'note', label: 'Other details', placeholder: 'Anything else worth knowing', wide: true },
+  ] },
+];
+---
+<BlogLayout title="Pocket Card — Suhas Darsi" description="Make a contact card for Apple Wallet and share it with a scan." noindex>
+  <header class="intro">
+    <h1 class="page-heading pocket-title"><AppMark mark="pocket" />Pocket Card</h1>
+    <p>Your business card, in Apple Wallet. Fill it in, download it, share it with a scan.</p>
+  </header>
+
+  <figure class="stage" aria-label="Card preview">
+    <article id="wallet-preview" class="pass">
+      <!-- Same artwork files the Wallet pass ships (public/wallet), so preview and pass match. -->
+      <p class="pass-logo"><img src="/wallet/logo@3x.png" width="32" height="32" alt="" /><span id="preview-logo">Pocket Card</span></p>
+      <div class="pass-primary">
+        <h2 class="pass-name" id="preview-name" data-empty>Your name</h2>
+        <img class="pass-thumbnail" src="/wallet/thumbnail@3x.png" width="90" height="90" alt="" />
+      </div>
+      <dl class="pass-fields">
+        <div id="row-role" hidden><dt>Role</dt><dd id="preview-role"></dd></div>
+        <div id="row-email" hidden><dt>Email</dt><dd id="preview-email"></dd></div>
+        <div id="row-phone" hidden><dt>Phone</dt><dd id="preview-phone"></dd></div>
+      </dl>
+      <div class="pass-code">
+        <img id="contact-qr" width="720" height="720" alt="Your contact QR" hidden />
+        <p id="qr-placeholder">Add your name to create your QR.</p>
+      </div>
+    </article>
+    <figcaption>Live preview. Apple Wallet sets the final layout.</figcaption>
+  </figure>
+
+  <form id="contact-form" class="form" novalidate>
+    {groups.map(group => (
+      <fieldset>
+        <legend>{group.legend}</legend>
+        <div class="grid">
+          {group.fields.map(field => (
+            <label class:list={[{ wide: field.wide }]}>
+              <span>{field.label}</span>
+              <input id={field.name} name={field.name} type={field.type ?? 'text'} placeholder={field.placeholder}
+                maxlength={field.name === 'note' ? 240 : 160} autocomplete={field.autocomplete ?? 'off'} spellcheck="false" required={field.name === 'name'} />
+            </label>
+          ))}
+        </div>
+      </fieldset>
+    ))}
+  </form>
+
+  <section class="export" aria-label="Save your card">
+    <button id="save-wallet" class="primary" type="button">Download for Apple Wallet</button>
+    <div class="quiet-row">
+      <button id="save-qr" class="quiet" type="button">Save QR</button>
+      <button id="save-contact" class="quiet" type="button">Download contact</button>
+    </div>
+    <p id="contact-status" role="status" aria-live="polite"></p>
+    <p class="fine">Nothing is saved. Your details go to a signing service only to create the Wallet file, and the card works offline once added. Need a new one? Just make it again.</p>
+    <p class="fine">Anyone who scans your QR can read its details. On Android, scan the QR or import the contact file instead.</p>
+  </section>
+  <noscript>Enable JavaScript to create your card.</noscript>
+</BlogLayout>
+
+<script>
+  import QRCode from 'qrcode';
+  import { contactFields, generateVCard, validateContact } from '../utils/contact-card';
+  const $ = <T extends Element = HTMLElement>(selector: string) => document.querySelector<T>(selector)!;
+  const status = $('#contact-status');
+  const image = $<HTMLImageElement>('#contact-qr');
+  const placeholder = $('#qr-placeholder');
+  const form = $<HTMLFormElement>('#contact-form');
+  const inputs = Object.fromEntries(contactFields.map(name => [name, $<HTMLInputElement>(`#${name}`)]));
+  const read = () => validateContact(Object.fromEntries(contactFields.map(name => [name, inputs[name].value])));
+  const message = (error: unknown, tone: 'error' | 'info' = error instanceof Error ? 'error' : 'info') => {
+    status.textContent = error instanceof Error ? error.message : String(error); status.dataset.tone = tone;
+  };
+  function download(data: Blob | string, name: string) {
+    const url = typeof data === 'string' ? data : URL.createObjectURL(data); const link = document.createElement('a');
+    link.href = url; link.download = name; document.body.append(link); link.click(); link.remove();
+    if (typeof data !== 'string') setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  }
+
+  // Text on the card mirrors the raw inputs instantly; the QR only follows valid details.
+  function render() {
+    const value = (name: string) => inputs[name].value.trim();
+    const name = $('#preview-name'); name.textContent = value('name') || 'Your name'; name.toggleAttribute('data-empty', !value('name'));
+    $('#preview-logo').textContent = value('company') || 'Pocket Card';
+    for (const [row, text] of [['role', value('title')], ['email', value('email')], ['phone', value('phone')]]) {
+      $(`#preview-${row}`).textContent = text; $(`#row-${row}`).hidden = !text;
+    }
+  }
+  let generation = 0;
+  async function preview() {
+    const ticket = ++generation; const d = read();
+    const src = await QRCode.toDataURL(generateVCard(d), { width: 720, margin: 2, errorCorrectionLevel: 'M', color: { dark: '#2b2825', light: '#ffffff' } });
+    if (ticket !== generation) return;
+    image.src = src; image.hidden = false; placeholder.hidden = true;
+  }
+  async function refresh(announce: boolean) {
+    render();
+    try { await preview(); if (status.dataset.tone === 'error') message(''); }
+    catch (error) {
+      generation++; image.hidden = true; placeholder.hidden = false;
+      placeholder.textContent = inputs.name.value.trim() ? 'Check the highlighted details to update your QR.' : 'Add your name to create your QR.';
+      if (announce && inputs.name.value.trim()) message(error);
+    }
+  }
+  let timer: ReturnType<typeof setTimeout>;
+  form.addEventListener('input', () => { render(); clearTimeout(timer); timer = setTimeout(() => void refresh(false), 200); });
+  form.addEventListener('change', () => { clearTimeout(timer); void refresh(true); });
+  form.addEventListener('submit', event => event.preventDefault());
+
+  const on = (selector: string, fn: () => Promise<void> | void) => $(selector).addEventListener('click', () => Promise.resolve().then(fn).catch(error => message(error)));
+  on('#save-qr', async () => { await preview(); download(image.src, 'contact-qr.png'); });
+  on('#save-contact', () => download(new Blob([generateVCard(read())], { type: 'text/vcard;charset=utf-8' }), 'contact.vcf'));
+  on('#save-wallet', async () => {
+    // Every download is a fresh card; the ID only exists to identify this pass.
+    const payload = { version: 1, id: crypto.randomUUID(), contact: read() }; const button = $<HTMLButtonElement>('#save-wallet'); button.disabled = true; message('Creating your Wallet card…');
+    try {
+      const response = await fetch('/api/wallet', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      if (!response.ok) { const error = await response.json().catch(() => null); throw new Error(error?.error ?? 'Wallet service unavailable. QR and contact downloads still work.'); }
+      if (!response.headers.get('content-type')?.includes('application/vnd.apple.pkpass')) throw new Error('Wallet generation is not activated yet.');
+      download(await response.blob(), 'contact.pkpass'); message('Downloaded. Open it on your iPhone and choose Add to Wallet.');
+    } finally { button.disabled = false; }
+  });
+  render();
+</script>
+
+<style>
+  .intro { margin-bottom: 2.5rem; }
+  .pocket-title { display: flex; align-items: center; gap: .5rem; }
+  .intro p { color: var(--color-muted-foreground); margin-top: .5rem; }
+
+  /* Card preview — mirrors the generic Apple Wallet pass built in worker/wallet.ts. */
+  .stage { margin: 0 0 3.5rem; padding: 2.5rem 1rem 1.25rem; border-radius: var(--radius-panel); background: var(--color-muted); display: grid; justify-items: center; gap: 1.25rem; }
+  .stage figcaption { color: var(--color-muted-foreground); text-align: center; }
+  .pass {
+    /* The one Pocket Card look: stone grey with ink text. Keep in sync with worker/wallet.ts. */
+    --pass-bg: #e8e5e0; --pass-fg: #2b2825; --pass-label: #69645e; --pass-edge: rgb(43 40 37 / .08);
+    width: min(100%, 20rem); min-height: 27rem; padding: 1.25rem 1.25rem 1.5rem; border-radius: 14px;
+    display: flex; flex-direction: column; color: var(--pass-fg);
+    background: var(--pass-bg);
+    box-shadow: inset 0 0 0 1px var(--pass-edge), 0 1px 2px rgb(43 40 37 / .08), 0 18px 40px -16px rgb(43 40 37 / .35);
+    /* Wallet renders passes in Apple's system font, so the preview does too. */
+    font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif; transition: background-color .3s ease, color .3s ease;
+  }
+  .pass p, .pass h2, .pass dd { overflow-wrap: anywhere; }
+  .pass-logo { display: flex; align-items: center; gap: .5rem; font-weight: 600; letter-spacing: -.01em; }
+  .pass-logo img { width: 1.5rem; height: 1.5rem; }
+  .pass-primary { display: flex; align-items: center; justify-content: space-between; gap: .75rem; margin-top: 1.75rem; }
+  .pass-thumbnail { width: 4.5rem; height: 4.5rem; flex-shrink: 0; }
+  .pass-name { font-family: inherit; margin: 0; min-width: 0; font-size: 1.75rem; font-weight: 600; line-height: 1.15; letter-spacing: -.025em; text-wrap: balance; }
+  .pass-name[data-empty] { color: var(--pass-label); }
+  .pass-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem .75rem; margin: 1.5rem 0 0; }
+  .pass-fields > div:first-child { grid-column: 1 / -1; }
+  .pass-fields dt { font-size: .8125rem; color: var(--pass-label); }
+  .pass-fields dd { margin: .125rem 0 0; line-height: 1.35; }
+  .pass-code { margin: auto auto 0; padding-top: 1.75rem; }
+  .pass-code img, .pass-code p { display: block; width: 9.5rem; aspect-ratio: 1; padding: .25rem; border-radius: 10px; background: #fff; }
+  .pass-code img[hidden], .pass-code p[hidden] { display: none; }
+  .pass-code p { display: grid; place-items: center; padding: 1rem; text-align: center; font-size: .8125rem; line-height: 1.4; color: #69645e; background: rgb(255 255 255 / .92); }
+
+  /* Form */
+  .form { display: grid; gap: 2.25rem; }
+  fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+  legend { padding: 0; margin-bottom: .875rem; font-weight: 600; color: var(--color-foreground); }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem .875rem; }
+  .grid .wide { grid-column: 1 / -1; }
+  .grid label { display: grid; gap: .375rem; min-width: 0; }
+  .grid label > span { color: var(--color-muted-foreground); }
+  input:not([type='radio'], [type='file']) {
+    width: 100%; padding: .625rem .75rem; font: inherit; color: var(--color-foreground);
+    background: var(--color-subtle); border: 1px solid var(--color-border); border-radius: var(--radius-buttons);
+    transition: border-color .15s ease, box-shadow .15s ease;
+  }
+  input::placeholder { color: var(--color-muted-foreground); opacity: .6; }
+  input:not([type='radio'], [type='file']):hover { border-color: var(--color-muted-foreground); }
+  input:not([type='radio'], [type='file']):focus-visible { outline: none; border-color: var(--color-accent); box-shadow: 0 0 0 3px var(--color-muted); }
+  input:user-invalid { border-color: var(--status-error); }
+
+
+  /* Export */
+  .export { margin-top: 3rem; }
+  button { font: inherit; cursor: pointer; }
+  button:disabled { opacity: .55; cursor: wait; }
+  .primary { width: 100%; padding: .8125rem 1rem; border-radius: var(--radius-buttons); font-weight: 600; background: var(--color-accent); color: var(--color-accent-foreground); transition: opacity .15s ease; }
+  .primary:hover:not(:disabled) { opacity: .88; }
+  .quiet-row { display: flex; flex-wrap: wrap; gap: .25rem; margin: .75rem -.625rem 0; }
+  .quiet { position: relative; padding: .375rem .625rem; border-radius: var(--radius-buttons); color: var(--color-foreground); background: transparent; cursor: pointer; transition: background-color .15s ease; }
+  .quiet:hover { background: var(--color-muted); }
+  #contact-status { margin-top: 1rem; color: var(--color-foreground); }
+  #contact-status:empty { display: none; }
+  #contact-status[data-tone='error'] { color: var(--status-error); }
+  .fine { color: var(--color-muted-foreground); margin-top: 1rem; }
+
+  :global(:root) { --status-error: #a3412a; }
+  :global(html.dark) { --status-error: #f0a58f; }
+  :global(html.dark) .stage { background: var(--color-subtle); }
+
+  @media (max-width: 34rem) {
+    .grid { grid-template-columns: 1fr; }
+    .stage { padding: 1.5rem .75rem 1rem; }
+  }
+  @media (prefers-reduced-motion: reduce) { .pass, input, .quiet, .primary { transition: none; } }
+</style>
