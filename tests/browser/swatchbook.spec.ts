@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { designSystems } from '../../src/data/design-systems';
 
 test('Swatchbook can be found from home, searched and filtered', async ({ page }) => {
   await page.goto('/');
@@ -13,9 +14,9 @@ test('Swatchbook can be found from home, searched and filtered', async ({ page }
   await page.getByRole('button', { name: 'Public service', exact: true }).click();
   await expect(page.locator('#system-empty')).toBeVisible();
   await search.fill('');
-  await expect(page.locator('[data-system]:visible')).toHaveCount(5);
+  await expect(page.locator('[data-system]:visible')).toHaveCount(designSystems.filter(system => system.category === 'Public service').length);
   await page.getByRole('button', { name: 'All', exact: true }).click();
-  await expect(page.locator('[data-system]:visible')).toHaveCount(29);
+  await expect(page.locator('[data-system]:visible')).toHaveCount(designSystems.length);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   for (const theme of ['light', 'dark']) {
     await page.evaluate(theme => document.documentElement.classList.toggle('dark', theme === 'dark'), theme);

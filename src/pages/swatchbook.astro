@@ -1,9 +1,9 @@
 ---
 import BlogLayout from '../layouts/BlogLayout.astro';
-import { designSystems } from '../data/design-systems';
+import { categories as systemCategories, designSystems } from '../data/design-systems';
 import AppMark from '../components/AppMark.astro';
 
-const categories = ['All', 'Product', 'Platform', 'Public service'];
+const categories = ['All', ...systemCategories];
 ---
 
 <BlogLayout title="Swatchbook | Suhas Darsi" description="Swatchbook: a searchable collection of company and public-service design systems, with links to their official documentation.">
