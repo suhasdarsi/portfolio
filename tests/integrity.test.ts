@@ -137,12 +137,17 @@ describe('build', () => {
 
     const expectedPages = [
       'dist/index.html',
-      'dist/notes/index.html',
-      ...blogSlugs.map((slug) => `dist/notes/${slug}/index.html`),
+      'dist/notes.html',
+      ...blogSlugs.map((slug) => `dist/notes/${slug}.html`),
     ];
 
     for (const page of expectedPages) {
       expect(existsSync(join(ROOT, page)), `${page} should exist after build`).toBe(true);
+      // Canonical and og:url must be the clean URLs the sitemap lists, not the .html files.
+      const html = readFileSync(join(ROOT, page), 'utf8');
+      const cleanUrl = `https://suhasdarsi.com${page.slice('dist'.length).replace(/(\/index)?\.html$/, '') || '/'}`;
+      expect(html).toContain(`<link rel="canonical" href="${cleanUrl}">`);
+      expect(html).toContain(`<meta property="og:url" content="${cleanUrl}">`);
     }
 
     const searchIndex = JSON.parse(readFileSync(join(ROOT, 'dist/search.json'), 'utf8'));
@@ -156,7 +161,7 @@ describe('build', () => {
       .map((file) => readFileSync(file, 'utf8')).join('')
       + readFileSync(join(ROOT, 'dist/404.html'), 'utf8')
       // Small page stylesheets are inlined by Astro, so include a built note page.
-      + readFileSync(join(ROOT, 'dist/notes/ai-as-the-ultimate-hub/index.html'), 'utf8');
+      + readFileSync(join(ROOT, 'dist/notes/ai-as-the-ultimate-hub.html'), 'utf8');
     expect(css).toContain('.copy-code-button{');
     expect(css).not.toMatch(/\.copy-code-button\[data-astro-/);
     // 404 results are created at runtime, so they rely on the global (unscoped) row style.

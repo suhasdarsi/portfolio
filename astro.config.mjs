@@ -11,6 +11,9 @@ export default defineConfig({
   site: 'https://suhasdarsi.com',
   output: 'static',
   trailingSlash: 'never',
+  // Emit /notes/x.html (not /notes/x/index.html) so Cloudflare serves /notes/x with a 200
+  // instead of 307-redirecting to /notes/x/, which conflicts with canonical + sitemap URLs.
+  build: { format: 'file' },
   compressHTML: true,
   integrations: [sitemap({ filter: (page) => new URL(page).pathname.replace(/\/$/, '') !== '/pocket-card' })],
   vite: {

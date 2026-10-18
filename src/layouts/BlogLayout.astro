@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import Header from '../components/Header.astro';
 import ThemeInit from '../components/ThemeInit.astro';
+import { cleanPath } from '../utils/clean-path';
 
 interface Props {
   title: string;
@@ -15,7 +16,7 @@ interface Props {
 
 const { title, description, ogType = 'website', ogImage, wide = false, centered = false, noindex = false } = Astro.props;
 const siteUrl = Astro.site?.toString().replace(/\/$/, '') || 'https://suhasdarsi.com';
-const canonicalUrl = `${siteUrl}${Astro.url.pathname}`;
+const canonicalUrl = `${siteUrl}${cleanPath(Astro.url.pathname)}`;
 const ogDescription = description || 'Suhas Darsi — practical writing about AI security, agent systems, and network risk.';
 ---
 

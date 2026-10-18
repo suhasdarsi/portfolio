@@ -1,4 +1,6 @@
 ---
+import { cleanPath } from '../utils/clean-path';
+
 export interface Props {
   showSearch?: boolean;
   wide?: boolean;
@@ -6,7 +8,7 @@ export interface Props {
 
 const { showSearch = true, wide = false } = Astro.props;
 // The same mark and name on every page, including home, where it marks the current page.
-const isHome = Astro.url.pathname === '/';
+const isHome = cleanPath(Astro.url.pathname) === '/';
 ---
 
 <header class="header">

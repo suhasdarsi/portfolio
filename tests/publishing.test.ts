@@ -14,12 +14,12 @@ it('publishes due drafts with revisions, preview images, and sitemap entries whi
     writeFileSync(paths[0], `---\ntitle: "Publishing fixture due"\ndescription: "Test fixture"\npubDate: "2020-01-01"\ndraft: true\ndueDate: "2020-01-01"\nrevisions:\n  - date: "2020-01-03"\n    summary: "Added a containment example."\n  - date: "2020-01-02"\n    summary: "Clarified the introduction."\n---\n\nTest body.\n`);
     writeFileSync(paths[1], `---\ntitle: "Publishing fixture future"\ndescription: "Test fixture"\npubDate: "2999-01-01"\ndraft: true\ndueDate: "2999-01-01"\n---\n\nFuture body.\n`);
     execFileSync('bun', ['run', 'build', '--outDir', out], { stdio: 'pipe' });
-    const article = readFileSync(join(out, 'notes', due, 'index.html'), 'utf8');
+    const article = readFileSync(join(out, 'notes', `${due}.html`), 'utf8');
     expect(article).toContain('Revision history');
     expect(article).toContain('Added a containment example.');
     expect(article).toContain('"dateModified":"2020-01-03T00:00:00.000Z"');
     expect(existsSync(join(out, 'og', `${due}.png`))).toBe(true);
-    expect(existsSync(join(out, 'notes', future, 'index.html'))).toBe(false);
+    expect(existsSync(join(out, 'notes', `${future}.html`))).toBe(false);
     expect(existsSync(join(out, 'og', `${future}.png`))).toBe(false);
     const sitemap = readFileSync(join(out, 'sitemap-0.xml'), 'utf8');
     expect(sitemap).toContain(`/notes/${due}`);

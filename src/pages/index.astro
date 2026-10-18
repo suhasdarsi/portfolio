@@ -3,6 +3,10 @@ import BlogLayout from '../layouts/BlogLayout.astro';
 import SocialLinks from '../components/SocialLinks.astro';
 import AppMark from '../components/AppMark.astro';
 import { homeLinkGroups, primaryCta } from '../data/site-navigation';
+import { getPublishedBlogEntriesByDate } from '../utils/content';
+import { formatDate } from '../utils/date';
+
+const recentNotes = (await getPublishedBlogEntriesByDate()).slice(0, 3);
 ---
 
 <BlogLayout title="Suhas Darsi" description="Notes, micro-apps, and ways to connect with Suhas Darsi.">
@@ -22,6 +26,22 @@ import { homeLinkGroups, primaryCta } from '../data/site-navigation';
         <SocialLinks />
       </div>
     </header>
+
+    {recentNotes.length > 0 && (
+      <nav class="home-link-group" aria-label="Recent notes">
+        <h2 class="section-label">Recent notes</h2>
+        <ul class="rows">
+          {recentNotes.map((post) => (
+            <li>
+              <a href={`/notes/${post.id}`} class="row row-stack">
+                <span class="row-title">{post.data.title}</span>
+                <span class="row-meta">{formatDate(post.data.pubDate)}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    )}
 
     {homeLinkGroups.map((group) => (
       <nav class="home-link-group" aria-label={group.label}>
