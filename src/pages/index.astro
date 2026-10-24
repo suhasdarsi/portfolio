@@ -54,7 +54,7 @@ const recentNotes = (await getPublishedBlogEntriesByDate()).slice(0, 3);
             <li>
               <a href={link.href} class="app-card">
                 <span class="app-card-mark"><AppMark mark={link.mark} size="1.5rem" /></span>
-                <span class="app-card-title">{link.label}<span class="row-arrow" aria-hidden="true">→</span></span>
+                <span class="app-card-title"><span class="app-card-name">{link.label}</span><span class="row-arrow" aria-hidden="true">→</span></span>
                 <span class="app-card-meta">{link.meta}</span>
               </a>
             </li>
