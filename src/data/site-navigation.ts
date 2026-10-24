@@ -1,5 +1,5 @@
-// Micro-app marks drawn by src/components/AppMark.astro.
-export type AppMarkName = 'pocket' | 'swatchbook';
+// Site and micro-app marks drawn by src/components/AppMark.astro.
+export type AppMarkName = 'pocket' | 'swatchbook' | 'site';
 
 // The one action the homepage leads with.
 export const primaryCta = {

@@ -52,7 +52,7 @@ const sections = [
 
   {sections.map((section) => (
     <section class="uses-section">
-      <h2 class="section-label">{section.label} <span class="uses-count">{section.items.length}</span></h2>
+      <h2 class="section-label">{section.label} <span class="section-count">{section.items.length}</span></h2>
       <ul class="rows">
         {section.items.map((item) => (
           <li>
@@ -72,9 +72,9 @@ const sections = [
 </BlogLayout>
 
 <style>
-  .uses-header { margin-bottom: 3rem; }
+  .uses-header { margin-bottom: 3.5rem; }
+  .uses-header .page-intro { margin-top: 0.875rem; font-size: 1.125rem; line-height: 1.55; }
   .uses-section { margin-bottom: 3rem; }
-  .uses-count { margin-left: 0.25rem; font-weight: 400; color: var(--color-muted-foreground); font-variant-numeric: tabular-nums; }
   .uses-outro { color: var(--color-muted-foreground); }
   .uses-outro a { color: var(--color-foreground); }
   @media (max-width: 420px) { .uses-host { display: none; } }

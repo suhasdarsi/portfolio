@@ -1,5 +1,6 @@
 ---
 import { cleanPath } from '../utils/clean-path';
+import AppMark from './AppMark.astro';
 
 export interface Props {
   showSearch?: boolean;
@@ -14,7 +15,7 @@ const isHome = cleanPath(Astro.url.pathname) === '/';
 <header class="header">
   <div class:list={['header-inner', { wide }]}>
     <a href="/" class="home-link" aria-label="Suhas Darsi, home" aria-current={isHome ? 'page' : undefined}>
-      <span class="home-link-mark" aria-hidden="true">SD</span>
+      <AppMark mark="site" size="1.625rem" class="home-link-mark" />
       <span class="home-link-name">Suhas Darsi</span>
     </a>
     <div class="header-actions">
@@ -355,17 +356,13 @@ const isHome = cleanPath(Astro.url.pathname) === '/';
     background: var(--color-muted);
   }
 
-  .home-link-mark {
-    display: grid;
-    place-items: center;
-    width: 1.75rem;
-    height: 1.75rem;
-    border-radius: 50%;
-    background: var(--color-accent);
-    color: var(--color-accent-foreground);
-    font-size: 0.8125rem;
-    font-weight: 600;
-    letter-spacing: 0.02em;
+  .home-link :global(.home-link-mark) {
+    transition: rotate 0.6s cubic-bezier(0.2, 0, 0, 1);
+  }
+
+  /* The node travels a little way round its orbit on hover. */
+  .home-link:hover :global(.home-link-mark) {
+    rotate: 45deg;
   }
 
   .header-inner.wide {

@@ -1,4 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="14" fill="#1a1812"/>
-  <text x="32" y="44" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" font-weight="700" font-size="32" fill="#faf8f2">SD</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="#1a1812"/><g transform="translate(3.5 3.5) scale(0.78125)"><circle cx="16" cy="16" r="4.5" fill="none" stroke="#f7f0e7" stroke-width="2.4"/><path d="M26.4 12.42A11 11 0 1 1 19.58 5.6" fill="none" stroke="#f7f0e7" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="2.76 3.24"/><circle cx="23.78" cy="8.22" r="2.25" fill="#f7f0e7"/></g></svg>

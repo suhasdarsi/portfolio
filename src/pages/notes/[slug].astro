@@ -1,6 +1,6 @@
 ---
 import { render } from 'astro:content';
-import { getPublishedBlogEntries } from '../../utils/content';
+import { getPublishedBlogEntriesByDate } from '../../utils/content';
 import BlogLayout from '../../layouts/BlogLayout.astro';
 import RevisionHistory from '../../components/RevisionHistory.astro';
 import ReadingProgress from '../../components/ReadingProgress.astro';
@@ -8,14 +8,14 @@ import CopyCode from '../../components/CopyCode.astro';
 import { formatDateWithYear, getReadingTime } from '../../utils/date';
 
 export async function getStaticPaths() {
-	const posts = await getPublishedBlogEntries();
-	return posts.map((post) => ({
+	const posts = await getPublishedBlogEntriesByDate();
+	return posts.map((post, index) => ({
 		params: { slug: post.id },
-		props: post,
+		props: { post, newer: posts[index - 1], older: posts[index + 1] },
 	}));
 }
 
-const post = Astro.props;
+const { post, newer, older } = Astro.props;
 const { Content } = await render(post);
 const revisionDates = post.data.revisions.map((revision) => revision.date.valueOf());
 const modifiedDates = [...revisionDates, ...(post.data.updatedDate ? [post.data.updatedDate.valueOf()] : [])];
@@ -52,6 +52,7 @@ const structuredData = JSON.stringify({
         All notes
       </a>
       <h1 class="article-title page-heading">{post.data.title}</h1>
+      {post.data.description && <p class="article-standfirst">{post.data.description}</p>}
       <div class="article-meta">
         <time datetime={post.data.pubDate.toISOString()}>{formatDateWithYear(post.data.pubDate)}</time>
         {updatedDate && (
@@ -82,6 +83,23 @@ const structuredData = JSON.stringify({
         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"></path></svg>
       </a>
     </footer>
+
+    {(older || newer) && (
+      <nav class="article-pager" aria-label="More notes">
+        {older && (
+          <a href={`/notes/${older.id}`} class="pager-link">
+            <span class="pager-label">← Previous</span>
+            <span class="pager-title">{older.data.title}</span>
+          </a>
+        )}
+        {newer && (
+          <a href={`/notes/${newer.id}`} class="pager-link pager-next">
+            <span class="pager-label">Next →</span>
+            <span class="pager-title">{newer.data.title}</span>
+          </a>
+        )}
+      </nav>
+    )}
   </article>
 </BlogLayout>
 
@@ -107,8 +125,19 @@ const structuredData = JSON.stringify({
   .back-link svg { transition: transform 0.15s ease; }
   .back-link:hover svg { transform: translateX(-2px); }
 
-  .article-header { padding-bottom: 2.5rem; }
-  .article-title { margin: 0 0 0.5rem; }
+  .article-header {
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.75rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .article-title { margin: 0 0 0.875rem; }
+  .article-standfirst {
+    margin: 0 0 1.25rem;
+    font-size: 1.125rem;
+    line-height: 1.55;
+    color: var(--color-body-text);
+    text-wrap: pretty;
+  }
 
   .article-meta {
     display: flex;
@@ -146,4 +175,37 @@ const structuredData = JSON.stringify({
 
   .article-share a:hover { color: var(--color-foreground); }
   .article-share svg { width: 1rem; height: 1rem; }
+
+  .article-pager {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin-top: 3rem;
+  }
+
+  .pager-link {
+    display: grid;
+    align-content: start;
+    gap: 0.25rem;
+    padding: 1rem 1.125rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-panel);
+    color: var(--color-foreground);
+    text-decoration: none;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+  }
+
+  .pager-link:hover {
+    border-color: var(--color-muted-foreground);
+    background: color-mix(in srgb, var(--color-subtle) 60%, transparent);
+  }
+
+  .pager-next { grid-column: 2; text-align: right; }
+  .pager-label { color: var(--color-muted-foreground); font-size: 0.875rem; }
+  .pager-title { font-weight: 700; line-height: 1.35; text-wrap: balance; }
+
+  @media (max-width: 520px) {
+    .article-pager { grid-template-columns: 1fr; }
+    .pager-next { grid-column: auto; }
+  }
 </style>

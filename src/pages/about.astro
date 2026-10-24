@@ -18,12 +18,13 @@ const previously = [
 <BlogLayout title="About — Suhas Darsi" description="About Suhas Darsi — founder, researcher, and writer working on AI security.">
   <header class="home-header">
     <h1 class="home-name page-heading">About</h1>
-    <SocialLinks />
   </header>
 
   <p class="home-bio"><b>I'm a co-founder at <a href="https://superalign.ai" class="bio-link link-underline">SuperAlign</a></b>, where we help security teams see, understand, and control AI adoption across their organizations.</p>
   <p class="home-bio">My background is in Computer Vision research at IIIT Hyderabad. These days I focus on how AI systems fail, how risk propagates through connected agents, and the controls required to deploy them safely.</p>
   <p class="home-bio">This site is where I publish long-form notes on AI security, agent architecture, and the network dynamics behind systemic failures.</p>
+
+  <SocialLinks />
 
   <section class="timeline-section">
     <h2 class="section-label">Currently</h2>
@@ -32,7 +33,7 @@ const previously = [
         <li>
           <a href={item.url} class="row row-stack" target="_blank" rel="noopener noreferrer">
             <span class="row-title">{item.name}</span>
-            <span class="row-meta">{item.label}</span>
+            <span class="row-meta">{item.label}<span class="row-arrow" aria-hidden="true">↗</span></span>
           </a>
         </li>
       ))}
@@ -44,7 +45,7 @@ const previously = [
         <li>
           <a href={item.url} class="row row-stack" target="_blank" rel="noopener noreferrer">
             <span class="row-title">{item.name}</span>
-            <span class="row-meta">{item.label}</span>
+            <span class="row-meta">{item.label}<span class="row-arrow" aria-hidden="true">↗</span></span>
           </a>
         </li>
       ))}
@@ -59,7 +60,9 @@ const previously = [
   .home-header { margin-bottom: 2rem; }
   .home-name { margin: 0 0 1.25rem; }
   .home-bio { color: var(--color-body-text); margin-bottom: 1.25rem; text-wrap: pretty; }
+  .home-bio:first-of-type { font-size: 1.125rem; line-height: 1.55; margin-bottom: 1.5rem; }
+  .home-bio:last-of-type { margin-bottom: 2rem; }
   .home-bio b { color: var(--color-foreground); font-weight: 700; }
-  .timeline-section { margin: 3rem 0 4rem; }
+  .timeline-section { margin: 3.5rem 0 4rem; }
   .timeline-section .section-label:not(:first-child) { margin-top: 2.5rem; }
 </style>
