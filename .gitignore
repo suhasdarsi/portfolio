@@ -34,3 +34,17 @@ pnpm-debug.log*
 # Browser test artifacts
 playwright-report/
 test-results/
+
+# Local tool state
+.wrangler/
+.claude/
+.commandcode/
+
+# Scratch and generated work files
+tmp/
+output/
+
+# SuperAlign work documents (keep out of this public repo)
+docs/mha-ai-security-tender-requirements.md
+docs/superalign-landing-page-copy.md
+docs/superalign-surface-government-tender.md
