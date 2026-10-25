@@ -24,6 +24,7 @@ const readingTime = getReadingTime(post.body || '');
 
 const siteUrl = Astro.site?.toString().replace(/\/$/, '') || 'https://suhasdarsi.com';
 const canonicalUrl = `${siteUrl}/notes/${post.id}`;
+const previewImage = `${siteUrl}/og/${post.id}.png`;
 const encodedUrl = encodeURIComponent(canonicalUrl);
 const encodedTitle = encodeURIComponent(post.data.title);
 const encodedBlueskyPost = encodeURIComponent(`${post.data.title} ${canonicalUrl}`);
@@ -34,12 +35,18 @@ const structuredData = JSON.stringify({
   "description": post.data.description,
   "datePublished": post.data.pubDate.toISOString(),
   ...(updatedDate ? { "dateModified": updatedDate.toISOString() } : {}),
-  "author": { "@type": "Person", "name": "Suhas Darsi" },
+  "author": {
+    "@type": "Person",
+    "name": post.data.author,
+    ...(post.data.author === 'Suhas Darsi' ? { "url": `${siteUrl}/about` } : {}),
+  },
+  "image": previewImage,
+  "mainEntityOfPage": { "@type": "WebPage", "@id": canonicalUrl },
   "url": canonicalUrl
 }).replace(/</g, '\\u003c');
 ---
 
-<BlogLayout title={`${post.data.title} | Suhas Darsi`} description={post.data.description} ogType="article" ogImage={`${siteUrl}/og/${post.id}.png`}>
+<BlogLayout title={`${post.data.title} | Suhas Darsi`} description={post.data.description} author={post.data.author} ogType="article" ogImage={previewImage}>
   <ReadingProgress />
   <CopyCode />
   <script type="application/ld+json" set:html={structuredData} />

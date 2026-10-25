@@ -1,6 +1,6 @@
 import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
-import { z } from 'astro:content';
+import { z } from 'astro/zod';
 
 const dateSchema = z.coerce.date().refine((date) => !Number.isNaN(date.valueOf()), {
   message: 'Invalid date',

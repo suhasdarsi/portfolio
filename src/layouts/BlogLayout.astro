@@ -12,9 +12,10 @@ interface Props {
   wide?: boolean;
   centered?: boolean;
   noindex?: boolean;
+  author?: string;
 }
 
-const { title, description, ogType = 'website', ogImage, wide = false, centered = false, noindex = false } = Astro.props;
+const { title, description, ogType = 'website', ogImage, wide = false, centered = false, noindex = false, author = 'Suhas Darsi' } = Astro.props;
 const siteUrl = Astro.site?.toString().replace(/\/$/, '') || 'https://suhasdarsi.com';
 const canonicalUrl = `${siteUrl}${cleanPath(Astro.url.pathname)}`;
 const ogDescription = description || 'Suhas Darsi — practical writing about AI security, agent systems, and network risk.';
@@ -28,8 +29,8 @@ const ogDescription = description || 'Suhas Darsi — practical writing about AI
     <link rel="preload" href="/fonts/libron/Libron-Regular.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content="Astro" />
-    <meta name="description" content={description || "Blog posts"} />
-    <meta name="author" content="Suhas Darsi" />
+    <meta name="description" content={ogDescription} />
+    <meta name="author" content={author} />
     {noindex && <meta name="robots" content="noindex, nofollow" />}
     <link rel="canonical" href={canonicalUrl} />
     <meta property="og:title" content={title} />
@@ -52,7 +53,7 @@ const ogDescription = description || 'Suhas Darsi — practical writing about AI
     <meta name="theme-color" content="#14130f" media="(prefers-color-scheme: dark)" />
     <link rel="sitemap" href="/sitemap-index.xml" />
     <link rel="alternate" type="application/rss+xml" title="Suhas Darsi — Notes" href="/rss.xml" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self';" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' https://cloudflareinsights.com/cdn-cgi/rum; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self';" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <title>{title}</title>
     <ThemeInit />

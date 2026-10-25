@@ -15,6 +15,10 @@ it('publishes due drafts with revisions, preview images, and sitemap entries whi
     writeFileSync(paths[1], `---\ntitle: "Publishing fixture future"\ndescription: "Test fixture"\npubDate: "2999-01-01"\ndraft: true\ndueDate: "2999-01-01"\n---\n\nFuture body.\n`);
     execFileSync('bun', ['run', 'build', '--outDir', out], { stdio: 'pipe' });
     const article = readFileSync(join(out, 'notes', `${due}.html`), 'utf8');
+    const metadata = JSON.parse(article.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)![1]);
+    expect(metadata.author).toEqual({ '@type': 'Person', name: 'Suhas Darsi', url: 'https://suhasdarsi.com/about' });
+    expect(metadata.image).toBe(`https://suhasdarsi.com/og/${due}.png`);
+    expect(metadata.mainEntityOfPage['@id']).toBe(`https://suhasdarsi.com/notes/${due}`);
     expect(article).toContain('Revision history');
     expect(article).toContain('Added a containment example.');
     expect(article).toContain('"dateModified":"2020-01-03T00:00:00.000Z"');
