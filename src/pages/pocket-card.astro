@@ -22,9 +22,9 @@ const groups: { legend: string; fields: Field[] }[] = [
 ];
 ---
 <BlogLayout title="Pocket Card — Suhas Darsi" description="Make a contact card for Apple Wallet and share it with a scan." noindex>
-  <header class="intro">
+  <header class="page-header">
     <h1 class="page-heading pocket-title"><AppMark mark="pocket" />Pocket Card</h1>
-    <p>Your business card, in Apple Wallet. Fill it in, download it, share it with a scan.</p>
+    <p class="page-intro">Your business card, in Apple Wallet. Fill it in, download it, share it with a scan.</p>
   </header>
 
   <figure class="stage" aria-label="Card preview">
@@ -207,9 +207,7 @@ const groups: { legend: string; fields: Field[] }[] = [
 </script>
 
 <style>
-  .intro { margin-bottom: 2.5rem; }
   .pocket-title { display: flex; align-items: center; gap: .5rem; }
-  .intro p { color: var(--color-muted-foreground); margin-top: .5rem; }
 
   /* Card preview — mirrors the generic Apple Wallet pass built in worker/wallet.ts. */
   .stage { margin: 0 0 3.5rem; padding: 2.5rem 1rem 1.25rem; border-radius: var(--radius-panel); background: var(--color-muted); display: grid; justify-items: center; gap: 1.25rem; }

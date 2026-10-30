@@ -1,184 +1,153 @@
 ---
-const siteUrl = Astro.site?.toString().replace(/\/$/, '') || 'https://suhasdarsi.com';
-const canonicalUrl = `${siteUrl}/`;
-const title = 'Suhas Darsi';
-const description = 'Suhas Darsi — practical writing about AI security, agent systems, and network risk.';
+import BlogLayout from '../layouts/BlogLayout.astro';
+import SocialLinks from '../components/SocialLinks.astro';
+import AppMark from '../components/AppMark.astro';
+import { homeLinkGroups, primaryCta } from '../data/site-navigation';
+import { getPublishedBlogEntriesByDate } from '../utils/content';
+import { formatDate } from '../utils/date';
+
+const recentNotes = (await getPublishedBlogEntriesByDate()).slice(0, 3);
 ---
 
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="preload" href="/fonts/libron/Libron-Regular.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="generator" content="Astro" />
-    <meta name="description" content={description} />
-    <meta name="author" content="Suhas Darsi" />
-    <link rel="canonical" href={canonicalUrl} />
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content={canonicalUrl} />
-    <meta property="og:site_name" content="Suhas Darsi" />
-    <meta name="twitter:card" content="summary" />
-    <meta name="twitter:site" content="@suhas_darsi" />
-    <meta name="twitter:creator" content="@suhas_darsi" />
-    <meta name="theme-color" content="#000000" />
-    <link rel="sitemap" href="/sitemap-index.xml" />
-    <link rel="alternate" type="application/rss+xml" title="Suhas Darsi — Notes" href="/rss.xml" />
-    <title>{title}</title>
-    <style>
-      @font-face {
-        font-family: 'Libron';
-        src: url('/fonts/libron/Libron-Regular.woff2') format('woff2');
-        font-weight: 400;
-        font-style: normal;
-        font-display: swap;
-      }
-      @font-face {
-        font-family: 'Libron';
-        src: url('/fonts/libron/Libron-Bold.woff2') format('woff2');
-        font-weight: 700;
-        font-style: normal;
-        font-display: swap;
-      }
-      :root {
-        --font-serif: 'Libron', Georgia, 'Times New Roman', serif;
-        --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-        --bg: #000;
-        --ink: #e8e6e1;
-        --mute: #a19e98;
-        --acc: #e8875f;
-      }
-      * {
-        box-sizing: border-box;
-      }
-      html,
-      body {
-        margin: 0;
-        background: var(--bg);
-        color: var(--ink);
-      }
-      body {
-        font: 18px/1.6 var(--font-serif);
-        -webkit-font-smoothing: antialiased;
-      }
-      canvas.ocean {
-        position: fixed;
-        inset: 0;
-        width: 100vw;
-        height: 100vh;
-        display: block;
-        font-family: var(--font-mono);
-        z-index: 0;
-      }
-      nav {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        z-index: 2;
-        display: flex;
-        justify-content: center;
-        gap: 26px;
-        padding: 22px;
-      }
-      nav a {
-        color: var(--mute);
-        text-decoration: none;
-      }
-      nav a[aria-current] {
-        color: var(--ink);
-      }
-      nav a:hover {
-        color: var(--ink);
-      }
-      a {
-        color: var(--ink);
-        text-decoration: underline dotted var(--mute);
-        text-underline-offset: 4px;
-      }
-      a:hover {
-        text-decoration-color: var(--acc);
-        color: #fff;
-      }
-      a:focus-visible {
-        outline: 1px solid var(--acc);
-        outline-offset: 3px;
-      }
-      main {
-        position: relative;
-        z-index: 1;
-        pointer-events: none;
-      }
-      main a {
-        pointer-events: auto;
-      }
-      .intro {
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-end;
-        padding: 0 0 9vh;
-      }
-      .block {
-        width: min(600px, 100% - 44px);
-        margin-left: max(22px, calc(50vw - 420px));
-        background: rgba(0, 0, 0, 0.9);
-        padding: 14px 16px;
-        border-radius: 2px;
-      }
-      .epi {
-        color: var(--acc);
-        margin: 0 0 30px;
-      }
-      p {
-        margin: 0 0 14px;
-      }
-      .dot {
-        display: inline-block;
-        width: 7px;
-        height: 7px;
-        background: var(--acc);
-        margin-right: 8px;
-        animation: blink 1.6s steps(1) infinite;
-      }
-      @keyframes blink {
-        50% {
-          opacity: 0;
-        }
-      }
-      @media (prefers-reduced-motion: reduce) {
-        .dot {
-          animation: none;
-        }
-      }
-      .social {
-        color: var(--mute);
-      }
-    </style>
-  </head>
-  <body>
-    <canvas class="ocean" aria-hidden="true"></canvas>
-    <nav aria-label="Primary">
-      <a href="/" aria-current="page">home</a>
-      <a href="/notes">notes</a>
-      <a href="/about">about</a>
-      <a href="/uses">uses</a>
-    </nav>
-    <main>
-      <section class="intro">
-        <div class="block">
-          <p class="epi">Every network has a hub.<br />Every hub is a way in.</p>
-          <p>Hi, I'm Suhas.</p>
-          <p><span class="dot" aria-hidden="true"></span>Building <a href="https://superalign.ai">SuperAlign</a>, as co-founder.</p>
-          <p>I write about how AI systems fail and build small tools along the way.</p>
-          <p>Before that, Founder @ <a href="https://www.linkedin.com/company/aztlan/">Aztlan</a>; Masters in AI @ <a href="https://www.iiit.ac.in/">IIIT Hyderabad</a>.</p>
-          <p class="social"><a href="https://booking.akiflow.com/suhas--a84d">say hello</a> / <a href="https://www.linkedin.com/in/suhasdarsi/">linkedin</a> / <a href="https://x.com/suhas_darsi">x</a> / <a href="mailto:suhas@superalign.ai">email</a></p>
-        </div>
-      </section>
-    </main>
-    <script src="/flock.js" type="module"></script>
-  </body>
-</html>
+<BlogLayout title="Suhas Darsi" description="Notes, micro-apps, and ways to connect with Suhas Darsi.">
+  <div class="home-hub">
+    <header class="home-header">
+      <p class="home-status"><span class="home-status-dot" aria-hidden="true"></span>Building SuperAlign</p>
+      <h1 class="page-heading">Suhas Darsi</h1>
+      <p class="home-tagline">Founder · Researcher · Writer</p>
+      <p class="home-intro">
+        Co-founder at <a href="https://superalign.ai" target="_blank" rel="noopener noreferrer" class="link-underline">SuperAlign</a>.
+        I write about how AI systems fail and build small tools along the way.
+      </p>
+      <div class="home-actions">
+        <a href={primaryCta.href} target="_blank" rel="noopener noreferrer" class="button home-cta">
+          {primaryCta.label}
+          <span class="row-arrow" aria-hidden="true">↗</span>
+        </a>
+        <SocialLinks />
+      </div>
+    </header>
+
+    {recentNotes.length > 0 && (
+      <nav class="home-link-group page-section" aria-label="Recent notes">
+        <h2 class="section-label">Recent notes</h2>
+        <ul class="rows">
+          {recentNotes.map((post) => (
+            <li>
+              <a href={`/notes/${post.id}`} class="row row-stack">
+                <span class="row-title">{post.data.title}</span>
+                <span class="row-meta">{formatDate(post.data.pubDate)}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+        <a href="/notes" class="home-more">All notes <span class="row-arrow" aria-hidden="true">→</span></a>
+      </nav>
+    )}
+
+    {homeLinkGroups.map((group) => (
+      <nav class="home-link-group page-section" aria-label={group.label}>
+        <h2 class="section-label">{group.label}</h2>
+        {group.description && <p class="home-group-description">{group.description}</p>}
+        <ul class:list={['rows', { 'app-cards': group.links.some((link) => 'mark' in link) }]}>
+          {group.links.map((link) => 'mark' in link ? (
+            <li>
+              <a href={link.href} class="app-card">
+                <span class="app-card-mark"><AppMark mark={link.mark} size="1.5rem" /></span>
+                <span class="app-card-title"><span class="app-card-name">{link.label}</span><span class="row-arrow" aria-hidden="true">→</span></span>
+                <span class="app-card-meta">{link.meta}</span>
+              </a>
+            </li>
+          ) : (
+            <li>
+              <a href={link.href} class="row row-stack">
+                <span class="row-title">{link.label}</span>
+                <span class="row-meta">{link.meta}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    ))}
+
+    <p class="home-footnote">
+      Follow new notes via <a href="/rss.xml" class="link-underline">RSS</a>.
+    </p>
+  </div>
+</BlogLayout>
+
+<style>
+  .home-header { margin-bottom: 4rem; }
+  .home-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+    padding: 0.125rem 0.75rem 0.125rem 0.625rem;
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    color: var(--color-muted-foreground);
+    font-size: 0.875rem;
+  }
+  /* A still dot: an endless ping kept pulling the eye away from the page. */
+  .home-status-dot {
+    width: 0.4375rem;
+    height: 0.4375rem;
+    border-radius: 50%;
+    background: #3f9b62;
+  }
+  .home-tagline { margin-top: 0.375rem; font-family: var(--font-sans); color: var(--color-muted-foreground); }
+  .home-intro { margin-top: 1.25rem; max-width: 34rem; font-size: 1.125rem; line-height: 1.55; color: var(--color-body-text); text-wrap: pretty; }
+  .home-intro a { color: var(--color-foreground); }
+  .home-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 1.5rem 2.25rem; margin-top: 2rem; }
+  .home-cta { padding-inline: 1.25rem; }
+  .home-cta:hover .row-arrow { transform: translate(2px, -2px); }
+  .home-group-description { margin: -0.25rem 0 0.75rem; color: var(--color-muted-foreground); }
+  .home-more {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.375rem;
+    margin-top: 0.5rem;
+    color: var(--color-muted-foreground);
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+  .home-more:hover { color: var(--color-foreground); }
+  .home-more:hover .row-arrow { transform: translateX(3px); }
+
+  /* Micro-apps read as small objects, not links in a list. */
+  .app-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 0.75rem; }
+  .app-card {
+    display: grid;
+    gap: 0.125rem;
+    height: 100%;
+    padding: 1rem 1.125rem 1.125rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-panel);
+    background: color-mix(in srgb, var(--color-subtle) 45%, transparent);
+    color: var(--color-foreground);
+    text-decoration: none;
+    transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.2s cubic-bezier(0.2, 0, 0, 1);
+  }
+  .app-card:hover {
+    border-color: var(--color-muted-foreground);
+    background: var(--color-subtle);
+    transform: translateY(-2px);
+  }
+  .app-card:active { transform: translateY(0); }
+  .app-card-mark {
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    margin-bottom: 0.75rem;
+    border-radius: 0.625rem;
+    background: var(--color-muted);
+  }
+  .app-card-title { display: flex; align-items: baseline; justify-content: space-between; gap: 0.5rem; font-weight: 700; }
+  .app-card-title .row-arrow { color: var(--color-muted-foreground); }
+  .app-card:hover .row-arrow { color: var(--color-foreground); transform: translateX(3px); }
+  .app-card-meta { color: var(--color-muted-foreground); }
+  .home-footnote { color: var(--color-muted-foreground); }
+  .home-footnote a { color: var(--color-foreground); }
+</style>

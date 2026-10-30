@@ -16,17 +16,17 @@ const previously = [
 ---
 
 <BlogLayout title="About — Suhas Darsi" description="About Suhas Darsi — founder, researcher, and writer working on AI security.">
-  <header class="home-header">
-    <h1 class="home-name page-heading">About</h1>
+  <header class="page-header about-header">
+    <h1 class="page-heading">About</h1>
   </header>
 
-  <p class="home-bio"><b>I'm a co-founder at <a href="https://superalign.ai" class="bio-link link-underline">SuperAlign</a></b>, where we help security teams see, understand, and control AI adoption across their organizations.</p>
-  <p class="home-bio">My background is in Computer Vision research at IIIT Hyderabad. These days I focus on how AI systems fail, how risk propagates through connected agents, and the controls required to deploy them safely.</p>
-  <p class="home-bio">This site is where I publish long-form notes on AI security, agent architecture, and the network dynamics behind systemic failures.</p>
+  <p class="about-bio"><b>I'm a co-founder at <a href="https://superalign.ai" class="link-underline">SuperAlign</a></b>, where we help security teams see, understand, and control AI adoption across their organizations.</p>
+  <p class="about-bio">My background is in Computer Vision research at IIIT Hyderabad. These days I focus on how AI systems fail, how risk propagates through connected agents, and the controls required to deploy them safely.</p>
+  <p class="about-bio">This site is where I publish long-form notes on AI security, agent architecture, and the network dynamics behind systemic failures.</p>
 
   <SocialLinks />
 
-  <section class="timeline-section">
+  <section class="page-section timeline-section">
     <h2 class="section-label">Currently</h2>
     <ul class="rows">
       {currently.map((item) => (
@@ -57,12 +57,11 @@ const previously = [
 
 
 <style>
-  .home-header { margin-bottom: 2rem; }
-  .home-name { margin: 0 0 1.25rem; }
-  .home-bio { color: var(--color-body-text); margin-bottom: 1.25rem; text-wrap: pretty; }
-  .home-bio:first-of-type { font-size: 1.125rem; line-height: 1.55; margin-bottom: 1.5rem; }
-  .home-bio:last-of-type { margin-bottom: 2rem; }
-  .home-bio b { color: var(--color-foreground); font-weight: 700; }
-  .timeline-section { margin: 3.5rem 0 4rem; }
+  .about-header { margin-bottom: 1.5rem; }
+  .about-bio { color: var(--color-body-text); margin-bottom: 1.25rem; text-wrap: pretty; }
+  .about-bio:first-of-type { font-size: 1.125rem; line-height: 1.55; margin-bottom: 1.5rem; }
+  .about-bio:last-of-type { margin-bottom: 2rem; }
+  .about-bio b { color: var(--color-foreground); font-weight: 700; }
+  .timeline-section { margin-top: 3rem; }
   .timeline-section .section-label:not(:first-child) { margin-top: 2.5rem; }
 </style>

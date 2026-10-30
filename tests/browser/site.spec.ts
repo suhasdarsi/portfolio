@@ -24,8 +24,7 @@ test('search URLs restore queries, highlight matches, and support history', asyn
 });
 
 test('search keyboard navigation, focus return, excerpts and share link', async ({ page }) => {
-  // Home page has custom design without search; use /about instead
-  await page.goto('/about');
+  await page.goto('/');
   await page.getByRole('button', { name: 'Open search' }).click();
   const input = page.locator('#global-search-input');
   await expect(input).toBeFocused();
@@ -42,8 +41,7 @@ test('search keyboard navigation, focus return, excerpts and share link', async 
 });
 
 test('themes persist and disabled storage does not break search', async ({ page }) => {
-  // Home page has custom design without theme toggle; use /about instead
-  await page.goto('/about');
+  await page.goto('/');
   await page.getByRole('button', { name: /Switch to .* theme/ }).click();
   const theme = await page.locator('html').getAttribute('class');
   await page.reload();
@@ -84,8 +82,7 @@ for (const path of ['/', '/about', '/notes', note, '/uses', '/404']) {
 }
 
 test('open search dialog passes accessibility checks', async ({ page }) => {
-  // Home page has custom design without search; use /about instead
-  await page.goto('/about');
+  await page.goto('/');
   await page.getByRole('button', { name: 'Open search' }).click();
   await page.locator('#global-search-input').fill('network');
   await expect(page.locator('.search-result-item').first()).toBeVisible();

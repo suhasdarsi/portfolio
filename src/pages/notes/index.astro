@@ -8,7 +8,7 @@ const posts = await getPublishedBlogEntriesByDate();
 ---
 
 <BlogLayout title="AI Security Notes | Suhas Darsi" description="Practical field notes on AI security, agent systems, and network risk.">
-  <header class="notes-header">
+  <header class="page-header">
     <h1 class="page-heading">AI security field notes</h1>
     <p class="page-intro">Practical essays on how AI systems fail, how attacks propagate through connected agents, and how builders can contain the risk.</p>
   </header>
@@ -106,7 +106,6 @@ const posts = await getPublishedBlogEntriesByDate();
 </script>
 
 <style>
-  .notes-header { margin-bottom: 2.5rem; }
   .notes-search { margin-bottom: 2.5rem; }
   .notes-search-controls { position: relative; display: flex; align-items: center; }
   .notes-search-icon { position: absolute; left: 0.875rem; color: var(--color-muted-foreground); pointer-events: none; }
@@ -117,7 +116,7 @@ const posts = await getPublishedBlogEntriesByDate();
   .note-item[hidden] { display: none; }
   .note-body { display: grid; gap: 0.25rem; min-width: 0; }
   .note-title { text-wrap: balance; }
-  .note-title { font-weight: 700; }
+  .note-title { font-weight: 600; }
   .note-desc { font-family: var(--font-serif); color: var(--color-muted-foreground); line-height: 1.55; text-wrap: pretty; }
   .note-link { padding-block: 1rem; }
   .note-link:hover .note-title { text-decoration: underline; text-decoration-color: var(--color-slate); text-underline-offset: 3px; }

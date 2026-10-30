@@ -45,7 +45,8 @@
   --color-link: oklch(54.6% 0.245 262.881);
   --color-link-hover: oklch(48.8% 0.243 264.376);
   --color-background: #f7f0e7;
-  --color-foreground: #5d5751;
+  /* Three ink levels: headings and titles, reading text, and metadata. */
+  --color-foreground: #2b2825;
   --color-muted: #eee7db;
   --color-muted-foreground: #69645e;
   --color-subtle: #ffffff;
@@ -55,7 +56,7 @@
   --color-border: #ddd2bf;
   --color-overlay: rgba(93, 87, 81, 0.4);
   --color-code-bg: #eee7db;
-  --color-body-text: #5d5751;
+  --color-body-text: #4a4540;
 
   /* One typeface site-wide: every family token resolves to Libron.
      Code falls back to the system monospace; no other fonts are downloaded. */
@@ -237,24 +238,26 @@ h1 {
   text-wrap: balance;
 }
 
-/* Page entrance: top-level blocks rise in, a beat apart. Reduced motion collapses it. */
-@keyframes rise-in {
+/* Page entrance: the column fades in once, quickly, so every page is readable at once.
+   Moving between pages is a short cross-fade. Reduced motion turns both off. */
+@keyframes page-in {
   from {
     opacity: 0;
-    transform: translateY(8px);
   }
 }
 
-.site-main > :not(article, script, style),
-.site-main > article > *,
-.home-hub > * {
-  animation: rise-in 0.55s cubic-bezier(0.2, 0, 0, 1) both;
+.site-main {
+  animation: page-in 0.18s ease-out both;
 }
 
-:is(.site-main, .home-hub, .site-main > article) > :nth-child(2) { animation-delay: 60ms; }
-:is(.site-main, .home-hub, .site-main > article) > :nth-child(3) { animation-delay: 120ms; }
-:is(.site-main, .home-hub, .site-main > article) > :nth-child(4) { animation-delay: 180ms; }
-:is(.site-main, .home-hub, .site-main > article) > :nth-child(n + 5) { animation-delay: 240ms; }
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.15s;
+}
 
 h2,
 h3 {
@@ -263,8 +266,8 @@ h3 {
 }
 
 ::selection {
-  background-color: #ffd642;
-  color: #6e2841;
+  background-color: var(--color-chalk);
+  color: var(--color-foreground);
 }
 
 /* Focus floor: every focusable element gets the same visible 2px ring
@@ -431,7 +434,7 @@ main {
 .prose-custom code {
   font-family: var(--font-mono);
   font-size: 0.875rem;
-  background-color: #fff;
+  background-color: var(--color-code-bg);
   padding: 0 0.25rem;
   border-radius: 0;
   word-break: break-word;
@@ -572,10 +575,22 @@ main {
    inputs and buttons look and behave the same site-wide.
    --------------------------------------------------------------- */
 
+/* Every page opens the same way: heading, an optional larger intro, then 3rem of air. */
+.page-header {
+  margin-bottom: 3rem;
+}
+
 .page-intro {
-  margin-top: 0.5rem;
+  margin-top: 0.875rem;
+  font-size: 1.125rem;
+  line-height: 1.55;
   color: var(--color-body-text);
   text-wrap: pretty;
+}
+
+/* Sections on a page sit the same distance apart everywhere. */
+.page-section {
+  margin-bottom: 3rem;
 }
 
 .eyebrow {

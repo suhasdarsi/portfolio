@@ -45,13 +45,13 @@ const sections = [
 ---
 
 <BlogLayout title="Uses — Suhas Darsi" description="Things I use — digital tools and physical gear that earn their keep.">
-  <header class="uses-header">
+  <header class="page-header">
     <h1 class="page-heading">Uses</h1>
     <p class="page-intro">Things I use daily — digital tools and physical gear. Some I pay for, some I self-host, all of them earn their place. This is a living document.</p>
   </header>
 
   {sections.map((section) => (
-    <section class="uses-section">
+    <section class="page-section">
       <h2 class="section-label">{section.label} <span class="section-count">{section.items.length}</span></h2>
       <ul class="rows">
         {section.items.map((item) => (
@@ -72,9 +72,6 @@ const sections = [
 </BlogLayout>
 
 <style>
-  .uses-header { margin-bottom: 3.5rem; }
-  .uses-header .page-intro { margin-top: 0.875rem; font-size: 1.125rem; line-height: 1.55; }
-  .uses-section { margin-bottom: 3rem; }
   .uses-outro { color: var(--color-muted-foreground); }
   .uses-outro a { color: var(--color-foreground); }
   @media (max-width: 420px) { .uses-host { display: none; } }

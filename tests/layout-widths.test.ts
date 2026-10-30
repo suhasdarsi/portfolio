@@ -41,8 +41,8 @@ describe('layout width consistency', () => {
   });
 
   it('all pages use BlogLayout', () => {
-    // Home page uses a custom design without BlogLayout
     const pages = [
+      'pages/index.astro',
       'pages/notes/index.astro',
       'pages/uses.astro',
       'pages/404.astro',
