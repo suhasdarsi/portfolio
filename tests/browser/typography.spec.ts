@@ -2,7 +2,8 @@ import { test, expect } from '@playwright/test';
 
 test('Libron is self-hosted, loads all reading styles, and keeps page headings consistent', async ({ page }) => {
   let headingStyle: string[] | undefined;
-  for (const path of ['/', '/about', '/notes', '/notes/ai-as-the-ultimate-hub', '/uses', '/swatchbook']) {
+  // Home page has a custom design without page-heading class
+  for (const path of ['/about', '/notes', '/notes/ai-as-the-ultimate-hub', '/uses', '/swatchbook']) {
     await page.goto(path);
     const styles = await page.evaluate(async () => {
       const fonts = await Promise.all([
@@ -26,4 +27,19 @@ test('Libron is self-hosted, loads all reading styles, and keeps page headings c
     expect(styles.heading).toEqual(headingStyle);
     expect(styles.fits).toBe(true);
   }
+
+  // Check that home page still loads Libron even though it doesn't use page-heading
+  await page.goto('/');
+  const homeStyles = await page.evaluate(async () => {
+    const fonts = await Promise.all([
+      document.fonts.load('400 16px Libron'),
+      document.fonts.load('700 16px Libron'),
+    ]);
+    return {
+      loaded: fonts.every(faces => faces.length === 1 && faces[0].status === 'loaded'),
+      body: getComputedStyle(document.body).fontFamily,
+    };
+  });
+  expect(homeStyles.loaded).toBe(true);
+  expect(homeStyles.body).toContain('Libron');
 });
