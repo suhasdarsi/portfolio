@@ -7,29 +7,42 @@ import { getPublishedBlogEntriesByDate } from '../utils/content';
 import { formatDate } from '../utils/date';
 
 const recentNotes = (await getPublishedBlogEntriesByDate()).slice(0, 3);
+const epigraph = 'Every network has a hub. Every hub is a way in.';
+// Meta rows under the name, read like the sender lines on a Tempo message: value left, muted label right.
+const profile = [
+  { value: 'Co-founder, SuperAlign', label: 'Now' },
+  { value: 'Founder, Aztlan', label: 'Before' },
+  { value: 'Masters in AI, IIIT Hyderabad', label: 'Studied' },
+];
 ---
 
 <BlogLayout title="Suhas Darsi" description="Notes, micro-apps, and ways to connect with Suhas Darsi.">
-  <div class="home-hub">
-    <header class="home-header">
-      <p class="home-status"><span class="home-status-dot" aria-hidden="true"></span>Building SuperAlign</p>
-      <h1 class="page-heading">Suhas Darsi</h1>
-      <p class="home-tagline">Founder · Researcher · Writer</p>
-      <p class="home-intro">
-        Co-founder at <a href="https://superalign.ai" target="_blank" rel="noopener noreferrer" class="link-underline">SuperAlign</a>.
-        I write about how AI systems fail and build small tools along the way.
-      </p>
-      <div class="home-actions">
-        <a href={primaryCta.href} target="_blank" rel="noopener noreferrer" class="button home-cta">
-          {primaryCta.label}
-          <span class="row-arrow" aria-hidden="true">↗</span>
-        </a>
-        <SocialLinks />
-      </div>
-    </header>
+  <header class="card-head">
+    <h1 class="page-heading">Suhas Darsi</h1>
+    <SocialLinks />
+  </header>
 
+  <dl class="card-meta">
+    {profile.map((row) => (
+      <div><dd>{row.value}</dd><dt>{row.label}</dt></div>
+    ))}
+  </dl>
+
+  <div class="card-body">
+    <p>
+      Co-founder of <a href="https://superalign.ai" target="_blank" rel="noopener noreferrer" class="link-underline">SuperAlign</a>.
+      I write about how AI systems fail and build small tools along the way.
+    </p>
+    <p class="card-note">
+      <span class="sr-only">{epigraph}</span>
+      <span class="typed" aria-hidden="true" data-text={epigraph}>{epigraph}</span><span class="caret" aria-hidden="true"></span>
+    </p>
+    <a href={primaryCta.href} target="_blank" rel="noopener noreferrer" class="button home-cta-mobile">{primaryCta.label}</a>
+  </div>
+
+  <div class="home-sections">
     {recentNotes.length > 0 && (
-      <nav class="home-link-group page-section" aria-label="Recent notes">
+      <nav class="page-section" aria-label="Recent notes">
         <h2 class="section-label">Recent notes</h2>
         <ul class="rows">
           {recentNotes.map((post) => (
@@ -46,7 +59,7 @@ const recentNotes = (await getPublishedBlogEntriesByDate()).slice(0, 3);
     )}
 
     {homeLinkGroups.map((group) => (
-      <nav class="home-link-group page-section" aria-label={group.label}>
+      <nav class="page-section" aria-label={group.label}>
         <h2 class="section-label">{group.label}</h2>
         {group.description && <p class="home-group-description">{group.description}</p>}
         <ul class:list={['rows', { 'app-cards': group.links.some((link) => 'mark' in link) }]}>
@@ -76,78 +89,115 @@ const recentNotes = (await getPublishedBlogEntriesByDate()).slice(0, 3);
   </div>
 </BlogLayout>
 
+<script>
+  // Type the note line once it scrolls into view. The full text is in the HTML
+  // and in a screen-reader copy, so nothing depends on this running.
+  const typed = document.querySelector<HTMLElement>('.card-note .typed');
+  if (typed && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const text = typed.dataset.text ?? '';
+    typed.textContent = '';
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      observer.disconnect();
+      let i = 0;
+      const type = () => {
+        typed.textContent = text.slice(0, ++i);
+        if (i < text.length) setTimeout(type, 42);
+      };
+      setTimeout(type, 400);
+    });
+    observer.observe(typed);
+  }
+</script>
+
 <style>
-  .home-header { margin-bottom: 4rem; }
-  .home-status {
-    display: inline-flex;
+  /* Title left, small outlined actions right, as on a Tempo message. */
+  .card-head {
+    display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 0.5rem;
+    justify-content: space-between;
+    gap: 1rem;
     margin-bottom: 1.25rem;
-    padding: 0.125rem 0.75rem 0.125rem 0.625rem;
-    border: 1px solid var(--color-border);
-    border-radius: 999px;
-    color: var(--color-muted-foreground);
-    font-size: 0.875rem;
   }
-  /* A still dot: an endless ping kept pulling the eye away from the page. */
-  .home-status-dot {
-    width: 0.4375rem;
-    height: 0.4375rem;
-    border-radius: 50%;
-    background: #3f9b62;
+
+  .card-meta {
+    margin: 0;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--color-border);
   }
-  .home-tagline { margin-top: 0.375rem; font-family: var(--font-sans); color: var(--color-muted-foreground); }
-  .home-intro { margin-top: 1.25rem; max-width: 34rem; font-size: 1.125rem; line-height: 1.55; color: var(--color-body-text); text-wrap: pretty; }
-  .home-intro a { color: var(--color-foreground); }
-  .home-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 1.5rem 2.25rem; margin-top: 2rem; }
-  .home-cta { padding-inline: 1.25rem; }
-  .home-cta:hover .row-arrow { transform: translate(2px, -2px); }
+  .card-meta div {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.3125rem 0;
+  }
+  .card-meta dd { margin: 0; color: var(--color-foreground); }
+  .card-meta dt { flex-shrink: 0; color: var(--color-muted-foreground); }
+
+  .card-body { padding: 2rem 0 4rem; }
+  .card-body p { margin: 0 0 1rem; color: var(--color-body-text); line-height: 1.65; text-wrap: pretty; }
+  .card-body a:not(.button) { color: var(--color-foreground); }
+
+  /* The note types itself out, with Tempo's blue compose caret at the end. */
+  .card-note { font-style: italic; }
+  .card-body .card-note { color: var(--color-muted-foreground); }
+  .caret {
+    display: inline-block;
+    width: 1px;
+    height: 1.15em;
+    margin-left: 2px;
+    vertical-align: -0.2em;
+    background: var(--color-accent);
+    animation: caret-blink 1s steps(1) infinite;
+  }
+  @keyframes caret-blink { 50% { opacity: 0; } }
+
+  /* On phones the toolbar drops its Say hello, so it appears here instead. */
+  .home-cta-mobile { display: none; margin-top: 0.5rem; }
+  @media (max-width: 520px) {
+    .home-cta-mobile { display: inline-flex; }
+  }
+
   .home-group-description { margin: -0.25rem 0 0.75rem; color: var(--color-muted-foreground); }
   .home-more {
     display: inline-flex;
     align-items: baseline;
     gap: 0.375rem;
-    margin-top: 0.5rem;
+    margin-top: 0.75rem;
     color: var(--color-muted-foreground);
+    font-size: var(--type-sm);
     text-decoration: none;
     transition: color 0.15s ease;
   }
   .home-more:hover { color: var(--color-foreground); }
   .home-more:hover .row-arrow { transform: translateX(3px); }
 
-  /* Micro-apps read as small objects, not links in a list. */
-  .app-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 0.75rem; }
+  /* Micro-apps are outlined panels: hairline box, grey wash on hover, no lift. */
+  .app-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: 0.625rem; }
   .app-card {
     display: grid;
     gap: 0.125rem;
     height: 100%;
     padding: 1rem 1.125rem 1.125rem;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-panel);
-    background: color-mix(in srgb, var(--color-subtle) 45%, transparent);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-buttons);
+    background: var(--color-subtle);
     color: var(--color-foreground);
     text-decoration: none;
-    transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.2s cubic-bezier(0.2, 0, 0, 1);
+    transition: background-color 0.15s ease;
   }
-  .app-card:hover {
-    border-color: var(--color-muted-foreground);
-    background: var(--color-subtle);
-    transform: translateY(-2px);
-  }
-  .app-card:active { transform: translateY(0); }
+  .app-card:hover { background: var(--color-muted); }
   .app-card-mark {
-    display: grid;
-    place-items: center;
-    width: 2.5rem;
-    height: 2.5rem;
+    display: block;
     margin-bottom: 0.75rem;
-    border-radius: 0.625rem;
-    background: var(--color-muted);
+    color: var(--color-muted-foreground);
   }
-  .app-card-title { display: flex; align-items: baseline; justify-content: space-between; gap: 0.5rem; font-weight: 700; }
+  .app-card-title { display: flex; align-items: baseline; justify-content: space-between; gap: 0.5rem; font-weight: 500; }
   .app-card-title .row-arrow { color: var(--color-muted-foreground); }
   .app-card:hover .row-arrow { color: var(--color-foreground); transform: translateX(3px); }
-  .app-card-meta { color: var(--color-muted-foreground); }
-  .home-footnote { color: var(--color-muted-foreground); }
+  .app-card-meta { color: var(--color-muted-foreground); font-size: var(--type-sm); }
+  .home-footnote { margin: 0; color: var(--color-muted-foreground); font-size: var(--type-sm); }
   .home-footnote a { color: var(--color-foreground); }
 </style>

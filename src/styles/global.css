@@ -1,68 +1,39 @@
 @import 'tailwindcss';
 
-@font-face {
-  font-family: 'Libron';
-  src: url('/fonts/libron/Libron-Regular.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Libron';
-  src: url('/fonts/libron/Libron-Bold.woff2') format('woff2');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Libron';
-  src: url('/fonts/libron/Libron-Italic.woff2') format('woff2');
-  font-weight: 400;
-  font-style: italic;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Libron';
-  src: url('/fonts/libron/Libron-BoldItalic.woff2') format('woff2');
-  font-weight: 700;
-  font-style: italic;
-  font-display: swap;
-}
-
 @theme {
-  --color-obsidian: #5d5751;
-  --color-cinder: #5d5751;
-  --color-gravel: #8a8782;
-  --color-slate: #a4a09e;
-  --color-fog: #eee7db;
-  --color-chalk: #ddd2bf;
-  --color-powder: #f7f0e7;
-  --color-eggshell: #f7f0e7;
-  --color-ember: #5d5751;
-  --color-link: oklch(54.6% 0.245 262.881);
-  --color-link-hover: oklch(48.8% 0.243 264.376);
-  --color-background: #f7f0e7;
+  /* Tempo-style palette: white, navy ink, soft greys, and one electric blue for the primary action. */
+  --color-obsidian: #201f2d;
+  --color-cinder: #535358;
+  --color-gravel: #8e8e99;
+  --color-slate: #c4c4cc;
+  --color-fog: #f5f5f7;
+  --color-chalk: #e6e6ea;
+  --color-powder: #ffffff;
+  --color-eggshell: #ffffff;
+  --color-ember: #201f2d;
+  --color-link: #1b07f2;
+  --color-link-hover: #1405c2;
+  --color-background: #ffffff;
+  /* The grey desk the white focus panel sits on, as in Tempo's Focus Mode. */
+  --color-canvas: #f6f6f8;
+  --color-border-strong: #dcdce3;
   /* Three ink levels: headings and titles, reading text, and metadata. */
-  --color-foreground: #2b2825;
-  --color-muted: #eee7db;
-  --color-muted-foreground: #69645e;
+  --color-foreground: #201f2d;
+  --color-muted: #f5f5f7;
+  --color-muted-foreground: #6b6b76;
   --color-subtle: #ffffff;
-  --color-subtle-border: #ddd2bf;
-  --color-accent: #2b2825;
-  --color-accent-foreground: #f7f0e7;
-  --color-border: #ddd2bf;
-  --color-overlay: rgba(93, 87, 81, 0.4);
-  --color-code-bg: #eee7db;
-  --color-body-text: #4a4540;
+  --color-subtle-border: #ebebef;
+  --color-accent: #1b07f2;
+  --color-accent-foreground: #ffffff;
+  --color-border: #e6e6ea;
+  --color-overlay: rgba(32, 31, 45, 0.35);
+  --color-code-bg: #f5f5f7;
+  --color-body-text: #535358;
 
-  /* One typeface site-wide: every family token resolves to Libron.
-     Code falls back to the system monospace; no other fonts are downloaded. */
-  --font-serif: 'Libron', Georgia, 'Times New Roman', serif;
-  --font-display: var(--font-serif);
-  --font-sans: var(--font-serif);
+  /* Inter for everything, self-hosted. Code uses the system monospace. */
+  --font-sans: 'Inter Variable', Inter, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-serif: var(--font-sans);
+  --font-display: var(--font-sans);
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
   --text-title: 1.25rem;
@@ -87,12 +58,12 @@
   --tracking-tight: -0.02em;
   --tracking-snug: -0.01em;
 
-  --radius-sm: 6px;
+  --radius-sm: 5px;
   --radius-panel: 8px;
   --radius-panels: 8px;
-  --radius-buttons: 6px;
-  --shadow-subtle: 0 1px 2px rgba(48, 46, 35, 0.04), 0 1px 3px rgba(48, 46, 35, 0.06);
-  --shadow-elevated: 0 4px 12px rgba(48, 46, 35, 0.08), 0 2px 4px rgba(48, 46, 35, 0.04);
+  --radius-buttons: 5px;
+  --shadow-subtle: 0 1px 3px rgba(32, 31, 45, 0.06);
+  --shadow-elevated: 0 4px 16px rgba(32, 31, 45, 0.08), 0 1px 3px rgba(32, 31, 45, 0.05);
 
   --duration-400: 400ms;
 
@@ -110,27 +81,41 @@
   }
 }
 
+/* The whole type system: one family, two weights (400, 500), four sizes. */
+:root {
+  --type-sm: 0.875rem;
+  --type-base: 1rem;
+  --type-md: 1.125rem;
+  --type-lg: 1.5rem;
+}
+
+/* Dark mode keeps Tempo's structure in neutral greys: a near-black desk, a panel one clear
+   step lighter, hover one step lighter again, and borders that only just show. */
 html.dark {
-  --color-link: #8ab4ff;
-  --color-link-hover: #b6d0ff;
-  --color-background: #14130f;
-  --color-foreground: #f7f0e7;
-  --color-muted: #2b2825;
-  --color-muted-foreground: #aaa49a;
-  --color-subtle: #1c1a17;
-  --color-subtle-border: #3a3631;
-  --color-accent: #f7f0e7;
-  --color-accent-foreground: #14130f;
-  --color-border: #3a3631;
-  --color-overlay: rgba(0, 0, 0, 0.66);
-  --color-code-bg: #2b2825;
-  --color-body-text: #c9c2b8;
-  --shadow-subtle: 0 1px 2px rgba(0, 0, 0, 0.2), 0 1px 3px rgba(0, 0, 0, 0.15);
-  --shadow-elevated: 0 4px 12px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2);
+  --color-link: #a49dff;
+  --color-link-hover: #c4bfff;
+  --color-slate: #4a4a50;
+  --color-chalk: #2a2a2e;
+  --color-background: #18181b;
+  --color-canvas: #0f0f11;
+  --color-border-strong: #36363b;
+  --color-foreground: #ededef;
+  --color-muted: #232327;
+  --color-muted-foreground: #96969d;
+  --color-subtle: #18181b;
+  --color-subtle-border: #2a2a2e;
+  --color-accent: #8a80ff;
+  --color-accent-foreground: #0f0f11;
+  --color-border: #28282c;
+  --color-overlay: rgba(0, 0, 0, 0.65);
+  --color-code-bg: #232327;
+  --color-body-text: #c3c3c8;
+  --shadow-subtle: none;
+  --shadow-elevated: 0 8px 24px rgba(0, 0, 0, 0.5);
 }
 
 html.dark .prose-custom {
-  letter-spacing: 0;
+  letter-spacing: -0.004em;
 }
 
 html {
@@ -200,15 +185,15 @@ html {
 }
 
 body {
-  background-color: var(--color-background);
+  background-color: var(--color-canvas);
   background-image: none;
   color: var(--color-foreground);
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
   font-size: 1rem;
   font-weight: 400;
   font-feature-settings: 'liga', 'kern';
   line-height: 1.6;
-  letter-spacing: 0;
+  letter-spacing: -0.006em;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -218,8 +203,8 @@ h1,
 h2,
 h3 {
   font-family: var(--font-display);
-  font-weight: 700;
-  letter-spacing: -0.01em;
+  font-weight: 500;
+  letter-spacing: -0.015em;
 }
 
 h1 {
@@ -230,9 +215,9 @@ h1 {
 /* Shared H1 treatment for the portfolio's primary pages. */
 .page-heading {
   font-family: var(--font-display);
-  font-size: clamp(1.625rem, 1.3rem + 1.2vw, 2rem);
-  font-weight: 700;
-  line-height: 1.15;
+  font-size: var(--type-lg);
+  font-weight: 500;
+  line-height: 1.25;
   letter-spacing: -0.02em;
   color: var(--color-foreground);
   text-wrap: balance;
@@ -248,6 +233,34 @@ h1 {
 
 .site-main {
   animation: page-in 0.18s ease-out both;
+}
+
+/* The focus panel: one white sheet holding the page, everything else stays on the grey desk.
+   --panel-pad is shared so rows can bleed their dividers to the panel's edges. */
+.focus-panel {
+  --panel-pad: 2.75rem;
+  /* Every page's panel reaches the same point near the bottom of the window, however short its content. */
+  min-height: calc(100vh - 7.5rem);
+  min-height: calc(100svh - 7.5rem);
+  padding: 2.75rem var(--panel-pad) 3.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-subtle);
+  box-shadow: 0 1px 2px rgb(32 31 45 / 0.04), 0 16px 40px -24px rgb(32 31 45 / 0.16);
+}
+
+html.dark .focus-panel {
+  box-shadow: none;
+}
+
+@media (max-width: 640px) {
+  .focus-panel {
+    --panel-pad: 1.25rem;
+    margin-inline: -1rem;
+    padding-block: 2rem 2.5rem;
+    border-inline: 0;
+    border-radius: 0;
+  }
 }
 
 @view-transition {
@@ -266,7 +279,7 @@ h3 {
 }
 
 ::selection {
-  background-color: var(--color-chalk);
+  background-color: color-mix(in srgb, var(--color-link) 16%, transparent);
   color: var(--color-foreground);
 }
 
@@ -322,11 +335,11 @@ main {
   overflow-wrap: break-word;
   word-break: normal;
   hyphens: none;
-  font-family: var(--font-serif);
-  font-size: var(--text-body);
-  line-height: 1.6;
+  font-family: var(--font-sans);
+  font-size: var(--type-base);
+  line-height: 1.7;
   color: var(--color-body-text);
-  letter-spacing: 0;
+  letter-spacing: -0.008em;
 }
 
 .prose-custom > *:first-child {
@@ -340,13 +353,12 @@ main {
 :is(.prose-custom) h2,
 :is(.prose-custom) h2[id] {
   font-family: var(--font-sans);
-  font-size: 1.25rem;
-  font-weight: 700;
-  line-height: 1.3;
-  letter-spacing: -0.015em;
-  margin-top: 1.5rem;
+  font-size: var(--type-md);
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  margin-top: 2.5rem;
   margin-bottom: 0.75rem;
-  padding-top: 1rem;
   text-wrap: balance;
   color: var(--color-foreground);
   scroll-margin-top: 5rem;
@@ -359,11 +371,11 @@ main {
 :is(.prose-custom) h3,
 :is(.prose-custom) h3[id] {
   font-family: var(--font-serif);
-  font-size: 1.125rem;
-  font-weight: 700;
+  font-size: var(--type-base);
+  font-weight: 500;
   line-height: 1.5;
   letter-spacing: -0.01em;
-  margin-top: 1.5rem;
+  margin-top: 2rem;
   margin-bottom: 0.5rem;
   color: var(--color-foreground);
   scroll-margin-top: 5rem;
@@ -433,7 +445,7 @@ main {
 
 .prose-custom code {
   font-family: var(--font-mono);
-  font-size: 0.875rem;
+  font-size: var(--type-sm);
   background-color: var(--color-code-bg);
   padding: 0 0.25rem;
   border-radius: 0;
@@ -443,7 +455,7 @@ main {
 .prose-custom pre {
   font-family: var(--font-mono);
   --code-bleed: 28px;
-  font-size: 0.84375rem;
+  font-size: var(--type-sm);
   line-height: 1.65;
   padding: 1.25rem var(--code-bleed);
   border-radius: 8px;
@@ -464,7 +476,8 @@ main {
 }
 
 .prose-custom strong {
-  font-weight: 600;
+  font-weight: 500;
+  color: var(--color-foreground);
 }
 
 .prose-custom blockquote {
@@ -505,7 +518,7 @@ main {
   overflow-x: auto;
   border-collapse: collapse;
   margin: 0.5rem 0 1.5rem;
-  font-size: 0.875rem;
+  font-size: var(--type-sm);
   line-height: 1.45;
 }
 
@@ -518,7 +531,7 @@ main {
 }
 
 .prose-custom th {
-  font-weight: 600;
+  font-weight: 500;
   color: var(--color-foreground);
   border-bottom-width: 2px;
   background: transparent;
@@ -541,7 +554,7 @@ main {
 
 .prose-custom aside p {
   margin: 0;
-  font-size: 1rem;
+  font-size: var(--type-base);
   line-height: 1.7;
   color: var(--color-muted-foreground);
 }
@@ -552,7 +565,7 @@ main {
 
 .prose-custom aside strong {
   color: var(--color-foreground);
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .section-header {
@@ -581,8 +594,8 @@ main {
 }
 
 .page-intro {
-  margin-top: 0.875rem;
-  font-size: 1.125rem;
+  margin-top: 0.75rem;
+  font-size: var(--type-md);
   line-height: 1.55;
   color: var(--color-body-text);
   text-wrap: pretty;
@@ -590,34 +603,24 @@ main {
 
 /* Sections on a page sit the same distance apart everywhere. */
 .page-section {
-  margin-bottom: 3rem;
+  margin-bottom: 3.5rem;
 }
 
 .eyebrow {
   margin-bottom: 0.5rem;
   font-family: var(--font-sans);
+  font-size: var(--type-sm);
   color: var(--color-muted-foreground);
 }
 
-/* Section label with a hairline that runs to the column edge. */
+/* Section labels read like Tempo's "Today / Yesterday": small, muted, nothing else. */
 .section-label {
-  display: flex;
-  align-items: baseline;
-  gap: 0.75rem;
   margin: 0 0 0.5rem;
   font-family: var(--font-sans);
-  font-size: var(--text-body);
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  color: var(--color-foreground);
-}
-
-.section-label::after {
-  content: '';
-  flex: 1;
-  align-self: center;
-  height: 1px;
-  background: var(--color-border);
+  font-size: var(--type-sm);
+  font-weight: 400;
+  letter-spacing: 0;
+  color: var(--color-muted-foreground);
 }
 
 .section-count {
@@ -626,7 +629,7 @@ main {
   font-variant-numeric: tabular-nums;
 }
 
-/* Flat list rows: primary name left, muted meta right, hover wash, no dividers. */
+/* List rows: primary name left, muted meta right. */
 .rows {
   list-style: none;
   margin: 0;
@@ -657,9 +660,20 @@ a.row:hover,
   outline-offset: 0;
 }
 
+/* Inside the panel, rows are separated by space alone; hover gives a soft inset wash. */
+.focus-panel .row {
+  margin-inline: -0.75rem;
+  padding: 0.6875rem 0.75rem;
+}
+
+.focus-panel a.row:hover,
+.focus-panel .row:has(a:hover) {
+  background: var(--color-muted);
+}
+
 .row-title {
   min-width: 0;
-  font-weight: 500;
+  font-weight: 400;
   letter-spacing: -0.01em;
 }
 
@@ -727,35 +741,40 @@ a.row:hover .row-arrow {
   box-shadow: 0 0 0 3px var(--color-muted);
 }
 
-/* Buttons: one strong action, everything else quiet. */
+/* Buttons are outlined, as in Tempo: a hairline box on white, grey wash on hover.
+   .button carries the action; .button-quiet drops the outline. */
 .button,
 .button-quiet {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.625rem 1rem;
+  min-height: 2.25rem;
+  padding: 0.4375rem 1rem;
+  border: 1px solid transparent;
   border-radius: var(--radius-buttons);
   font-family: var(--font-sans);
-  font-size: var(--text-body);
-  font-weight: 600;
+  font-size: var(--type-base);
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+  color: var(--color-foreground);
   text-decoration: none;
   cursor: pointer;
-  transition: opacity 0.15s ease, background-color 0.15s ease;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 
 .button {
-  background: var(--color-accent);
-  color: var(--color-accent-foreground);
+  border-color: var(--color-border-strong);
+  background: var(--color-subtle);
 }
 
 .button:hover {
-  opacity: 0.88;
+  border-color: color-mix(in srgb, var(--color-muted-foreground) 55%, var(--color-border-strong));
+  background: var(--color-muted);
 }
 
 .button-quiet {
-  font-weight: 500;
-  color: var(--color-foreground);
   background: transparent;
 }
 
@@ -763,15 +782,64 @@ a.row:hover .row-arrow {
   background: var(--color-muted);
 }
 
+/* Segmented tool groups: icon or text buttons sharing one outline, split by hairlines. */
+.tool-group {
+  display: inline-flex;
+  align-items: stretch;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-buttons);
+  background: var(--color-subtle);
+  overflow: hidden;
+}
+
+.tool-group > * + * {
+  border-left: 1px solid var(--color-border-strong);
+}
+
+.tool-btn {
+  display: inline-grid;
+  place-items: center;
+  min-width: 2.25rem;
+  height: 2.25rem;
+  padding: 0 0.75rem;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--color-muted-foreground);
+  font-family: var(--font-sans);
+  font-size: var(--type-sm);
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.tool-btn:hover,
+.tool-btn[aria-current='page'] {
+  background: var(--color-muted);
+  color: var(--color-foreground);
+}
+
+.tool-btn:focus-visible {
+  outline-offset: -2px;
+}
+
+/* A lone outlined square, like Tempo's single icon actions. */
+.tool-btn.solo {
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-buttons);
+  background: var(--color-subtle);
+}
+
 /* Pill toggles (filters, choices) */
 .chip-toggle {
-  padding: 0.375rem 0.875rem;
-  border: 1px solid var(--color-border);
-  border-radius: 999px;
+  padding: 0.3125rem 0.75rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-buttons);
   background: transparent;
   color: var(--color-foreground);
   font-family: var(--font-sans);
-  font-size: var(--text-body);
+  font-size: var(--type-sm);
   cursor: pointer;
   transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
@@ -781,13 +849,13 @@ a.row:hover .row-arrow {
 }
 
 .chip-toggle[aria-pressed='true'] {
-  background: var(--color-accent);
-  border-color: var(--color-accent);
-  color: var(--color-accent-foreground);
+  background: var(--color-muted);
+  border-color: var(--color-muted-foreground);
+  color: var(--color-foreground);
 }
 
 .tabular-nums {
   font-variant-numeric: tabular-nums;
 }
 
-mark { background: var(--color-muted); color: var(--color-foreground); font-weight: 600; padding: 0 .05em; }
+mark { background: var(--color-muted); color: var(--color-foreground); font-weight: 500; padding: 0 .05em; }

@@ -55,27 +55,28 @@ const { centered = false } = Astro.props;
   .home-socials {
     display: flex;
     align-items: center;
-    gap: 1.75rem;
+    gap: 0.375rem;
   }
 
   .social-icon {
     position: relative;
     display: grid;
     place-items: center;
-    /* 16px visual icon, 44px hit area: padding expands, negative margin restores flow. */
-    padding: 0.875rem;
-    margin: -0.875rem;
-    border: 0;
-    border-radius: 0;
-    background: transparent;
+    /* Small outlined squares, like the icon actions on a Tempo message. */
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-buttons);
+    background: var(--color-subtle);
     cursor: pointer;
     color: var(--color-muted-foreground);
-    transition: color 0.15s ease;
+    transition: color 0.15s ease, background-color 0.15s ease;
   }
 
   .social-icon :global(svg) {
-    width: 1rem;
-    height: 1rem;
+    width: 0.875rem;
+    height: 0.875rem;
   }
 
   .social-icon:focus-visible {
@@ -85,6 +86,7 @@ const { centered = false } = Astro.props;
 
   .social-icon:hover {
     color: var(--color-foreground);
+    background: var(--color-muted);
   }
 
   .social-tip {
@@ -97,7 +99,7 @@ const { centered = false } = Astro.props;
     background: #2b2825;
     color: #f7f0e7;
     font-family: var(--font-sans);
-    font-size: 0.75rem;
+    font-size: var(--type-sm);
     font-weight: 500;
     line-height: 1;
     white-space: nowrap;
@@ -111,10 +113,7 @@ const { centered = false } = Astro.props;
     opacity: 1;
   }
 
-  html.dark .social-icon:hover {
-    background: rgba(255, 255, 255, 0.04);
-  }
 
-  .home-socials { flex-wrap: wrap; row-gap: 1rem; }
+  .home-socials { flex-wrap: wrap; row-gap: 0.375rem; }
   .centered .home-socials { justify-content: center; }
 </style>

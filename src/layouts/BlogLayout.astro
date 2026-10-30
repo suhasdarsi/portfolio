@@ -1,4 +1,5 @@
 ---
+import '@fontsource-variable/inter';
 import '../styles/global.css';
 import Header from '../components/Header.astro';
 import ThemeInit from '../components/ThemeInit.astro';
@@ -26,7 +27,6 @@ const ogDescription = description || 'Suhas Darsi — practical writing about AI
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="preload" href="/fonts/libron/Libron-Regular.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content="Astro" />
     <meta name="description" content={ogDescription} />
@@ -49,8 +49,8 @@ const ogDescription = description || 'Suhas Darsi — practical writing about AI
     <meta name="twitter:card" content={ogImage ? 'summary_large_image' : 'summary'} />
     <meta name="twitter:site" content="@suhas_darsi" />
     <meta name="twitter:creator" content="@suhas_darsi" />
-    <meta name="theme-color" content="#f7f0e7" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#14130f" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#f6f6f8" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0f0f11" media="(prefers-color-scheme: dark)" />
     <link rel="sitemap" href="/sitemap-index.xml" />
     <link rel="alternate" type="application/rss+xml" title="Suhas Darsi — Notes" href="/rss.xml" />
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' https://cloudflareinsights.com/cdn-cgi/rum; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self';" />
@@ -64,9 +64,11 @@ const ogDescription = description || 'Suhas Darsi — practical writing about AI
 
     <main
       id="main-content"
-      class:list={[wide ? 'max-w-6xl' : 'max-w-[40rem]', 'site-main w-full mx-auto px-4', centered ? 'flex items-center justify-center py-12' : 'pt-16 pb-32']}
+      class:list={[wide ? 'max-w-6xl' : 'max-w-[40rem]', 'site-main w-full mx-auto px-4', centered ? 'flex items-center justify-center py-12' : 'pt-2 pb-10']}
     >
-      <slot />
+      <div class="focus-panel">
+        <slot />
+      </div>
     </main>
   </body>
 </html>

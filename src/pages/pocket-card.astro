@@ -258,7 +258,7 @@ const groups: { legend: string; fields: Field[] }[] = [
   /* Form */
   .form { display: grid; gap: 2.25rem; }
   fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
-  legend { padding: 0; margin-bottom: .875rem; font-weight: 600; color: var(--color-foreground); }
+  legend { padding: 0; margin-bottom: .875rem; font-weight: 500; color: var(--color-foreground); }
   .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem .875rem; }
   .grid .wide { grid-column: 1 / -1; }
   .grid label { display: grid; gap: .375rem; min-width: 0; }
@@ -278,8 +278,8 @@ const groups: { legend: string; fields: Field[] }[] = [
   .export { margin-top: 3rem; }
   button { font: inherit; cursor: pointer; }
   button:disabled { opacity: .55; cursor: wait; }
-  .primary { position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; gap: .5rem; width: 100%; padding: .8125rem 1rem; border-radius: var(--radius-buttons); font-weight: 600; background: var(--color-accent); color: var(--color-accent-foreground); transition: opacity .15s ease, scale .15s ease; }
-  .primary:hover:not(:disabled) { opacity: .88; }
+  .primary { position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; gap: .5rem; width: 100%; padding: .8125rem 1rem; border: 1px solid var(--color-border-strong); border-radius: var(--radius-buttons); font-weight: 500; background: var(--color-subtle); color: var(--color-foreground); transition: background-color .15s ease, scale .15s ease; }
+  .primary:hover:not(:disabled) { background: var(--color-muted); }
   .primary:active:not(:disabled), .quiet:active { scale: .98; }
   /* Busy: a stitch runs along the bottom of the button. */
   .primary.is-busy:disabled { opacity: 1; cursor: progress; }

@@ -3,23 +3,29 @@ import AxeBuilder from '@axe-core/playwright';
 
 const note = '/notes/ai-as-the-ultimate-hub';
 
-test('search URLs restore queries, highlight matches, and support history', async ({ page }) => {
+test('shared search URLs filter notes, highlight matches, clear, and support history', async ({ page }) => {
+  await expect(async () => {
+    await page.goto('/notes');
+    await expect(page.locator('.note-item:visible')).toHaveCount(5);
+  }).toPass();
+  await expect(page.locator('.note-excerpt:visible')).toHaveCount(0);
+  await expect(page.getByRole('searchbox')).toHaveCount(0);
+
   await page.goto('/notes?q=power-law');
-  const input = page.getByLabel('Search notes', { exact: true });
-  await expect(input).toHaveValue('power-law');
-  await expect(page.locator('#notes-search-status')).toContainText('found');
+  const status = page.locator('#notes-search-status');
+  await expect(status).toContainText('“power-law”');
   await expect(page.locator('.note-item:visible mark').first()).toBeVisible();
-  await input.fill('ultimate');
-  await page.getByRole('button', { name: 'Search', exact: true }).click();
-  await expect(page).toHaveURL(/q=ultimate/);
+  const matches = await page.locator('.note-item:visible').count();
+  expect(matches).toBeLessThan(5);
+
+  await page.getByRole('link', { name: 'Clear search' }).click();
+  await expect(page).toHaveURL(/\/notes$/);
+  await expect(status).toBeHidden();
+  await expect(page.locator('.note-item:visible')).toHaveCount(5);
   await page.goBack();
-  await expect(input).toHaveValue('power-law');
+  await expect(status).toContainText('“power-law”');
+  await expect(page.locator('.note-item:visible')).toHaveCount(matches);
   await page.goForward();
-  await expect(input).toHaveValue('ultimate');
-  await page.reload();
-  await expect(input).toHaveValue('ultimate');
-  await input.fill('');
-  await page.getByRole('button', { name: 'Search', exact: true }).click();
   await expect(page.locator('.note-item:visible')).toHaveCount(5);
 });
 
