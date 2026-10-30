@@ -69,8 +69,8 @@ describe('file structure', () => {
 
 describe('typography system', () => {
   it('uses the shared page heading treatment on primary portfolio pages', () => {
+    // Home page uses a custom design without BlogLayout or page-heading
     const pages = [
-      join(SRC, 'pages', 'index.astro'),
       join(SRC, 'pages', 'uses.astro'),
       join(SRC, 'pages', 'notes', 'index.astro'),
       join(SRC, 'pages', 'notes', '[slug].astro'),
@@ -200,8 +200,8 @@ describe('content publication graph', () => {
   });
 
   it('practical published content consumers use centralized helpers', () => {
+    // Home page no longer uses blog content; it's a custom design
     const consumers = [
-      join(SRC, 'pages', 'index.astro'),
       join(SRC, 'pages', 'notes', '[slug].astro'),
       join(SRC, 'pages', 'notes', 'index.astro'),
       join(SRC, 'pages', 'rss.xml.ts'),
