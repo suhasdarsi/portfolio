@@ -20,6 +20,23 @@ This represents a radical compression of network complexity. Instead of managing
 
 Think of it this way: traditional software creates bridges between specific systems. AI creates a merging point where all systems converge. The difference isn't quantitative — it's qualitative.
 
+```mermaid Traditional software builds bridges between specific systems. AI becomes the point every system converges on.
+flowchart LR
+  accTitle: Bridges versus a merging point
+  accDescr: On the left, systems are linked in pairs by purpose-built integrations. On the right, every system connects to a single AI hub.
+  subgraph before["Traditional software: bridges"]
+    direction TB
+    e1[Email] --- c1[Calendar]
+    d1[Documents] --- e1
+    f1[Finance] --- b1[Budgeting]
+    h1[Health records]
+  end
+  subgraph after["AI: a merging point"]
+    direction TB
+    AI((AI)):::hub --- e2[Email] & c2[Calendar] & d2[Documents] & f2[Finance] & h2[Health records]
+  end
+```
+
 ## The Implications
 
 This compression has enormous benefits. Friction disappears. Workflows become seamless. Information flows freely between domains that were previously isolated. But the very quality that makes AI hubs powerful — their ability to bridge everything — also makes them unprecedented concentration points.

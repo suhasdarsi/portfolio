@@ -18,7 +18,8 @@ const privateDir = join(homedir(), '.wallet-contact');
 const output = resolve(values.output ?? join(privateDir, 'suhas-darsi.pkpass'));
 const repo = resolve(import.meta.dirname, '..');
 const outputRelative = relative(repo, output);
-if (!outputRelative.startsWith('..')) throw new Error('Save Wallet passes outside the website repository.');
+if (outputRelative !== '..' && !outputRelative.startsWith('../'))
+  throw new Error('Save Wallet passes outside the website repository.');
 if (existsSync(output)) throw new Error('Output already exists. Choose a new --output path.');
 
 const certificate = join(privateDir, 'pass.com.suhasdarsi.contact.cert.pem');
@@ -26,11 +27,18 @@ const key = join(privateDir, 'pass.com.suhasdarsi.contact.key.pem');
 const intermediate = join(privateDir, 'wwdr.pem');
 const root = join(privateDir, 'apple-root.pem');
 for (const file of [certificate, key, intermediate, root]) {
-  if (!existsSync(file)) throw new Error('Wallet signing credentials are missing from the private local folder.');
+  if (!existsSync(file))
+    throw new Error('Wallet signing credentials are missing from the private local folder.');
 }
-execFileSync('openssl', ['verify', '-CAfile', root, '-untrusted', intermediate, certificate], { stdio: 'pipe' });
+execFileSync('openssl', ['verify', '-CAfile', root, '-untrusted', intermediate, certificate], {
+  stdio: 'pipe',
+});
 const card = values.contact ? await readFile(resolve(values.contact), 'utf8') : createContactCard();
-if (!card.startsWith('BEGIN:VCARD') || !card.includes('FN:Suhas Darsi') || !card.includes('END:VCARD')) {
+if (
+  !card.startsWith('BEGIN:VCARD') ||
+  !card.includes('FN:Suhas Darsi') ||
+  !card.includes('END:VCARD')
+) {
   throw new Error('Use Suhas Darsi’s contact file downloaded from the contact page.');
 }
 
@@ -51,28 +59,96 @@ try {
     labelColor: 'rgb(170, 164, 154)',
     sharingProhibited: true,
     generic: {
-      primaryFields: [{ key: 'name', label: 'FOUNDER · RESEARCHER · WRITER', value: 'Suhas Darsi' }],
-      secondaryFields: [{ key: 'company', label: 'COMPANY', value: 'SuperAlign' }, { key: 'role', label: 'ROLE', value: 'Co-founder' }],
+      primaryFields: [
+        { key: 'name', label: 'FOUNDER · RESEARCHER · WRITER', value: 'Suhas Darsi' },
+      ],
+      secondaryFields: [
+        { key: 'company', label: 'COMPANY', value: 'SuperAlign' },
+        { key: 'role', label: 'ROLE', value: 'Co-founder' },
+      ],
       auxiliaryFields: [{ key: 'website', label: 'WEBSITE', value: 'suhasdarsi.com' }],
       backFields: [
         { key: 'email', label: 'Email', value: 'suhas@superalign.ai' },
         { key: 'web', label: 'Website', value: 'https://suhasdarsi.com/' },
-        { key: 'instructions', label: 'Save my contact', value: 'Scan the QR with your phone camera and choose to save the contact. Anyone who scans the QR can read its details.' },
+        {
+          key: 'instructions',
+          label: 'Save my contact',
+          value:
+            'Scan the QR with your phone camera and choose to save the contact. Anyone who scans the QR can read its details.',
+        },
       ],
     },
-    barcodes: [{ format: 'PKBarcodeFormatQR', message: card, messageEncoding: 'utf-8', altText: 'Scan to save my contact' }],
+    barcodes: [
+      {
+        format: 'PKBarcodeFormatQR',
+        message: card,
+        messageEncoding: 'utf-8',
+        altText: 'Scan to save my contact',
+      },
+    ],
   };
   await writeFile(join(work, 'pass.json'), JSON.stringify(pass), { mode: 0o600 });
-  const icon = Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="87" height="87"><rect width="87" height="87" rx="18" fill="#14130f"/><text x="43.5" y="58" text-anchor="middle" font-family="serif" font-size="46" fill="#f7f0e7">S</text></svg>');
-  for (const [name, size] of [['icon.png', 29], ['icon@2x.png', 58], ['icon@3x.png', 87]] as const) {
+  const icon = Buffer.from(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="87" height="87"><rect width="87" height="87" rx="18" fill="#14130f"/><text x="43.5" y="58" text-anchor="middle" font-family="serif" font-size="46" fill="#f7f0e7">S</text></svg>'
+  );
+  for (const [name, size] of [
+    ['icon.png', 29],
+    ['icon@2x.png', 58],
+    ['icon@3x.png', 87],
+  ] as const) {
     await sharp(icon).resize(size, size).png().toFile(join(work, name));
   }
   const manifest: Record<string, string> = {};
-  for (const file of files) manifest[file] = createHash('sha1').update(await readFile(join(work, file))).digest('hex');
+  for (const file of files)
+    manifest[file] = createHash('sha1')
+      .update(await readFile(join(work, file)))
+      .digest('hex');
   await writeFile(join(work, 'manifest.json'), JSON.stringify(manifest), { mode: 0o600 });
-  execFileSync('openssl', ['smime', '-binary', '-sign', '-signer', certificate, '-inkey', key, '-certfile', intermediate, '-in', join(work, 'manifest.json'), '-out', join(work, 'signature'), '-outform', 'DER'], { stdio: 'pipe' });
-  execFileSync('openssl', ['smime', '-verify', '-inform', 'DER', '-in', join(work, 'signature'), '-content', join(work, 'manifest.json'), '-CAfile', root, '-purpose', 'any', '-out', join(work, 'verified-manifest.json')], { stdio: 'pipe' });
-  execFileSync('zip', ['-q', '-j', output, ...files, 'manifest.json', 'signature'], { cwd: work, stdio: 'pipe' });
+  execFileSync(
+    'openssl',
+    [
+      'smime',
+      '-binary',
+      '-sign',
+      '-signer',
+      certificate,
+      '-inkey',
+      key,
+      '-certfile',
+      intermediate,
+      '-in',
+      join(work, 'manifest.json'),
+      '-out',
+      join(work, 'signature'),
+      '-outform',
+      'DER',
+    ],
+    { stdio: 'pipe' }
+  );
+  execFileSync(
+    'openssl',
+    [
+      'smime',
+      '-verify',
+      '-inform',
+      'DER',
+      '-in',
+      join(work, 'signature'),
+      '-content',
+      join(work, 'manifest.json'),
+      '-CAfile',
+      root,
+      '-purpose',
+      'any',
+      '-out',
+      join(work, 'verified-manifest.json'),
+    ],
+    { stdio: 'pipe' }
+  );
+  execFileSync('zip', ['-q', '-j', output, ...files, 'manifest.json', 'signature'], {
+    cwd: work,
+    stdio: 'pipe',
+  });
   await chmod(output, 0o600);
   console.log(`Signed Wallet pass saved locally: ${output}`);
 } finally {

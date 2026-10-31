@@ -2,9 +2,13 @@ import { describe, it, expect } from 'vitest';
 import { existsSync } from 'fs';
 import { join } from 'path';
 import { readFileSync, readdirSync } from 'fs';
-import { execSync } from 'child_process';
+import {} from 'child_process';
 import { parseFrontmatter } from 'astro/markdown';
 import { isPublishedContent } from '../src/utils/content-routes.mjs';
+import { stripDiagramSource } from '../src/utils/diagrams.mjs';
+import { execFileSync } from 'node:child_process';
+import { mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 
 const ROOT = join(__dirname, '..');
 const SRC = join(ROOT, 'src');
@@ -53,7 +57,6 @@ describe('file structure', () => {
     expect(existsSync(join(SRC, 'components', 'CardPreview.astro'))).toBe(false);
     expect(existsSync(join(SRC, 'content', 'cards'))).toBe(false);
   });
-
 
   it('no files with _1 suffix exist in src/', () => {
     const allFiles = readAllFiles(SRC);
@@ -113,7 +116,9 @@ describe('import paths resolve to real files', () => {
 
         const found = candidates.some((c) => existsSync(c));
         if (!found) {
-          expect.fail(`Import "${imp}" in ${file.replace(SRC + '/', '')} does not resolve to a file`);
+          expect.fail(
+            `Import "${imp}" in ${file.replace(SRC + '/', '')} does not resolve to a file`
+          );
         }
       }
     });
@@ -122,16 +127,30 @@ describe('import paths resolve to real files', () => {
 
 describe('build', () => {
   it('produces all expected pages', () => {
-    execSync('bun run build', { cwd: ROOT, stdio: 'pipe' });
+    const cache = mkdtempSync(join(tmpdir(), 'portfolio-integrity-cache-'));
+    try {
+      execFileSync(
+        'bun',
+        [
+          '--eval',
+          'import { build } from "astro"; await build({ cacheDir: process.argv[1] });',
+          cache,
+        ],
+        { cwd: ROOT, stdio: 'pipe', timeout: 110_000 }
+      );
+    } finally {
+      rmSync(cache, { recursive: true, force: true });
+    }
 
     const blogDir = join(SRC, 'content', 'blog');
-    const publishedSlugs = (directory: string) => readdirSync(directory)
-      .filter((file) => file.endsWith('.md'))
-      .filter((file) => {
-        const markdown = readFileSync(join(directory, file), 'utf-8');
-        return isPublishedContent(parseFrontmatter(markdown).frontmatter);
-      })
-      .map((file) => file.replace(/\.md$/, ''));
+    const publishedSlugs = (directory: string) =>
+      readdirSync(directory)
+        .filter((file) => file.endsWith('.md'))
+        .filter((file) => {
+          const markdown = readFileSync(join(directory, file), 'utf-8');
+          return isPublishedContent(parseFrontmatter(markdown).frontmatter);
+        })
+        .map((file) => file.replace(/\.md$/, ''));
 
     const blogSlugs = publishedSlugs(blogDir);
 
@@ -153,22 +172,27 @@ describe('build', () => {
     const searchIndex = JSON.parse(readFileSync(join(ROOT, 'dist/search.json'), 'utf8'));
     for (const entry of searchIndex) {
       const markdown = readFileSync(join(blogDir, `${entry.id}.md`), 'utf8');
-      const body = markdown.replace(/^---[\s\S]*?---\s*/, '').trim();
-      expect(entry.body.trim()).toBe(body);
+      const body = markdown.replace(/^---[\s\S]*?---\s*/, '');
+      expect(entry.body.trim()).toBe(stripDiagramSource(body).trim());
+      expect(entry.body).not.toContain('```mermaid');
     }
 
-    const css = readAllFiles(join(ROOT, 'dist')).filter((file) => file.endsWith('.css'))
-      .map((file) => readFileSync(file, 'utf8')).join('')
-      + readFileSync(join(ROOT, 'dist/404.html'), 'utf8')
+    const css =
+      readAllFiles(join(ROOT, 'dist'))
+        .filter((file) => file.endsWith('.css'))
+        .map((file) => readFileSync(file, 'utf8'))
+        .join('') +
+      readFileSync(join(ROOT, 'dist/404.html'), 'utf8') +
       // Small page stylesheets are inlined by Astro, so include a built note page.
-      + readFileSync(join(ROOT, 'dist/notes/ai-as-the-ultimate-hub.html'), 'utf8');
+      readFileSync(join(ROOT, 'dist/notes/ai-as-the-ultimate-hub.html'), 'utf8');
     expect(css).toContain('.copy-code-button{');
     expect(css).not.toMatch(/\.copy-code-button\[data-astro-/);
     // 404 results are created at runtime, so they rely on the global (unscoped) row style.
-    expect(readFileSync(join(SRC, 'pages/404.astro'), 'utf8')).toContain("link.className = 'row error-search-result'");
+    expect(readFileSync(join(SRC, 'pages/404.astro'), 'utf8')).toContain(
+      "link.className = 'row error-search-result'"
+    );
     expect(css).toMatch(/\.row\{/);
     expect(css).not.toMatch(/\.row\[data-astro-/);
-
   }, 15_000);
 });
 

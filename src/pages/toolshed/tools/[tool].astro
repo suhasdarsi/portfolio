@@ -1,0 +1,76 @@
+---
+import { render } from 'astro:content';
+import ToolshedLayout from '../../../layouts/ToolshedLayout.astro';
+import Sidebar from '../../../components/toolshed/Sidebar.astro';
+import Rating from '../../../components/toolshed/Rating.astro';
+import { toolSlug } from '../../../data/toolshed';
+import { getTools, hasReview, tagCategory } from '../../../utils/content';
+import { formatDateWithYear } from '../../../utils/date';
+
+export async function getStaticPaths() {
+  const tools = (await getTools()).filter(hasReview);
+  return tools.map((tool) => ({ params: { tool: tool.id }, props: { tool, review: tool.review } }));
+}
+
+const { tool, review } = Astro.props;
+const tools = await getTools();
+const { Content } = await render(review);
+const { rating, verdict, tried, updated, pricing, openSource, platforms, pros, cons } = review.data;
+const host = new URL(tool.url).hostname.replace(/^www\./, '');
+const facts = [
+  { label: 'Pricing', value: pricing },
+  { label: 'Open source', value: openSource === undefined ? undefined : openSource ? 'Yes' : 'No' },
+  { label: 'Platforms', value: platforms.join(', ') },
+].filter((fact) => fact.value);
+const tagHref = (tag: string) => `/toolshed/${toolSlug(tagCategory.get(tag) ?? '')}/tools?tag=${encodeURIComponent(tag)}`;
+---
+
+<ToolshedLayout title={`${tool.name} review — Toolshed`} description={verdict ?? `My notes on ${tool.name}.`}>
+  <div class="ts-review">
+    <Sidebar tools={tools} />
+    <article class="ts-review-main">
+      <p class="ts-eyebrow"><a href="/toolshed">Toolshed</a> <span aria-hidden="true">/</span> <a href="/toolshed/tools">All tools</a></p>
+      <h1 class="page-heading">{tool.name}</h1>
+      {verdict && <p class="verdict">{verdict}</p>}
+      <div class="meta">
+        {rating && <Rating rating={rating} />}
+        {tried && <span>Tried <time datetime={tried.toISOString()}>{formatDateWithYear(tried)}</time></span>}
+        {updated && <span>Updated <time datetime={updated.toISOString()}>{formatDateWithYear(updated)}</time></span>}
+      </div>
+
+      <dl class="facts">
+        <div><dt>Tags</dt><dd class="tags">{tool.tags.map((tag) => <a href={tagHref(tag)}>{tag}</a>)}</dd></div>
+        <div><dt>Categories</dt><dd>{tool.categories.map((category, i) => <>{i > 0 && ', '}<a href={`/toolshed/${toolSlug(category)}`}>{category}</a></>)}</dd></div>
+        {facts.map((fact) => <div><dt>{fact.label}</dt><dd>{fact.value}</dd></div>)}
+        <div><dt>Website</dt><dd><a href={tool.url} target="_blank" rel="noopener noreferrer">{host}<span class="sr-only"> (opens in a new tab)</span></a></dd></div>
+      </dl>
+
+      {(pros.length > 0 || cons.length > 0) && (
+        <div class="pros-cons">
+          {pros.length > 0 && <section><h2 class="ts-eyebrow">What works</h2><ul>{pros.map((pro) => <li>{pro}</li>)}</ul></section>}
+          {cons.length > 0 && <section><h2 class="ts-eyebrow">What doesn’t</h2><ul>{cons.map((con) => <li>{con}</li>)}</ul></section>}
+        </div>
+      )}
+
+      <div class="prose-custom"><Content /></div>
+    </article>
+  </div>
+</ToolshedLayout>
+
+<style>
+  .ts-review { display: grid; grid-template-columns: 13.5rem minmax(0, 1fr); gap: 3rem; }
+  .ts-review-main { min-width: 0; max-width: 46rem; }
+  .ts-eyebrow a { color: inherit; text-decoration: none; }
+  .verdict { margin: 0.75rem 0 0; font-size: var(--type-md); line-height: 1.55; color: var(--color-body-text); }
+  .meta { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; margin: 1rem 0 2rem; font-size: var(--type-sm); color: var(--color-muted-foreground); }
+  .facts { display: grid; gap: 0.5rem; margin: 0 0 2.5rem; padding: 1.25rem 0; border-block: 1px solid var(--color-border); }
+  .facts div { display: grid; grid-template-columns: 7rem 1fr; gap: 1rem; }
+  .facts dt { color: var(--color-muted-foreground); }
+  .facts dd { margin: 0; overflow-wrap: anywhere; }
+  .facts a { color: var(--color-foreground); text-decoration: underline; text-underline-offset: 3px; }
+  .tags { display: flex; flex-wrap: wrap; gap: 0.25rem 0.75rem; }
+  .pros-cons { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; margin: 0 0 2.5rem; }
+  .pros-cons ul { margin: 0; padding-left: 1.125rem; color: var(--color-body-text); line-height: 1.6; }
+  @media (max-width: 900px) { .ts-review { grid-template-columns: minmax(0, 1fr); gap: 1.5rem; } }
+  @media (max-width: 520px) { .pros-cons { grid-template-columns: 1fr; } }
+</style>

@@ -1,0 +1,74 @@
+---
+import { render } from 'astro:content';
+import ToolshedLayout from '../../../layouts/ToolshedLayout.astro';
+import CategoryShell from '../../../components/toolshed/CategoryShell.astro';
+import TagMatrix from '../../../components/toolshed/TagMatrix.astro';
+import { categoryTags, type TagGroup } from '../../../data/security-tools';
+import { toolCategories, toolSlug } from '../../../data/toolshed';
+import { getCategoryGuide, getTools } from '../../../utils/content';
+
+export async function getStaticPaths() {
+  return toolCategories.map((category) => ({ params: { category: toolSlug(category) }, props: { category } }));
+}
+
+const { category } = Astro.props;
+const tools = await getTools();
+const guide = await getCategoryGuide(category);
+const Content = guide ? (await render(guide)).Content : undefined;
+const base = `/toolshed/${toolSlug(category)}`;
+const groups = categoryTags[category];
+const counts = new Map(groups.flatMap((group) => group.tags.map((tag) => [tag.name, tools.filter((tool) => tool.tags.includes(tag.name)).length] as const)));
+const tagHref = (tag: string) => `${base}/tools?tag=${encodeURIComponent(tag)}`;
+const hasAxes = (group: TagGroup): group is TagGroup & { axes: NonNullable<TagGroup['axes']> } => Boolean(group.axes);
+---
+
+<ToolshedLayout title={`${category} — Toolshed`} description={guide?.data.summary ?? `Security tools for ${category.toLowerCase()}.`}>
+  <CategoryShell tools={tools} category={category} tab="overview" summary={guide?.data.summary}>
+    <div class="ts-overview">
+      {groups.filter(hasAxes).map((group) => (
+        <section aria-labelledby={`${toolSlug(group.name)}-title`}>
+          <h2 class="ts-section-title" id={`${toolSlug(group.name)}-title`}>{group.name}</h2>
+          <div class="matrix"><TagMatrix group={group} counts={counts} href={tagHref} /></div>
+        </section>
+      ))}
+
+      {Content && (
+        <div class="prose-custom">
+          <Content />
+        </div>
+      )}
+
+      {groups.filter((group) => !group.axes).map((group) => (
+        <section class="ts-tags" aria-labelledby={`${toolSlug(group.name)}-title`}>
+          <h2 class="ts-section-title" id={`${toolSlug(group.name)}-title`}>{groups.length > 1 ? group.name : `Kinds of ${category} tools`}</h2>
+          <ul>
+            {group.tags.map((tag) => (
+              <li>
+                <a href={tagHref(tag.name)}>
+                  <span class="title"><span>{tag.name}</span><span class="count">{counts.get(tag.name)}</span></span>
+                  <span class="summary">{tag.summary}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+
+      <p class="ts-next"><a href={`${base}/tools`}>See all {category} tools →</a> <a href={`${base}/market`}>Read the market guide →</a></p>
+    </div>
+  </CategoryShell>
+</ToolshedLayout>
+
+<style>
+  .ts-overview { display: grid; gap: 3rem; }
+  .matrix { margin-top: 1rem; }
+  .prose-custom { max-width: 44rem; }
+  .ts-tags ul { list-style: none; margin: 1rem 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr)); gap: 0.75rem; }
+  .ts-tags a { display: grid; align-content: start; gap: 0.375rem; height: 100%; padding: 1rem 1.125rem; border: 1px solid var(--color-border); border-radius: var(--radius-panel); color: var(--color-foreground); text-decoration: none; transition: border-color 0.15s ease, background-color 0.15s ease; }
+  .ts-tags a:hover { border-color: var(--color-border-strong); background: var(--color-muted); }
+  .title { display: flex; justify-content: space-between; gap: 1rem; font-weight: 500; }
+  .count { color: var(--color-muted-foreground); font-weight: 400; font-variant-numeric: tabular-nums; }
+  .summary { font-size: var(--type-sm); line-height: 1.55; color: var(--color-body-text); }
+  .ts-next { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; margin: 0; font-size: var(--type-sm); }
+  .ts-next a { color: var(--color-foreground); text-decoration: underline; text-underline-offset: 3px; }
+</style>

@@ -1,5 +1,5 @@
 // Micro-app marks drawn by src/components/AppMark.astro.
-export type AppMarkName = 'pocket' | 'swatchbook';
+export type AppMarkName = 'pocket' | 'swatchbook' | 'toolshed';
 
 // The one action the homepage leads with.
 export const primaryCta = {
@@ -23,6 +23,7 @@ export const homeLinkGroups = [
     links: [
       { label: 'Pocket Card', href: '/pocket-card', meta: 'Business card for Apple Wallet', mark: 'pocket' as AppMarkName },
       { label: 'Swatchbook', href: '/swatchbook', meta: 'Directory of design systems', mark: 'swatchbook' as AppMarkName },
+      { label: 'Toolshed', href: '/toolshed', meta: 'Security tools research · alpha', mark: 'toolshed' as AppMarkName },
     ],
   },
 ];

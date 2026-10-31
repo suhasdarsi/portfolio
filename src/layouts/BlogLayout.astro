@@ -1,9 +1,6 @@
 ---
-import '@fontsource-variable/inter';
-import '../styles/global.css';
 import Header from '../components/Header.astro';
-import ThemeInit from '../components/ThemeInit.astro';
-import { cleanPath } from '../utils/clean-path';
+import SiteHead from '../components/SiteHead.astro';
 
 interface Props {
   title: string;
@@ -17,46 +14,12 @@ interface Props {
 }
 
 const { title, description, ogType = 'website', ogImage, wide = false, centered = false, noindex = false, author = 'Suhas Darsi' } = Astro.props;
-const siteUrl = Astro.site?.toString().replace(/\/$/, '') || 'https://suhasdarsi.com';
-const canonicalUrl = `${siteUrl}${cleanPath(Astro.url.pathname)}`;
-const ogDescription = description || 'Suhas Darsi — practical writing about AI security, agent systems, and network risk.';
 ---
 
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="generator" content="Astro" />
-    <meta name="description" content={ogDescription} />
-    <meta name="author" content={author} />
-    {noindex && <meta name="robots" content="noindex, nofollow" />}
-    <link rel="canonical" href={canonicalUrl} />
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={ogDescription} />
-    <meta property="og:type" content={ogType} />
-    <meta property="og:url" content={canonicalUrl} />
-    <meta property="og:site_name" content="Suhas Darsi" />
-    {ogImage && <>
-      <meta property="og:image" content={ogImage} />
-      <meta property="og:image:width" content="1200" />
-      <meta property="og:image:height" content="630" />
-      <meta property="og:image:alt" content={title} />
-      <meta name="twitter:image" content={ogImage} />
-      <meta name="twitter:image:alt" content={title} />
-    </>}
-    <meta name="twitter:card" content={ogImage ? 'summary_large_image' : 'summary'} />
-    <meta name="twitter:site" content="@suhas_darsi" />
-    <meta name="twitter:creator" content="@suhas_darsi" />
-    <meta name="theme-color" content="#f6f6f8" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#0f0f11" media="(prefers-color-scheme: dark)" />
-    <link rel="sitemap" href="/sitemap-index.xml" />
-    <link rel="alternate" type="application/rss+xml" title="Suhas Darsi — Notes" href="/rss.xml" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' https://cloudflareinsights.com/cdn-cgi/rum; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self';" />
-    <meta name="referrer" content="strict-origin-when-cross-origin" />
-    <title>{title}</title>
-    <ThemeInit />
+    <SiteHead title={title} description={description} ogType={ogType} ogImage={ogImage} noindex={noindex} author={author} />
   </head>
   <body class="min-h-screen bg-background">
     <a href="#main-content" class="skip-link">Skip to main content</a>

@@ -1,0 +1,103 @@
+---
+import { render } from 'astro:content';
+import ToolshedLayout from '../../../layouts/ToolshedLayout.astro';
+import CategoryShell from '../../../components/toolshed/CategoryShell.astro';
+import { categoryTags } from '../../../data/security-tools';
+import { toolCategories, toolSlug } from '../../../data/toolshed';
+import { getMarketGuide, getTools, hasReview, tagsIn, toolHref } from '../../../utils/content';
+import { formatDateWithYear } from '../../../utils/date';
+
+export async function getStaticPaths() {
+  return toolCategories.map((category) => ({ params: { category: toolSlug(category) }, props: { category } }));
+}
+
+const { category } = Astro.props;
+const tools = await getTools();
+const guide = await getMarketGuide(category);
+const Content = guide ? (await render(guide)).Content : undefined;
+const groups = categoryTags[category];
+
+// Tools that carry more than one tag here, or that reach into other categories. Broadest first.
+const multi = tools
+  .filter((tool) => tool.categories.includes(category) && (tagsIn(tool, category).length > 1 || tool.categories.length > 1))
+  .sort((a, b) => b.tags.length - a.tags.length || a.name.localeCompare(b.name));
+---
+
+<ToolshedLayout title={`${category} market guide — Toolshed`} description={guide?.data.summary ?? `How the ${category.toLowerCase()} security market is shaped.`}>
+  <CategoryShell tools={tools} category={category} tab="market" summary={guide?.data.summary}>
+    {guide && <p class="ts-asof">As of <time datetime={guide.data.asOf.toISOString()}>{formatDateWithYear(guide.data.asOf)}</time></p>}
+
+    <div class="ts-market">
+      {Content && (
+        <div class="prose-custom">
+          <Content />
+        </div>
+      )}
+
+      {multi.length > 0 && (
+        <section aria-labelledby="overlap-title">
+          <h2 class="ts-section-title" id="overlap-title">Tools that do more than one job</h2>
+          <p class="ts-overlap-intro">Each dot is a tag the tool carries. Based on what vendors offer, not on my testing.</p>
+          <div class="matrix-wrap" tabindex="0" role="region" aria-label="Tags by tool">
+            <table class="matrix">
+              <thead>
+                {groups.length > 1 && (
+                  <tr class="group-row">
+                    <th></th>
+                    {groups.map((group) => <th scope="colgroup" colspan={group.tags.length}>{group.name}</th>)}
+                    <th></th>
+                  </tr>
+                )}
+                <tr>
+                  <th scope="col" class="tool-col">Tool</th>
+                  {groups.flatMap((group) => group.tags.map((tag, i) => <th scope="col" class:list={{ 'group-start': i === 0 }}><span>{tag.name}</span></th>))}
+                  <th scope="col" class="also-col">Also in</th>
+                </tr>
+              </thead>
+              <tbody>
+                {multi.map((tool) => (
+                  <tr>
+                    <th scope="row" class="tool-col">
+                      {hasReview(tool) ? <a href={toolHref(tool)}>{tool.name}</a> : <a href={tool.url} target="_blank" rel="noopener noreferrer">{tool.name}<span class="sr-only"> (opens in a new tab)</span></a>}
+                    </th>
+                    {groups.flatMap((group) => group.tags.map((tag, i) => (
+                      <td class:list={{ 'group-start': i === 0 }}>
+                        {tool.tags.includes(tag.name) ? <><span class="dot" aria-hidden="true"></span><span class="sr-only">Yes</span></> : <span class="sr-only">No</span>}
+                      </td>
+                    )))}
+                    <td class="also-col">{tool.categories.filter((other) => other !== category).map((other, i) => <>{i > 0 && ', '}<a href={`/toolshed/${toolSlug(other)}/tools`}>{other}</a></>)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
+    </div>
+  </CategoryShell>
+</ToolshedLayout>
+
+<style>
+  .ts-asof { margin: -0.75rem 0 2rem; font-size: var(--type-sm); color: var(--color-muted-foreground); }
+  .ts-market { display: grid; gap: 3rem; }
+  .prose-custom { max-width: 44rem; }
+  .ts-overlap-intro { margin: 0.375rem 0 1.25rem; max-width: 44rem; color: var(--color-body-text); }
+
+  .matrix-wrap { overflow-x: auto; }
+  .matrix-wrap:focus-visible { outline: 2px solid var(--color-foreground); outline-offset: 2px; }
+  .matrix { border-collapse: collapse; font-size: var(--type-sm); }
+  .matrix th, .matrix td { border-bottom: 1px solid var(--color-border); }
+  .group-row th { height: auto; padding: 0 0 0.375rem 0.375rem; text-align: left; font-weight: 500; color: var(--color-foreground); border-bottom: 0; }
+  .matrix thead tr:last-child th { height: 10.5rem; padding: 0 0 0.5rem; vertical-align: bottom; font-weight: 400; color: var(--color-muted-foreground); }
+  /* Tag names run upwards so every tag fits across. */
+  .matrix thead tr:last-child th:not(.tool-col):not(.also-col) span { display: inline-block; writing-mode: vertical-rl; transform: rotate(180deg); max-height: 10rem; line-height: 1.2; text-align: left; }
+  .matrix thead tr:last-child th:not(.tool-col):not(.also-col) { width: 2.5rem; min-width: 2.5rem; }
+  .group-start { border-left: 1px solid var(--color-border); }
+  .matrix .tool-col { min-width: 13rem; padding: 0.5rem 1rem 0.5rem 0; text-align: left; font-weight: 400; color: var(--color-foreground); }
+  .matrix .also-col { min-width: 10rem; padding: 0.5rem 0 0.5rem 1rem; text-align: left; color: var(--color-muted-foreground); }
+  .matrix a { color: inherit; text-decoration: none; }
+  .matrix a:hover { text-decoration: underline; text-underline-offset: 3px; }
+  .matrix td { text-align: center; }
+  .matrix tbody tr:hover { background: var(--color-muted); }
+  .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: var(--color-foreground); }
+</style>

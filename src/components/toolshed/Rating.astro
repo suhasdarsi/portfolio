@@ -1,0 +1,15 @@
+---
+// Five dots, filled up to the rating. Reads as "4 out of 5" to screen readers.
+interface Props { rating: number; }
+const { rating } = Astro.props;
+---
+
+<span class="tool-rating" role="img" aria-label={`${rating} out of 5`}>
+  {[1, 2, 3, 4, 5].map((dot) => <span class:list={['dot', { on: dot <= rating }]} aria-hidden="true"></span>)}
+</span>
+
+<style>
+  .tool-rating { display: inline-flex; gap: 3px; align-items: center; vertical-align: 0.05em; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; border: 1px solid currentColor; opacity: 0.45; }
+  .dot.on { background: var(--color-foreground); border-color: var(--color-foreground); opacity: 1; }
+</style>

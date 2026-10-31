@@ -1,4 +1,5 @@
 import { getPublishedBlogEntriesByDate } from './content';
+import { stripDiagramSource } from './diagrams.mjs';
 
 export interface SearchEntry {
   id: string;
@@ -18,6 +19,6 @@ export async function getSearchData(): Promise<SearchEntry[]> {
     type: 'Note',
     title: note.data.title,
     description: note.data.description,
-    body: note.body ?? '',
+    body: stripDiagramSource(note.body ?? ''),
   }));
 }

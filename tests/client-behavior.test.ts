@@ -55,10 +55,14 @@ const posts = [{ title: 'Network risk', href: '/notes/network' }];
 const response = { ok: true, json: async () => posts };
 
 describe('browser script regressions', () => {
-  it('initializes the preferred theme and search when storage throws', async () => {
-    const fetch = vi.fn().mockResolvedValue(response);
-    const { get, document } = setup('src/components/Header.astro', { fetch });
+  it('initializes the preferred theme when storage throws', () => {
+    const { document } = setup('src/components/ThemeToggle.astro');
     expect(document.documentElement.classList.contains('dark')).toBe(true);
+  });
+
+  it('initializes search when storage throws', async () => {
+    const fetch = vi.fn().mockResolvedValue(response);
+    const { get } = setup('src/components/Header.astro', { fetch });
     await get('global-search-toggle').handlers.click();
     expect(get('global-search-results').children).toHaveLength(1);
   });

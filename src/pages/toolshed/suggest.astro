@@ -1,0 +1,348 @@
+---
+import ToolshedLayout from '../../layouts/ToolshedLayout.astro';
+import { toolCategories } from '../../data/toolshed';
+import { githubIssueLink } from '../../utils/toolshed-request';
+
+// The form goes live once the Turnstile sitekey is set at build time; until then it points to GitHub.
+const sitekey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY ?? '';
+const fallback = githubIssueLink('suhasdarsi/portfolio');
+---
+
+<ToolshedLayout
+  title="Suggest a tool — Toolshed"
+  description="Suggest a security tool for Toolshed, or a correction to one that's listed. Listing is free and decided on merit."
+  turnstile={Boolean(sitekey)}
+>
+  <div class="ts-suggest">
+    <p class="ts-eyebrow">
+      <a href="/toolshed">Toolshed</a> <span aria-hidden="true">/</span> Suggest a tool
+    </p>
+    <h1 class="page-heading">Suggest a tool or a correction</h1>
+    <ul class="rules">
+      <li>
+        <strong>Free, and decided on merit.</strong> Nobody can pay to be listed, and suggesting a
+        tool doesn’t guarantee it gets added.
+      </li>
+      <li>
+        <strong>Vendors are welcome.</strong> Just say you work for or with them. It won’t count
+        against the tool.
+      </li>
+      <li>
+        <strong>Requests are public.</strong> Each one becomes a GitHub issue anyone can read, so
+        don’t include anything private.
+      </li>
+      <li>
+        <strong>What gets listed:</strong> security tools that are publicly available, with a
+        working website and a clear job.
+      </li>
+    </ul>
+
+    {sitekey ? (
+      <form id="suggest-form" class="form" novalidate data-sitekey={sitekey}>
+        <fieldset class="kind">
+          <legend>What would you like to do?</legend>
+          <label>
+            <input type="radio" name="kind" value="add" checked /> Add a tool
+          </label>
+          <label>
+            <input type="radio" name="kind" value="correct" /> Correct a listed tool
+          </label>
+        </fieldset>
+
+        <label>
+          Tool name
+          <input class="field" name="name" required maxlength="80" autocomplete="off" />
+        </label>
+        <label>
+          Website
+          <input
+            class="field"
+            name="url"
+            type="url"
+            required
+            maxlength="300"
+            placeholder="https://"
+            autocomplete="off"
+          />
+        </label>
+
+        <fieldset>
+          <legend>
+            Categories <span class="ts-muted">(optional)</span>
+          </legend>
+          <div class="categories">
+            {toolCategories.map((category) => (
+              <label class="check">
+                <input type="checkbox" name="categories" value={category} /> {category}
+              </label>
+            ))}
+          </div>
+        </fieldset>
+
+        <label>
+          <span id="details-label">What does it do?</span>
+          <textarea
+            class="field"
+            name="details"
+            required
+            minlength="10"
+            maxlength="1500"
+            rows="5"
+          ></textarea>
+        </label>
+
+        <fieldset class="kind">
+          <legend>Do you work for or with the vendor?</legend>
+          <label>
+            <input type="radio" name="affiliated" value="no" checked /> No
+          </label>
+          <label>
+            <input type="radio" name="affiliated" value="yes" /> Yes
+          </label>
+        </fieldset>
+        <label id="relationship" hidden>
+          How are you connected?{' '}
+          <input
+            class="field"
+            name="relationship"
+            maxlength="160"
+            placeholder="For example: I work there, or we're a partner"
+          />
+        </label>
+
+        <!-- Hidden from people; bots fill it in. -->
+        <label class="trap" aria-hidden="true">
+          Website (leave empty)
+          <input name="website" tabindex="-1" autocomplete="off" />
+        </label>
+
+        <div id="turnstile"></div>
+        <button type="submit" class="button">
+          Send request
+        </button>
+        <p id="suggest-status" class="status" role="status" aria-live="polite"></p>
+      </form>
+    ) : (
+      <p class="fallback">
+        The form isn’t open yet. For now,{' '}
+        <a href={fallback} target="_blank" rel="noopener noreferrer">
+          open a request on GitHub
+        </a>
+        .
+      </p>
+    )}
+  </div>
+</ToolshedLayout>
+
+{sitekey && (
+  <script
+    is:inline
+    src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
+    async
+    defer
+  ></script>
+)}
+
+<script>
+  import { validateToolRequest } from '../../utils/toolshed-request';
+
+  type Turnstile = {
+    render(el: string, options: Record<string, unknown>): string;
+    reset(id: string): void;
+    getResponse(id: string): string | undefined;
+  };
+  const form = document.querySelector<HTMLFormElement>('#suggest-form');
+  const status = document.getElementById('suggest-status');
+  const relationship = document.getElementById('relationship');
+  const detailsLabel = document.getElementById('details-label');
+  let widgetId: string | undefined;
+
+  // Render the widget explicitly so it can be reset after each attempt; tokens are single-use.
+  function renderWidget() {
+    const turnstile = (window as unknown as { turnstile?: Turnstile }).turnstile;
+    if (!form || widgetId !== undefined) return;
+    if (!turnstile) {
+      setTimeout(renderWidget, 200);
+      return;
+    }
+    widgetId = turnstile.render('#turnstile', {
+      sitekey: form.dataset.sitekey,
+      action: 'toolshed_request',
+    });
+  }
+
+  if (form) {
+    renderWidget();
+    form.addEventListener('change', () => {
+      const data = new FormData(form);
+      if (relationship) relationship.hidden = data.get('affiliated') !== 'yes';
+      if (detailsLabel)
+        detailsLabel.textContent =
+          data.get('kind') === 'correct' ? 'What should change?' : 'What does it do?';
+    });
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const turnstile = (window as unknown as { turnstile?: Turnstile }).turnstile;
+      const data = new FormData(form);
+      const say = (message: string) => {
+        if (status) status.textContent = message;
+      };
+      let request;
+      try {
+        request = validateToolRequest({
+          kind: data.get('kind'),
+          name: data.get('name'),
+          url: data.get('url'),
+          categories: data.getAll('categories'),
+          details: data.get('details'),
+          affiliated: data.get('affiliated') === 'yes',
+          relationship: data.get('relationship') ?? '',
+        });
+      } catch (error) {
+        say(error instanceof Error ? error.message : 'Check the form and try again.');
+        return;
+      }
+      const token = widgetId !== undefined ? turnstile?.getResponse(widgetId) : undefined;
+      if (!token) {
+        say('Please complete the check above the button.');
+        return;
+      }
+
+      const button = form.querySelector('button');
+      button?.setAttribute('disabled', '');
+      say('Sending…');
+      try {
+        const response = await fetch('/api/toolshed/request', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ request, token, website: data.get('website') }),
+        });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok)
+          throw new Error(result.error ?? 'Something went wrong. Please try again.');
+        form.reset();
+        if (detailsLabel) detailsLabel.textContent = 'What does it do?';
+        if (relationship) relationship.hidden = true;
+        if (status) {
+          status.textContent = 'Thanks, your request is in. ';
+          if (result.url) {
+            const link = Object.assign(document.createElement('a'), {
+              href: result.url,
+              textContent: 'Follow it on GitHub',
+              target: '_blank',
+              rel: 'noopener noreferrer',
+            });
+            status.append(link, '.');
+          }
+        }
+      } catch (error) {
+        say(error instanceof Error ? error.message : 'Something went wrong. Please try again.');
+      } finally {
+        button?.removeAttribute('disabled');
+        if (widgetId !== undefined) turnstile?.reset(widgetId);
+      }
+    });
+  }
+</script>
+
+<style>
+  .ts-suggest {
+    max-width: 40rem;
+  }
+  .ts-eyebrow a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .rules {
+    margin: 1.25rem 0 2rem;
+    padding-left: 1.125rem;
+    display: grid;
+    gap: 0.5rem;
+    color: var(--color-body-text);
+    line-height: 1.55;
+  }
+  .rules strong {
+    font-weight: 500;
+    color: var(--color-foreground);
+  }
+  .form {
+    display: grid;
+    gap: 1.25rem;
+  }
+  .form > label,
+  #relationship {
+    display: grid;
+    gap: 0.375rem;
+    font-size: var(--type-sm);
+    color: var(--color-foreground);
+  }
+  fieldset {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    display: grid;
+    gap: 0.5rem;
+  }
+  legend {
+    margin-bottom: 0.5rem;
+    font-size: var(--type-sm);
+    color: var(--color-foreground);
+  }
+  .kind {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+  }
+  .kind legend {
+    width: 100%;
+  }
+  .kind label,
+  .check {
+    display: inline-flex;
+    gap: 0.5rem;
+    align-items: center;
+    font-size: var(--type-sm);
+    color: var(--color-body-text);
+  }
+  .categories {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+    gap: 0.375rem 1rem;
+  }
+  textarea.field {
+    resize: vertical;
+    font: inherit;
+  }
+  .trap {
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+  .button {
+    justify-self: start;
+  }
+  .status {
+    margin: 0;
+    min-height: 1.5em;
+    font-size: var(--type-sm);
+    color: var(--color-body-text);
+  }
+  .status :global(a),
+  .fallback a {
+    color: var(--color-foreground);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .fallback {
+    padding: 1rem 1.25rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-panel);
+    color: var(--color-body-text);
+  }
+  [hidden] {
+    display: none !important;
+  }
+</style>

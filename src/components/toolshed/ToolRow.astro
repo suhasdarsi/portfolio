@@ -1,0 +1,45 @@
+---
+import Rating from './Rating.astro';
+import { hasReview, toolHref, type Tool } from '../../utils/content';
+
+interface Props { tool: Tool; }
+const { tool } = Astro.props;
+const review = hasReview(tool) ? tool.review : undefined;
+const host = new URL(tool.url).hostname.replace(/^www\./, '');
+---
+
+<li data-tool data-search={`${tool.name} ${tool.categories.join(' ')} ${tool.tags.join(' ')} ${host}`.toLowerCase()}>
+  <a href={review ? toolHref(tool) : tool.url} class="ts-row" {...(review ? {} : { target: '_blank', rel: 'noopener noreferrer' })}>
+    <span class="name">{tool.name}{tool.affiliated && <span class="tag">My employer</span>}</span>
+    <span class="host">{review?.data.verdict ?? host}</span>
+    <span class="kind">{tool.categories.join(', ')}</span>
+    <span class="end">{review?.data.rating && <Rating rating={review.data.rating} />}<span aria-hidden="true">{review ? '→' : '↗'}</span></span>
+    {!review && <span class="sr-only"> (opens in a new tab)</span>}
+  </a>
+</li>
+
+<style>
+  .ts-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1.4fr) auto;
+    gap: 1rem;
+    align-items: baseline;
+    padding: 0.625rem 0.75rem;
+    margin-inline: -0.75rem;
+    border-radius: var(--radius-buttons);
+    color: var(--color-foreground);
+    font-size: var(--type-sm);
+    text-decoration: none;
+  }
+  .ts-row:hover { background: var(--color-muted); }
+  .name { font-weight: 500; font-size: var(--type-base); }
+  .host, .kind, .end { color: var(--color-muted-foreground); overflow-wrap: anywhere; }
+  .end { display: inline-flex; gap: 0.5rem; align-items: center; }
+  .tag { margin-left: 0.5rem; padding: 0.0625rem 0.375rem; border: 1px solid var(--color-border-strong); border-radius: var(--radius-sm); font-size: 0.75rem; font-weight: 400; color: var(--color-muted-foreground); white-space: nowrap; }
+  @media (max-width: 640px) {
+    .ts-row { grid-template-columns: minmax(0, 1fr) auto; gap: 0.125rem 1rem; }
+    .host { grid-row: 2; }
+    .kind { display: none; }
+    .end { grid-row: 1; grid-column: 2; }
+  }
+</style>

@@ -1,0 +1,108 @@
+---
+// Light/dark switch. The choice is stored per browser; ThemeInit applies it before paint.
+---
+
+<button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch to dark theme">
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-sun"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path></svg>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-moon"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"></path></svg>
+</button>
+
+<script>
+  const themeToggle = document.getElementById('theme-toggle');
+  const html = document.documentElement;
+
+  function getTheme() {
+    try {
+      const stored = localStorage.getItem('theme');
+      if (stored === 'dark' || stored === 'light') return stored;
+    } catch { /* Storage may be disabled by the browser. */ }
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+
+  function setTheme(theme: string) {
+    try {
+      localStorage.setItem('theme', theme);
+    } catch { /* The selected theme still applies for this page. */ }
+    if (theme === 'dark') {
+      html.classList.add('dark');
+    } else {
+      html.classList.remove('dark');
+    }
+    themeToggle?.setAttribute('aria-label', theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme');
+  }
+
+  setTheme(getTheme());
+
+  themeToggle?.addEventListener('click', () => {
+    const current = html.classList.contains('dark') ? 'dark' : 'light';
+    setTheme(current === 'dark' ? 'light' : 'dark');
+  });
+</script>
+
+<style>
+  .theme-toggle {
+    position: relative;
+    width: 2.25rem;
+    height: 2.25rem;
+    padding-inline: 0;
+    padding-block: 0;
+    color: var(--color-muted-foreground);
+    background: transparent;
+    border: 0;
+    border-radius: var(--radius-buttons);
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease, scale 0.15s ease;
+  }
+
+  .theme-toggle:active {
+    scale: 0.97;
+  }
+
+  .theme-toggle:focus-visible {
+    outline: 2px solid var(--color-foreground);
+    outline-offset: -2px;
+  }
+
+  .theme-toggle:hover {
+    color: var(--color-foreground);
+    border-color: var(--color-muted-foreground);
+    background: var(--color-muted);
+  }
+
+  /* Both icons stay stacked; the swap is a cross-fade, not a visibility toggle. */
+  .theme-toggle svg {
+    grid-area: 1 / 1;
+    width: 1rem;
+    height: 1rem;
+    transition:
+      opacity 0.2s cubic-bezier(0.2, 0, 0, 1),
+      scale 0.2s cubic-bezier(0.2, 0, 0, 1),
+      filter 0.2s cubic-bezier(0.2, 0, 0, 1);
+  }
+
+  :global(html:not(.dark)) .theme-toggle .icon-sun {
+    opacity: 0;
+    scale: 0.25;
+    filter: blur(4px);
+  }
+
+  :global(html:not(.dark)) .theme-toggle .icon-moon {
+    opacity: 1;
+    scale: 1;
+    filter: blur(0);
+  }
+
+  :global(html.dark) .theme-toggle .icon-sun {
+    opacity: 1;
+    scale: 1;
+    filter: blur(0);
+  }
+
+  :global(html.dark) .theme-toggle .icon-moon {
+    opacity: 0;
+    scale: 0.25;
+    filter: blur(4px);
+  }
+</style>

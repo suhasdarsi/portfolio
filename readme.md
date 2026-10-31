@@ -50,17 +50,23 @@ A focused collection of practical writing about AI security, agent systems, and 
 
 ## 🧞 Commands
 
+Use Node `^22.23.4 || ^24.0.0 || >=26.0.0` and Bun. Install browser binaries with `bunx playwright install chromium` before running browser tests.
+
 All commands run from the project root:
 
-| Command          | Action                               |
-| :--------------- | :----------------------------------- |
-| `bun install`    | Install dependencies                 |
-| `bun dev`        | Start dev server at `localhost:4321` |
-| `bun build`      | Build production site to `./dist/`   |
-| `bun preview`    | Preview production build locally     |
-| `bun astro`      | Run Astro CLI commands               |
-| `bun run test`       | Run integrity tests                  |
-| `bun test:watch` | Run tests in watch mode              |
+| Command          | Action                                         |
+| :--------------- | :--------------------------------------------- |
+| `bun install`    | Install dependencies                           |
+| `bun dev`        | Start dev server at `localhost:4321`           |
+| `bun build`      | Build production site to `./dist/`             |
+| `bun preview`    | Preview production build locally               |
+| `bun astro`      | Run Astro CLI commands                         |
+| `bun run test`   | Run integrity tests                            |
+| `bun test:watch` | Run tests in watch mode                        |
+| `bun run check`  | Run lint, typechecking, unit and browser tests |
+| `bun audit`      | Check dependency vulnerabilities               |
+
+See [dependency maintenance](docs/dependency-maintenance.md) for upgrade notes and compatibility exceptions.
 
 ## 📝 Writing in Obsidian
 
@@ -81,7 +87,6 @@ Open `src/content/` as a vault in Obsidian using **Open folder as vault**. The v
 - Link to a heading: `[[ai-as-the-ultimate-hub#The Implications|hub risks]]`
 - Builds fail when a target is missing or ambiguous.
 - Obsidian block references such as `[[note#^block-id]]` are not supported.
-
 
 ### Draft notes
 

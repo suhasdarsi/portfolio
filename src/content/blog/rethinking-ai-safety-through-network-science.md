@@ -14,6 +14,22 @@ In network theory, one defense against hub vulnerability is redundancy — havin
 
 We need diverse AI systems, not a monoculture of identical hubs that share the same vulnerabilities. When every organization runs the same foundation model with the same safety training, a single discovered exploit becomes universal. Diversity of approach — different architectures, different training methodologies, different safety mechanisms — creates resilience.
 
+```mermaid With one shared model, a single exploit is universal. With diverse models, it stays contained.
+flowchart LR
+  accTitle: Monoculture versus diversity
+  accDescr: On the left, three organisations depend on the same model, so one exploit reaches all of them. On the right, each organisation runs a different model, so an exploit in one affects only that organisation.
+  subgraph mono["Monoculture"]
+    direction TB
+    M((Same model)):::alert --> o1[Org 1]:::alert & o2[Org 2]:::alert & o3[Org 3]:::alert
+  end
+  subgraph diverse["Diversity"]
+    direction TB
+    m1((Model A)):::alert --> d1[Org 1]:::alert
+    m2((Model B)) --> d2[Org 2]
+    m3((Model C)) --> d3[Org 3]
+  end
+```
+
 ## Graceful Degradation
 
 Networks designed with "circuit breakers" can isolate failures before they cascade. When a node starts behaving abnormally, the network routes around it rather than through it.
@@ -35,6 +51,17 @@ Monitoring isn't optional — it's a prerequisite for any system that occupies a
 Sometimes inefficiency is a feature, not a bug. The [[small-world-networks-and-hubs|natural boundaries]] between traditional systems exist for a reason — they contain failures, slow down cascades, and create checkpoints.
 
 Strategic air gaps between AI hubs — moments where human judgment is required before actions propagate to the next system — may be necessary safeguards, even if they slow things down. The goal isn't to recreate the inefficiency of isolated systems, but to introduce thoughtful friction at the points where cascading risk is highest.
+
+```mermaid Circuit breakers and human checkpoints sit between hubs, where a cascade would otherwise pass straight through.
+flowchart LR
+  accTitle: A checkpoint between two AI hubs
+  accDescr: An action from AI hub A is checked for anomalies or low confidence. Normal actions pass to AI hub B. Flagged actions are narrowed in scope and sent to human review, which either approves them on to hub B or stops them.
+  A((AI hub A)):::hub --> Q{Anomaly or low confidence?}
+  Q -- No --> B((AI hub B)):::hub
+  Q -- Yes --> N[Narrow scope]:::alert --> R{Human review}
+  R -- Approve --> B
+  R -- Reject --> X[Action stopped]:::faded
+```
 
 ## The Path Forward
 

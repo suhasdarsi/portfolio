@@ -18,6 +18,21 @@ AI hubs, by their very nature, are designed to break down these barriers. Their 
 
 In a [[small-world-networks-and-hubs|hub-based network]], the impact of failure scales non-linearly. A traditional security breach might expose one database or compromise one service. An [[ai-as-the-ultimate-hub|AI hub failure]] could simultaneously affect every system it touches, in ways that cascade through its connections to other AI hubs.
 
+```mermaid A traditional breach stays where it lands. An AI hub failure spreads to everything the hub can touch.
+flowchart LR
+  accTitle: Traditional breach versus AI hub failure
+  accDescr: A compromised service exposes one database. A failed AI hub reaches email, files, payments, the CRM, and a partner AI hub with its own systems.
+  subgraph trad["Traditional breach"]
+    direction TB
+    S[Compromised service]:::alert --> D[(One database)]
+  end
+  subgraph ai["AI hub failure"]
+    direction TB
+    A((AI hub)):::alert --> m[Email] & f[Files] & p[Payments] & c[CRM]
+    A --> O((Partner AI hub)):::hub --> o[Its systems]
+  end
+```
+
 The "attack surface" isn't just larger — it's fundamentally more interconnected.
 
 ## Novel Failure Modes

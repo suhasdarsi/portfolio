@@ -1,0 +1,71 @@
+---
+import ToolshedLayout from '../../../layouts/ToolshedLayout.astro';
+import Sidebar from '../../../components/toolshed/Sidebar.astro';
+import ToolRow from '../../../components/toolshed/ToolRow.astro';
+import { getTools } from '../../../utils/content';
+
+const tools = await getTools();
+---
+
+<ToolshedLayout title="All tools — Toolshed" description="Every security tool in Toolshed, searchable by name, tag, category or site.">
+  <div class="ts-all">
+    <Sidebar tools={tools} current="all" />
+    <div class="ts-all-main">
+      <header class="ts-all-header">
+        <p class="ts-eyebrow"><a href="/toolshed">Toolshed</a> <span aria-hidden="true">/</span> All tools</p>
+        <h1 class="page-heading">All tools</h1>
+      </header>
+
+      <form class="ts-filter" role="search">
+        <label for="tool-search" class="sr-only">Find a tool</label>
+        <input id="tool-search" class="field" type="search" placeholder="Search by name, tag, category or site" autocomplete="off" aria-controls="tool-list" />
+      </form>
+      <p class="ts-count" id="tool-count" role="status" aria-live="polite">{tools.length} tools</p>
+
+      <ul id="tool-list" class="ts-list">
+        {tools.map((tool) => <ToolRow tool={tool} />)}
+      </ul>
+      <p id="tool-empty" class="ts-muted" hidden>No tools match. Try another search.</p>
+    </div>
+  </div>
+</ToolshedLayout>
+
+<script>
+  const input = document.querySelector<HTMLInputElement>('#tool-search');
+  const items = Array.from(document.querySelectorAll<HTMLLIElement>('[data-tool]'));
+  const count = document.getElementById('tool-count');
+  const empty = document.getElementById('tool-empty');
+
+  function filterTools() {
+    const query = input?.value.trim().toLowerCase() ?? '';
+    let visible = 0;
+    for (const item of items) {
+      const matches = (item.dataset.search ?? '').includes(query);
+      item.hidden = !matches;
+      if (matches) visible++;
+    }
+    if (count) count.textContent = `${visible} ${visible === 1 ? 'tool' : 'tools'}`;
+    if (empty) empty.hidden = visible > 0;
+  }
+
+  // The header search lands here as ?q=.
+  const initial = new URLSearchParams(location.search).get('q');
+  if (input && initial) {
+    input.value = initial;
+    filterTools();
+  }
+  input?.addEventListener('input', filterTools);
+  document.querySelector('.ts-filter')?.addEventListener('submit', event => event.preventDefault());
+</script>
+
+<style>
+  .ts-all { display: grid; grid-template-columns: 13.5rem minmax(0, 1fr); gap: 3rem; }
+  .ts-all-main { min-width: 0; }
+  .ts-all-header { margin-bottom: 1.5rem; }
+  .ts-eyebrow a { color: inherit; text-decoration: none; }
+  .ts-count { margin: 1rem 0 0.5rem; font-size: var(--type-sm); color: var(--color-muted-foreground); font-variant-numeric: tabular-nums; }
+  .ts-list { list-style: none; margin: 0; padding: 0; }
+  .ts-list :global(li + li) { border-top: 1px solid var(--color-border); }
+  [hidden] { display: none !important; }
+  @media (max-width: 900px) { .ts-all { grid-template-columns: minmax(0, 1fr); gap: 1.5rem; } }
+</style>

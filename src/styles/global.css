@@ -512,6 +512,69 @@ main {
   border-radius: var(--radius-panel);
 }
 
+/* Mermaid diagrams, rendered to SVG at build time by Pele (src/utils/diagrams.mjs).
+   Pele reads these variables, so the diagrams follow the light/dark theme without re-rendering. */
+.prose-custom .diagram {
+  --pele-bg: var(--color-background);
+  --pele-fg: var(--color-foreground);
+  --pele-muted: var(--color-muted-foreground);
+  --pele-line: var(--color-gravel);
+  --pele-surface: var(--color-background);
+  --pele-surface-alt: var(--color-muted);
+  --pele-border: var(--color-border-strong);
+  --pele-accent: var(--color-accent);
+  --pele-critical: var(--color-accent);
+  --pele-font: var(--font-sans);
+  --pele-font-mono: var(--font-mono);
+  --pele-radius: var(--radius-sm);
+  margin: 2rem 0;
+  font-size: var(--type-sm);
+}
+
+.prose-custom .diagram svg {
+  display: block;
+  margin: 0 auto;
+}
+
+.prose-custom .diagram figcaption {
+  margin-top: 0.75rem;
+  text-align: center;
+  font-size: var(--type-sm);
+  line-height: 1.5;
+  color: var(--color-muted-foreground);
+  text-wrap: balance;
+}
+
+/* Node classes used in the posts: `:::hub` (a highly connected node), `:::alert` (failure or risk),
+   `:::faded` (cut off or out of play). */
+.prose-custom .diagram .hub > :is(rect, circle, polygon, path) {
+  fill: var(--color-foreground);
+  stroke: var(--color-foreground);
+}
+
+.prose-custom .diagram .hub > text {
+  fill: var(--color-background);
+  font-weight: 500;
+}
+
+.prose-custom .diagram .alert > :is(rect, circle, polygon, path) {
+  fill: color-mix(in srgb, var(--color-accent) 10%, var(--color-background));
+  stroke: var(--color-accent);
+}
+
+.prose-custom .diagram .alert > text {
+  fill: var(--color-accent);
+  font-weight: 500;
+}
+
+.prose-custom .diagram .faded {
+  opacity: 0.4;
+}
+
+.prose-custom .diagram .faded > :is(rect, circle, polygon, path) {
+  stroke-dasharray: 3 3;
+}
+
 .prose-custom table {
   display: block;
   width: 100%;
@@ -604,6 +667,54 @@ main {
 /* Sections on a page sit the same distance apart everywhere. */
 .page-section {
   margin-bottom: 3.5rem;
+}
+
+/* Article pages (notes, Toolshed reviews) share the Back button and header. */
+/* An outlined Back button, as in Tempo's toolbar. */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin: 0 0 2rem;
+  padding: 0.3125rem 0.75rem 0.3125rem 0.625rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-buttons);
+  font-size: var(--type-sm);
+  color: var(--color-muted-foreground);
+  font-family: var(--font-sans);
+  text-decoration: none;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.back-link:hover {
+  color: var(--color-foreground);
+  background: var(--color-muted);
+}
+
+.back-link svg { transition: transform 0.15s ease; }
+.back-link:hover svg { transform: translateX(-2px); }
+
+.article-header {
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.75rem;
+  border-bottom: 1px solid var(--color-border);
+}
+.article-title { margin: 0 0 0.875rem; }
+.article-standfirst {
+  margin: 0 0 1.25rem;
+  font-size: var(--type-md);
+  line-height: 1.55;
+  color: var(--color-body-text);
+  text-wrap: pretty;
+}
+
+.article-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  font-family: var(--font-sans);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-muted-foreground);
 }
 
 .eyebrow {

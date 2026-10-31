@@ -1,0 +1,139 @@
+---
+import ToolshedLayout from '../../../layouts/ToolshedLayout.astro';
+import CategoryShell from '../../../components/toolshed/CategoryShell.astro';
+import ToolCard from '../../../components/toolshed/ToolCard.astro';
+import { categoryTags } from '../../../data/security-tools';
+import { toolCategories, toolSlug } from '../../../data/toolshed';
+import { getCategoryGuide, getTools } from '../../../utils/content';
+
+export async function getStaticPaths() {
+  return toolCategories.map((category) => ({
+    params: { category: toolSlug(category) },
+    props: { category },
+  }));
+}
+
+const { category } = Astro.props;
+const tools = await getTools();
+const guide = await getCategoryGuide(category);
+const inCategory = tools.filter((tool) => tool.categories.includes(category));
+const groups = categoryTags[category].map((group) => ({
+  ...group,
+  tags: group.tags.map((tag) => ({
+    ...tag,
+    count: inCategory.filter((tool) => tool.tags.includes(tag.name)).length,
+  })),
+}));
+---
+
+<ToolshedLayout
+  title={`${category} tools — Toolshed`}
+  description={`Every ${category.toLowerCase()} tool in Toolshed, tagged by the jobs it does.`}
+>
+  <CategoryShell tools={tools} category={category} tab="tools" summary={guide?.data.summary}>
+    <div class="ts-filters">
+      {groups.map((group) => (
+        <div class="group" role="group" aria-label={`Filter by ${group.name.toLowerCase()}`}>
+          {groups.length > 1 && <span class="label">{group.name}</span>}
+          {group.tags.map((tag) => (
+            <button
+              type="button"
+              class="chip-toggle"
+              data-tag={tag.name}
+              aria-pressed="false"
+              title={tag.summary}
+            >
+              {tag.name} <span>{tag.count}</span>
+            </button>
+          ))}
+        </div>
+      ))}
+    </div>
+    <p class="ts-count" id="tool-count" role="status" aria-live="polite">
+      {inCategory.length} tools
+    </p>
+
+    <ul class="ts-card-grid" id="tool-list">
+      {inCategory.map((tool) => (
+        <ToolCard tool={tool} category={category} />
+      ))}
+    </ul>
+  </CategoryShell>
+</ToolshedLayout>
+
+<script>
+  // Tags narrow the list: a tool must carry every selected tag. ?tag= preselects one, for links from Overview.
+  const buttons = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-tag]'));
+  const items = Array.from(document.querySelectorAll<HTMLLIElement>('[data-tool]'));
+  const count = document.getElementById('tool-count');
+  const allowed = new Set(buttons.map((button) => button.dataset.tag));
+  const selected = new Set(
+    new URLSearchParams(location.search).getAll('tag').filter((tag) => allowed.has(tag))
+  );
+
+  function apply() {
+    let visible = 0;
+    for (const item of items) {
+      const tags: string[] = JSON.parse(item.dataset.tags ?? '[]');
+      const matches = [...selected].every((tag) => tags.includes(tag));
+      item.hidden = !matches;
+      if (matches) visible++;
+    }
+    for (const button of buttons)
+      button.setAttribute('aria-pressed', String(selected.has(button.dataset.tag ?? '')));
+    if (count)
+      count.textContent = `${visible} ${visible === 1 ? 'tool' : 'tools'}${selected.size ? ` tagged ${[...selected].join(' + ')}` : ''}`;
+    const url = new URL(location.href);
+    url.searchParams.delete('tag');
+    for (const tag of selected) url.searchParams.append('tag', tag);
+    history.replaceState(null, '', url);
+  }
+
+  for (const button of buttons) {
+    button.addEventListener('click', () => {
+      const tag = button.dataset.tag ?? '';
+      if (selected.has(tag)) selected.delete(tag);
+      else selected.add(tag);
+      apply();
+    });
+  }
+  apply();
+</script>
+
+<style>
+  .ts-filters {
+    display: grid;
+    gap: 0.75rem;
+  }
+  .group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.375rem;
+  }
+  .label {
+    width: 100%;
+    font-size: var(--type-sm);
+    color: var(--color-muted-foreground);
+  }
+  .chip-toggle span {
+    color: var(--color-muted-foreground);
+    font-variant-numeric: tabular-nums;
+  }
+  .ts-count {
+    margin: 1.5rem 0 0.75rem;
+    font-size: var(--type-sm);
+    color: var(--color-muted-foreground);
+  }
+  .ts-card-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+    gap: 0.625rem;
+  }
+  [hidden] {
+    display: none !important;
+  }
+</style>

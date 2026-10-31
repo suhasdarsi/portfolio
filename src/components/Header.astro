@@ -1,6 +1,7 @@
 ---
 import { cleanPath } from '../utils/clean-path';
 import { primaryCta } from '../data/site-navigation';
+import ThemeToggle from './ThemeToggle.astro';
 
 export interface Props {
   showSearch?: boolean;
@@ -22,42 +23,124 @@ const links = [
 <header class="header">
   <div class:list={['header-inner', { wide }]}>
     <nav class="header-nav" aria-label="Site">
-      <a href="/" class="nav-tab home-link" aria-label="Suhas Darsi, home" aria-current={isHome ? 'page' : undefined}>Suhas Darsi</a>
+      <a
+        href="/"
+        class="nav-tab home-link"
+        aria-label="Suhas Darsi, home"
+        aria-current={isHome ? 'page' : undefined}
+      >
+        Suhas Darsi
+      </a>
       {links.map((link) => (
-        <a href={link.href} class="nav-tab" aria-current={path === link.href || path.startsWith(`${link.href}/`) ? 'page' : undefined}>{link.label}</a>
+        <a
+          href={link.href}
+          class="nav-tab"
+          aria-current={path === link.href || path.startsWith(`${link.href}/`) ? 'page' : undefined}
+        >
+          {link.label}
+        </a>
       ))}
     </nav>
     <div class="header-actions">
-      <a href={primaryCta.href} target="_blank" rel="noopener noreferrer" class="button header-cta">{primaryCta.label}</a>
+      <a href={primaryCta.href} target="_blank" rel="noopener noreferrer" class="button header-cta">
+        {primaryCta.label}
+      </a>
       {showSearch && (
-        <button type="button" class="search-trigger" id="global-search-toggle" aria-label="Open search" aria-expanded="false" aria-controls="global-search-overlay">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-trigger-icon"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.34-4.34"></path></svg>
+        <button
+          type="button"
+          class="search-trigger"
+          id="global-search-toggle"
+          aria-label="Open search"
+          aria-expanded="false"
+          aria-controls="global-search-overlay"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="search-trigger-icon"
+          >
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.34-4.34"></path>
+          </svg>
         </button>
       )}
-      <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch to dark theme">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-sun"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path></svg>
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-moon"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"></path></svg>
-      </button>
+      <ThemeToggle />
     </div>
   </div>
 </header>
 
 {showSearch && (
   <>
-    <div class="search-overlay" id="global-search-overlay" role="dialog" aria-modal="true" aria-label="Search site" aria-hidden="true" inert hidden>
+    <div
+      class="search-overlay"
+      id="global-search-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Search site"
+      aria-hidden="true"
+      inert
+      hidden
+    >
       <div class="search-dialog">
         <div class="search-input-wrap">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-dialog-icon"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.34-4.34"></path></svg>
-          <input type="text" id="global-search-input" class="search-input-dialog" placeholder="Search notes..." aria-label="Search site" autocomplete="off" />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="search-dialog-icon"
+          >
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.34-4.34"></path>
+          </svg>
+          <input
+            type="text"
+            id="global-search-input"
+            class="search-input-dialog"
+            placeholder="Search notes..."
+            aria-label="Search site"
+            autocomplete="off"
+          />
+          <button
+            type="button"
+            class="search-close"
+            id="global-search-close"
+            aria-label="Close search"
+          >
+            Close
+          </button>
         </div>
         <p class="search-status" role="status" id="global-search-status"></p>
         <div class="search-results" id="global-search-results"></div>
-        <p class="search-empty hidden" id="global-search-empty">No notes found.</p>
-        <a class="search-all" id="search-all" href="/notes">Browse or share this search</a>
+        <p class="search-empty hidden" id="global-search-empty">
+          No notes found.
+        </p>
+        <a class="search-all" id="search-all" href="/notes">
+          Browse or share this search
+        </a>
         <div class="search-footer">
-          <span><kbd>↑</kbd><kbd>↓</kbd> navigate</span>
-          <span><kbd>↵</kbd> open</span>
-          <span><kbd>Esc</kbd> close</span>
+          <span>
+            <kbd>↑</kbd>
+            <kbd>↓</kbd> navigate
+          </span>
+          <span>
+            <kbd>↵</kbd> open
+          </span>
+          <span>
+            <kbd>Esc</kbd> close
+          </span>
         </div>
       </div>
     </div>
@@ -69,8 +152,6 @@ const links = [
   import { searchDocuments } from '../utils/client-search';
   import { createSearchLoader, debounce } from '../utils/search-loader';
 
-  const themeToggle = document.getElementById('theme-toggle');
-  const html = document.documentElement;
   const searchToggle = document.getElementById('global-search-toggle');
   const searchOverlay = document.getElementById('global-search-overlay');
   const searchInput = document.getElementById('global-search-input') as HTMLInputElement;
@@ -93,38 +174,13 @@ const links = [
     searchPosts = await loadSearchPosts();
   }
 
-  function getTheme() {
-    try {
-      const stored = localStorage.getItem('theme');
-      if (stored === 'dark' || stored === 'light') return stored;
-    } catch { /* Storage may be disabled by the browser. */ }
-    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-  }
-
-  function setTheme(theme: string) {
-    try {
-      localStorage.setItem('theme', theme);
-    } catch { /* The selected theme still applies for this page. */ }
-    if (theme === 'dark') {
-      html.classList.add('dark');
-    } else {
-      html.classList.remove('dark');
-    }
-    themeToggle?.setAttribute('aria-label', theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme');
-  }
-
-  setTheme(getTheme());
-
-  themeToggle?.addEventListener('click', () => {
-    const current = html.classList.contains('dark') ? 'dark' : 'light';
-    setTheme(current === 'dark' ? 'light' : 'dark');
-  });
-
   function getResultItems() {
-    return Array.from(searchResults?.querySelectorAll<HTMLAnchorElement>('.search-result-item') || []);
+    return Array.from(
+      searchResults?.querySelectorAll<HTMLAnchorElement>('.search-result-item') || []
+    );
   }
 
-  function setActiveResult(index: number) {
+  function setActiveResult(index: number, moveFocus = false) {
     const items = getResultItems();
     if (items.length === 0) {
       activeResultIndex = -1;
@@ -135,10 +191,13 @@ const links = [
     activeResultIndex = safeIndex;
     items.forEach((item, itemIndex) => item.classList.toggle('active', itemIndex === safeIndex));
     items[safeIndex]?.scrollIntoView({ block: 'nearest' });
+    if (moveFocus) items[safeIndex]?.focus();
   }
 
   function renderResults(items: SearchPost[], query = '') {
     if (!searchResults) return;
+    if (getResultItems().includes(document.activeElement as HTMLAnchorElement))
+      searchInput?.focus();
     searchResults.replaceChildren();
 
     items.forEach((post) => {
@@ -163,7 +222,9 @@ const links = [
   function getFocusableElements(): HTMLElement[] {
     if (!searchOverlay) return [];
     return Array.from(
-      searchOverlay.querySelectorAll<HTMLElement>('input, [tabindex]:not([tabindex="-1"]), a[href]')
+      searchOverlay.querySelectorAll<HTMLElement>(
+        'input, button, [tabindex]:not([tabindex="-1"]), a[href]'
+      )
     );
   }
 
@@ -226,6 +287,7 @@ const links = [
   };
 
   searchToggle?.addEventListener('click', handleSearchToggle);
+  document.getElementById('global-search-close')?.addEventListener('click', closeSearch);
   searchOverlay?.addEventListener('click', handleOverlayClick);
 
   const handleSearchInput = debounce(async () => {
@@ -279,7 +341,10 @@ const links = [
       if (focusable.length === 0) return;
       const first = focusable[0];
       const last = focusable[focusable.length - 1];
-      if (e.shiftKey && document.activeElement === first) {
+      if (!focusable.includes(document.activeElement as HTMLElement)) {
+        e.preventDefault();
+        (e.shiftKey ? last : first).focus();
+      } else if (e.shiftKey && document.activeElement === first) {
         e.preventDefault();
         last.focus();
       } else if (!e.shiftKey && document.activeElement === last) {
@@ -292,7 +357,7 @@ const links = [
       e.preventDefault();
       const items = getResultItems();
       if (items.length === 0) return;
-      setActiveResult(activeResultIndex < 0 ? 0 : activeResultIndex + 1);
+      setActiveResult(activeResultIndex < 0 ? 0 : activeResultIndex + 1, true);
       return;
     }
 
@@ -300,7 +365,7 @@ const links = [
       e.preventDefault();
       const items = getResultItems();
       if (items.length === 0) return;
-      setActiveResult(activeResultIndex < 0 ? items.length - 1 : activeResultIndex - 1);
+      setActiveResult(activeResultIndex < 0 ? items.length - 1 : activeResultIndex - 1, true);
       return;
     }
 
@@ -386,76 +451,19 @@ const links = [
 
   /* On phones the outlined CTA moves into the home panel and the tabs tighten up. */
   @media (max-width: 520px) {
-    .header-cta { display: none; }
-    .header-inner { padding-inline: 0.75rem; gap: 0.5rem; }
-    .header-nav { gap: 1rem; }
-    .nav-tab { font-size: var(--type-sm); }
-  }
-
-  .theme-toggle {
-    position: relative;
-    width: 2.25rem;
-    height: 2.25rem;
-    padding-inline: 0;
-    padding-block: 0;
-    color: var(--color-muted-foreground);
-    background: transparent;
-    border: 0;
-    border-radius: var(--radius-buttons);
-    cursor: pointer;
-    display: grid;
-    place-items: center;
-    transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease, scale 0.15s ease;
-  }
-
-  .theme-toggle:active {
-    scale: 0.97;
-  }
-
-  .theme-toggle:focus-visible {
-    outline: 2px solid var(--color-foreground);
-    outline-offset: -2px;
-  }
-
-  .theme-toggle:hover {
-    color: var(--color-foreground);
-    border-color: var(--color-muted-foreground);
-    background: var(--color-muted);
-  }
-
-  /* Both icons stay stacked; the swap is a cross-fade, not a visibility toggle. */
-  .theme-toggle svg {
-    grid-area: 1 / 1;
-    width: 1rem;
-    height: 1rem;
-    transition:
-      opacity 0.2s cubic-bezier(0.2, 0, 0, 1),
-      scale 0.2s cubic-bezier(0.2, 0, 0, 1),
-      filter 0.2s cubic-bezier(0.2, 0, 0, 1);
-  }
-
-  :global(html:not(.dark)) .theme-toggle .icon-sun {
-    opacity: 0;
-    scale: 0.25;
-    filter: blur(4px);
-  }
-
-  :global(html:not(.dark)) .theme-toggle .icon-moon {
-    opacity: 1;
-    scale: 1;
-    filter: blur(0);
-  }
-
-  :global(html.dark) .theme-toggle .icon-sun {
-    opacity: 1;
-    scale: 1;
-    filter: blur(0);
-  }
-
-  :global(html.dark) .theme-toggle .icon-moon {
-    opacity: 0;
-    scale: 0.25;
-    filter: blur(4px);
+    .header-cta {
+      display: none;
+    }
+    .header-inner {
+      padding-inline: 0.75rem;
+      gap: 0.5rem;
+    }
+    .header-nav {
+      gap: 1rem;
+    }
+    .nav-tab {
+      font-size: var(--type-sm);
+    }
   }
 
   /* Fingers need real targets; cursors do not. */
@@ -482,7 +490,10 @@ const links = [
     padding-inline: 0;
     padding-block: 0;
     box-shadow: none;
-    transition: color 0.2s ease, background-color 0.2s ease, scale 0.15s ease;
+    transition:
+      color 0.2s ease,
+      background-color 0.2s ease,
+      scale 0.15s ease;
   }
 
   .search-trigger:active {
@@ -503,7 +514,6 @@ const links = [
     width: 1rem;
     height: 1rem;
   }
-
 
   .search-overlay {
     position: fixed;
@@ -542,7 +552,9 @@ const links = [
     /* Enters from the trigger above; leaves faster than it arrived. */
     opacity: 0;
     transform: translateY(-8px);
-    transition: opacity 0.15s ease, transform 0.15s ease;
+    transition:
+      opacity 0.15s ease,
+      transform 0.15s ease;
   }
 
   .search-overlay.open .search-dialog {
@@ -568,8 +580,19 @@ const links = [
     flex-shrink: 0;
   }
 
+  .search-close {
+    min-height: 2.75rem;
+    padding: 0.375rem 0.5rem;
+    border: 0;
+    background: transparent;
+    color: var(--color-foreground);
+    font: inherit;
+    cursor: pointer;
+  }
+
   .search-input-dialog {
     flex: 1;
+    min-width: 0;
     border: none;
     background: none;
     font-family: var(--font-sans);
@@ -621,7 +644,9 @@ const links = [
     text-decoration: none;
     border-bottom: 0;
     animation: result-in 0.12s ease-out;
-    transition: background-color 0.2s ease, color 0.2s ease;
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease;
   }
 
   :global(.search-result-item:hover),
@@ -647,8 +672,16 @@ const links = [
     text-overflow: ellipsis;
   }
 
-  :global(.search-result-excerpt) { font-size: var(--type-sm); line-height: 1.5; color: var(--color-muted-foreground); }
-  .search-all { display: block; padding: .75rem 1rem; font-size: var(--type-sm); }
+  :global(.search-result-excerpt) {
+    font-size: var(--type-sm);
+    line-height: 1.5;
+    color: var(--color-muted-foreground);
+  }
+  .search-all {
+    display: block;
+    padding: 0.75rem 1rem;
+    font-size: var(--type-sm);
+  }
 
   .search-empty {
     font-family: var(--font-serif);
@@ -686,5 +719,4 @@ const links = [
     font-size: var(--type-sm);
     margin-right: 0.25rem;
   }
-
 </style>

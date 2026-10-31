@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test('Inter is self-hosted, loads its weights, and keeps page headings consistent', async ({ page }) => {
   let headingStyle: string[] | undefined;
-  for (const path of ['/', '/about', '/notes', '/notes/ai-as-the-ultimate-hub', '/uses', '/swatchbook']) {
+  for (const path of ['/', '/about', '/notes', '/notes/ai-as-the-ultimate-hub', '/uses', '/swatchbook', '/toolshed']) {
     await page.goto(path);
     const styles = await page.evaluate(async () => {
       const fonts = await Promise.all([

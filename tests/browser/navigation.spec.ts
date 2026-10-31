@@ -8,7 +8,7 @@ test('homepage leads with Say hello, groups micro-apps, and every page links hom
   const explore = page.getByRole('navigation', { name: 'On this site', exact: true });
   const apps = page.getByRole('navigation', { name: 'Micro-apps', exact: true });
   await expect(explore.locator('.row-title')).toHaveText(['About', 'Notes', 'Uses']);
-  await expect(apps.locator('.app-card-name')).toHaveText(['Pocket Card', 'Swatchbook']);
+  await expect(apps.locator('.app-card-name')).toHaveText(['Pocket Card', 'Swatchbook', 'Toolshed']);
   await expect(page.getByRole('link', { name: 'RSS' })).toHaveAttribute('href', '/rss.xml');
   await expect(page.getByRole('link', { name: 'Suhas Darsi, home' })).toHaveAttribute('aria-current', 'page');
   await expect(page.locator('a[href="/superalign"]')).toHaveCount(0);
@@ -20,7 +20,7 @@ test('homepage leads with Say hello, groups micro-apps, and every page links hom
   await expect(page.getByRole('button', { name: 'Copy email address: suhas@superalign.ai', exact: true })).toBeVisible();
   await expect(page.locator('.social-email-link')).toHaveCount(0);
 
-  for (const path of ['/', '/about', '/notes', '/notes/ai-as-the-ultimate-hub', '/uses', '/pocket-card', '/swatchbook', '/missing-page']) {
+  for (const path of ['/', '/about', '/notes', '/notes/ai-as-the-ultimate-hub', '/uses', '/pocket-card', '/swatchbook', '/toolshed', '/missing-page']) {
     await page.goto(path);
     const home = page.getByRole('link', { name: 'Suhas Darsi, home' });
     await expect(home).toBeVisible();

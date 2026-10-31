@@ -3,6 +3,7 @@
 // Family rule: one solid shape plus one dashed detail.
 import { pocketMark } from '../utils/pocket-mark';
 import { swatchbookMark } from '../utils/swatchbook-mark';
+import { toolshedMark } from '../utils/toolshed-mark';
 import type { AppMarkName } from '../data/site-navigation';
 
 interface Props { mark: AppMarkName; size?: string; class?: string; }
@@ -21,6 +22,12 @@ const dash = '2.3 2.7';
     <>
       <rect {...swatchbookMark.strip} />
       <path d={swatchbookMark.dividers} stroke-dasharray={dash} />
+    </>
+  )}
+  {mark === 'toolshed' && (
+    <>
+      <path d={toolshedMark.shed} />
+      <path d={toolshedMark.door} stroke-dasharray={dash} />
     </>
   )}
 </svg>

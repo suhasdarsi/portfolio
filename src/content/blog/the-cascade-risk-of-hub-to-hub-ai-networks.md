@@ -26,4 +26,17 @@ A compromise or malfunction in one AI hub doesn't just affect its immediate conn
 
 In a traditional network, compromising one node might affect its direct neighbors. In a hub-to-hub AI network, compromising one hub can cascade through every other hub it's connected to, each of which is itself connected to thousands or millions of downstream systems.
 
+```mermaid One compromised hub reaches every hub it talks to, and everything those hubs reach.
+flowchart LR
+  accTitle: A cascade through a hub-to-hub network
+  accDescr: A compromised personal AI connects to a company AI, which connects to bank, healthcare and government AIs. Each of those connects to its own downstream systems.
+  P((Personal AI)):::alert --> C((Company AI)):::hub
+  C --> B((Bank AI)):::hub
+  C --> H((Health AI)):::hub
+  C --> G((Gov AI)):::hub
+  B --> b[Accounts, payments, credit]
+  H --> h[Records, prescriptions, claims]
+  G --> g[Identity, tax, benefits]
+```
+
 This non-linear scaling is exactly what [[why-ai-security-is-fundamentally-different|makes AI security categorically different]] from traditional IT security — and why we need [[rethinking-ai-safety-through-network-science|fundamentally new approaches]] to managing it.

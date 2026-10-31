@@ -1,0 +1,68 @@
+---
+// A tag group drawn as a grid, e.g. AI security's agent types: who built the agent × who runs it.
+import type { TagGroup } from '../../data/security-tools';
+
+interface Props { group: TagGroup & { axes: NonNullable<TagGroup['axes']> }; counts: Map<string, number>; href: (tag: string) => string; }
+const { group, counts, href } = Astro.props;
+const { columns, rows } = group.axes;
+const at = (row: number, column: number) => group.tags.find((tag) => tag.cell?.[0] === row && tag.cell?.[1] === column);
+---
+
+<figure class="ts-matrix">
+  <div class="grid" style={`--columns: ${columns.length}`}>
+    <span></span>
+    {columns.map((column) => <span class="axis column">{column}</span>)}
+    {rows.map((row, r) => (
+      <>
+        <span class="axis row">{row}</span>
+        {columns.map((_, c) => {
+          const tag = at(r, c);
+          return tag ? (
+            <a class="cell" href={href(tag.name)}>
+              <span class="position">{rows[r]} · {columns[c]}</span>
+              <span class="name">{tag.name}<span class="count">{counts.get(tag.name) ?? 0} tools</span></span>
+              {tag.examples && <span class="examples">{tag.examples}</span>}
+              {tag.via && <span class="via">Controlled via: {tag.via.charAt(0).toLowerCase() + tag.via.slice(1)}</span>}
+            </a>
+          ) : <span class="cell empty"></span>;
+        })}
+      </>
+    ))}
+  </div>
+  {group.note && <figcaption>{group.note}</figcaption>}
+</figure>
+
+<style>
+  .ts-matrix { margin: 0; }
+  .grid { display: grid; grid-template-columns: 9rem repeat(var(--columns), minmax(0, 1fr)); gap: 0.625rem; }
+  .axis { font-size: var(--type-sm); color: var(--color-muted-foreground); }
+  .axis.column { padding: 0 0 0.125rem 0.25rem; align-self: end; }
+  .axis.row { align-self: center; color: var(--color-foreground); font-weight: 500; }
+  .cell {
+    display: grid;
+    align-content: start;
+    gap: 0.375rem;
+    min-height: 8.5rem;
+    padding: 1.125rem 1.25rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-panel);
+    background: var(--color-muted);
+    color: var(--color-foreground);
+    text-decoration: none;
+    transition: border-color 0.15s ease;
+  }
+  a.cell:hover { border-color: var(--color-muted-foreground); }
+  .name { display: flex; justify-content: space-between; gap: 1rem; font-size: var(--type-md); font-weight: 500; letter-spacing: -0.01em; }
+  .count { font-size: var(--type-sm); font-weight: 400; color: var(--color-muted-foreground); white-space: nowrap; }
+  .examples { color: var(--color-body-text); }
+  .via { font-size: var(--type-sm); color: var(--color-muted-foreground); }
+  .position { display: none; font-size: 0.75rem; color: var(--color-muted-foreground); }
+  figcaption { margin-top: 0.75rem; font-size: var(--type-sm); color: var(--color-muted-foreground); }
+
+  /* Phones: one column; each cell names its own row and column instead of the axis labels. */
+  @media (max-width: 640px) {
+    .grid { grid-template-columns: minmax(0, 1fr); }
+    .axis, .grid > span:first-child { display: none; }
+    .position { display: block; }
+  }
+</style>

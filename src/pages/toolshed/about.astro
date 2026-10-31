@@ -1,0 +1,50 @@
+---
+import ToolshedLayout from '../../layouts/ToolshedLayout.astro';
+import { getTools } from '../../utils/content';
+import { toolCategories } from '../../data/toolshed';
+
+const tools = await getTools();
+---
+
+<ToolshedLayout title="About — Toolshed" description="How Toolshed works: independent, free research on security tools that nobody can pay to be listed in.">
+  <article class="ts-about">
+    <p class="ts-eyebrow"><a href="/toolshed">Toolshed</a> <span aria-hidden="true">/</span> About</p>
+    <h1 class="page-heading">How Toolshed works</h1>
+
+    <div class="prose-custom">
+      <p>Toolshed is independent research on the security tools market. Think of an analyst firm’s market guides, written to be read by anyone, free, and kept up to date with AI.</p>
+
+      <h2>Alpha</h2>
+      <p>Toolshed is in alpha. The structure is still changing, the tool list is incomplete, and some tags and market notes will be wrong. Please don’t rely on it for buying decisions or share it widely yet. Search engines are asked not to index it until it’s ready.</p>
+
+      <h2>Nobody can pay to be here</h2>
+      <ul>
+        <li><strong>No paid placement.</strong> There are no sponsored listings, no featured slots and no vendor fees. A tool can’t buy its way in, up or out.</li>
+        <li><strong>No affiliate links.</strong> Links go straight to the vendor.</li>
+        <li><strong>No briefings required.</strong> Tools are listed for what they do, whether or not their makers have ever talked to me.</li>
+        <li><strong>Conflicts are disclosed.</strong> I work at <a href="https://superalign.ai" target="_blank" rel="noopener noreferrer">SuperAlign</a>, which is listed under AI security. It’s marked “My employer” wherever it appears.</li>
+      </ul>
+
+      <h2>What’s here</h2>
+      <p>{tools.length} tools in {toolCategories.length} categories. Each category has three views:</p>
+      <ul>
+        <li><strong>Overview</strong> explains what the category covers and the kinds of tools in it.</li>
+        <li><strong>Landscape</strong> lists every tool, grouped by the job it does.</li>
+        <li><strong>Market guide</strong> explains how the market is shaped, where products overlap, who has been buying whom, and how to buy. It also shows which tools cover more than one kind of job.</li>
+      </ul>
+      <p>A listing is not an endorsement. Where I’ve used a tool myself, it gets a review with my own rating and notes.</p>
+
+      <h2>AI-native</h2>
+      <p>The research is gathered and kept current with AI, then checked: every link is tested, renamed and acquired products are followed to where they live now, and market guides carry the date they were written. The whole dataset is published as <a href="/toolshed/tools.json">open JSON</a>, so you can point your own AI tools at it.</p>
+
+      <h2>Suggestions and corrections</h2>
+      <p>Markets move fast and I will get things wrong. Anyone can <a href="/toolshed/suggest">suggest a tool or a correction</a>, including vendors, who just need to say so. Every request becomes a public GitHub issue, so you can see what was asked and what was decided. Being suggested, or being the vendor, doesn’t change how a tool is listed.</p>
+    </div>
+  </article>
+</ToolshedLayout>
+
+<style>
+  .ts-about { max-width: 44rem; }
+  .ts-eyebrow a { color: inherit; text-decoration: none; }
+  .page-heading { margin-bottom: 1.5rem; }
+</style>
