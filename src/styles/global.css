@@ -253,6 +253,79 @@ html.dark .focus-panel {
   box-shadow: none;
 }
 
+/* Page actions: on wide screens, like Tempo's Focus Mode, a page's actions leave the panel and stack on
+   the grey desk to its right, staying in view while the page scrolls. Notes do the same with their own
+   rails (src/pages/notes/[slug].astro). Narrow screens keep the actions wherever the page placed them.
+   Wrap them as .page-actions > .page-actions-inner, outside any positioned element in the panel.
+   .page-rail-start > .page-rail-inner does the same on the left. */
+@media (min-width: 70rem) {
+  /* The site header's tabs and actions sit at the top of the left and right rails (Header.astro).
+     Page rail content starts this far down to clear them: their height plus a 2rem gap. */
+  :root {
+    --rail-start-offset: 10.75rem;
+    --rail-end-offset: 9.75rem;
+  }
+  .focus-panel {
+    position: relative;
+  }
+  .focus-panel .page-actions {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: calc(100% + 1.5rem);
+    width: 11rem;
+    margin: 0;
+    padding-top: calc(2.75rem + var(--rail-end-offset));
+  }
+  /* The left-hand counterpart: secondary navigation that belongs beside the panel, under the site tabs. */
+  .focus-panel .page-rail-start {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: calc(100% + 1.5rem);
+    width: 11rem;
+    margin: 0;
+    padding-top: calc(2.75rem + var(--rail-start-offset));
+  }
+  .page-rail-inner {
+    position: sticky;
+    top: 2rem;
+  }
+  .page-actions-inner {
+    position: sticky;
+    top: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+  .page-actions-inner > :is(.button, .button-quiet) {
+    justify-content: flex-start;
+    margin: 0;
+  }
+  /* Social icons join into one segmented group, matching the share buttons on a note. */
+  .page-actions .home-socials {
+    gap: 0;
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-buttons);
+    background: var(--color-subtle);
+  }
+  .page-actions .home-socials .social-icon {
+    flex: 1;
+    width: auto;
+    height: 2.25rem;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+  .page-actions .home-socials .social-icon + .social-icon {
+    border-left: 1px solid var(--color-border-strong);
+  }
+  .page-actions .home-socials .social-icon:hover {
+    background: var(--color-muted);
+  }
+}
+
 @media (max-width: 640px) {
   .focus-panel {
     --panel-pad: 1.25rem;

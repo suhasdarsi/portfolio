@@ -394,11 +394,14 @@ const structuredData = JSON.stringify({
       bottom: 0;
       width: var(--rail-width);
     }
+    /* Rails start below the site header's tabs and actions, which share these columns. */
     .rail-start {
       right: calc(100% + var(--rail-gap));
+      padding-top: var(--rail-start-offset);
     }
     .rail-end {
       left: calc(100% + var(--rail-gap));
+      padding-top: var(--rail-end-offset);
     }
     .rail-inner {
       display: flex;

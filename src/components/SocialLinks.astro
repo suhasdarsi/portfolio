@@ -92,8 +92,8 @@ const { centered = false } = Astro.props;
   .social-tip {
     position: absolute;
     bottom: calc(100% + 8px);
-    left: 50%;
-    transform: translateX(-50%);
+    /* Email is the last icon, so the tip hangs leftwards from its right edge to stay on screen. */
+    right: 0;
     padding: 0.35rem 0.6rem;
     border-radius: 0.375rem;
     background: #2b2825;

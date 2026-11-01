@@ -19,7 +19,11 @@ const profile = [
 <BlogLayout title="Suhas Darsi" description="Notes, micro-apps, and ways to connect with Suhas Darsi.">
   <header class="card-head">
     <h1 class="page-heading">Suhas Darsi</h1>
-    <SocialLinks />
+    <div class="page-actions">
+      <div class="page-actions-inner">
+        <SocialLinks />
+      </div>
+    </div>
   </header>
 
   <dl class="card-meta">
@@ -58,11 +62,14 @@ const profile = [
       </nav>
     )}
 
-    {homeLinkGroups.map((group) => (
-      <nav class="page-section" aria-label={group.label}>
+    {homeLinkGroups.map((group) => {
+      const isApps = group.links.some((link) => 'mark' in link);
+      return (
+      <nav class:list={['page-section', { 'page-rail-start': isApps }]} aria-label={group.label}>
+        <div class="page-rail-inner">
         <h2 class="section-label">{group.label}</h2>
         {group.description && <p class="home-group-description">{group.description}</p>}
-        <ul class:list={['rows', { 'app-cards': group.links.some((link) => 'mark' in link) }]}>
+        <ul class:list={['rows', { 'app-cards': isApps }]}>
           {group.links.map((link) => 'mark' in link ? (
             <li>
               <a href={link.href} class="app-card">
@@ -80,8 +87,10 @@ const profile = [
             </li>
           ))}
         </ul>
+        </div>
       </nav>
-    ))}
+      );
+    })}
 
     <p class="home-footnote">
       Follow new notes via <a href="/rss.xml" class="link-underline">RSS</a>.
@@ -198,6 +207,20 @@ const profile = [
   .app-card-title .row-arrow { color: var(--color-muted-foreground); }
   .app-card:hover .row-arrow { color: var(--color-foreground); transform: translateX(3px); }
   .app-card-meta { color: var(--color-muted-foreground); font-size: var(--type-sm); }
+  /* Wide screens: micro-apps leave the panel for the left rail (global.css), as compact cards under the site tabs. */
+  @media (min-width: 70rem) {
+    /* Just mark and name here: the descriptions crowd an 11rem column. */
+    .page-rail-start :is(.home-group-description, .app-card-meta) { display: none; }
+    .page-rail-start .app-cards { grid-template-columns: 1fr; gap: 0.5rem; }
+    .page-rail-start .app-card {
+      grid-template-columns: auto 1fr;
+      column-gap: 0.625rem;
+      align-items: center;
+      padding: 0.625rem 0.75rem;
+    }
+    .page-rail-start .app-card-mark { margin: 0; }
+    .page-rail-start .app-card-title { font-size: var(--type-sm); }
+  }
   .home-footnote { margin: 0; color: var(--color-muted-foreground); font-size: var(--type-sm); }
   .home-footnote a { color: var(--color-foreground); }
 </style>

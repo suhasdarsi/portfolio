@@ -43,6 +43,19 @@ const links = [
     </nav>
     <div class="header-actions">
       <a href={primaryCta.href} target="_blank" rel="noopener noreferrer" class="button header-cta">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="header-cta-icon"
+          aria-hidden="true"
+        >
+          <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"></path>
+        </svg>
         {primaryCta.label}
       </a>
       {showSearch && (
@@ -69,6 +82,7 @@ const links = [
             <circle cx="11" cy="11" r="8"></circle>
             <path d="m21 21-4.34-4.34"></path>
           </svg>
+          <span class="control-label">Search</span>
         </button>
       )}
       <ThemeToggle />
@@ -468,6 +482,92 @@ const links = [
     }
   }
 
+  /* Wide screens: no top bar. Like the page rails (see .page-actions in global.css), the tabs stack on the
+     grey desk left of the panel and the actions sit right of it, level with the panel's content. Page
+     rails start below these via --rail-start-offset and --rail-end-offset. */
+  @media (min-width: 70rem) {
+    .header-inner:not(.wide) {
+      position: relative;
+      height: 2rem;
+    }
+    /* Header height + main's top padding + the panel's top padding. */
+    .header-inner:not(.wide) :is(.header-nav, .header-actions) {
+      position: absolute;
+      top: 5.25rem;
+      width: 11rem;
+    }
+    /* The panel's edge is 1rem in from this box (its padding), and page rails sit 1.5rem beyond the
+       panel's 1px border, so 0.5rem - 1px lines these up with them. */
+    .header-inner:not(.wide) .header-nav {
+      right: calc(100% + 0.5rem - 1px);
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.25rem;
+    }
+    .header-inner:not(.wide) .nav-tab {
+      line-height: 1.5rem;
+    }
+    .header-inner:not(.wide) .header-actions {
+      left: calc(100% + 0.5rem - 1px);
+      flex-wrap: wrap;
+      gap: 0.5rem 0.25rem;
+    }
+    /* Say hello joins search and theme as one of three identical icon-and-label buttons. */
+    .header-inner:not(.wide) .header-cta {
+      flex: 1 0 100%;
+      justify-content: flex-start;
+      gap: 0.5rem;
+      min-height: 0;
+      height: 2.25rem;
+      margin: 0;
+      padding-inline: 0.875rem;
+      color: var(--color-body-text);
+      font-size: var(--type-sm);
+      font-weight: 400;
+    }
+    .header-inner:not(.wide) .header-cta:hover {
+      color: var(--color-foreground);
+    }
+    .header-inner:not(.wide) .header-cta-icon {
+      display: block;
+    }
+    /* Search and theme become full outlined buttons with icon and label, like the page actions below. */
+    .header-inner:not(.wide) .search-trigger,
+    .header-inner:not(.wide) .header-actions :global(.theme-toggle) {
+      flex: 1 0 100%;
+      justify-content: start;
+      justify-items: start;
+      gap: 0.5rem;
+      width: auto;
+      height: 2.25rem;
+      padding-inline: 0.875rem;
+      border: 1px solid var(--color-border-strong);
+      background: var(--color-subtle);
+      color: var(--color-body-text);
+      font: inherit;
+      font-size: var(--type-sm);
+    }
+    .header-inner:not(.wide) .header-actions :global(.theme-toggle) {
+      grid-template-columns: 1rem auto;
+      column-gap: 0.5rem;
+    }
+    .header-inner:not(.wide) .search-trigger:hover,
+    .header-inner:not(.wide) .header-actions :global(.theme-toggle:hover) {
+      background: var(--color-muted);
+      color: var(--color-foreground);
+    }
+    .header-inner:not(.wide) .control-label {
+      display: block;
+    }
+    .header-inner:not(.wide) .header-actions :global(.theme-label) {
+      position: static;
+      grid-area: 1 / 2;
+      width: auto;
+      height: auto;
+      overflow: visible;
+      clip-path: none;
+    }
+  }
   /* Fingers need real targets; cursors do not. */
   @media (pointer: coarse) {
     .theme-toggle,
@@ -515,6 +615,16 @@ const links = [
   .search-trigger-icon {
     width: 1rem;
     height: 1rem;
+  }
+  /* Shown only in the wide-screen rail, where search is a labelled button. */
+  .control-label {
+    display: none;
+  }
+  .header-cta-icon {
+    display: none;
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
   }
 
   .search-overlay {

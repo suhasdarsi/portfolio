@@ -2,9 +2,12 @@
 // Light/dark switch. The choice is stored per browser; ThemeInit applies it before paint.
 ---
 
-<button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch to dark theme">
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-sun"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path></svg>
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-moon"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"></path></svg>
+<button type="button" class="theme-toggle" id="theme-toggle">
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-sun" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path></svg>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-moon" aria-hidden="true"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"></path></svg>
+  <!-- The label is the button's accessible name, so what is shown and what is announced always match. -->
+  <span class="theme-label to-dark"><span class="sr-only">Switch to </span>Dark mode</span>
+  <span class="theme-label to-light"><span class="sr-only">Switch to </span>Light mode</span>
 </button>
 
 <script>
@@ -28,7 +31,6 @@
     } else {
       html.classList.remove('dark');
     }
-    themeToggle?.setAttribute('aria-label', theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme');
   }
 
   setTheme(getTheme());
@@ -104,5 +106,20 @@
     opacity: 0;
     scale: 0.25;
     filter: blur(4px);
+  }
+
+  /* The label names what a click does, like the icon. It is visually hidden except in the wide-screen rail
+     (Header.astro), and only the one for the current theme exists. */
+  .theme-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  :global(html.dark) .theme-toggle .to-dark,
+  :global(html:not(.dark)) .theme-toggle .to-light {
+    display: none;
   }
 </style>

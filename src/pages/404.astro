@@ -8,9 +8,11 @@ import BlogLayout from '../layouts/BlogLayout.astro';
     <h1 class="page-heading">This page doesn’t exist.</h1>
     <p class="page-intro">It might have been moved or deleted, or the URL may have a typo.</p>
   </header>
-  <div class="error-actions">
-    <a href="/" class="button">Go home</a>
-    <a href="/notes" class="button-quiet">Browse notes</a>
+  <div class="error-actions page-actions">
+    <div class="page-actions-inner">
+      <a href="/" class="button">Go home</a>
+      <a href="/notes" class="button-quiet">Browse notes</a>
+    </div>
   </div>
   <section class="error-search-wrap">
     <h2 class="section-label">Or search the notes</h2>
@@ -70,8 +72,12 @@ import BlogLayout from '../layouts/BlogLayout.astro';
 </script>
 
 <style>
-  .error-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: -1rem 0 3rem; }
-  .error-actions .button-quiet { margin-left: -0.25rem; }
+  /* Wide screens move these to the page-actions rail (global.css). */
+  @media (max-width: 69.99rem) {
+    .error-actions { margin: -1rem 0 3rem; }
+    .error-actions .page-actions-inner { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .error-actions .button-quiet { margin-left: -0.25rem; }
+  }
   .error-search-control { position: relative; display: flex; align-items: center; margin-top: 0.5rem; }
   .search-icon { position: absolute; left: 0.875rem; color: var(--color-muted-foreground); pointer-events: none; }
   .error-search-control .field { padding-left: 2.5rem; }

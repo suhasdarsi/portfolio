@@ -48,7 +48,7 @@ test('search keyboard navigation, focus return, excerpts and share link', async 
 
 test('themes persist and disabled storage does not break search', async ({ page }) => {
   await page.goto('/');
-  await page.getByRole('button', { name: /Switch to .* theme/ }).click();
+  await page.getByRole('button', { name: /Switch to .* mode/ }).click();
   const theme = await page.locator('html').getAttribute('class');
   await page.reload();
   expect(await page.locator('html').getAttribute('class')).toBe(theme);
