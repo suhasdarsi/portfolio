@@ -216,7 +216,7 @@ const links = [
       searchResults.appendChild(link);
     });
 
-    setActiveResult(items.length > 0 ? 0 : -1);
+    activeResultIndex = -1;
   }
 
   function getFocusableElements(): HTMLElement[] {
@@ -357,7 +357,8 @@ const links = [
       e.preventDefault();
       const items = getResultItems();
       if (items.length === 0) return;
-      setActiveResult(activeResultIndex < 0 ? 0 : activeResultIndex + 1, true);
+      const focusedIndex = items.findIndex((item) => item === document.activeElement);
+      setActiveResult(focusedIndex < 0 ? 0 : focusedIndex + 1, true);
       return;
     }
 
@@ -365,7 +366,8 @@ const links = [
       e.preventDefault();
       const items = getResultItems();
       if (items.length === 0) return;
-      setActiveResult(activeResultIndex < 0 ? items.length - 1 : activeResultIndex - 1, true);
+      const focusedIndex = items.findIndex((item) => item === document.activeElement);
+      setActiveResult(focusedIndex < 0 ? items.length - 1 : focusedIndex - 1, true);
       return;
     }
 

@@ -7,28 +7,39 @@ import BlogLayout from '../../layouts/BlogLayout.astro';
 const posts = await getPublishedBlogEntriesByDate();
 ---
 
-<BlogLayout title="Notes — Suhas Darsi" description="Practical field notes on AI security, agent systems, and network risk.">
+<BlogLayout
+  title="Notes — Suhas Darsi"
+  description="Practical field notes on AI security, agent systems, and network risk."
+>
   <header class="page-header">
     <h1 class="page-heading">Notes</h1>
+    <p class="notes-intro">Making sense of AI security, one idea at a time.</p>
   </header>
 
   <!-- Searching happens in the top bar. Its "Browse or share this search" link lands here as ?q=,
        so the list filters itself and offers a way back to everything. -->
   <p id="notes-search-status" class="search-status" role="status" hidden>
     <span id="notes-search-summary"></span>
-    <a href="/notes" id="notes-search-clear">Clear search</a>
+    <a href="/notes" id="notes-search-clear">
+      Clear search
+    </a>
   </p>
 
-  <h2 class="section-label">All notes <span class="section-count">{posts.length}</span></h2>
+  <h2 class="section-label">
+    All notes <span class="section-count">{posts.length}</span>
+  </h2>
   <ul class="rows note-list" id="note-list">
     {posts.map((post) => (
       <li class="note-item" data-note-id={post.id}>
         <a href={`/notes/${post.id}`} class="row note-link">
           <span class="note-body">
             <span class="row-title note-title">{post.data.title}</span>
+            <span class="note-description">{post.data.description}</span>
             <span class="note-excerpt" hidden></span>
           </span>
-          <time class="row-meta" datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time>
+          <time class="row-meta" datetime={post.data.pubDate.toISOString()}>
+            {formatDate(post.data.pubDate)}
+          </time>
         </a>
       </li>
     ))}
@@ -72,7 +83,9 @@ const posts = await getPublishedBlogEntriesByDate();
       const documents = await loadSearch();
       if (current !== version) return;
       const results = searchDocuments(documents, query);
-      articles.forEach((article) => { article.hidden = true; });
+      articles.forEach((article) => {
+        article.hidden = true;
+      });
       results.forEach((result) => {
         const article = articles.find((item) => item.dataset.noteId === result.id);
         if (!article) return;
@@ -98,11 +111,32 @@ const posts = await getPublishedBlogEntriesByDate();
     history.pushState(null, '', '/notes');
     void applySearch('');
   });
-  window.addEventListener('popstate', () => void applySearch(new URLSearchParams(location.search).get('q') ?? ''));
+  window.addEventListener(
+    'popstate',
+    () => void applySearch(new URLSearchParams(location.search).get('q') ?? '')
+  );
   void applySearch(new URLSearchParams(location.search).get('q') ?? '');
 </script>
 
 <style>
+  .notes-intro {
+    margin: 0.75rem 0 0;
+    color: var(--color-body-text);
+    line-height: 1.7;
+    text-wrap: pretty;
+  }
+  .note-description {
+    font-size: var(--type-sm);
+    line-height: 1.65;
+    color: var(--color-body-text);
+    text-wrap: pretty;
+  }
+  .note-body:has(.note-excerpt:not([hidden])) .note-description {
+    display: none;
+  }
+  .note-list .note-link {
+    padding-block: 1rem;
+  }
   .search-status {
     display: flex;
     flex-wrap: wrap;
@@ -111,14 +145,37 @@ const posts = await getPublishedBlogEntriesByDate();
     margin: -1rem 0 2.5rem;
     color: var(--color-muted-foreground);
   }
-  .search-status[hidden] { display: none; }
-  .search-status a { color: var(--color-foreground); text-underline-offset: 3px; }
-  .note-item[hidden] { display: none; }
-  .note-body { display: grid; gap: 0.25rem; min-width: 0; }
-  .note-title { text-wrap: balance; }
-  .note-excerpt { color: var(--color-muted-foreground); font-size: var(--type-sm); line-height: 1.55; text-wrap: pretty; }
-  .note-excerpt[hidden] { display: none; }
+  .search-status[hidden] {
+    display: none;
+  }
+  .search-status a {
+    color: var(--color-foreground);
+    text-underline-offset: 3px;
+  }
+  .note-item[hidden] {
+    display: none;
+  }
+  .note-body {
+    display: grid;
+    gap: 0.25rem;
+    min-width: 0;
+  }
+  .note-title {
+    text-wrap: balance;
+  }
+  .note-excerpt {
+    color: var(--color-muted-foreground);
+    font-size: var(--type-sm);
+    line-height: 1.55;
+    text-wrap: pretty;
+  }
+  .note-excerpt[hidden] {
+    display: none;
+  }
   @media (max-width: 520px) {
-    .note-link { flex-direction: column-reverse; gap: 0.25rem; }
+    .note-link {
+      flex-direction: column-reverse;
+      gap: 0.25rem;
+    }
   }
 </style>
