@@ -19,7 +19,7 @@ const blog = defineCollection({
     draft: z.boolean().default(false),
     published: z.boolean().optional(),
     dueDate: dateSchema.optional(),
-    topics: z.array(z.enum(['AI Security'])).default([]),
+    topics: z.array(z.enum(['AI Security', 'Building with AI'])).default([]),
   }),
 });
 

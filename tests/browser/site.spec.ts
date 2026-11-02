@@ -4,25 +4,28 @@ import AxeBuilder from '@axe-core/playwright';
 const note = '/notes/ai-as-the-ultimate-hub';
 
 test('shared search URLs filter notes, highlight matches, clear, and support history', async ({ page }) => {
+  // Every published note is listed; the count grows as notes are added.
+  let total = 0;
   await expect(async () => {
     await page.goto('/notes');
-    await expect(page.locator('.note:visible')).toHaveCount(5);
+    total = await page.locator('.note:visible').count();
+    expect(total).toBeGreaterThan(1);
   }).toPass();
   await expect(page.locator('.excerpt:visible')).toHaveCount(0);
 
   await page.goto('/notes?q=power-law');
   const count = page.locator('#notes-count');
   await expect(page.getByRole('searchbox', { name: 'Search notes' })).toHaveValue('power-law');
-  await expect(count).toContainText(' of 5');
+  await expect(count).toContainText(` of ${total}`);
   await expect(page.locator('.note:visible mark').first()).toBeVisible();
   await expect(page.locator('.excerpt:visible').first()).toBeVisible();
   const matches = await page.locator('.note:visible').count();
-  expect(matches).toBeLessThan(5);
+  expect(matches).toBeLessThan(total);
 
   // Emptying the box restores every note and drops ?q= from the URL.
   await page.getByRole('searchbox', { name: 'Search notes' }).fill('');
   await expect(page).toHaveURL(/\/notes$/);
-  await expect(page.locator('.note:visible')).toHaveCount(5);
+  await expect(page.locator('.note:visible')).toHaveCount(total);
   await expect(page.locator('.excerpt:visible')).toHaveCount(0);
 
   // A query with no matches offers a way back.
@@ -30,13 +33,13 @@ test('shared search URLs filter notes, highlight matches, clear, and support his
   await expect(page.locator('#notes-empty')).toBeVisible();
   await page.getByRole('button', { name: 'Clear search' }).click();
   await expect(page).toHaveURL(/\/notes$/);
-  await expect(page.locator('.note:visible')).toHaveCount(5);
+  await expect(page.locator('.note:visible')).toHaveCount(total);
 
   // Shared URLs work with browser history.
   await page.goto('/notes?q=power-law');
   await expect(page.locator('.note:visible')).toHaveCount(matches);
   await page.goBack();
-  await expect(page.locator('.note:visible')).toHaveCount(5);
+  await expect(page.locator('.note:visible')).toHaveCount(total);
   await page.goForward();
   await expect(page.locator('.note:visible')).toHaveCount(matches);
 });
