@@ -14,15 +14,7 @@ summary: 'AI security depends on what kind of agent you are securing. Who built 
 
 ## The capabilities
 
-Tools are tagged with the kinds of agent they cover and with what they do:
-
-- **Discovery and posture** finds which agents, models, MCP servers and extensions exist, and how risky they are.
-- **Data controls** stop sensitive data from reaching AI tools.
-- **Gateways** route AI traffic through one checkpoint, when the traffic can be routed.
-- **Runtime protection** inspects prompts, responses and agent actions as they happen, and allows, warns or blocks them. It applies both to agents people use and to apps you build.
-- **Red teaming and evaluation** and **model security** protect the agents and applications you build yourself.
-
-Most tools cover one or two kinds of agent. Few cover all four.
+Tools are tagged with the kinds of agent they cover and with what they do. Most tools cover one or two kinds of agent. Few cover all four.
 
 ## Where to start
 

@@ -10,7 +10,7 @@ import type { SearchDocument } from '../src/utils/search-loader';
 function element() {
   const classes = new Set<string>();
   return {
-    value: '', textContent: '', style: {} as Record<string, string>, children: [] as any[],
+    value: '', textContent: '', dataset: {} as Record<string, string>, style: {} as Record<string, string>, children: [] as any[],
     classList: {
       add: (name: string) => classes.add(name), remove: (name: string) => classes.delete(name),
       contains: (name: string) => classes.has(name),
@@ -83,30 +83,38 @@ describe('browser script regressions', () => {
   });
 
   it('retries failed 404 searches', async () => {
+    vi.useFakeTimers();
     const fetch = vi.fn().mockRejectedValueOnce(Error('offline')).mockResolvedValue(response);
     const { get } = setup('src/pages/404.astro', { fetch });
     const input = get('error-search-input');
     input.value = 'network';
-    await input.handlers.input();
+    input.handlers.input();
+    await vi.advanceTimersByTimeAsync(200);
     expect(get('error-search-status').textContent).toContain('unavailable');
-    await input.handlers.input();
+    input.handlers.input();
+    await vi.advanceTimersByTimeAsync(200);
     expect(fetch).toHaveBeenCalledTimes(2);
     expect(get('error-search-results').children).toHaveLength(1);
+    vi.useRealTimers();
   });
 
   it('does not restore stale 404 results after clearing during loading', async () => {
+    vi.useFakeTimers();
     let resolve!: Function;
     const pending = new Promise((done) => { resolve = done; });
     const { get } = setup('src/pages/404.astro', { fetch: () => pending });
     const input = get('error-search-input');
     input.value = 'network';
-    const first = input.handlers.input();
+    input.handlers.input();
+    await vi.advanceTimersByTimeAsync(200); // request is now in flight
     input.value = '';
-    await input.handlers.input();
+    input.handlers.input();
+    await vi.advanceTimersByTimeAsync(200);
     resolve(response);
-    await first;
+    await vi.advanceTimersByTimeAsync(200);
     expect(get('error-search-results').children).toHaveLength(0);
     expect(get('error-search-status').textContent).toBe('');
+    vi.useRealTimers();
   });
 
   it('reaches 100 percent when the article bottom reaches the viewport bottom', () => {

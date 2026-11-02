@@ -1,37 +1,39 @@
 import { test, expect } from '@playwright/test';
 const note = '/notes/ai-as-the-ultimate-hub';
-test('readers can preview sections and jump to the one they need', async ({ page }) => {
+test('readers can jump to a section from the side column, which is hidden on phones', async ({ page }) => {
   await page.goto(note);
-  await page.getByText('In this note', { exact: true }).click();
-  const link = page.getByRole('navigation', { name: 'In this note' }).getByRole('link').first();
+  const guide = page.getByRole('navigation', { name: 'In this note' });
+  if ((page.viewportSize()?.width ?? 0) < 760) {
+    await expect(guide).toBeHidden();
+    await expect(page.locator('.prose h2').first()).toBeVisible();
+    return;
+  }
+  const link = guide.getByRole('link').first();
+  await expect(guide.getByText('On this page')).toBeVisible();
   const href = await link.getAttribute('href');
   await link.click();
   await expect(page).toHaveURL(new RegExp(href! + '$'));
-  const heading = page.locator(href!);
-  await expect(heading).toBeInViewport();
+  await expect(page.locator(href!)).toBeInViewport();
 });
-test('larger reading text persists without changing the site navigation', async ({ page }) => {
+test('the side column lists the notes this note links to', async ({ page }) => {
   await page.goto(note);
-  const prose = page.locator('[data-reader] .prose-custom');
-  const before = await prose.evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
-  const header = await page.locator('.header').evaluate((el) => getComputedStyle(el).fontSize);
-  const button = page.getByRole('button', { name: 'Larger text', exact: true });
-  await button.click();
-  await expect(button).toHaveAttribute('aria-pressed', 'true');
-  await expect
-    .poll(() => prose.evaluate((el) => parseFloat(getComputedStyle(el).fontSize)))
-    .toBeGreaterThan(before);
-  await page.reload();
-  await expect(button).toHaveAttribute('aria-pressed', 'true');
-  expect(await page.locator('.header').evaluate((el) => getComputedStyle(el).fontSize)).toBe(
-    header
-  );
-  await button.click();
-  await expect(button).toHaveAttribute('aria-pressed', 'false');
+  const links = page.getByRole('navigation', { name: 'Links to' }).getByRole('link');
+  if ((page.viewportSize()?.width ?? 0) < 760) {
+    await expect(page.getByRole('navigation', { name: 'Links to' })).toBeHidden();
+    return;
+  }
+  const first = links.first();
+  const href = await first.getAttribute('href');
+  expect(href).toMatch(/^\/notes\//);
+  await first.click();
+  await expect(page).toHaveURL(new RegExp(href! + '$'));
 });
-test('reading controls work with blocked storage and text remains comfortable', async ({
-  page,
-}) => {
+test('notes offer older and newer neighbours without a text-size control', async ({ page }) => {
+  await page.goto(note);
+  await expect(page.getByRole('navigation', { name: 'More notes' }).getByRole('link').first()).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Larger text' })).toHaveCount(0);
+});
+test('note text stays comfortable with blocked storage', async ({ page }) => {
   await page.addInitScript(() => {
     Storage.prototype.getItem = () => {
       throw new Error('blocked');
@@ -41,23 +43,15 @@ test('reading controls work with blocked storage and text remains comfortable', 
     };
   });
   await page.goto(note);
-  await page.getByRole('button', { name: 'Larger text', exact: true }).click();
-  await expect
-    .poll(() =>
-      page
-        .locator('[data-reader] .prose-custom')
-        .evaluate((el) => parseFloat(getComputedStyle(el).fontSize))
-    )
-    .toBeGreaterThanOrEqual(18);
-  const type = await page.locator('[data-reader] .prose-custom').evaluate((el) => {
+  const type = await page.locator('.prose').first().evaluate((el) => {
     const s = getComputedStyle(el);
     return {
       size: parseFloat(s.fontSize),
       leading: parseFloat(s.lineHeight) / parseFloat(s.fontSize),
     };
   });
-  expect(type.size).toBeGreaterThanOrEqual(18);
-  expect(type.leading).toBeGreaterThanOrEqual(1.7);
+  expect(type.size).toBe(16);
+  expect(type.leading).toBeGreaterThanOrEqual(1.6);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 test('copying a note uses its canonical URL and announces success', async ({ page }) => {
@@ -77,16 +71,16 @@ test('copying a note uses its canonical URL and announces success', async ({ pag
     'https://suhasdarsi.com' + note
   );
 });
-test('section navigation and article content work without JavaScript', async ({ browser }) => {
-  const context = await browser.newContext({ javaScriptEnabled: false });
+test('section navigation and article content work without JavaScript', async ({ browser, isMobile }) => {
+  const context = await browser.newContext({ javaScriptEnabled: false, viewport: isMobile ? { width: 412, height: 915 } : undefined });
   const page = await context.newPage();
   await page.goto('http://127.0.0.1:4322' + note);
-  await page.getByText('In this note', { exact: true }).click();
-  await expect(
-    page.getByRole('navigation', { name: 'In this note' }).getByRole('link').first()
-  ).toBeVisible();
-  await expect(page.locator('.prose-custom p').first()).toBeVisible();
-  await expect(page.locator('#reading-size')).toBeHidden();
+  if (!isMobile) {
+    await expect(
+      page.getByRole('navigation', { name: 'In this note' }).getByRole('link').first()
+    ).toBeVisible();
+  }
+  await expect(page.locator('.prose p').first()).toBeVisible();
   await context.close();
 });
 test('clipboard failure gives a useful fallback', async ({ page }) => {

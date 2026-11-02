@@ -1,83 +1,78 @@
 ---
-import BlogLayout from '../layouts/BlogLayout.astro';
-import AppMark from '../components/AppMark.astro';
+import SiteLayout from '../layouts/SiteLayout.astro';
 
-type Field = { name: string; label: string; placeholder: string; type?: 'text' | 'tel' | 'email' | 'url'; autocomplete?: string; wide?: boolean };
-const groups: { legend: string; fields: Field[] }[] = [
-  { legend: 'You', fields: [
-    { name: 'name', label: 'Full name', placeholder: 'Alex Morgan', autocomplete: 'name', wide: true },
-    { name: 'title', label: 'Role', placeholder: 'Product designer', autocomplete: 'organization-title' },
-    { name: 'company', label: 'Company', placeholder: 'Acme Inc.', autocomplete: 'organization' },
+type Field = { name: string; label: string; placeholder: string; type?: 'text' | 'tel' | 'email' | 'url'; autocomplete?: string };
+// Each group is a list of rows; a row with two fields sits side by side.
+const groups: { legend: string; rows: Field[][] }[] = [
+  { legend: 'You', rows: [
+    [{ name: 'name', label: 'Full name', placeholder: 'Ada Lovelace', autocomplete: 'name' }],
+    [{ name: 'title', label: 'Role', placeholder: 'Engineer', autocomplete: 'organization-title' },
+      { name: 'company', label: 'Company', placeholder: 'Analytical Engines', autocomplete: 'organization' }],
   ] },
-  { legend: 'Reach', fields: [
-    { name: 'phone', label: 'Phone (+country code)', placeholder: '+1 202 555 0123', type: 'tel', autocomplete: 'tel' },
-    { name: 'email', label: 'Email', placeholder: 'alex@acme.com', type: 'email', autocomplete: 'email' },
+  { legend: 'Reach', rows: [
+    [{ name: 'phone', label: 'Phone (+country code)', placeholder: '+65 …', type: 'tel', autocomplete: 'tel' },
+      { name: 'email', label: 'Email', placeholder: 'you@example.com', type: 'email', autocomplete: 'email' }],
   ] },
-  { legend: 'Links', fields: [
-    { name: 'website', label: 'Website URL', placeholder: 'https://acme.com', type: 'url', autocomplete: 'url', wide: true },
-    { name: 'linkedin', label: 'LinkedIn URL', placeholder: 'https://linkedin.com/in/alex', type: 'url' },
-    { name: 'twitter', label: 'X / Twitter URL', placeholder: 'https://x.com/alex', type: 'url' },
-    { name: 'note', label: 'Other details', placeholder: 'Anything else worth knowing', wide: true },
+  { legend: 'Links', rows: [
+    [{ name: 'website', label: 'Website URL', placeholder: 'https://', type: 'url', autocomplete: 'url' }],
+    [{ name: 'linkedin', label: 'LinkedIn URL', placeholder: 'https://linkedin.com/in/…', type: 'url' },
+      { name: 'twitter', label: 'X / Twitter URL', placeholder: 'https://x.com/…', type: 'url' }],
+  ] },
+  { legend: 'Other details', rows: [
+    [{ name: 'note', label: 'Anything else to show on the back', placeholder: 'Pronouns, timezone, a line about you' }],
   ] },
 ];
 ---
-<BlogLayout title="Pocket Card — Suhas Darsi" description="Make a contact card for Apple Wallet and share it with a scan." noindex>
-  <header class="page-header">
-    <h1 class="page-heading pocket-title"><AppMark mark="pocket" />Pocket Card</h1>
-    <p class="page-intro">Your business card, in Apple Wallet. Fill it in, download it, share it with a scan.</p>
-  </header>
 
-  <figure class="stage" aria-label="Card preview">
-    <article id="wallet-preview" class="pass">
-      <!-- Same artwork files the Wallet pass ships (public/wallet), so preview and pass match. -->
-      <p class="pass-logo"><img src="/wallet/logo@3x.png" width="32" height="32" alt="" /><span>Pocket Card</span></p>
-      <div class="pass-primary">
-        <h2 class="pass-name" id="preview-name" data-empty>Your name</h2>
-        <img class="pass-thumbnail" src="/wallet/thumbnail@3x.png" width="90" height="90" alt="" />
-      </div>
-      <dl class="pass-fields">
-        <div id="row-role" hidden><dt id="preview-role-label">Role</dt><dd id="preview-role"></dd></div>
-      </dl>
-      <div class="pass-code">
-        <img id="contact-qr" width="720" height="720" alt="Your contact QR" hidden />
-        <p id="qr-placeholder">Add your name to create your QR.</p>
-      </div>
-    </article>
-    <figcaption id="stage-caption">Live preview. Apple Wallet sets the final layout.</figcaption>
-  </figure>
-
-  <form id="contact-form" class="form" novalidate>
-    {groups.map(group => (
-      <fieldset>
-        <legend>{group.legend}</legend>
-        <div class="grid">
-          {group.fields.map(field => (
-            <label class:list={[{ wide: field.wide }]}>
-              <span>{field.label}</span>
-              <input id={field.name} name={field.name} type={field.type ?? 'text'} placeholder={field.placeholder}
-                maxlength={field.name === 'note' ? 240 : 160} autocomplete={field.autocomplete ?? 'off'} spellcheck="false" required={field.name === 'name'} />
-            </label>
-          ))}
-        </div>
-      </fieldset>
-    ))}
-  </form>
-
-  <section class="export" aria-label="Save your card">
-    <button id="save-wallet" class="primary" type="button">
-      <svg class="btn-check" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
-      <span class="btn-label">Download for Apple Wallet</span>
-    </button>
-    <div class="quiet-row">
-      <button id="save-qr" class="quiet" type="button">Save QR</button>
-      <button id="save-contact" class="quiet" type="button">Download contact</button>
-    </div>
-    <p id="contact-status" role="status" aria-live="polite"></p>
-    <p class="fine">Nothing is saved. Your details go to a signing service only to create the Wallet file, and the card works offline once added. Need a new one? Just make it again.</p>
-    <p class="fine">Anyone who scans your QR can read its details. On Android, scan the QR or import the contact file instead.</p>
+<SiteLayout title="Pocket Card — Suhas Darsi" description="Make a contact card for Apple Wallet and share it with a scan." noindex current="apps">
+  <section class="page-head">
+    <span class="eyebrow">Tiny app</span>
+    <h1 class="title">Pocket Card</h1>
+    <p class="lede">Your business card, in Apple Wallet. Fill it in, download it, share it with a scan.</p>
   </section>
-  <noscript>Enable JavaScript to create your card.</noscript>
-</BlogLayout>
+
+  <div class="app-grid" style="padding-bottom: 64px;">
+    <form id="contact-form" class="form" novalidate>
+      {groups.map((group) => (
+        <fieldset class="group">
+          <legend>{group.legend}</legend>
+          {group.rows.map((row) => {
+            const fields = row.map((field) => (
+              <label class="lab" for={field.name}>{field.label}<input id={field.name} name={field.name} class="field plain" type={field.type ?? 'text'} placeholder={field.placeholder}
+                maxlength={field.name === 'note' ? 240 : 160} autocomplete={field.autocomplete ?? 'off'} spellcheck="false" required={field.name === 'name'} /></label>
+            ));
+            return row.length > 1 ? <div class="two">{fields}</div> : fields;
+          })}
+        </fieldset>
+      ))}
+    </form>
+
+    <aside class="preview" aria-label="Live preview">
+      <div class="pass" id="wallet-preview">
+        <div style="display: grid; gap: 8px;">
+          <span class="pk">Pocket Card</span>
+          <span class="pn" id="preview-name">Your name</span>
+          <span class="pr" id="preview-role">Role</span>
+        </div>
+        <div class="row">
+          <div><span>Phone</span><span id="preview-phone">—</span></div>
+          <div><span>Email</span><span id="preview-email">—</span></div>
+        </div>
+        <img id="contact-qr" class="qr" width="720" height="720" alt="QR code for your contact" hidden />
+        <div id="qr-placeholder" class="qr-empty">Add your name to create your QR.</div>
+      </div>
+      <p class="faint" style="font-size: 13px; text-align: center;">Live preview. Apple Wallet sets the final layout.</p>
+      <button id="save-wallet" type="button" class="btn dark" disabled><span class="btn-label">Download for Apple Wallet</span></button>
+      <div class="two">
+        <button id="save-qr" type="button" class="btn" disabled>Save QR</button>
+        <button id="save-contact" type="button" class="btn" disabled>Download contact</button>
+      </div>
+      <p id="contact-status" role="status" aria-live="polite"></p>
+      <p class="muted" style="font-size: 13px; line-height: 1.55;">Nothing is saved. Your details go to a signing service only to create the Wallet file, and the card works offline once added. Anyone who scans your QR can read its details. On Android, scan the QR or import the contact file instead.</p>
+      <noscript><p class="muted" style="font-size: 13px;">Enable JavaScript to create your card.</p></noscript>
+    </aside>
+  </div>
+</SiteLayout>
 
 <script>
   import QRCode from 'qrcode';
@@ -87,28 +82,17 @@ const groups: { legend: string; fields: Field[] }[] = [
   const image = $<HTMLImageElement>('#contact-qr');
   const placeholder = $('#qr-placeholder');
   const form = $<HTMLFormElement>('#contact-form');
-  const inputs = Object.fromEntries(contactFields.map(name => [name, $<HTMLInputElement>(`#${name}`)]));
-  const read = () => validateContact(Object.fromEntries(contactFields.map(name => [name, inputs[name].value])));
+  const actions = ['#save-wallet', '#save-qr', '#save-contact'].map((selector) => $<HTMLButtonElement>(selector));
+  const inputs = Object.fromEntries(contactFields.map((name) => [name, $<HTMLInputElement>(`#${name}`)]));
+  const read = () => validateContact(Object.fromEntries(contactFields.map((name) => [name, inputs[name].value])));
   const message = (error: unknown, tone: 'error' | 'info' = error instanceof Error ? 'error' : 'info') => {
     status.textContent = error instanceof Error ? error.message : String(error); status.dataset.tone = tone;
-    if (status.textContent) play(status, 'is-in');
   };
-  // Motion helpers. CSS turns animations off for prefers-reduced-motion; JS skips pointer tilt and smooth scroll.
-  const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
-  function play(element: Element, className: string) {
-    element.classList.remove(className); void (element as HTMLElement).offsetWidth; element.classList.add(className);
-    // Only this element's own animation ends the class, not one bubbling up from a child or pseudo-element.
-    const end = (event: AnimationEvent) => {
-      if (event.target !== element || event.pseudoElement) return;
-      element.classList.remove(className); element.removeEventListener('animationend', end as EventListener);
-    };
-    element.addEventListener('animationend', end as EventListener);
-  }
   function flash(button: HTMLButtonElement, text: string, ms = 1600) {
     const label = button.dataset.label ??= button.textContent!.trim();
-    button.textContent = text; button.classList.add('is-flash');
+    button.textContent = text;
     clearTimeout(Number(button.dataset.timer));
-    button.dataset.timer = String(setTimeout(() => { button.textContent = label; button.classList.remove('is-flash'); }, ms));
+    button.dataset.timer = String(setTimeout(() => { button.textContent = label; }, ms));
   }
   function download(data: Blob | string, name: string) {
     const url = typeof data === 'string' ? data : URL.createObjectURL(data); const link = document.createElement('a');
@@ -117,23 +101,21 @@ const groups: { legend: string; fields: Field[] }[] = [
   }
 
   // Text on the card mirrors the raw inputs instantly; the QR only follows valid details.
+  let busy = false;
   function render() {
     const value = (name: string) => inputs[name].value.trim();
-    const name = $('#preview-name'); name.textContent = value('name') || 'Your name'; name.toggleAttribute('data-empty', !value('name'));
-    name.toggleAttribute('data-long', value('name').length > 18);
-    const role = cardRoleLine({ title: value('title'), company: value('company') });
-    const row = $('#row-role'); const appearing = row.hidden && !!role.value;
-    $('#preview-role-label').textContent = role.label; $('#preview-role').textContent = role.value; row.hidden = !role.value;
-    if (appearing) play(row, 'is-new');
+    $('#preview-name').textContent = value('name') || 'Your name';
+    $('#preview-role').textContent = cardRoleLine({ title: value('title'), company: value('company') }).value || 'Role';
+    $('#preview-phone').textContent = value('phone') || '—';
+    $('#preview-email').textContent = value('email') || '—';
+    for (const button of actions) button.disabled = busy || !value('name');
   }
   let generation = 0;
   async function preview() {
     const ticket = ++generation; const d = read();
-    const src = await QRCode.toDataURL(generateVCard(d), { width: 720, margin: 2, errorCorrectionLevel: 'M', color: { dark: '#2b2825', light: '#ffffff' } });
+    const src = await QRCode.toDataURL(generateVCard(d), { width: 720, margin: 2, errorCorrectionLevel: 'M', color: { dark: '#16171a', light: '#ffffff' } });
     if (ticket !== generation) return;
-    const appearing = image.hidden;
     image.src = src; image.hidden = false; placeholder.hidden = true;
-    if (appearing) play(image, 'is-new');
   }
   async function refresh(announce: boolean) {
     render();
@@ -147,175 +129,49 @@ const groups: { legend: string; fields: Field[] }[] = [
   let timer: ReturnType<typeof setTimeout>;
   form.addEventListener('input', () => { render(); clearTimeout(timer); timer = setTimeout(() => void refresh(false), 200); });
   form.addEventListener('change', () => { clearTimeout(timer); void refresh(true); });
-  form.addEventListener('submit', event => event.preventDefault());
+  form.addEventListener('submit', (event) => event.preventDefault());
 
-  // Focusing a field highlights where it lands on the card; contact details, links and notes live in the QR.
-  const card = $('#wallet-preview');
-  // Once the opening stitch is sewn, retire the arrival animations so later effects never replay them.
-  card.addEventListener('animationend', event => { if (event.animationName === 'sew') card.classList.add('has-arrived'); });
-  const targets: Record<string, string> = { name: '#preview-name', title: '#row-role', company: '#row-role' };
-  const clearFocus = () => card.querySelectorAll('.is-focus').forEach(element => element.classList.remove('is-focus'));
-  form.addEventListener('focusin', event => { clearFocus(); card.querySelector(targets[(event.target as HTMLInputElement).name] ?? '.pass-code')?.classList.add('is-focus'); });
-  form.addEventListener('focusout', clearFocus);
-
-  // A slight tilt toward the pointer, like holding a real card. Fine pointers only.
-  if (matchMedia('(pointer: fine)').matches && !reducedMotion()) {
-    const stage = $('.stage');
-    stage.addEventListener('pointermove', event => {
-      const box = card.getBoundingClientRect();
-      const x = (event.clientX - box.left) / box.width - 0.5; const y = (event.clientY - box.top) / box.height - 0.5;
-      card.style.setProperty('--tilt-x', `${(-y * 4).toFixed(2)}deg`); card.style.setProperty('--tilt-y', `${(x * 5).toFixed(2)}deg`);
-    });
-    stage.addEventListener('pointerleave', () => { card.style.removeProperty('--tilt-x'); card.style.removeProperty('--tilt-y'); });
-  }
-
-  // Success: bring the card back into view, tuck it into the pocket and re-sew the stitch.
-  const caption = $('#stage-caption'); const captionText = caption.textContent!;
-  function celebrate() {
-    card.scrollIntoView({ behavior: reducedMotion() ? 'auto' : 'smooth', block: 'center' });
-    setTimeout(() => {
-      play(card, 'is-tucked'); play($('.pass-thumbnail'), 'is-sewing');
-      caption.textContent = 'Ready. Open the download to add it to Wallet.'; play(caption, 'is-in');
-      setTimeout(() => { caption.textContent = captionText; }, 6000);
-    }, reducedMotion() ? 0 : 350);
-  }
-
-  const on = (selector: string, fn: () => Promise<void> | void) => $(selector).addEventListener('click', () => Promise.resolve().then(fn).catch(error => message(error)));
+  const on = (selector: string, fn: () => Promise<void> | void) => $(selector).addEventListener('click', () => Promise.resolve().then(fn).catch((error) => message(error)));
   on('#save-qr', async () => { await preview(); download(image.src, 'contact-qr.png'); flash($('#save-qr'), 'Saved ✓'); });
   on('#save-contact', () => { download(new Blob([generateVCard(read())], { type: 'text/vcard;charset=utf-8' }), 'contact.vcf'); flash($('#save-contact'), 'Saved ✓'); });
   on('#save-wallet', async () => {
     // Every download is a fresh card; the ID only exists to identify this pass.
-    const payload = { version: 1, id: crypto.randomUUID(), contact: read() }; const button = $<HTMLButtonElement>('#save-wallet');
-    const label = button.querySelector('.btn-label')!; const idle = 'Download for Apple Wallet';
-    button.disabled = true; button.classList.add('is-busy'); label.textContent = 'Stitching your card…'; message('Creating your Wallet card…');
-    let done = false;
+    const payload = { version: 1, id: crypto.randomUUID(), contact: read() };
+    const label = $('#save-wallet .btn-label'); const idle = label.textContent!;
+    busy = true; render(); label.textContent = 'Creating your card…'; message('Creating your Wallet card…');
     try {
       const response = await fetch('/api/wallet', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
       if (!response.ok) { const error = await response.json().catch(() => null); throw new Error(error?.error ?? 'Wallet service unavailable. QR and contact downloads still work.'); }
       if (!response.headers.get('content-type')?.includes('application/vnd.apple.pkpass')) throw new Error('Wallet generation is not activated yet.');
       download(await response.blob(), 'contact.pkpass'); message('Downloaded. Open it on your iPhone and choose Add to Wallet.');
-      done = true; button.classList.add('is-done'); label.textContent = 'Card ready'; celebrate();
-      setTimeout(() => { button.classList.remove('is-done'); label.textContent = idle; }, 2800);
-    } catch (error) {
-      play(button, 'is-shake'); throw error;
     } finally {
-      button.disabled = false; button.classList.remove('is-busy');
-      if (!done) label.textContent = idle;
+      busy = false; render(); label.textContent = idle;
     }
   });
   render();
 </script>
 
-<style>
-  .pocket-title { display: flex; align-items: center; gap: .5rem; }
-
-  /* Card preview — mirrors the generic Apple Wallet pass built in worker/wallet.ts. */
-  .stage { margin: 0 0 3.5rem; padding: 2.5rem 1rem 1.25rem; border-radius: var(--radius-panel); background: var(--color-muted); display: grid; justify-items: center; gap: 1.25rem; }
-  .stage figcaption { color: var(--color-muted-foreground); text-align: center; }
-  .pass {
-    position: relative; overflow: hidden;
-    transform: perspective(900px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
-    animation: card-arrive .7s cubic-bezier(.2, .8, .2, 1) both;
-    /* The one Pocket Card look: stone grey with ink text. Keep in sync with worker/wallet.ts. */
-    --pass-bg: #e8e5e0; --pass-fg: #2b2825; --pass-label: #69645e; --pass-edge: rgb(43 40 37 / .08);
-    width: min(100%, 20rem); min-height: 27rem; padding: 1.25rem 1.25rem 1.5rem; border-radius: 14px;
-    display: flex; flex-direction: column; color: var(--pass-fg);
-    background: var(--pass-bg);
-    box-shadow: inset 0 0 0 1px var(--pass-edge), 0 1px 2px rgb(43 40 37 / .08), 0 18px 40px -16px rgb(43 40 37 / .35);
-    /* Wallet renders passes in Apple's system font, so the preview does too. */
-    font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif; transition: transform .45s cubic-bezier(.2, .7, .2, 1);
-  }
-  /* Sheen that sweeps across the card on success. */
-  .pass::after { content: ''; position: absolute; inset: 0; pointer-events: none; opacity: 0; background: linear-gradient(105deg, transparent 35%, rgb(255 255 255 / .55) 50%, transparent 65%); translate: -100% 0; }
-  .pass.has-arrived, .pass.has-arrived .pass-thumbnail { animation: none; }
-  .pass.is-tucked { animation: card-tuck .9s cubic-bezier(.3, .7, .2, 1); }
-  .pass.is-tucked::after { animation: sheen 1s .25s ease-out; }
-  /* Focused field → where it lands on the card. */
-  .pass-logo, .pass-name, .pass-fields > div, .pass-code { border-radius: 6px; transition: background-color .25s ease, box-shadow .25s ease, color .3s ease; }
-  .pass .is-focus { background: rgb(43 40 37 / .05); box-shadow: 0 0 0 6px rgb(43 40 37 / .05); }
-  .pass-fields > div.is-new, .pass-code img.is-new { animation: rise-in .35s cubic-bezier(.2, .8, .2, 1); }
-  .pass-code img.is-new { animation-name: qr-in; }
-  .pass-logo { display: flex; align-items: center; gap: .5rem; font-weight: 600; letter-spacing: -.01em; }
-  .pass-logo img { width: 1.5rem; height: 1.5rem; }
-  .pass-primary { display: flex; align-items: center; justify-content: space-between; gap: .75rem; margin-top: 1.75rem; }
-  .pass-thumbnail { width: 4.5rem; height: 4.5rem; flex-shrink: 0; animation: sew .9s .45s cubic-bezier(.4, .6, .2, 1) both; }
-  .pass .pass-thumbnail.is-sewing { animation: resew .9s .2s cubic-bezier(.4, .6, .2, 1) both; }
-  .pass-name { font-family: inherit; margin: 0; min-width: 0; font-size: 1.75rem; font-weight: 600; line-height: 1.15; letter-spacing: -.025em; text-wrap: balance; }
-  .pass-name[data-empty] { color: var(--pass-label); }
-  /* Long names: smaller type, whole words only, at most two lines ending in "…". */
-  .pass-name { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; overflow-wrap: normal; }
-  .pass-name[data-long] { font-size: 1.375rem; }
-  .pass-fields { margin: 1.5rem 0 0; min-width: 0; }
-  .pass-fields > div { min-width: 0; }
-  .pass-fields dt { font-size: .8125rem; color: var(--pass-label); }
-  .pass-fields dd { margin: .125rem 0 0; line-height: 1.35; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .pass-logo span { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .pass-code { margin: auto auto 0; padding-top: 1.75rem; }
-  .pass-code img, .pass-code p { display: block; width: 9.5rem; aspect-ratio: 1; padding: .25rem; border-radius: 10px; background: #fff; }
-  .pass-code img[hidden], .pass-code p[hidden] { display: none; }
-  .pass-code p { display: grid; place-items: center; padding: 1rem; text-align: center; font-size: .8125rem; line-height: 1.4; color: #69645e; background: rgb(255 255 255 / .92); }
-
-  /* Form */
-  .form { display: grid; gap: 2.25rem; }
-  fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
-  legend { padding: 0; margin-bottom: .875rem; font-weight: 500; color: var(--color-foreground); }
-  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem .875rem; }
-  .grid .wide { grid-column: 1 / -1; }
-  .grid label { display: grid; gap: .375rem; min-width: 0; }
-  .grid label > span { color: var(--color-muted-foreground); }
-  input:not([type='radio'], [type='file']) {
-    width: 100%; padding: .625rem .75rem; font: inherit; color: var(--color-foreground);
-    background: var(--color-subtle); border: 1px solid var(--color-border); border-radius: var(--radius-buttons);
-    transition: border-color .15s ease, box-shadow .15s ease;
-  }
-  input::placeholder { color: var(--color-muted-foreground); opacity: .6; }
-  input:not([type='radio'], [type='file']):hover { border-color: var(--color-muted-foreground); }
-  input:not([type='radio'], [type='file']):focus-visible { outline: none; border-color: var(--color-accent); box-shadow: 0 0 0 3px var(--color-muted); }
-  input:user-invalid { border-color: var(--status-error); }
-
-
-  /* Export */
-  .export { margin-top: 3rem; }
-  button { font: inherit; cursor: pointer; }
-  button:disabled { opacity: .55; cursor: wait; }
-  .primary { position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; gap: .5rem; width: 100%; padding: .8125rem 1rem; border: 1px solid var(--color-border-strong); border-radius: var(--radius-buttons); font-weight: 500; background: var(--color-subtle); color: var(--color-foreground); transition: background-color .15s ease, scale .15s ease; }
-  .primary:hover:not(:disabled) { background: var(--color-muted); }
-  .primary:active:not(:disabled), .quiet:active { scale: .98; }
-  /* Busy: a stitch runs along the bottom of the button. */
-  .primary.is-busy:disabled { opacity: 1; cursor: progress; }
-  .primary.is-busy::after { content: ''; position: absolute; left: 1rem; right: 1rem; bottom: .4rem; height: 2px; opacity: .55; background: repeating-linear-gradient(90deg, currentColor 0 6px, transparent 6px 11px); animation: stitch-run .7s linear infinite; }
-  .btn-check { display: none; }
-  .primary.is-done .btn-check { display: block; stroke-dasharray: 24; stroke-dashoffset: 24; animation: draw .45s .05s ease-out forwards; }
-  .primary.is-shake, #contact-status.is-in[data-tone='error'] { animation: shake .35s ease; }
-  .quiet.is-flash { color: var(--color-foreground); background: var(--color-muted); }
-  .quiet-row { display: flex; flex-wrap: wrap; gap: .25rem; margin: .75rem -.625rem 0; }
-  .quiet { position: relative; padding: .375rem .625rem; border-radius: var(--radius-buttons); color: var(--color-foreground); background: transparent; cursor: pointer; transition: background-color .15s ease; }
-  .quiet:hover { background: var(--color-muted); }
-  #contact-status { margin-top: 1rem; color: var(--color-foreground); }
+<style is:global>
+  .app-grid { display: flex; flex-wrap: wrap; gap: 48px; align-items: flex-start; }
+  .app-grid .form { flex: 999 1 460px; min-width: 0; display: grid; gap: 24px; }
+  .preview { flex: 1 1 320px; max-width: 380px; display: grid; gap: 12px; }
+  .group { display: grid; gap: 12px; border: 0; padding: 0; margin: 0; min-width: 0; }
+  .group legend { font-size: 16px; font-weight: 500; margin-bottom: 4px; padding: 0; }
+  .two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .lab { display: grid; gap: 8px; font-size: 13px; color: var(--muted); }
+  .lab .field:user-invalid { border-color: var(--alert); }
+  .pass { border-radius: 20px; background: var(--ink); color: var(--bg); padding: 24px; display: grid; gap: 16px; aspect-ratio: 1 / 1.35; max-width: 100%; align-content: space-between; }
+  .pass [hidden] { display: none; }
+  .pass .pk { font-family: Geist, sans-serif; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; opacity: .6; }
+  .pass .pn { font-size: 28px; font-weight: 600; letter-spacing: -.015em; line-height: 1.15; overflow-wrap: anywhere; }
+  .pass .pr { font-size: 16px; opacity: .72; overflow-wrap: anywhere; }
+  .pass .row { overflow-wrap: anywhere; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; font-size: 13px; }
+  .pass .row span:first-child { display: block; font-family: Geist, sans-serif; font-size: 13px; letter-spacing: .06em; text-transform: uppercase; opacity: .7; }
+  .pass .qr { justify-self: center; width: 160px; height: auto; padding: 8px; background: #ffffff; border-radius: 8px; }
+  .qr-empty { justify-self: center; width: 121px; height: 121px; border-radius: 8px; border: 1px dashed color-mix(in srgb, var(--bg) 40%, transparent); display: grid; place-items: center; text-align: center; font-size: 13px; opacity: .7; padding: 8px; }
+  .preview .btn:disabled { cursor: not-allowed; }
+  #contact-status { font-size: 13px; color: var(--accent-text); }
   #contact-status:empty { display: none; }
-  #contact-status[data-tone='error'] { color: var(--status-error); }
-  #contact-status.is-in, .stage figcaption.is-in { animation: fade-up .3s ease-out; }
-  .fine { color: var(--color-muted-foreground); margin-top: 1rem; }
-
-  :global(:root) { --status-error: #a3412a; }
-  :global(html.dark) { --status-error: #f0a58f; }
-  :global(html.dark) .stage { background: var(--color-subtle); }
-
-  @media (max-width: 34rem) {
-    .grid { grid-template-columns: 1fr; }
-    .stage { padding: 1.5rem .75rem 1rem; }
-  }
-  @media (prefers-reduced-motion: reduce) { .pass, input, .quiet, .primary { transition: none; } .pass { transform: none; } }
-
-  @keyframes card-arrive { from { opacity: 0; translate: 0 18px; } }
-  @keyframes card-tuck { 0% { translate: 0 0; } 35% { translate: 0 14px; scale: .975; } 70% { translate: 0 -3px; scale: 1.005; } 100% { translate: 0 0; scale: 1; } }
-  @keyframes sheen { 0% { opacity: 1; translate: -100% 0; } 100% { opacity: 1; translate: 100% 0; } }
-  @keyframes sew { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
-  @keyframes resew { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
-  @keyframes rise-in { from { opacity: 0; translate: 0 6px; } }
-  @keyframes qr-in { from { opacity: 0; scale: .94; } }
-  @keyframes fade-up { from { opacity: 0; translate: 0 4px; } }
-  @keyframes stitch-run { to { background-position: 11px 0; } }
-  @keyframes draw { to { stroke-dashoffset: 0; } }
-  @keyframes shake { 0%, 100% { translate: 0; } 20% { translate: -4px 0; } 40% { translate: 4px 0; } 60% { translate: -2px 0; } 80% { translate: 2px 0; } }
+  #contact-status[data-tone='error'] { color: var(--alert); }
+  @media (max-width: 640px) { .two { grid-template-columns: minmax(0, 1fr); } .preview { max-width: none; } }
 </style>

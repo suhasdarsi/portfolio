@@ -10,6 +10,6 @@ const { rating } = Astro.props;
 
 <style>
   .tool-rating { display: inline-flex; gap: 3px; align-items: center; vertical-align: 0.05em; }
-  .dot { width: 6px; height: 6px; border-radius: 50%; border: 1px solid currentColor; opacity: 0.45; }
-  .dot.on { background: var(--color-foreground); border-color: var(--color-foreground); opacity: 1; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; border: 1px solid var(--line-strong); }
+  .dot.on { background: var(--ink); border-color: var(--ink); }
 </style>

@@ -1,0 +1,33 @@
+---
+// Top bar on every main-site page: name as text, four links, search (opens SearchOverlay) and the theme switch.
+import ThemeButton from './ThemeButton.astro';
+
+interface Props {
+  current?: 'notes' | 'apps' | 'about' | 'uses';
+}
+
+const { current } = Astro.props;
+const links = [
+  { key: 'notes', label: 'Notes', href: '/notes' },
+  { key: 'apps', label: 'Apps', href: '/#apps' },
+  { key: 'about', label: 'About', href: '/about' },
+  { key: 'uses', label: 'Uses', href: '/uses' },
+] as const;
+---
+
+<header class="topbar">
+  <a class="brand" href="/">Suhas Darsi</a>
+  <div style="display: flex; align-items: center; gap: 16px;">
+    <nav aria-label="Main" class="nav">
+      {links.map((link) => (
+        <a class:list={['navlink', { on: current === link.key }]} href={link.href} aria-current={current === link.key ? 'page' : undefined}>{link.label}</a>
+      ))}
+    </nav>
+    <div style="display: flex; gap: 2px;">
+      <button type="button" class="icon-btn" data-search-open aria-label="Search" aria-controls="search-overlay">
+        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+      </button>
+      <ThemeButton />
+    </div>
+  </div>
+</header>

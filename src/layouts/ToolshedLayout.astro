@@ -1,6 +1,7 @@
 ---
-// Toolshed is a full-width app with its own navigation, separate from the portfolio's reading layout.
-// It's in alpha: every page says so, and search engines are asked not to index it yet.
+// Toolshed is an independent app inside the site: its own top bar and footer around the wide column.
+// It's in alpha: pages carry the alpha banner (About explains it in its own box instead), and search
+// engines are asked not to index it yet.
 import SiteHead from '../components/SiteHead.astro';
 import ToolshedHeader from '../components/toolshed/Header.astro';
 import ToolshedFooter from '../components/toolshed/Footer.astro';
@@ -9,9 +10,12 @@ interface Props {
   title: string;
   description?: string;
   turnstile?: boolean;
+  // The home page shows a search box in the top bar; All tools has its own.
+  search?: boolean;
+  banner?: boolean;
 }
 
-const { title, description, turnstile = false } = Astro.props;
+const { title, description, turnstile = false, search = false, banner = true } = Astro.props;
 ---
 
 <!doctype html>
@@ -19,30 +23,26 @@ const { title, description, turnstile = false } = Astro.props;
   <head>
     <SiteHead title={title} description={description} noindex turnstile={turnstile} />
   </head>
-  <body class="toolshed">
+  <body class="sd">
     <a href="#main-content" class="skip-link">Skip to main content</a>
-    <ToolshedHeader />
-    <div class="ts-alpha" role="note">
-      <p class="ts-container"><strong>Alpha.</strong> Toolshed is a work in progress: the tools, tags and market notes are incomplete and some will be wrong. Please don’t rely on it or share it yet.</p>
+    <div class="page wide">
+      <ToolshedHeader search={search} />
+      {banner && (
+        <p class="ts-banner" role="note" style="margin-top: 16px;"><b>Alpha.</b> Toolshed is a work in progress: the tools, tags and market notes are incomplete and some will be wrong. Please don’t rely on it or share it yet.</p>
+      )}
+      <main id="main-content">
+        <slot />
+      </main>
+      <ToolshedFooter />
     </div>
-    <main id="main-content" class="ts-container ts-main">
-      <slot />
-    </main>
-    <ToolshedFooter />
   </body>
 </html>
 
 <style is:global>
-  body.toolshed { min-height: 100vh; display: flex; flex-direction: column; background: var(--color-background); }
-  .ts-container { width: 100%; max-width: 76rem; margin-inline: auto; padding-inline: 1.5rem; }
-  .ts-alpha { border-bottom: 1px solid var(--color-border); background: var(--color-muted); }
-  .ts-alpha p { margin-block: 0; padding-block: 0.625rem; font-size: var(--type-sm); line-height: 1.5; color: var(--color-body-text); }
-  .ts-alpha strong { font-weight: 600; color: var(--color-foreground); }
-  .ts-main { flex: 1; padding-block: 2.5rem 4rem; }
-  @media (max-width: 640px) { .ts-container { padding-inline: 1rem; } .ts-main { padding-top: 1.5rem; } }
-
-  /* Shared Toolshed type: section titles and the small muted label above them. */
-  .ts-section-title { margin: 0; font-size: var(--type-md); font-weight: 500; letter-spacing: -0.01em; color: var(--color-foreground); }
-  .ts-eyebrow { margin: 0 0 0.375rem; font-size: var(--type-sm); color: var(--color-muted-foreground); }
-  .ts-muted { color: var(--color-muted-foreground); }
+  /* Shared by the Toolshed pages: the employer disclosure next to a tool, and lists filtered with [hidden]. */
+  .emp { font-family: Geist, sans-serif; font-size: 13px; letter-spacing: .04em; text-transform: uppercase; color: var(--accent-text); margin-left: 8px; }
+  .sd [hidden] { display: none !important; }
+  /* Bold stops at 600, as in the design; Markdown writes <strong> where the design has <b>. */
+  .sd h2.eyebrow { font-weight: 600; }
+  .prose strong { color: var(--ink); font-weight: 600; }
 </style>

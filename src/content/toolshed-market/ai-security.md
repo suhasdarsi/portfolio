@@ -21,7 +21,7 @@ Two pairs of kinds blur the most:
 - **Runtime protection and red teaming.** Most runtime protection vendors now sell testing too, because the same detection models power both.
 - **Gateways and browser or endpoint tools.** Each is moving toward the others. Gateway vendors add browser extensions, and browser vendors add MCP gateways.
 
-**Agents on AI platforms** (Agentforce, Copilot Studio, Bedrock) and **local agents** (Claude Code, Codex, Cursor, local MCP servers) remain more distinct, because they need deep integrations that a network gateway can’t provide. Most of the market’s tools still focus on **custom agents**, the ones companies build themselves.
+Agents on AI platforms (Agentforce, Copilot Studio, Bedrock) and local agents (Claude Code, Codex, Cursor, local MCP servers) remain more distinct, because they need deep integrations that a network gateway can’t provide. Most of the market’s tools still focus on custom agents, the ones companies build themselves.
 
 ## Consolidation
 
@@ -31,8 +31,8 @@ Recent deals include Palo Alto Networks buying Protect AI (now part of Prisma AI
 
 Start from the kinds of agent you actually have, not from the vendor’s category name. Ask each vendor three questions:
 
-1. Which of the four kinds of agent (SaaS, local, AI platform, custom) do you cover natively?
-2. What do you see when traffic doesn’t pass through your gateway?
-3. Can you enforce (allow, warn, block), or only observe?
+- Which of the four kinds of agent (SaaS, local, AI platform, custom) do you cover natively?
+- What do you see when traffic doesn’t pass through your gateway?
+- Can you enforce (allow, warn, block), or only observe?
 
 A platform suite is convenient if you already run that vendor’s stack. A specialist usually goes deeper in its own area.

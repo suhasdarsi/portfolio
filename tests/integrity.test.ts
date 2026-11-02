@@ -71,20 +71,23 @@ describe('file structure', () => {
 });
 
 describe('typography system', () => {
-  it('uses the shared page heading treatment on primary portfolio pages', () => {
+  it('uses the shared page title treatment on primary portfolio pages', () => {
     const pages = [
-      join(SRC, 'pages', 'index.astro'),
       join(SRC, 'pages', 'uses.astro'),
+      join(SRC, 'pages', 'about.astro'),
       join(SRC, 'pages', 'notes', 'index.astro'),
       join(SRC, 'pages', 'notes', '[slug].astro'),
     ];
 
-    const globalStyles = readFileSync(join(SRC, 'styles', 'global.css'), 'utf-8');
-    expect(globalStyles).toContain('.page-heading');
+    const siteStyles = readFileSync(join(SRC, 'styles', 'site.css'), 'utf-8');
+    expect(siteStyles).toMatch(/\.title\b/);
+    expect(siteStyles).toContain('Geist Serif');
 
     for (const page of pages) {
-      expect(readFileSync(page, 'utf-8'), page).toMatch(/<h1[^>]*class="[^"]*page-heading/);
+      expect(readFileSync(page, 'utf-8'), page).toMatch(/<h1[^>]*class="title"/);
     }
+    // The home page leads with the serif intro instead of a page title.
+    expect(readFileSync(join(SRC, 'pages', 'index.astro'), 'utf-8')).toMatch(/<h1[^>]*class="intro serif"/);
   });
 });
 
@@ -189,10 +192,10 @@ describe('build', () => {
     expect(css).not.toMatch(/\.copy-code-button\[data-astro-/);
     // 404 results are created at runtime, so they rely on the global (unscoped) row style.
     expect(readFileSync(join(SRC, 'pages/404.astro'), 'utf8')).toContain(
-      "link.className = 'row error-search-result'"
+      "link.className = 'mrow error-search-result'"
     );
-    expect(css).toMatch(/\.row\{/);
-    expect(css).not.toMatch(/\.row\[data-astro-/);
+    expect(css).toMatch(/\.mrow\{/);
+    expect(css).not.toMatch(/\.mrow\[data-astro-/);
   }, 15_000);
 });
 
@@ -211,7 +214,8 @@ describe('content publication graph', () => {
     const noteDetail = readFileSync(join(SRC, 'pages', 'notes', '[slug].astro'), 'utf-8');
     const notesIndex = readFileSync(join(SRC, 'pages', 'notes', 'index.astro'), 'utf-8');
 
-    expect(noteDetail).toContain('class="article-share"');
+    expect(noteDetail).toContain('class="share"');
+    expect(noteDetail).toContain('<CopyLink');
     expect(noteDetail).toContain('Share on X');
     expect(noteDetail).toContain('Share on LinkedIn');
     expect(noteDetail).toContain('Share on Bluesky');

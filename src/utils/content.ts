@@ -1,5 +1,6 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
 import { isPublishedContent } from './content-routes.mjs';
+import { extractWikilinkTargets, resolveWikilink } from './wikilinks.mjs';
 import { categoryTags, securityTools } from '../data/security-tools';
 import { toolCategories, toolSlug, type ToolCategory } from '../data/toolshed';
 
@@ -21,6 +22,30 @@ export async function getPublishedBlogEntries(): Promise<BlogEntry[]> {
 
 export async function getPublishedBlogEntriesByDate(): Promise<BlogEntry[]> {
   return (await getPublishedBlogEntries()).sort(byNewestPubDate);
+}
+
+export interface NoteLinks {
+  /** Notes this note links to, in the order they first appear. */
+  linksTo: string[];
+  /** Other notes that link to this one, in the order of the list passed in. */
+  linkedFrom: string[];
+}
+
+// The [[wikilink]] graph between published notes, keyed by note id. Self-links don't count.
+export function getNoteLinks(posts: BlogEntry[]): Map<string, NoteLinks> {
+  const links = new Map(posts.map((post) => [post.id, { linksTo: [] as string[], linkedFrom: [] as string[] }]));
+  for (const post of posts) {
+    for (const target of extractWikilinkTargets(post.body ?? '')) {
+      const linked = resolveWikilink(target);
+      if (!linked || linked.collection !== 'blog' || linked.id === post.id || !links.has(linked.id)) continue;
+      const from = links.get(post.id)!;
+      if (!from.linksTo.includes(linked.id)) from.linksTo.push(linked.id);
+    }
+  }
+  for (const post of posts) {
+    for (const id of links.get(post.id)!.linksTo) links.get(id)!.linkedFrom.push(post.id);
+  }
+  return links;
 }
 
 export type ToolReview = CollectionEntry<'tools'>;

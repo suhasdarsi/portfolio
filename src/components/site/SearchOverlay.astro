@@ -1,0 +1,168 @@
+---
+// Home-page search: notes from /search.json plus the apps and pages, opened by [data-search-open] or Cmd/Ctrl+K.
+import { getPublishedBlogEntriesByDate } from '../../utils/content';
+import { formatDate } from '../../utils/date';
+
+const notes = (await getPublishedBlogEntriesByDate()).map((post) => ({
+  kind: 'Note',
+  title: post.data.title,
+  meta: formatDate(post.data.pubDate),
+  href: `/notes/${post.id}`,
+  description: post.data.description,
+}));
+const pages = [
+  { kind: 'App', title: 'Pocket Card', meta: 'Apple Wallet card', href: '/pocket-card', description: 'pocket card wallet business card qr contact' },
+  { kind: 'App', title: 'Swatchbook', meta: 'Design systems', href: '/swatchbook', description: 'swatchbook design systems directory' },
+  { kind: 'App', title: 'Toolshed', meta: 'Security tools', href: '/toolshed', description: 'toolshed security tools research market' },
+  { kind: 'Page', title: 'About', meta: 'Background', href: '/about', description: 'about background superalign aztlan iiit rimas suss' },
+  { kind: 'Page', title: 'Uses', meta: 'Tools and gear', href: '/uses', description: 'uses tools gear setup' },
+];
+const entries = [...notes, ...pages];
+---
+
+<div class="overlay" id="search-overlay" hidden data-search-overlay>
+  <div class="dialog" role="dialog" aria-modal="true" aria-label="Search">
+    <div style="display: flex; align-items: center; gap: 12px; padding: 12px 16px;">
+      <svg class="ic" viewBox="0 0 24 24" aria-hidden="true" style="color: var(--faint);"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+      <label for="site-q" class="vh">Search notes and apps</label>
+      <input id="site-q" type="search" placeholder="Search notes and apps" autocomplete="off" style="flex: 1; min-width: 0; height: 40px; border: 0; background: transparent; color: var(--ink); font: inherit; font-size: 16px; outline: none;" />
+      <button type="button" class="icon-btn" data-search-close aria-label="Close search"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+    </div>
+    <div data-search-results>
+      {entries.slice(0, 8).map((r) => (
+        <a class="result" href={r.href}><span class="rk">{r.kind}</span><span class="rt">{r.title}</span><span class="rm">{r.meta}</span></a>
+      ))}
+    </div>
+    <p data-search-empty hidden style="padding: 24px 16px; border-top: 1px solid var(--line); color: var(--muted); font-size: 16px;"></p>
+    <p class="vh" role="status" data-search-status></p>
+    <div style="display: flex; gap: 12px; padding: 8px 16px; border-top: 1px solid var(--line); font-size: 13px; color: var(--faint);">
+      <a class="tlink" href="/notes" data-search-all>Browse or share this search</a>
+      <span style="margin-left: auto;"><span class="kbd">Esc</span> close</span>
+    </div>
+  </div>
+  <script type="application/json" data-search-index set:html={JSON.stringify(entries)}></script>
+</div>
+
+<script>
+  import { searchDocuments } from '../../utils/client-search';
+  import { createSearchLoader, debounce } from '../../utils/search-loader';
+
+  type Entry = { kind: string; title: string; meta: string; href: string; description?: string; body?: string };
+  type SearchPost = { href: string; title: string; description?: string; body?: string };
+
+  const overlay = document.querySelector<HTMLElement>('[data-search-overlay]');
+  if (overlay) {
+    const input = overlay.querySelector<HTMLInputElement>('#site-q')!;
+    const results = overlay.querySelector<HTMLElement>('[data-search-results]')!;
+    const empty = overlay.querySelector<HTMLElement>('[data-search-empty]')!;
+    const status = overlay.querySelector<HTMLElement>('[data-search-status]')!;
+    const allLink = overlay.querySelector<HTMLAnchorElement>('[data-search-all]')!;
+    const entries: Entry[] = JSON.parse(overlay.querySelector('[data-search-index]')?.textContent ?? '[]');
+    const loadSearch = createSearchLoader<SearchPost>();
+    let opener: HTMLElement | null = null;
+    let active = -1;
+
+    const items = () => Array.from(results.querySelectorAll<HTMLAnchorElement>('.result'));
+
+    function render(list: Entry[], query: string) {
+      results.replaceChildren(...list.slice(0, 8).map((entry) => {
+        const link = document.createElement('a');
+        link.className = 'result';
+        link.href = entry.href;
+        for (const [cls, text] of [['rk', entry.kind], ['rt', entry.title], ['rm', entry.meta]]) {
+          const span = document.createElement('span');
+          span.className = cls;
+          span.textContent = text;
+          link.append(span);
+        }
+        return link;
+      }));
+      active = -1;
+      empty.hidden = list.length > 0;
+      empty.textContent = list.length ? '' : `Nothing matches “${query}”. Try “hub” or “wallet”.`;
+      status.textContent = query ? `${list.length} ${list.length === 1 ? 'result' : 'results'}` : '';
+    }
+
+    // Note bodies come from /search.json; the apps and pages match on their keywords.
+    const update = debounce(async () => {
+      const query = input.value.trim();
+      allLink.href = query ? `/notes?q=${encodeURIComponent(query)}` : '/notes';
+      if (!query) { render(entries, ''); return; }
+      try {
+        const bodies = new Map((await loadSearch()).map((post) => [post.href, post.body]));
+        if (input.value.trim() !== query) return;
+        render(searchDocuments(entries.map((entry) => ({ ...entry, body: bodies.get(entry.href) })), query), query);
+      } catch {
+        render(searchDocuments(entries, query), query);
+      }
+    });
+
+    function setActive(index: number) {
+      const list = items();
+      if (!list.length) return;
+      active = (index + list.length) % list.length;
+      list.forEach((item, i) => item.classList.toggle('active', i === active));
+      list[active].focus();
+    }
+
+    function open() {
+      if (!overlay!.hidden) return;
+      opener = document.activeElement as HTMLElement | null;
+      overlay!.hidden = false;
+      document.querySelectorAll('[data-search-open]').forEach((b) => b.setAttribute('aria-expanded', 'true'));
+      document.body.style.overflow = 'hidden';
+      input.value = '';
+      render(entries, '');
+      allLink.href = '/notes';
+      input.focus();
+      void loadSearch().catch(() => {});
+    }
+
+    function close() {
+      if (overlay!.hidden) return;
+      overlay!.hidden = true;
+      document.querySelectorAll('[data-search-open]').forEach((b) => b.setAttribute('aria-expanded', 'false'));
+      document.body.style.overflow = '';
+      opener?.focus();
+    }
+
+    document.querySelectorAll('[data-search-open]').forEach((button) => {
+      button.setAttribute('aria-expanded', 'false');
+      button.addEventListener('click', open);
+    });
+    overlay.querySelector('[data-search-close]')?.addEventListener('click', close);
+    overlay.addEventListener('click', (event) => { if (event.target === overlay) close(); });
+    input.addEventListener('input', () => void update());
+
+    document.addEventListener('keydown', (event) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault();
+        if (overlay.hidden) open(); else close();
+        return;
+      }
+      if (overlay.hidden) return;
+      if (event.key === 'Escape') { close(); return; }
+      // Coming back to the box from the results starts again at the first (or last) result.
+      if ((event.key === 'ArrowDown' || event.key === 'ArrowUp') && document.activeElement === input) active = -1;
+      if (event.key === 'ArrowDown') { event.preventDefault(); setActive(active + 1); return; }
+      if (event.key === 'ArrowUp') { event.preventDefault(); setActive(active < 0 ? -1 : active - 1); return; }
+      if (event.key === 'Enter' && document.activeElement === input) {
+        const first = items()[0];
+        if (first) { event.preventDefault(); first.click(); }
+        return;
+      }
+      // Keep Tab inside the dialog.
+      if (event.key === 'Tab') {
+        const focusable = Array.from(overlay.querySelectorAll<HTMLElement>('input, button, a[href]'));
+        const first = focusable[0], last = focusable[focusable.length - 1];
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+      }
+    });
+  }
+</script>
+
+<style is:global>
+  .overlay[hidden] { display: none; }
+  .result.active { background: var(--soft); }
+</style>

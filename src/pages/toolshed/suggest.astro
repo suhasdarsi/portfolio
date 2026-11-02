@@ -9,105 +9,56 @@ const fallback = githubIssueLink('suhasdarsi/portfolio');
 ---
 
 <ToolshedLayout
+  banner={false}
   title="Suggest a tool — Toolshed"
   description="Suggest a security tool for Toolshed, or a correction to one that's listed. Listing is free and decided on merit."
   turnstile={Boolean(sitekey)}
 >
-  <div class="ts-suggest">
-    <p class="ts-eyebrow">
-      <a href="/toolshed">Toolshed</a> <span aria-hidden="true">/</span> Suggest a tool
-    </p>
-    <h1 class="page-heading">Suggest a tool or a correction</h1>
-    <ul class="rules">
-      <li>
-        <strong>Free, and decided on merit.</strong> Nobody can pay to be listed, and suggesting a
-        tool doesn’t guarantee it gets added.
-      </li>
-      <li>
-        <strong>Vendors are welcome.</strong> Just say you work for or with them. It won’t count
-        against the tool.
-      </li>
-      <li>
-        <strong>Requests are public.</strong> Each one becomes a GitHub issue anyone can read, so
-        don’t include anything private.
-      </li>
-      <li>
-        <strong>What gets listed:</strong> security tools that are publicly available, with a
-        working website and a clear job.
-      </li>
-    </ul>
+  <div style="max-width: 760px; padding-bottom: 64px; display: grid; gap: 32px;">
+    <div class="page-head" style="padding-bottom: 0;">
+      <p class="faint" style="font-size: 13px;"><a href="/toolshed">Toolshed</a> / Suggest a tool</p>
+      <h1 class="title">Suggest a tool or a correction</h1>
+      <p class="lede">Free, and decided on merit. Nobody can pay to be listed, and suggesting a tool doesn’t guarantee it gets added.</p>
+    </div>
+    <div class="points">
+      <div class="point"><b>Vendors are welcome</b><span>Just say you work for or with them. It won’t count against the tool.</span></div>
+      <div class="point"><b>Requests are public</b><span>Each one becomes a GitHub issue anyone can read, so don’t include anything private.</span></div>
+      <div class="point"><b>What gets listed</b><span>Security tools that are publicly available, with a working website and a clear job.</span></div>
+    </div>
 
     {sitekey ? (
-      <form id="suggest-form" class="form" novalidate data-sitekey={sitekey}>
+      <form id="suggest-form" class="box form" novalidate data-sitekey={sitekey}>
         <fieldset class="kind">
           <legend>What would you like to do?</legend>
-          <label>
-            <input type="radio" name="kind" value="add" checked /> Add a tool
-          </label>
-          <label>
-            <input type="radio" name="kind" value="correct" /> Correct a listed tool
-          </label>
+          <label><input type="radio" name="kind" value="add" checked /> Add a tool</label>
+          <label><input type="radio" name="kind" value="correct" /> Correct a listed tool</label>
         </fieldset>
 
-        <label>
-          Tool name
-          <input class="field" name="name" required maxlength="80" autocomplete="off" />
-        </label>
-        <label>
-          Website
-          <input
-            class="field"
-            name="url"
-            type="url"
-            required
-            maxlength="300"
-            placeholder="https://"
-            autocomplete="off"
-          />
-        </label>
+        <label>Tool name<input class="field plain" name="name" required maxlength="80" autocomplete="off" /></label>
+        <label>Website<input class="field plain" name="url" type="url" required maxlength="300" placeholder="https://" autocomplete="off" /></label>
 
         <fieldset>
-          <legend>
-            Categories <span class="ts-muted">(optional)</span>
-          </legend>
+          <legend>Categories <span class="faint">(optional)</span></legend>
           <div class="categories">
             {toolCategories.map((category) => (
-              <label class="check">
-                <input type="checkbox" name="categories" value={category} /> {category}
-              </label>
+              <label class="check"><input type="checkbox" name="categories" value={category} /> {category}</label>
             ))}
           </div>
         </fieldset>
 
         <label>
           <span id="details-label">What does it do?</span>
-          <textarea
-            class="field"
-            name="details"
-            required
-            minlength="10"
-            maxlength="1500"
-            rows="5"
-          ></textarea>
+          <textarea class="field plain" name="details" required minlength="10" maxlength="1500" rows="5"></textarea>
         </label>
 
         <fieldset class="kind">
           <legend>Do you work for or with the vendor?</legend>
-          <label>
-            <input type="radio" name="affiliated" value="no" checked /> No
-          </label>
-          <label>
-            <input type="radio" name="affiliated" value="yes" /> Yes
-          </label>
+          <label><input type="radio" name="affiliated" value="no" checked /> No</label>
+          <label><input type="radio" name="affiliated" value="yes" /> Yes</label>
         </fieldset>
         <label id="relationship" hidden>
-          How are you connected?{' '}
-          <input
-            class="field"
-            name="relationship"
-            maxlength="160"
-            placeholder="For example: I work there, or we're a partner"
-          />
+          How are you connected?
+          <input class="field plain" name="relationship" maxlength="160" placeholder="For example: I work there, or we're a partner" />
         </label>
 
         <!-- Hidden from people; bots fill it in. -->
@@ -117,19 +68,15 @@ const fallback = githubIssueLink('suhasdarsi/portfolio');
         </label>
 
         <div id="turnstile"></div>
-        <button type="submit" class="button">
-          Send request
-        </button>
+        <button type="submit" class="btn dark" style="justify-self: start;">Send request</button>
         <p id="suggest-status" class="status" role="status" aria-live="polite"></p>
       </form>
     ) : (
-      <p class="fallback">
-        The form isn’t open yet. For now,{' '}
-        <a href={fallback} target="_blank" rel="noopener noreferrer">
-          open a request on GitHub
-        </a>
-        .
-      </p>
+      <div class="box">
+        <p style="font-size: 16px;">The form isn’t open yet. For now, open a request on GitHub. It comes pre-filled with the questions I need answered.</p>
+        <p class="faint" style="font-size: 13px; line-height: 1.7;">Website · Categories · Do you work for or with the vendor? · What it does, or what should change</p>
+        <a class="btn dark" style="justify-self: start;" href={fallback} target="_blank" rel="noopener noreferrer">Open a request on GitHub ↗<span class="vh"> (opens in a new tab)</span></a>
+      </div>
     )}
   </div>
 </ToolshedLayout>
@@ -247,102 +194,22 @@ const fallback = githubIssueLink('suhasdarsi/portfolio');
 </script>
 
 <style>
-  .ts-suggest {
-    max-width: 40rem;
-  }
-  .ts-eyebrow a {
-    color: inherit;
-    text-decoration: none;
-  }
-  .rules {
-    margin: 1.25rem 0 2rem;
-    padding-left: 1.125rem;
-    display: grid;
-    gap: 0.5rem;
-    color: var(--color-body-text);
-    line-height: 1.55;
-  }
-  .rules strong {
-    font-weight: 500;
-    color: var(--color-foreground);
-  }
-  .form {
-    display: grid;
-    gap: 1.25rem;
-  }
-  .form > label,
-  #relationship {
-    display: grid;
-    gap: 0.375rem;
-    font-size: var(--type-sm);
-    color: var(--color-foreground);
-  }
-  fieldset {
-    margin: 0;
-    padding: 0;
-    border: 0;
-    display: grid;
-    gap: 0.5rem;
-  }
-  legend {
-    margin-bottom: 0.5rem;
-    font-size: var(--type-sm);
-    color: var(--color-foreground);
-  }
-  .kind {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem 1.5rem;
-  }
-  .kind legend {
-    width: 100%;
-  }
-  .kind label,
-  .check {
-    display: inline-flex;
-    gap: 0.5rem;
-    align-items: center;
-    font-size: var(--type-sm);
-    color: var(--color-body-text);
-  }
-  .categories {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
-    gap: 0.375rem 1rem;
-  }
-  textarea.field {
-    resize: vertical;
-    font: inherit;
-  }
-  .trap {
-    position: absolute;
-    left: -10000px;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-  }
-  .button {
-    justify-self: start;
-  }
-  .status {
-    margin: 0;
-    min-height: 1.5em;
-    font-size: var(--type-sm);
-    color: var(--color-body-text);
-  }
-  .status :global(a),
-  .fallback a {
-    color: var(--color-foreground);
-    text-decoration: underline;
-    text-underline-offset: 3px;
-  }
-  .fallback {
-    padding: 1rem 1.25rem;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-panel);
-    color: var(--color-body-text);
-  }
-  [hidden] {
-    display: none !important;
-  }
+  .points { display: grid; gap: 0; border-top: 1px solid var(--line); }
+  .point { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 8px 24px; padding-block: 16px; border-bottom: 1px solid var(--line); font-size: 16px; }
+  .point b { font-weight: 500; }
+  .point span { color: var(--muted); line-height: 1.55; }
+  .box { display: grid; gap: 12px; padding: 24px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
+  .form { gap: 20px; }
+  .form > label, #relationship { display: grid; gap: 8px; font-size: 13px; color: var(--ink); }
+  fieldset { margin: 0; padding: 0; border: 0; display: grid; gap: 8px; }
+  legend { margin-bottom: 8px; font-size: 13px; color: var(--ink); }
+  .kind { display: flex; flex-wrap: wrap; gap: 8px 24px; }
+  .kind legend { width: 100%; }
+  .kind label, .check { display: inline-flex; gap: 8px; align-items: center; font-size: 13px; color: var(--body); }
+  .categories { display: grid; grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); gap: 4px 16px; }
+  textarea.field { height: auto; padding-block: 8px; resize: vertical; }
+  .trap { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+  .status { min-height: 1.5em; font-size: 13px; color: var(--body); }
+  .status :global(a) { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+  @media (max-width: 640px) { .point { grid-template-columns: minmax(0, 1fr); } }
 </style>

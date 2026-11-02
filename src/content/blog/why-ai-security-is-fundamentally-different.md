@@ -1,6 +1,6 @@
 ---
 title: "Why AI Security Is Fundamentally Different"
-description: "Traditional security assumes boundaries. AI is designed to break them. That's the problem."
+description: "Traditional security assumes boundaries. AI is designed to break them. That’s the problem."
 pubDate: "2026-04-05"
 author: "Suhas Darsi"
 topics: ["AI Security"]
