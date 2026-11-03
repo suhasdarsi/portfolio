@@ -9,6 +9,7 @@ import RevisionHistory from '../../components/RevisionHistory.astro';
 import { getNoteLinks, getPublishedBlogEntriesByDate, type BlogEntry } from '../../utils/content';
 import { formatDate, formatDateWithYear, getReadingTime } from '../../utils/date';
 import { stripDiagramSource } from '../../utils/diagrams.mjs';
+import { PERSON_ID, breadcrumbs, type JsonLd } from '../../utils/structured-data';
 
 export async function getStaticPaths() {
   const posts = await getPublishedBlogEntriesByDate();
@@ -49,7 +50,7 @@ const updatedDate = modifiedDates.length
   ? new Date(Math.max(...modifiedDates, post.data.pubDate.valueOf()))
   : undefined;
 const readingTime = getReadingTime(stripDiagramSource(post.body || ''));
-const eyebrow = [post.data.topics[0], formatDateWithYear(post.data.pubDate), readingTime].filter(Boolean).join(' · ');
+const pubDay = post.data.pubDate.toISOString().slice(0, 10);
 
 const siteUrl = Astro.site?.toString().replace(/\/$/, '') || 'https://suhasdarsi.com';
 const canonicalUrl = `${siteUrl}/notes/${post.id}`;
@@ -61,33 +62,41 @@ const share = {
   bluesky: `https://bsky.app/intent/compose?text=${encodeURIComponent(`${post.data.title} ${canonicalUrl}`)}`,
 };
 const isMe = post.data.author === 'Suhas Darsi';
-const structuredData = JSON.stringify({
-  '@context': 'https://schema.org',
-  '@type': 'BlogPosting',
-  headline: post.data.title,
-  description: post.data.description,
-  datePublished: post.data.pubDate.toISOString(),
-  ...(updatedDate ? { dateModified: updatedDate.toISOString() } : {}),
-  author: {
-    '@type': 'Person',
-    name: post.data.author,
-    ...(isMe ? { url: `${siteUrl}/about` } : {}),
+const structuredData: JsonLd[] = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: post.data.title,
+    description: post.data.description,
+    datePublished: post.data.pubDate.toISOString(),
+    ...(updatedDate ? { dateModified: updatedDate.toISOString() } : {}),
+    // The site owner links to the shared Person entity; guest authors get an inline one.
+    author: isMe ? { '@id': PERSON_ID } : { '@type': 'Person', name: post.data.author },
+    image: previewImage,
+    mainEntityOfPage: { '@type': 'WebPage', '@id': canonicalUrl },
+    url: canonicalUrl,
   },
-  image: previewImage,
-  mainEntityOfPage: { '@type': 'WebPage', '@id': canonicalUrl },
-  url: canonicalUrl,
-}).replace(/</g, '\\u003c');
+  breadcrumbs([
+    { name: 'Home', url: siteUrl },
+    { name: 'Notes', url: `${siteUrl}/notes` },
+    { name: post.data.title, url: canonicalUrl },
+  ]),
+];
+// Keep the full title under the ~65 character display limit: drop the site suffix on long note titles.
+const fullTitle = `${post.data.title} — Suhas Darsi`;
+const pageTitle = fullTitle.length <= 65 ? fullTitle : post.data.title;
 ---
 
 <SiteLayout
-  title={`${post.data.title} — Suhas Darsi`}
+  title={pageTitle}
   description={post.data.description}
   author={post.data.author}
   ogType="article"
   ogImage={previewImage}
   current="notes"
+  pageType="WebPage"
+  jsonLd={structuredData}
 >
-  <script type="application/ld+json" set:html={structuredData} />
   <div style="padding-top: 32px; padding-bottom: 32px;">
     <a class="tool" href="/notes">← Notes</a>
   </div>
@@ -95,7 +104,7 @@ const structuredData = JSON.stringify({
   <div class="layout" style="padding-bottom: 64px;">
     <article class="article" data-reader>
       <header style="display: grid; gap: 12px;">
-        <span class="eyebrow">{eyebrow}</span>
+        <span class="eyebrow">{post.data.topics[0] && <>{post.data.topics[0]} · </>}<time datetime={pubDay}>{formatDateWithYear(post.data.pubDate)}</time>{readingTime && <> · {readingTime}</>}</span>
         <h1 class="title">{post.data.title}</h1>
         {post.data.description && <p class="lede">{post.data.description}</p>}
         {updatedDate && (

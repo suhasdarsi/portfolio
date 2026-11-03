@@ -1,5 +1,6 @@
 ---
 import SiteLayout from '../layouts/SiteLayout.astro';
+import { person } from '../utils/structured-data';
 
 const currently = [
   { label: 'Founder', name: 'SuperAlign AI', url: 'https://superalign.ai' },
@@ -14,10 +15,11 @@ const previously = [
 const email = 'suhas@superalign.ai';
 ---
 
-<SiteLayout title="About — Suhas Darsi" description="About Suhas Darsi — founder, researcher, and writer working on AI security." current="about">
+<SiteLayout pageType="AboutPage" jsonLd={[person()]} title="About Suhas Darsi — Founder and AI Security Writer" description="About Suhas Darsi — founder, researcher, and writer working on AI security." current="about">
   <section class="page-head" style="gap: 24px;">
     <h1 class="title">About</h1>
     <div class="bio">
+      <p>Suhas Darsi is a co-founder of SuperAlign who writes about how AI systems fail and how to deploy them safely.</p>
       <p><b>I'm a co-founder at <a class="tlink" href="https://superalign.ai/">SuperAlign</a></b>, where we help security teams see, understand, and control AI adoption across their organizations.</p>
       <p>My background is in Computer Vision research at IIIT Hyderabad. These days I focus on how AI systems fail, how risk propagates through connected agents, and the controls required to deploy them safely.</p>
       <p>This site is where I publish long-form notes on AI security, agent architecture, and the network dynamics behind systemic failures.</p>

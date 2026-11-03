@@ -82,7 +82,7 @@ body { font-size: 16px; }
 .kbd { font-family: Geist, sans-serif; font-size: 13px; border:1px solid var(--line); border-radius:5px; padding:1px 4px; color:var(--faint); }
 
 /* Prose for notes and long pages */
-.prose { font-family: Geist, sans-serif; font-size:16px; line-height:1.7; color:var(--body); max-width:66ch; display:grid; gap:16px; }
+.prose { font-family: Geist, sans-serif; font-size:16px; line-height:1.7; color:var(--body); max-width:52ch; display:grid; gap:16px; }
 .prose h2 { font-family: "Geist Serif", serif; font-size: 16px; font-weight:600; color:var(--ink); margin-top:16px; margin-bottom:-8px; letter-spacing:-.005em; scroll-margin-top:24px; }
 .prose b { color:var(--ink); font-weight:600; }
 .prose ul { padding-left:16px; display:grid; gap:8px; }
@@ -147,10 +147,10 @@ body { font-size: 16px; }
 .foot nav { display:flex; flex-wrap:wrap; gap:8px 16px; }
 .foot a:hover { color:var(--ink); }
 
-@media (prefers-reduced-motion:reduce) { .sd * { animation:none !important; transition:none !important; } }
+@media (prefers-reduced-motion:reduce) { .sd * { animation:none !important; transition:none !important; } } /* !important: must beat every component rule so reduced-motion users never get motion */
 @media (max-width:760px) {
   .sec { grid-template-columns:minmax(0,1fr); padding-block:48px; }
-  .hide-sm { display:none !important; }
+  .hide-sm { display:none !important; } /* !important: utility must win over display set by component classes */
   .trow { grid-template-columns:minmax(0,1fr) 20px; }
   .trow .h, .trow .cats { display:none; }
   .ts-side { max-width:none; }

@@ -31,14 +31,11 @@ it('publishes due drafts with revisions, preview images, and sitemap entries whi
       { stdio: 'pipe', timeout: 110_000 }
     );
     const article = readFileSync(join(out, 'notes', `${due}.html`), 'utf8');
-    const metadata = JSON.parse(
-      article.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)![1]
-    );
-    expect(metadata.author).toEqual({
-      '@type': 'Person',
-      name: 'Suhas Darsi',
-      url: 'https://suhasdarsi.com/about',
-    });
+    const metadata = [...article.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)]
+      .map((m) => JSON.parse(m[1]))
+      .find((block) => block['@type'] === 'BlogPosting');
+    // The author links to the shared Person entity declared on the homepage and about page.
+    expect(metadata.author).toEqual({ '@id': 'https://suhasdarsi.com/#person' });
     expect(metadata.image).toBe(`https://suhasdarsi.com/og/${due}.png`);
     expect(metadata.mainEntityOfPage['@id']).toBe(`https://suhasdarsi.com/notes/${due}`);
     expect(article).toContain('Revision history');

@@ -5,6 +5,8 @@ import SiteHead from '../components/SiteHead.astro';
 import SiteHeader from '../components/site/SiteHeader.astro';
 import SiteFooter from '../components/site/SiteFooter.astro';
 import SearchOverlay from '../components/site/SearchOverlay.astro';
+import { webPage, serialize, type JsonLd } from '../utils/structured-data';
+import { cleanPath } from '../utils/clean-path';
 
 interface Props {
   title: string;
@@ -14,15 +16,21 @@ interface Props {
   noindex?: boolean;
   author?: string;
   current?: 'notes' | 'apps' | 'about' | 'uses';
+  // Extra schema.org entities for this page, beside the WebPage entity every indexable page gets.
+  jsonLd?: JsonLd[];
+  pageType?: string;
 }
 
-const { title, description, ogType, ogImage, noindex, author, current } = Astro.props;
+const { title, description, ogType, ogImage, noindex, author, current, jsonLd = [], pageType } = Astro.props;
+const pageUrl = `${Astro.site?.toString().replace(/\/$/, '') || 'https://suhasdarsi.com'}${cleanPath(Astro.url.pathname)}`;
+const blocks = noindex ? [] : [webPage(pageUrl, title, description, pageType), ...jsonLd];
 ---
 
 <!doctype html>
 <html lang="en">
   <head>
     <SiteHead title={title} description={description} ogType={ogType} ogImage={ogImage} noindex={noindex} author={author} />
+    {blocks.map((block) => <script type="application/ld+json" set:html={serialize(block)} />)}
   </head>
   <body class="sd">
     <a href="#main-content" class="skip-link">Skip to main content</a>
