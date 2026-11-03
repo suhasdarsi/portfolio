@@ -136,7 +136,7 @@ function contentFingerprint(collections = contentCollections) {
   }).sort().join('|');
 }
 
-export function getWikilinkIndex(collections = contentCollections) {
+function getWikilinkIndex(collections = contentCollections) {
   const fingerprint = contentFingerprint(collections);
   if (!cachedIndex || fingerprint !== cachedFingerprint) {
     cachedIndex = buildWikilinkIndex(collections);

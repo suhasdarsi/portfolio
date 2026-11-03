@@ -1,6 +1,6 @@
 {
   "extends": "astro/tsconfigs/strict",
-  "compilerOptions": { "types": ["astro/client", "bun"] },
+  "compilerOptions": { "types": ["astro/client", "bun"], "noUnusedLocals": true, "noUnusedParameters": true },
   "include": [".astro/types.d.ts", "**/*"],
   "exclude": ["dist", "deliverables", "docs", "tmp", "output"]
 }

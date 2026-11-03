@@ -55,33 +55,6 @@ const posts = [{ title: 'Network risk', href: '/notes/network' }];
 const response = { ok: true, json: async () => posts };
 
 describe('browser script regressions', () => {
-  it('initializes the preferred theme when storage throws', () => {
-    const { document } = setup('src/components/ThemeToggle.astro');
-    expect(document.documentElement.classList.contains('dark')).toBe(true);
-  });
-
-  it('initializes search when storage throws', async () => {
-    const fetch = vi.fn().mockResolvedValue(response);
-    const { get } = setup('src/components/Header.astro', { fetch });
-    await get('global-search-toggle').handlers.click();
-    expect(get('global-search-results').children).toHaveLength(1);
-  });
-
-  it('leaves Enter on a focused result to native link activation', async () => {
-    const { get, document } = setup('src/components/Header.astro', { fetch: async () => response });
-    await get('global-search-toggle').handlers.click();
-    const result = get('global-search-results').children[0];
-    document.activeElement = result;
-    const preventDefault = vi.fn();
-    document.handlers.keydown({ key: 'Enter', preventDefault });
-    expect(result.click).not.toHaveBeenCalled();
-    expect(preventDefault).not.toHaveBeenCalled();
-    document.activeElement = get('global-search-input');
-    document.handlers.keydown({ key: 'Enter', preventDefault });
-    expect(result.click).toHaveBeenCalledOnce();
-    expect(preventDefault).toHaveBeenCalledOnce();
-  });
-
   it('retries failed 404 searches', async () => {
     vi.useFakeTimers();
     const fetch = vi.fn().mockRejectedValueOnce(Error('offline')).mockResolvedValue(response);

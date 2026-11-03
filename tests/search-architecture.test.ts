@@ -8,18 +8,15 @@ describe('search architecture', () => {
   it('uses a static JSON endpoint instead of embedded page data', () => {
     expect(existsSync('src/pages/search.json.ts')).toBe(true);
     expect(existsSync('src/components/SearchData.astro')).toBe(false);
-    expect(read('src/components/Header.astro')).not.toContain('SearchData');
-    expect(read('src/components/Header.astro')).not.toContain('id="search-data"');
   });
 
   it('shares one search loader instead of triplicating fetch logic', () => {
-    const header = read('src/components/Header.astro');
     const notFound = read('src/pages/404.astro');
     const overlay = read('src/components/site/SearchOverlay.astro');
     const loader = read('src/utils/search-loader.ts');
 
     expect(loader).toContain("'/search.json'");
-    for (const consumer of [header, notFound, overlay]) {
+    for (const consumer of [notFound, overlay]) {
       expect(consumer).toContain('createSearchLoader');
       expect(consumer).toContain('utils/search-loader');
       expect(consumer).not.toContain("fetch('/search.json')");
@@ -27,12 +24,10 @@ describe('search architecture', () => {
   });
 
   it('debounces keystroke search inputs', () => {
-    const header = read('src/components/Header.astro');
     const notFound = read('src/pages/404.astro');
     const loader = read('src/utils/search-loader.ts');
 
     expect(loader).toContain('debounce');
-    expect(header).toContain('debounce');
     expect(notFound).toContain('debounce');
     expect(read('src/components/site/SearchOverlay.astro')).toContain('debounce');
   });

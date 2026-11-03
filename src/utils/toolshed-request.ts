@@ -2,7 +2,7 @@
 // Requests become public GitHub issues, so the issue body keeps submitted text inert (no mentions, no HTML).
 import { toolCategories } from '../data/toolshed';
 
-export type RequestKind = 'add' | 'correct';
+type RequestKind = 'add' | 'correct';
 
 export interface ToolRequest {
   kind: RequestKind;

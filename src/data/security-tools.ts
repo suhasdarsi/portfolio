@@ -4,7 +4,7 @@
 // (e.g. "HashiCorp Vault" → hashicorp-vault.md).
 import type { ToolCategory } from './toolshed';
 
-export type Tag = {
+type Tag = {
   name: string;
   summary: string;
   // A tag drawn as a cell in its group's 2x2: [row, column], with examples and where it's controlled.

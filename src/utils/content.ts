@@ -70,9 +70,6 @@ export const tagCategory = new Map(
 );
 
 export const toolHref = (tool: Tool) => `/toolshed/tools/${tool.id}`;
-const tagOrder = [...tagCategory.keys()];
-export const tagsIn = (tool: Tool, category: ToolCategory) =>
-  tool.tags.filter((tag) => tagCategory.get(tag) === category).sort((a, b) => tagOrder.indexOf(a) - tagOrder.indexOf(b));
 
 // A tool gets its own review page once its review has a verdict or notes; until then it links out.
 export function hasReview(tool: Tool): tool is Tool & { review: ToolReview } {

@@ -46,19 +46,3 @@ describe('layout consistency', () => {
     expect(readFile('layouts/ToolshedLayout.astro')).toContain('toolshed/Header');
   });
 });
-
-describe('prose width consistency', () => {
-  it('prose-custom has no max-width constraint (fills container)', () => {
-    const content = readFile('styles/global.css');
-    const proseMatch = content.match(/\.prose-custom\s*\{[^}]+\}/);
-    expect(proseMatch).toBeTruthy();
-    expect(proseMatch![0]).not.toContain('max-width');
-  });
-
-  it('prose-custom has no margin-inline (no centering override)', () => {
-    const content = readFile('styles/global.css');
-    const proseMatch = content.match(/\.prose-custom\s*\{[^}]+\}/);
-    expect(proseMatch).toBeTruthy();
-    expect(proseMatch![0]).not.toContain('margin-inline');
-  });
-});

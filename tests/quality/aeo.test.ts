@@ -172,7 +172,7 @@ describe('AEO 3: Person entity', () => {
   it('sameAs lists only profiles the site itself links to', () => {
     const sameAs: string[] = person!.sameAs;
     expect(sameAs.length).toBeGreaterThan(0);
-    const siteHtml = pages.map((p) => p.html).join('\n') + readFileSync(join(ROOT, 'src/components/SocialLinks.astro'), 'utf8');
+    const siteHtml = pages.map((p) => p.html).join('\n');
     for (const u of sameAs) {
       expect(u).toMatch(/^https:\/\//);
       expect(siteHtml, `${u} is not linked anywhere on the site`).toContain(u);

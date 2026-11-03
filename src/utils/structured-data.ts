@@ -1,7 +1,7 @@
 // Shared schema.org entities. Pages link to these by @id so an answer engine resolves one Person and one WebSite.
-export const SITE_URL = 'https://suhasdarsi.com';
+const SITE_URL = 'https://suhasdarsi.com';
 export const PERSON_ID = `${SITE_URL}/#person`;
-export const WEBSITE_ID = `${SITE_URL}/#website`;
+const WEBSITE_ID = `${SITE_URL}/#website`;
 const CONTEXT = 'https://schema.org';
 
 export type JsonLd = Record<string, unknown>;

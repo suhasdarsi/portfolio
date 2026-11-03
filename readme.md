@@ -10,7 +10,6 @@ A focused collection of practical writing about AI security, agent systems, and 
 ├── src/
 │   ├── components/
 │   │   ├── CopyCode.astro            # Copy-to-clipboard button for code blocks
-│   │   ├── Header.astro              # Site header with global search
 │   │   ├── ReadingProgress.astro     # Reading progress bar at top of viewport
 │   │   └── ThemeInit.astro           # Initial theme before first paint
 │   ├── content/                      # Open this folder as the Obsidian vault
@@ -18,7 +17,7 @@ A focused collection of practical writing about AI security, agent systems, and 
 │   │   ├── blog/                     # Long-form notes published at /notes
 │   │   └── templates/note.md         # Template for new blog notes
 │   ├── layouts/
-│   │   └── BlogLayout.astro          # Base layout for note pages
+│   │   └── SiteLayout.astro          # Shared shell for site pages
 │   ├── pages/
 │   │   ├── index.astro               # Homepage — hybrid landing + recent notes
 │   │   ├── 404.astro                 # 404 page with inline search
@@ -27,12 +26,12 @@ A focused collection of practical writing about AI security, agent systems, and 
 │   │       ├── index.astro           # Notes listing with topic labels
 │   │       └── [slug].astro          # Static note pages with sharing
 │   ├── styles/
-│   │   └── global.css                # Global styles and design tokens
+│   │   └── site.css                  # Site styles and design tokens
 │   └── utils/
 │       └── date.ts                   # Date formatting and reading time utilities
 ├── tests/
 │   └── integrity.test.ts             # File structure and build integrity tests
-├── astro.config.mjs                  # Astro, sitemap, and Tailwind configuration
+├── astro.config.mjs                  # Astro and sitemap configuration
 ├── content.config.ts                 # Content collection schema
 ├── package.json
 ├── tsconfig.json

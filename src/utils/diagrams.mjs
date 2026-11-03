@@ -123,7 +123,7 @@ function renderBars({ labels, values }, label) {
 }
 
 // The fence meta is used as the caption: ```mermaid Caption text here
-export function renderDiagram(source, { caption } = {}) {
+function renderDiagram(source, { caption } = {}) {
   const lines = source.split('\n').map((line) => line.trim()).filter(Boolean);
   const title = directive(lines, 'accTitle');
   const description = directive(lines, 'accDescr');

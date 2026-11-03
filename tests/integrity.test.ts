@@ -39,11 +39,7 @@ function extractImports(content: string): string[] {
 }
 
 describe('file structure', () => {
-  it('BlogLayout.astro exists with correct name', () => {
-    expect(existsSync(join(SRC, 'layouts', 'BlogLayout.astro'))).toBe(true);
-  });
-
-  it('Search.astro was removed (functionality moved to Header.astro)', () => {
+  it('Search.astro was removed (functionality moved to the site search overlay)', () => {
     expect(existsSync(join(SRC, 'components', 'Search.astro'))).toBe(false);
   });
 

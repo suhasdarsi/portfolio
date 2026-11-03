@@ -3,7 +3,6 @@ import { defineConfig } from 'astro/config';
 import { satteri } from '@astrojs/markdown-satteri';
 import sitemap from '@astrojs/sitemap';
 
-import tailwindcss from '@tailwindcss/vite';
 import { wikilinkRoutesPlugin } from './src/utils/wikilinks.mjs';
 import { mermaidDiagramsPlugin } from './src/utils/diagrams.mjs';
 
@@ -25,9 +24,6 @@ export default defineConfig({
       },
     }),
   ],
-  vite: {
-    plugins: [tailwindcss()],
-  },
   markdown: {
     processor: satteri({
       features: { wikilinks: true },
