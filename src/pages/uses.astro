@@ -1,5 +1,5 @@
 ---
-import BlogLayout from '../layouts/BlogLayout.astro';
+import SiteLayout from '../layouts/SiteLayout.astro';
 
 const digital = [
   { name: 'OpenCode', url: 'https://opencode.ai' },
@@ -25,7 +25,7 @@ const digital = [
 
 const physical = [
   { name: 'Mac Mini M4', url: 'https://www.apple.com/mac-mini/' },
-  { name: 'iPad Pro M4 11"', url: 'https://www.apple.com/ipad-pro/' },
+  { name: 'iPad Pro M4 11″', url: 'https://www.apple.com/ipad-pro/' },
   { name: 'iPhone 15', url: 'https://www.apple.com/iphone-15/' },
   { name: 'AirPods Pro 2', url: 'https://www.apple.com/airpods-pro/' },
   { name: 'Amazfit Helio Band', url: 'https://www.amazfit.com' },
@@ -44,35 +44,30 @@ const sections = [
 ];
 ---
 
-<BlogLayout title="Uses — Suhas Darsi" description="Things I use — digital tools and physical gear that earn their keep.">
-  <header class="page-header">
-    <h1 class="page-heading">Uses</h1>
-    <p class="page-intro">Things I use daily — digital tools and physical gear. Some I pay for, some I self-host, all of them earn their place. This is a living document.</p>
-  </header>
+<SiteLayout title="Uses — Suhas Darsi" description="Things I use — digital tools and physical gear that earn their keep." current="uses">
+  <section class="page-head">
+    <h1 class="title">Uses</h1>
+    <p class="lede">Things I use: the digital tools and physical gear that earn their keep.</p>
+  </section>
 
   {sections.map((section) => (
-    <section class="page-section">
-      <h2 class="section-label">{section.label} <span class="section-count">{section.items.length}</span></h2>
-      <ul class="rows">
+    <section class="sec">
+      <div class="sec-label"><h2>{section.label}</h2><p>{section.items.length} items</p></div>
+      <div class="ugrid">
         {section.items.map((item) => (
-          <li>
-            <a href={item.url} target="_blank" rel="noopener noreferrer" class="row">
-              <span class="row-title">{item.name}</span>
-              <span class="row-meta"><span class="uses-host">{host(item.url)}</span><span class="row-arrow" aria-hidden="true">↗</span></span>
-            </a>
-          </li>
+          <a class="uitem" href={item.url} target="_blank" rel="noopener noreferrer"><span>{item.name}</span><span class="h">{host(item.url)} ↗</span></a>
         ))}
-      </ul>
+      </div>
     </section>
   ))}
 
-  <p class="uses-outro">
-    Have a recommendation? <a href="https://x.com/suhas_darsi" target="_blank" rel="noopener noreferrer" class="link-underline">Say hi on X</a>.
-  </p>
-</BlogLayout>
+  <p class="muted" style="padding-block: 8px 64px; font-size: 16px;">Have a recommendation? <a class="tlink" href="https://x.com/suhas_darsi" target="_blank" rel="noopener noreferrer">Say hi on X</a>.</p>
+</SiteLayout>
 
-<style>
-  .uses-outro { color: var(--color-muted-foreground); }
-  .uses-outro a { color: var(--color-foreground); }
-  @media (max-width: 420px) { .uses-host { display: none; } }
+<style is:global>
+  .ugrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 32px; }
+  .uitem { display: flex; justify-content: space-between; gap: 12px; padding-block: 12px; border-bottom: 1px solid var(--line); font-size: 16px; }
+  .uitem .h { font-family: Geist, sans-serif; font-size: 13px; color: var(--faint); white-space: nowrap; }
+  .uitem:hover > span:first-child { color: var(--accent-text); }
+  @media (max-width: 640px) { .ugrid { grid-template-columns: minmax(0, 1fr); } }
 </style>

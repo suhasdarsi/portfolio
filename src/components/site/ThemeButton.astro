@@ -1,0 +1,28 @@
+---
+// Light/dark switch. The choice is stored per browser; ThemeInit applies it before paint.
+---
+
+<button type="button" class="icon-btn theme-btn" data-theme-toggle aria-label="Switch to dark mode">
+  <svg class="ic i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+  <svg class="ic i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"></path></svg>
+</button>
+
+<script>
+  const html = document.documentElement;
+  const label = () => (html.classList.contains('dark') ? 'Switch to light mode' : 'Switch to dark mode');
+  document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle]').forEach((button) => {
+    button.setAttribute('aria-label', label());
+    button.addEventListener('click', () => {
+      const next = html.classList.contains('dark') ? 'light' : 'dark';
+      try { localStorage.setItem('theme', next); } catch { /* The theme still applies for this page. */ }
+      html.classList.toggle('dark', next === 'dark');
+      document.querySelectorAll('[data-theme-toggle]').forEach((b) => b.setAttribute('aria-label', label()));
+    });
+  });
+</script>
+
+<style is:global>
+  .theme-btn .i-sun { display: none; }
+  .dark .theme-btn .i-sun { display: block; }
+  .dark .theme-btn .i-moon { display: none; }
+</style>

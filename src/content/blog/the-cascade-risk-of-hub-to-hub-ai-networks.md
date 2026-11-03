@@ -1,6 +1,6 @@
 ---
 title: "The Cascade Risk of Hub-to-Hub AI Networks"
-description: "The danger isn't just AI hubs failing — it's what happens when they start talking to each other."
+description: "The danger isn’t just AI hubs failing — it’s what happens when they start talking to each other."
 pubDate: "2026-04-05"
 author: "Suhas Darsi"
 topics: ["AI Security"]
@@ -31,12 +31,9 @@ flowchart LR
   accTitle: A cascade through a hub-to-hub network
   accDescr: A compromised personal AI connects to a company AI, which connects to bank, healthcare and government AIs. Each of those connects to its own downstream systems.
   P((Personal AI)):::alert --> C((Company AI)):::hub
-  C --> B((Bank AI)):::hub
-  C --> H((Health AI)):::hub
-  C --> G((Gov AI)):::hub
-  B --> b[Accounts, payments, credit]
-  H --> h[Records, prescriptions, claims]
-  G --> g[Identity, tax, benefits]
+  C --> B((Bank AI)):::hub --> b[Accounts, payments, credit]
+  C --> H((Health AI)):::hub --> h[Records, prescriptions, claims]
+  C --> G((Gov AI)):::hub --> g[Identity, tax, benefits]
 ```
 
 This non-linear scaling is exactly what [[why-ai-security-is-fundamentally-different|makes AI security categorically different]] from traditional IT security — and why we need [[rethinking-ai-safety-through-network-science|fundamentally new approaches]] to managing it.

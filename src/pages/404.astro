@@ -1,65 +1,69 @@
 ---
-import BlogLayout from '../layouts/BlogLayout.astro';
+import SiteLayout from '../layouts/SiteLayout.astro';
+import { getPublishedBlogEntriesByDate } from '../utils/content';
+import { formatDate } from '../utils/date';
+
+// Note dates for the result rows; titles and bodies come from /search.json.
+const dates = Object.fromEntries((await getPublishedBlogEntriesByDate()).map((post) => [`/notes/${post.id}`, formatDate(post.data.pubDate)]));
 ---
 
-<BlogLayout title="Page not found — Suhas Darsi" description="Page not found — Suhas Darsi">
-  <header class="page-header error-header">
-    <p class="eyebrow">Error 404</p>
-    <h1 class="page-heading">This page doesn’t exist.</h1>
-    <p class="page-intro">It might have been moved or deleted, or the URL may have a typo.</p>
-  </header>
-  <div class="error-actions page-actions">
-    <div class="page-actions-inner">
-      <a href="/" class="button">Go home</a>
-      <a href="/notes" class="button-quiet">Browse notes</a>
+<SiteLayout title="Page not found — Suhas Darsi" description="Page not found — Suhas Darsi">
+  <section class="page-head" style="padding-block: 96px 64px; gap: 24px; max-width: 620px;">
+    <span class="eyebrow">404</span>
+    <h1 class="title">This page wandered off.</h1>
+    <p class="lede">The link may be old, or the note may have moved. Try one of these, or search the notes below.</p>
+    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+      <a class="btn dark" href="/">Go home</a>
+      <a class="btn" href="/notes">Browse notes</a>
     </div>
-  </div>
-  <section class="error-search-wrap">
-    <h2 class="section-label">Or search the notes</h2>
-    <div class="error-search-control">
-      <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
-      <input type="search" id="error-search-input" class="field" placeholder="Try “network risk”" aria-label="Search all notes" autocomplete="off" />
+    <div style="display: grid; gap: 8px; padding-top: 16px;">
+      <div class="field-wrap">
+        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+        <label for="error-search-input" class="vh">Search all notes</label>
+        <input id="error-search-input" class="field" type="search" placeholder="Try “network risk”" autocomplete="off" />
+      </div>
+      <div class="rows" id="error-search-results" data-dates={JSON.stringify(dates)}></div>
+      <p class="muted" id="error-search-status" role="status" style="font-size: 16px;"></p>
     </div>
-    <p id="error-search-status" role="status"></p>
-    <div class="rows error-search-results" id="error-search-results"></div>
   </section>
-</BlogLayout>
+</SiteLayout>
 
 <script>
   import { searchDocuments } from '../utils/client-search';
   import { createSearchLoader, debounce } from '../utils/search-loader';
 
-  const input = document.getElementById('error-search-input') as HTMLInputElement;
+  type SearchPost = { href: string; title: string; description?: string; body?: string };
+
+  const input = document.getElementById('error-search-input') as HTMLInputElement | null;
   const results = document.getElementById('error-search-results');
   const status = document.getElementById('error-search-status');
+  const dates: Record<string, string> = JSON.parse(results?.dataset.dates ?? '{}');
+  const loadSearch = createSearchLoader<SearchPost>();
   let requestId = 0;
 
-  type SearchPost = {
-    href: string;
-    title: string;
-    description?: string;
-    body?: string;
-  };
-
-  const loadSearch = createSearchLoader<SearchPost>();
-
-  const handleSearchInput = debounce(async () => {
+  const update = debounce(async () => {
     const currentRequest = ++requestId;
-    const query = input.value.trim();
+    const query = input?.value.trim() ?? '';
     results?.replaceChildren();
-    if (status) status.textContent = query ? 'Loading notes…' : '';
+    if (status) status.textContent = '';
     if (!query) return;
 
     try {
-      const searchPosts = await loadSearch();
+      const posts = await loadSearch();
       if (currentRequest !== requestId) return;
-      const hits = searchDocuments(searchPosts, query).slice(0, 5);
-      if (status) status.textContent = hits.length ? '' : 'No notes match. Try different words.';
+      const hits = searchDocuments(posts, query).slice(0, 5);
+      if (status) status.textContent = hits.length ? '' : 'No notes match that yet.';
       results?.replaceChildren(...hits.map((hit) => {
         const link = document.createElement('a');
+        link.className = 'mrow error-search-result';
         link.href = hit.href;
-        link.className = 'row error-search-result';
-        link.textContent = hit.title;
+        const title = document.createElement('span');
+        title.className = 'serif';
+        title.textContent = hit.title;
+        const date = document.createElement('span');
+        date.className = 'l';
+        date.textContent = dates[hit.href] ?? '';
+        link.append(title, date);
         return link;
       }));
     } catch {
@@ -68,20 +72,9 @@ import BlogLayout from '../layouts/BlogLayout.astro';
     }
   });
 
-  input?.addEventListener('input', () => handleSearchInput());
+  input?.addEventListener('input', () => void update());
 </script>
 
-<style>
-  /* Wide screens move these to the page-actions rail (global.css). */
-  @media (max-width: 69.99rem) {
-    .error-actions { margin: -1rem 0 3rem; }
-    .error-actions .page-actions-inner { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-    .error-actions .button-quiet { margin-left: -0.25rem; }
-  }
-  .error-search-control { position: relative; display: flex; align-items: center; margin-top: 0.5rem; }
-  .search-icon { position: absolute; left: 0.875rem; color: var(--color-muted-foreground); pointer-events: none; }
-  .error-search-control .field { padding-left: 2.5rem; }
-  #error-search-status { margin-top: 0.75rem; color: var(--color-muted-foreground); }
+<style is:global>
   #error-search-status:empty { display: none; }
-  .error-search-results { margin-top: 0.75rem; }
 </style>

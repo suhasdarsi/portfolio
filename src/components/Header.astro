@@ -41,7 +41,7 @@ const links = [
         </a>
       ))}
     </nav>
-    <div class="header-actions">
+    <div class:list={['header-actions', { 'rail-controls': !wide }]}>
       <a href={primaryCta.href} target="_blank" rel="noopener noreferrer" class="button header-cta">
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -531,9 +531,9 @@ const links = [
     .header-inner:not(.wide) .header-cta-icon {
       display: block;
     }
-    /* Search and theme become full outlined buttons with icon and label, like the page actions below. */
-    .header-inner:not(.wide) .search-trigger,
-    .header-inner:not(.wide) .header-actions :global(.theme-toggle) {
+    /* Search becomes a full outlined button with icon and label, matching the theme toggle in the rail
+       (ThemeToggle.astro styles itself inside .rail-controls). */
+    .header-inner:not(.wide) .search-trigger {
       flex: 1 0 100%;
       justify-content: start;
       justify-items: start;
@@ -547,25 +547,12 @@ const links = [
       font: inherit;
       font-size: var(--type-sm);
     }
-    .header-inner:not(.wide) .header-actions :global(.theme-toggle) {
-      grid-template-columns: 1rem auto;
-      column-gap: 0.5rem;
-    }
-    .header-inner:not(.wide) .search-trigger:hover,
-    .header-inner:not(.wide) .header-actions :global(.theme-toggle:hover) {
+    .header-inner:not(.wide) .search-trigger:hover {
       background: var(--color-muted);
       color: var(--color-foreground);
     }
     .header-inner:not(.wide) .control-label {
       display: block;
-    }
-    .header-inner:not(.wide) .header-actions :global(.theme-label) {
-      position: static;
-      grid-area: 1 / 2;
-      width: auto;
-      height: auto;
-      overflow: visible;
-      clip-path: none;
     }
   }
   /* Fingers need real targets; cursors do not. */

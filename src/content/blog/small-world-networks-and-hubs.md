@@ -42,7 +42,7 @@ flowchart LR
   end
   subgraph targeted["Targeted attack"]
     direction TB
-    T((Hub)):::alert -.- t1((A)) & t2((B)) & t3((C)) & t4((D))
+    T((Hub)):::alert -.- t1((A)):::faded & t2((B)):::faded & t3((C)):::faded & t4((D)):::faded
   end
 ```
 

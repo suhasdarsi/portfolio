@@ -1,102 +1,49 @@
 ---
-import AppMark from '../AppMark.astro';
-import ThemeToggle from '../ThemeToggle.astro';
+// Toolshed's own top bar: name and alpha badge, four tabs, then search (home page only), theme and the way home.
+import ThemeButton from '../site/ThemeButton.astro';
 import { cleanPath } from '../../utils/clean-path';
+import { getTools } from '../../utils/content';
+
+interface Props { search?: boolean; }
+const { search = false } = Astro.props;
+const toolCount = search ? (await getTools()).length : 0;
 
 const path = cleanPath(Astro.url.pathname);
+const fixed = ['/toolshed/tools', '/toolshed/about', '/toolshed/suggest'];
 const links = [
-  { label: 'Categories', href: '/toolshed', active: path === '/toolshed' || (/^\/toolshed\/[^/]+/.test(path) && !['/toolshed/tools', '/toolshed/about', '/toolshed/suggest'].includes(path)) },
-  { label: 'All tools', href: '/toolshed/tools', active: path === '/toolshed/tools' },
-  { label: 'About', href: '/toolshed/about', active: path === '/toolshed/about' },
+  { label: 'Categories', href: '/toolshed', active: path === '/toolshed' || (path.startsWith('/toolshed/') && !fixed.some((p) => path === p || path.startsWith(`${p}/`))) },
+  { label: 'All tools', href: '/toolshed/tools', active: path.startsWith('/toolshed/tools') },
+  { label: 'How it works', href: '/toolshed/about', active: path === '/toolshed/about' },
   { label: 'Suggest a tool', href: '/toolshed/suggest', active: path === '/toolshed/suggest' },
 ];
 ---
 
-<header class="ts-header">
-  <div class="ts-container ts-header-inner">
-    <a href="/toolshed" class="ts-brand"><AppMark mark="toolshed" size="1.25rem" />Toolshed<span class="ts-badge">Alpha</span></a>
-    <nav class="ts-nav" aria-label="Toolshed">
-      {links.map((link) => <a href={link.href} aria-current={link.active ? 'page' : undefined}>{link.label}</a>)}
+<header class="ts-top">
+  <div style="display: flex; align-items: center; gap: 24px;">
+    <a class="ts-brand" href="/toolshed" style="display: flex; align-items: center; gap: 8px; font-weight: 600;">Toolshed <span class="badge">Alpha</span></a>
+    <nav aria-label="Toolshed" class="nav">
+      {links.map((link) => (
+        <a class:list={['navlink', { on: link.active }]} href={link.href} aria-current={link.active ? 'page' : undefined}>{link.label}</a>
+      ))}
     </nav>
-    <div class="ts-actions">
-      <form class="ts-search" action="/toolshed/tools" method="get" role="search">
-        <label for="ts-search-input" class="sr-only">Search tools</label>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
-        <input id="ts-search-input" name="q" type="search" placeholder="Search tools" autocomplete="off" />
+  </div>
+  <div style="display: flex; align-items: center; gap: 8px;">
+    {search && (
+      <form class="searchlink" action="/toolshed/tools" method="get" role="search">
+        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true" style="width: 16px; height: 16px;"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+        <label for="ts-search-input" class="vh">Search tools</label>
+        <input id="ts-search-input" name="q" type="search" placeholder={`Search ${toolCount} tools`} autocomplete="off" />
       </form>
-      <ThemeToggle />
-      <a href="/" class="ts-home" aria-label="Suhas Darsi, home">Suhas Darsi</a>
-    </div>
+    )}
+    <ThemeButton />
+    <a class="navlink hide-sm" href="/" aria-label="Suhas Darsi, home">Suhas Darsi</a>
   </div>
 </header>
 
 <style>
-  .ts-header {
-    position: sticky;
-    top: 0;
-    z-index: 20;
-    border-bottom: 1px solid var(--color-border);
-    background: color-mix(in srgb, var(--color-background) 92%, transparent);
-    backdrop-filter: blur(8px);
-  }
-
-  .ts-header-inner { display: flex; align-items: center; gap: 2rem; min-height: 3.5rem; }
-
-  .ts-brand {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-weight: 500;
-    letter-spacing: -0.01em;
-    color: var(--color-foreground);
-    text-decoration: none;
-  }
-
-  .ts-badge {
-    padding: 0.0625rem 0.375rem;
-    border: 1px solid var(--color-border-strong);
-    border-radius: var(--radius-sm);
-    font-size: 0.6875rem;
-    font-weight: 500;
-    letter-spacing: 0.02em;
-    text-transform: uppercase;
-    color: var(--color-muted-foreground);
-  }
-
-  .ts-nav { display: flex; gap: 1.5rem; }
-  .ts-nav a { color: var(--color-muted-foreground); font-size: var(--type-sm); text-decoration: none; transition: color 0.15s ease; }
-  .ts-nav a:hover, .ts-nav a[aria-current='page'] { color: var(--color-foreground); }
-
-  .ts-actions { display: flex; align-items: center; gap: 0.5rem; margin-left: auto; }
-
-  .ts-search { position: relative; display: flex; align-items: center; }
-  .ts-search svg { position: absolute; left: 0.625rem; color: var(--color-muted-foreground); pointer-events: none; }
-  .ts-search input {
-    width: 13rem;
-    padding: 0.375rem 0.625rem 0.375rem 1.875rem;
-    border: 1px solid var(--color-border-strong);
-    border-radius: var(--radius-buttons);
-    background: var(--color-subtle);
-    color: var(--color-foreground);
-    font: inherit;
-    font-size: var(--type-sm);
-  }
-  .ts-search input::placeholder { color: var(--color-muted-foreground); }
-
-  .ts-home {
-    padding-left: 0.75rem;
-    border-left: 1px solid var(--color-border);
-    color: var(--color-muted-foreground);
-    font-size: var(--type-sm);
-    text-decoration: none;
-    white-space: nowrap;
-  }
-  .ts-home:hover { color: var(--color-foreground); }
-
-  /* Phones: brand and actions on the first row, the nav scrolls on a second row. */
-  @media (max-width: 760px) {
-    .ts-header-inner { flex-wrap: wrap; gap: 0 1rem; padding-block: 0.5rem; }
-    .ts-nav { order: 3; width: 100%; gap: 1.25rem; padding-block: 0.5rem 0.25rem; overflow-x: auto; }
-    .ts-search { display: none; }
-  }
+  .searchlink { display: flex; align-items: center; gap: 8px; height: 38px; padding: 0 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--faint); font-size: 16px; min-width: 220px; }
+  .searchlink:hover, .searchlink:focus-within { border-color: var(--line-strong); color: var(--muted); }
+  .searchlink input { flex: 1; min-width: 0; width: 100%; padding: 0; border: 0; background: transparent; color: var(--ink); font-size: 16px; outline: none; }
+  .searchlink input::placeholder { color: var(--faint); opacity: 1; }
+  @media (max-width: 640px) { .searchlink { min-width: 0; } }
 </style>

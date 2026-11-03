@@ -1,0 +1,39 @@
+---
+// Frame for every main-site page: one centred 920px column with the top bar and footer, so the header
+// sits in the same place on every page. Search is available everywhere. Page overlays go in the "after" slot.
+import SiteHead from '../components/SiteHead.astro';
+import SiteHeader from '../components/site/SiteHeader.astro';
+import SiteFooter from '../components/site/SiteFooter.astro';
+import SearchOverlay from '../components/site/SearchOverlay.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+  ogType?: string;
+  ogImage?: string;
+  noindex?: boolean;
+  author?: string;
+  current?: 'notes' | 'apps' | 'about' | 'uses';
+}
+
+const { title, description, ogType, ogImage, noindex, author, current } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <SiteHead title={title} description={description} ogType={ogType} ogImage={ogImage} noindex={noindex} author={author} />
+  </head>
+  <body class="sd">
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <div class="page">
+      <SiteHeader current={current} />
+      <main id="main-content">
+        <slot />
+      </main>
+      <SiteFooter />
+    </div>
+    <SearchOverlay />
+    <slot name="after" />
+  </body>
+</html>

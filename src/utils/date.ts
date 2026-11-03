@@ -11,7 +11,8 @@ export function formatDate(dateInput: Date | string): string {
 export function getReadingTime(content: string): string {
   if (!content) return '';
   const words = content.trim().split(/\s+/).filter(Boolean).length;
-  const minutes = Math.ceil(words / 200);
+  // 150 words a minute: a careful pace for technical notes with figures to read.
+  const minutes = Math.ceil(words / 150);
   if (minutes < 1) return '< 1 min read';
   return `${minutes} min read`;
 }

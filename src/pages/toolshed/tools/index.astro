@@ -5,67 +5,67 @@ import ToolRow from '../../../components/toolshed/ToolRow.astro';
 import { getTools } from '../../../utils/content';
 
 const tools = await getTools();
+// The first page shows before the script runs; the script owns the list from then on.
+const PAGE = 60;
+const left = tools.length - Math.min(PAGE, tools.length);
 ---
 
 <ToolshedLayout title="All tools — Toolshed" description="Every security tool in Toolshed, searchable by name, tag, category or site.">
-  <div class="ts-all">
+  <div class="ts-shell">
     <Sidebar tools={tools} current="all" />
-    <div class="ts-all-main">
-      <header class="ts-all-header">
-        <p class="ts-eyebrow"><a href="/toolshed">Toolshed</a> <span aria-hidden="true">/</span> All tools</p>
-        <h1 class="page-heading">All tools</h1>
-      </header>
-
-      <form class="ts-filter" role="search">
-        <label for="tool-search" class="sr-only">Find a tool</label>
-        <input id="tool-search" class="field" type="search" placeholder="Search by name, tag, category or site" autocomplete="off" aria-controls="tool-list" />
+    <div class="ts-main">
+      <div style="display: grid; gap: 12px;">
+        <p class="faint" style="font-size: 13px;"><a href="/toolshed">Toolshed</a> / All tools</p>
+        <h1 class="title">All tools</h1>
+      </div>
+      <form class="field-wrap" role="search" id="tool-filter">
+        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+        <label for="tool-search" class="vh">Find a tool</label>
+        <input id="tool-search" class="field" type="search" placeholder="Search by name, category or site, e.g. mcp" autocomplete="off" aria-controls="tool-list" />
       </form>
-      <p class="ts-count" id="tool-count" role="status" aria-live="polite">{tools.length} tools</p>
-
-      <ul id="tool-list" class="ts-list">
-        {tools.map((tool) => <ToolRow tool={tool} />)}
-      </ul>
-      <p id="tool-empty" class="ts-muted" hidden>No tools match. Try another search.</p>
+      <div>
+        <p class="faint" id="tool-count" style="font-size: 13px; padding-bottom: 8px;" role="status" aria-live="polite">{tools.length} {tools.length === 1 ? 'tool' : 'tools'}</p>
+        <div id="tool-list" style="border-top: 1px solid var(--line);">
+          {tools.map((tool, i) => <ToolRow tool={tool} hidden={i >= PAGE} />)}
+        </div>
+        <p id="tool-empty" class="muted" style="padding-block: 24px;" hidden>No tools match “<span id="tool-query"></span>”. <a class="tlink" href="/toolshed/suggest">Suggest one</a>.</p>
+        <button type="button" id="tool-more" class="btn" style="margin-top: 16px;" hidden={left <= 0}>Show {Math.min(PAGE, left)} more of {left}</button>
+      </div>
     </div>
   </div>
 </ToolshedLayout>
 
 <script>
+  // Live search over name, site, categories and tags, shown 60 at a time. The header search lands here as ?q=.
+  const PAGE = 60;
   const input = document.querySelector<HTMLInputElement>('#tool-search');
-  const items = Array.from(document.querySelectorAll<HTMLLIElement>('[data-tool]'));
+  const items = Array.from(document.querySelectorAll<HTMLElement>('[data-tool]'));
   const count = document.getElementById('tool-count');
   const empty = document.getElementById('tool-empty');
+  const query = document.getElementById('tool-query');
+  const more = document.getElementById('tool-more');
+  let limit = PAGE;
 
-  function filterTools() {
-    const query = input?.value.trim().toLowerCase() ?? '';
-    let visible = 0;
-    for (const item of items) {
-      const matches = (item.dataset.search ?? '').includes(query);
-      item.hidden = !matches;
-      if (matches) visible++;
+  function render() {
+    const q = input?.value.trim().toLowerCase() ?? '';
+    const matches = items.filter((item) => (item.dataset.search ?? '').includes(q));
+    for (const item of items) item.hidden = true;
+    matches.slice(0, limit).forEach((item) => { item.hidden = false; });
+    const left = matches.length - Math.min(limit, matches.length);
+    if (count) count.textContent = `${matches.length} ${matches.length === 1 ? 'tool' : 'tools'}`;
+    if (query) query.textContent = input?.value.trim() ?? '';
+    if (empty) empty.hidden = matches.length > 0;
+    if (more) {
+      more.hidden = left <= 0;
+      more.textContent = `Show ${Math.min(PAGE, left)} more of ${left}`;
     }
-    if (count) count.textContent = `${visible} ${visible === 1 ? 'tool' : 'tools'}`;
-    if (empty) empty.hidden = visible > 0;
   }
 
-  // The header search lands here as ?q=.
   const initial = new URLSearchParams(location.search).get('q');
-  if (input && initial) {
-    input.value = initial;
-    filterTools();
-  }
-  input?.addEventListener('input', filterTools);
-  document.querySelector('.ts-filter')?.addEventListener('submit', event => event.preventDefault());
+  if (input && initial) input.value = initial;
+  input?.addEventListener('input', () => { limit = PAGE; render(); });
+  more?.addEventListener('click', () => { limit += PAGE; render(); });
+  document.getElementById('tool-filter')?.addEventListener('submit', (event) => event.preventDefault());
+  render();
 </script>
 
-<style>
-  .ts-all { display: grid; grid-template-columns: 13.5rem minmax(0, 1fr); gap: 3rem; }
-  .ts-all-main { min-width: 0; }
-  .ts-all-header { margin-bottom: 1.5rem; }
-  .ts-eyebrow a { color: inherit; text-decoration: none; }
-  .ts-count { margin: 1rem 0 0.5rem; font-size: var(--type-sm); color: var(--color-muted-foreground); font-variant-numeric: tabular-nums; }
-  .ts-list { list-style: none; margin: 0; padding: 0; }
-  .ts-list :global(li + li) { border-top: 1px solid var(--color-border); }
-  [hidden] { display: none !important; }
-  @media (max-width: 900px) { .ts-all { grid-template-columns: minmax(0, 1fr); gap: 1.5rem; } }
-</style>

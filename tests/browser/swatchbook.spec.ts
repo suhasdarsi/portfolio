@@ -4,7 +4,7 @@ import { designSystems } from '../../src/data/design-systems';
 
 test('Swatchbook can be found from home, searched and filtered', async ({ page }) => {
   await page.goto('/');
-  await page.getByRole('link', { name: /^Swatchbook/ }).click();
+  await page.locator('a.app[href="/swatchbook"]').click();
   await expect(page).toHaveURL(/\/swatchbook$/);
   await expect(page.getByRole('heading', { name: 'Swatchbook', level: 1 })).toBeVisible();
   const search = page.getByLabel('Find a design system');

@@ -1,6 +1,6 @@
 ---
 title: "AI as the Ultimate Hub"
-description: "AI isn't just another node in our networks — it's a fundamentally new type of hub that compresses complexity in ways we haven't fully reckoned with."
+description: "AI isn’t just another node in our networks — it’s a fundamentally new type of hub that compresses complexity in ways we haven’t fully reckoned with."
 pubDate: "2026-04-04"
 author: "Suhas Darsi"
 topics: ["AI Security"]

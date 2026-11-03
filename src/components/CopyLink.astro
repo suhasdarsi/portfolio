@@ -2,29 +2,32 @@
 interface Props { url: string; }
 const { url } = Astro.props;
 ---
-<div class="copy-link">
-  <button type="button" id="copy-note-link" data-url={url} hidden>Copy link</button>
-  <span id="copy-link-status" role="status" aria-live="polite"></span>
-</div>
+<button type="button" class="tool" id="copy-note-link" data-url={url}><span>Copy link</span></button>
+<span id="copy-link-status" class="vh" role="status" aria-live="polite"></span>
 <script>
+  // Copies the canonical URL and says so in the button for a moment.
   const button = document.querySelector<HTMLButtonElement>('#copy-note-link');
   const status = document.getElementById('copy-link-status');
-  if (button) {
-    button.hidden = false;
-    button.addEventListener('click', async () => {
-      try {
-        await navigator.clipboard.writeText(button.dataset.url ?? location.href);
-        if (status) status.textContent = 'Link copied.';
-      } catch {
-        if (status) status.textContent = 'Copy the address from your browser instead.';
+  const label = button?.querySelector('span');
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  button?.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(button.dataset.url ?? location.href);
+      if (status) status.textContent = 'Link copied.';
+      if (label) {
+        label.textContent = 'Link copied';
+        label.classList.add('copied');
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+          label.textContent = 'Copy link';
+          label.classList.remove('copied');
+        }, 1600);
       }
-    });
-  }
+    } catch {
+      if (status) status.textContent = 'Copy the address from your browser instead.';
+    }
+  });
 </script>
 <style>
-  .copy-link { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
-  button { min-height: 2.75rem; padding: 0.5rem 0.75rem; border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: transparent; color: var(--color-foreground); font: inherit; font-size: var(--type-sm); cursor: pointer; }
-  button:hover { background: var(--color-muted); }
-  button[hidden] { display: none; }
-  [role='status'] { max-width: 15rem; font-size: var(--type-sm); color: var(--color-muted-foreground); }
+  .copied { color: var(--accent-text); }
 </style>

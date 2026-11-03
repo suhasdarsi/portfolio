@@ -1,181 +1,101 @@
 ---
-import { getPublishedBlogEntriesByDate } from '../../utils/content';
-import { formatDate } from '../../utils/date';
-
-import BlogLayout from '../../layouts/BlogLayout.astro';
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import { getNoteLinks, getPublishedBlogEntriesByDate } from '../../utils/content';
+import { formatDate, getReadingTime } from '../../utils/date';
+import { stripDiagramSource } from '../../utils/diagrams.mjs';
 
 const posts = await getPublishedBlogEntriesByDate();
+const links = getNoteLinks(posts);
+const plural = (n: number) => `${n} ${n === 1 ? 'note' : 'notes'}`;
+
+const topics = new Map<string, number>();
+for (const post of posts) {
+  for (const topic of post.data.topics) topics.set(topic, (topics.get(topic) ?? 0) + 1);
+}
+const chips = [{ label: 'All', count: posts.length }, ...[...topics].map(([label, count]) => ({ label, count }))];
+
+const notes = posts.map((post) => {
+  const backlinks = links.get(post.id)!.linkedFrom.length;
+  return {
+    id: post.id,
+    title: post.data.title,
+    desc: post.data.description,
+    date: formatDate(post.data.pubDate),
+    datetime: post.data.pubDate.toISOString(),
+    topics: post.data.topics.join('|'),
+    meta: `${getReadingTime(stripDiagramSource(post.body ?? ''))} · linked from ${plural(backlinks)}`,
+  };
+});
 ---
 
-<BlogLayout
+<SiteLayout
   title="Notes — Suhas Darsi"
   description="Practical field notes on AI security, agent systems, and network risk."
+  current="notes"
 >
-  <header class="page-header">
-    <h1 class="page-heading">Notes</h1>
-    <p class="notes-intro">Making sense of AI security, one idea at a time.</p>
-  </header>
+  <section class="page-head">
+    <h1 class="title">Notes</h1>
+    <p class="lede">A small garden of notes on AI security and how networks fail. Each one links to others, so start anywhere and follow the threads. New notes go out on <a class="tlink" href="/rss.xml">RSS</a>.</p>
+  </section>
 
-  <!-- Searching happens in the top bar. Its "Browse or share this search" link lands here as ?q=,
-       so the list filters itself and offers a way back to everything. -->
-  <p id="notes-search-status" class="search-status" role="status" hidden>
-    <span id="notes-search-summary"></span>
-    <a href="/notes" id="notes-search-clear">
-      Clear search
-    </a>
-  </p>
+  <section style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding-bottom: 24px;">
+    <div class="chips" role="group" aria-label="Filter by topic">
+      {chips.map((chip, i) => (
+        <button type="button" class:list={['chip', { on: i === 0 }]} data-topic={i === 0 ? '' : chip.label} aria-pressed={i === 0 ? 'true' : 'false'}>
+          {chip.label} <span class="k" aria-hidden="true">{chip.count}</span>
+        </button>
+      ))}
+    </div>
+    <span id="notes-count" class="faint" style="font-size: 13px;" aria-live="polite" data-total={plural(posts.length)}>{plural(posts.length)}</span>
+  </section>
 
-  <h2 class="section-label">
-    All notes <span class="section-count">{posts.length}</span>
-  </h2>
-  <ul class="rows note-list" id="note-list">
-    {posts.map((post) => (
-      <li class="note-item" data-note-id={post.id}>
-        <a href={`/notes/${post.id}`} class="row note-link">
-          <span class="note-body">
-            <span class="row-title note-title">{post.data.title}</span>
-            <span class="note-description">{post.data.description}</span>
-            <span class="note-excerpt" hidden></span>
-          </span>
-          <time class="row-meta" datetime={post.data.pubDate.toISOString()}>
-            {formatDate(post.data.pubDate)}
-          </time>
-        </a>
-      </li>
+  <section id="note-list" class="rows" style="padding-bottom: 64px;">
+    {notes.map((note) => (
+      <a class="note" href={`/notes/${note.id}`} data-note-id={note.id} data-topics={note.topics}>
+        <span class="n" aria-hidden="true"><span class="node"></span></span>
+        <span class="t">{note.title}</span>
+        <time class="when" datetime={note.datetime}>{note.date}</time>
+        <span class="d">{note.desc}</span>
+        <span class="links">{note.meta}</span>
+      </a>
     ))}
-    {posts.length === 0 && <li>No notes found.</li>}
-  </ul>
-</BlogLayout>
+  </section>
+</SiteLayout>
 
 <script>
-  import { searchDocuments } from '../../utils/client-search';
-  import { highlightText, searchExcerpt } from '../../utils/search-display';
-  import { createSearchLoader } from '../../utils/search-loader';
-  import type { SearchEntry } from '../../utils/search';
+  // Topic chips filter the list. The topic lives in ?topic= so a filtered view can be shared.
+  const chips = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-topic]'));
+  const rows = Array.from(document.querySelectorAll<HTMLElement>('[data-note-id]'));
+  const count = document.querySelector<HTMLElement>('#notes-count')!;
 
-  const status = document.querySelector<HTMLElement>('#notes-search-status')!;
-  const summary = document.querySelector<HTMLElement>('#notes-search-summary')!;
-  const clear = document.querySelector<HTMLAnchorElement>('#notes-search-clear')!;
-  const list = document.querySelector<HTMLElement>('#note-list')!;
-  const articles = Array.from(list.querySelectorAll<HTMLElement>('[data-note-id]'));
-  const originals = articles.map((article) => ({
-    article,
-    title: article.querySelector('.note-title')!.textContent!.trim(),
-  }));
-  const loadSearch = createSearchLoader<SearchEntry>();
-  let version = 0;
-
-  async function applySearch(query: string) {
-    const current = ++version;
-    if (!query.trim()) {
-      originals.forEach(({ article, title }) => {
-        article.hidden = false;
-        article.querySelector('.note-title')!.textContent = title;
-        article.querySelector<HTMLElement>('.note-excerpt')!.hidden = true;
-        list.append(article);
-      });
-      status.hidden = true;
-      return;
-    }
-    status.hidden = false;
-    summary.textContent = 'Searching notes…';
-    try {
-      const documents = await loadSearch();
-      if (current !== version) return;
-      const results = searchDocuments(documents, query);
-      articles.forEach((article) => {
-        article.hidden = true;
-      });
-      results.forEach((result) => {
-        const article = articles.find((item) => item.dataset.noteId === result.id);
-        if (!article) return;
-        article.hidden = false;
-        highlightText(article.querySelector<HTMLElement>('.note-title')!, result.title, query);
-        // While searching, a short excerpt shows where the match is.
-        const excerpt = article.querySelector<HTMLElement>('.note-excerpt')!;
-        highlightText(excerpt, searchExcerpt(result.body, query, result.description), query);
-        excerpt.hidden = false;
-        list.append(article);
-      });
-      summary.textContent = results.length
-        ? `${results.length} ${results.length === 1 ? 'note matches' : 'notes match'} “${query}”`
-        : `No notes match “${query}”`;
-    } catch {
-      if (current !== version) return;
-      summary.textContent = 'Search is unavailable. Reload to retry.';
-    }
+  function applyTopic(topic: string) {
+    const known = chips.some((chip) => chip.dataset.topic === topic);
+    const active = known ? topic : '';
+    chips.forEach((chip) => {
+      const on = chip.dataset.topic === active;
+      chip.classList.toggle('on', on);
+      chip.setAttribute('aria-pressed', String(on));
+    });
+    let shown = 0;
+    rows.forEach((row) => {
+      row.hidden = Boolean(active) && !row.dataset.topics!.split('|').includes(active);
+      if (!row.hidden) shown++;
+    });
+    count.textContent = active ? `${shown} of ${count.dataset.total}` : count.dataset.total!;
   }
 
-  clear.addEventListener('click', (event) => {
-    event.preventDefault();
-    history.pushState(null, '', '/notes');
-    void applySearch('');
-  });
-  window.addEventListener(
-    'popstate',
-    () => void applySearch(new URLSearchParams(location.search).get('q') ?? '')
-  );
-  void applySearch(new URLSearchParams(location.search).get('q') ?? '');
+  chips.forEach((chip) => chip.addEventListener('click', () => {
+    const topic = chip.dataset.topic!;
+    const url = new URL(location.href);
+    if (topic) url.searchParams.set('topic', topic);
+    else url.searchParams.delete('topic');
+    history.replaceState(null, '', url);
+    applyTopic(topic);
+  }));
+
+  applyTopic(new URLSearchParams(location.search).get('topic') ?? '');
 </script>
 
-<style>
-  .notes-intro {
-    margin: 0.75rem 0 0;
-    color: var(--color-body-text);
-    line-height: 1.7;
-    text-wrap: pretty;
-  }
-  .note-description {
-    font-size: var(--type-sm);
-    line-height: 1.65;
-    color: var(--color-body-text);
-    text-wrap: pretty;
-  }
-  .note-body:has(.note-excerpt:not([hidden])) .note-description {
-    display: none;
-  }
-  .note-list .note-link {
-    padding-block: 1rem;
-  }
-  .search-status {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 0.25rem 1rem;
-    margin: -1rem 0 2.5rem;
-    color: var(--color-muted-foreground);
-  }
-  .search-status[hidden] {
-    display: none;
-  }
-  .search-status a {
-    color: var(--color-foreground);
-    text-underline-offset: 3px;
-  }
-  .note-item[hidden] {
-    display: none;
-  }
-  .note-body {
-    display: grid;
-    gap: 0.25rem;
-    min-width: 0;
-  }
-  .note-title {
-    text-wrap: balance;
-  }
-  .note-excerpt {
-    color: var(--color-muted-foreground);
-    font-size: var(--type-sm);
-    line-height: 1.55;
-    text-wrap: pretty;
-  }
-  .note-excerpt[hidden] {
-    display: none;
-  }
-  @media (max-width: 520px) {
-    .note-link {
-      flex-direction: column-reverse;
-      gap: 0.25rem;
-    }
-  }
+<style is:global>
+  .note[hidden] { display: none; }
 </style>

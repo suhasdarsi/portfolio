@@ -3,47 +3,67 @@ import AxeBuilder from '@axe-core/playwright';
 
 const note = '/notes/ai-as-the-ultimate-hub';
 
-test('shared search URLs filter notes, highlight matches, clear, and support history', async ({ page }) => {
+test('topic chips filter notes, and a filtered view can be shared', async ({ page }) => {
+  // Every published note is listed; the count grows as notes are added.
+  let total = 0;
   await expect(async () => {
     await page.goto('/notes');
-    await expect(page.locator('.note-item:visible')).toHaveCount(5);
+    total = await page.locator('.note:visible').count();
+    expect(total).toBeGreaterThan(1);
   }).toPass();
-  await expect(page.locator('.note-excerpt:visible')).toHaveCount(0);
+  // Search lives in the header on every page, not in the notes list.
   await expect(page.getByRole('searchbox')).toHaveCount(0);
 
-  await page.goto('/notes?q=power-law');
-  const status = page.locator('#notes-search-status');
-  await expect(status).toContainText('“power-law”');
-  await expect(page.locator('.note-item:visible mark').first()).toBeVisible();
-  const matches = await page.locator('.note-item:visible').count();
-  expect(matches).toBeLessThan(5);
+  const all = page.getByRole('button', { name: 'All', exact: true });
+  const security = page.getByRole('button', { name: 'AI Security', exact: true });
+  await expect(all).toHaveAttribute('aria-pressed', 'true');
 
-  await page.getByRole('link', { name: 'Clear search' }).click();
+  await security.click();
+  await expect(security).toHaveAttribute('aria-pressed', 'true');
+  await expect(all).toHaveAttribute('aria-pressed', 'false');
+  await expect(page).toHaveURL(/\?topic=AI\+Security$/);
+  const filtered = await page.locator('.note:visible').count();
+  expect(filtered).toBeGreaterThan(0);
+  expect(filtered).toBeLessThan(total);
+  await expect(page.locator('#notes-count')).toHaveText(`${filtered} of ${total} notes`);
+
+  // The shared URL opens with the same filter.
+  await page.goto('/notes?topic=AI+Security');
+  await expect(page.locator('.note:visible')).toHaveCount(filtered);
+  await expect(security).toHaveAttribute('aria-pressed', 'true');
+
+  await all.click();
   await expect(page).toHaveURL(/\/notes$/);
-  await expect(status).toBeHidden();
-  await expect(page.locator('.note-item:visible')).toHaveCount(5);
-  await page.goBack();
-  await expect(status).toContainText('“power-law”');
-  await expect(page.locator('.note-item:visible')).toHaveCount(matches);
-  await page.goForward();
-  await expect(page.locator('.note-item:visible')).toHaveCount(5);
+  await expect(page.locator('.note:visible')).toHaveCount(total);
 });
 
-test('search keyboard navigation, focus return, excerpts and share link', async ({ page }) => {
+test('search keyboard navigation and focus return', async ({ page }) => {
   await page.goto('/');
-  await page.getByRole('button', { name: 'Open search' }).click();
-  const input = page.locator('#global-search-input');
+  const open = page.getByRole('button', { name: 'Search', exact: true });
+  await open.click();
+  const input = page.locator('#site-q');
   await expect(input).toBeFocused();
   await input.fill('network');
-  await expect(page.locator('.search-result-excerpt').first()).toBeVisible();
-  await expect(page.locator('#search-all')).toHaveAttribute('href', '/notes?q=network');
+  await expect(page.locator('#search-overlay .result').first()).toBeVisible();
   await input.press('ArrowDown');
-  const href = await page.locator('.search-result-item.active').getAttribute('href');
+  const href = await page.locator('#search-overlay .result.active').getAttribute('href');
   await input.press('Enter');
   await expect(page).toHaveURL(new RegExp(`${href}$`));
-  await page.getByRole('button', { name: 'Open search' }).click();
+  await page.goto('/');
+  await open.click();
   await page.keyboard.press('Escape');
-  await expect(page.getByRole('button', { name: 'Open search' })).toBeFocused();
+  await expect(page.locator('#search-overlay')).toBeHidden();
+  await expect(open).toBeFocused();
+});
+
+test('Cmd/Ctrl+K opens and closes search', async ({ page }) => {
+  await page.goto('/');
+  await page.locator('body').click({ position: { x: 5, y: 5 } });
+  await page.keyboard.press('ControlOrMeta+k');
+  await expect(page.locator('#search-overlay')).toBeVisible();
+  await expect(page.locator('#site-q')).toBeFocused();
+  await page.keyboard.press('ControlOrMeta+k');
+  await expect(page.locator('#search-overlay')).toBeHidden();
 });
 
 test('themes persist and disabled storage does not break search', async ({ page }) => {
@@ -57,8 +77,8 @@ test('themes persist and disabled storage does not break search', async ({ page 
     Storage.prototype.setItem = () => { throw Error('disabled'); };
   });
   await page.reload();
-  await page.getByRole('button', { name: 'Open search' }).click();
-  await expect(page.locator('.search-result-item').first()).toBeVisible();
+  await page.getByRole('button', { name: 'Search', exact: true }).click();
+  await expect(page.locator('#search-overlay .result').first()).toBeVisible();
 });
 
 test('404 search recovers after a failed request', async ({ page }) => {
@@ -89,9 +109,9 @@ for (const path of ['/', '/about', '/notes', note, '/uses', '/404']) {
 
 test('open search dialog passes accessibility checks', async ({ page }) => {
   await page.goto('/');
-  await page.getByRole('button', { name: 'Open search' }).click();
-  await page.locator('#global-search-input').fill('network');
-  await expect(page.locator('.search-result-item').first()).toBeVisible();
+  await page.getByRole('button', { name: 'Search', exact: true }).click();
+  await page.locator('#site-q').fill('network');
+  await expect(page.locator('#search-overlay .result').first()).toBeVisible();
   const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
   expect(results.violations.map(({ id, nodes }) => ({ id, nodes: nodes.map(({ target, failureSummary }) => ({ target, failureSummary })) }))).toEqual([]);
 });

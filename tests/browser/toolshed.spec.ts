@@ -13,18 +13,19 @@ const fits = (page: Page) => page.evaluate(() => document.documentElement.scroll
 
 test('Toolshed is its own app: own navigation, category cards, independence footer', async ({ page }) => {
   await page.goto('/');
-  await page.getByRole('link', { name: /^Toolshed/ }).click();
+  await page.locator('a.app[href="/toolshed"]').click();
   await expect(page).toHaveURL(/\/toolshed$/);
   await expect(page.getByRole('heading', { name: 'Toolshed', level: 1 })).toBeVisible();
 
   const nav = page.getByRole('navigation', { name: 'Toolshed', exact: true });
   await expect(nav.getByRole('link', { name: 'Categories' })).toHaveAttribute('aria-current', 'page');
   await expect(page.getByRole('navigation', { name: 'Site' })).toHaveCount(0);
-  await expect(page.getByRole('link', { name: 'Suhas Darsi, home' })).toHaveAttribute('href', '/');
+  // A way back to the main site is always visible (the header link on wide screens, the footer link on phones).
+  await expect(page.locator('a[href="/"]:visible', { hasText: 'Suhas Darsi' }).first()).toBeVisible();
 
   await expect(page.locator('.ts-category-card')).toHaveCount(15);
-  await expect(page.getByRole('contentinfo')).toContainText('Nobody can pay to be listed');
   await expect(page.getByRole('contentinfo')).toContainText('SuperAlign');
+  await expect(page.getByRole('contentinfo').getByRole('link', { name: 'Dataset (JSON)' })).toHaveAttribute('href', '/toolshed/tools.json');
   expect(await fits(page)).toBe(true);
   await expectAccessible(page);
 });
@@ -85,8 +86,14 @@ test('Header search lands on All tools, filtered', async ({ page }) => {
   await expect(page.locator('[data-tool]:visible', { hasText: 'HashiCorp Vault' })).toBeVisible();
   const visible = await page.locator('[data-tool]:visible').count();
   expect(visible).toBeLessThan(10);
+  // Clearing the search goes back to the first 60 tools, and "Show more" reveals the rest in steps.
   await page.getByLabel('Find a tool').fill('');
-  expect(await page.locator('[data-tool]:visible').count()).toBeGreaterThan(300);
+  await expect(page.locator('[data-tool]:visible')).toHaveCount(60);
+  await page.getByRole('button', { name: /^Show \d+ more of/ }).click();
+  await expect(page.locator('[data-tool]:visible')).toHaveCount(120);
+  // Search covers every tool, not just the ones shown.
+  await page.getByLabel('Find a tool').fill('vault');
+  await expect(page.locator('[data-tool]:visible', { hasText: 'HashiCorp Vault' })).toBeVisible();
   expect(await fits(page)).toBe(true);
   await expectAccessible(page);
 });
@@ -101,10 +108,18 @@ test('About explains independence, and the data is open', async ({ page, request
 });
 
 test('Toolshed is marked alpha and kept out of search engines', async ({ page, request }) => {
-  for (const path of ['/toolshed', '/toolshed/ai-security', '/toolshed/tools', '/toolshed/about']) {
+  for (const path of ['/toolshed', '/toolshed/ai-security', '/toolshed/tools', '/toolshed/about', '/toolshed/suggest']) {
     await page.goto(path);
-    await expect(page.getByRole('note')).toContainText('Alpha.');
-    await expect(page.getByRole('note')).toContainText('Please don’t rely on it');
+    if (path === '/toolshed/about') {
+      // About explains the alpha in its own box instead of the banner.
+      await expect(page.getByRole('note')).toHaveCount(1);
+      await expect(page.getByRole('note')).toContainText('Toolshed is in alpha.');
+    } else if (path === '/toolshed/suggest') {
+      await expect(page.getByRole('note')).toHaveCount(0);
+    } else {
+      await expect(page.getByRole('note')).toContainText('Alpha.');
+      await expect(page.getByRole('note')).toContainText('Please don’t rely on it');
+    }
     await expect(page.locator('.ts-brand')).toContainText('Alpha');
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex, nofollow');
   }

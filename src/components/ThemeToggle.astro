@@ -122,4 +122,35 @@
   :global(html:not(.dark)) .theme-toggle .to-light {
     display: none;
   }
+
+  /* In a wide-screen rail (Header.astro, AppLayout.astro) the toggle is a full outlined button with its label. */
+  @media (min-width: 70rem) {
+    :global(.rail-controls) .theme-toggle {
+      flex: 1 0 100%;
+      grid-template-columns: 1rem auto;
+      column-gap: 0.5rem;
+      justify-content: start;
+      justify-items: start;
+      width: auto;
+      height: 2.25rem;
+      padding-inline: 0.875rem;
+      border: 1px solid var(--color-border-strong);
+      background: var(--color-subtle);
+      color: var(--color-body-text);
+      font: inherit;
+      font-size: var(--type-sm);
+    }
+    :global(.rail-controls) .theme-toggle:hover {
+      background: var(--color-muted);
+      color: var(--color-foreground);
+    }
+    :global(.rail-controls) .theme-label {
+      position: static;
+      grid-area: 1 / 2;
+      width: auto;
+      height: auto;
+      overflow: visible;
+      clip-path: none;
+    }
+  }
 </style>

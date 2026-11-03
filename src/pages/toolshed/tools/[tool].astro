@@ -26,51 +26,47 @@ const tagHref = (tag: string) => `/toolshed/${toolSlug(tagCategory.get(tag) ?? '
 ---
 
 <ToolshedLayout title={`${tool.name} review — Toolshed`} description={verdict ?? `My notes on ${tool.name}.`}>
-  <div class="ts-review">
+  <div class="ts-shell">
     <Sidebar tools={tools} />
-    <article class="ts-review-main">
-      <p class="ts-eyebrow"><a href="/toolshed">Toolshed</a> <span aria-hidden="true">/</span> <a href="/toolshed/tools">All tools</a></p>
-      <h1 class="page-heading">{tool.name}</h1>
-      {verdict && <p class="verdict">{verdict}</p>}
-      <div class="meta">
-        {rating && <Rating rating={rating} />}
-        {tried && <span>Tried <time datetime={tried.toISOString()}>{formatDateWithYear(tried)}</time></span>}
-        {updated && <span>Updated <time datetime={updated.toISOString()}>{formatDateWithYear(updated)}</time></span>}
+    <article class="ts-main" style="max-width: 760px;">
+      <div style="display: grid; gap: 12px;">
+        <p class="faint" style="font-size: 13px;"><a href="/toolshed">Toolshed</a> / <a href="/toolshed/tools">All tools</a> / {tool.name}</p>
+        <h1 class="title">{tool.name}{tool.affiliated && <span class="emp">My employer</span>}</h1>
+        {verdict && <p class="lede">{verdict}</p>}
+        <p class="faint meta" style="font-size: 13px;">
+          {rating && <Rating rating={rating} />}
+          {tried && <span>Tried <time datetime={tried.toISOString()}>{formatDateWithYear(tried)}</time></span>}
+          {updated && <span>Updated <time datetime={updated.toISOString()}>{formatDateWithYear(updated)}</time></span>}
+        </p>
       </div>
 
       <dl class="facts">
-        <div><dt>Tags</dt><dd class="tags">{tool.tags.map((tag) => <a href={tagHref(tag)}>{tag}</a>)}</dd></div>
-        <div><dt>Categories</dt><dd>{tool.categories.map((category, i) => <>{i > 0 && ', '}<a href={`/toolshed/${toolSlug(category)}`}>{category}</a></>)}</dd></div>
-        {facts.map((fact) => <div><dt>{fact.label}</dt><dd>{fact.value}</dd></div>)}
-        <div><dt>Website</dt><dd><a href={tool.url} target="_blank" rel="noopener noreferrer">{host}<span class="sr-only"> (opens in a new tab)</span></a></dd></div>
+        <div class="fact"><dt>Tags</dt><dd class="chips">{tool.tags.map((tag) => <a class="chip" href={tagHref(tag)}>{tag}</a>)}</dd></div>
+        <div class="fact"><dt>Categories</dt><dd>{tool.categories.map((category, i) => <>{i > 0 && ', '}<a class="tlink" href={`/toolshed/${toolSlug(category)}`}>{category}</a></>)}</dd></div>
+        {facts.map((fact) => <div class="fact"><dt>{fact.label}</dt><dd>{fact.value}</dd></div>)}
+        <div class="fact"><dt>Website</dt><dd><a class="tlink" href={tool.url} target="_blank" rel="noopener noreferrer">{host} ↗<span class="vh"> (opens in a new tab)</span></a></dd></div>
       </dl>
 
       {(pros.length > 0 || cons.length > 0) && (
         <div class="pros-cons">
-          {pros.length > 0 && <section><h2 class="ts-eyebrow">What works</h2><ul>{pros.map((pro) => <li>{pro}</li>)}</ul></section>}
-          {cons.length > 0 && <section><h2 class="ts-eyebrow">What doesn’t</h2><ul>{cons.map((con) => <li>{con}</li>)}</ul></section>}
+          {pros.length > 0 && <section><h2 class="eyebrow">What works</h2><ul>{pros.map((pro) => <li>{pro}</li>)}</ul></section>}
+          {cons.length > 0 && <section><h2 class="eyebrow">What doesn’t</h2><ul>{cons.map((con) => <li>{con}</li>)}</ul></section>}
         </div>
       )}
 
-      <div class="prose-custom"><Content /></div>
+      <section class="prose"><Content /></section>
     </article>
   </div>
 </ToolshedLayout>
 
 <style>
-  .ts-review { display: grid; grid-template-columns: 13.5rem minmax(0, 1fr); gap: 3rem; }
-  .ts-review-main { min-width: 0; max-width: 46rem; }
-  .ts-eyebrow a { color: inherit; text-decoration: none; }
-  .verdict { margin: 0.75rem 0 0; font-size: var(--type-md); line-height: 1.55; color: var(--color-body-text); }
-  .meta { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; margin: 1rem 0 2rem; font-size: var(--type-sm); color: var(--color-muted-foreground); }
-  .facts { display: grid; gap: 0.5rem; margin: 0 0 2.5rem; padding: 1.25rem 0; border-block: 1px solid var(--color-border); }
-  .facts div { display: grid; grid-template-columns: 7rem 1fr; gap: 1rem; }
-  .facts dt { color: var(--color-muted-foreground); }
-  .facts dd { margin: 0; overflow-wrap: anywhere; }
-  .facts a { color: var(--color-foreground); text-decoration: underline; text-underline-offset: 3px; }
-  .tags { display: flex; flex-wrap: wrap; gap: 0.25rem 0.75rem; }
-  .pros-cons { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; margin: 0 0 2.5rem; }
-  .pros-cons ul { margin: 0; padding-left: 1.125rem; color: var(--color-body-text); line-height: 1.6; }
-  @media (max-width: 900px) { .ts-review { grid-template-columns: minmax(0, 1fr); gap: 1.5rem; } }
-  @media (max-width: 520px) { .pros-cons { grid-template-columns: 1fr; } }
+  .meta { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+  .facts { margin: 0; border-top: 1px solid var(--line); }
+  .fact { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 8px 24px; padding-block: 12px; border-bottom: 1px solid var(--line); font-size: 16px; }
+  .fact dt { color: var(--muted); }
+  .fact dd { margin: 0; overflow-wrap: anywhere; }
+  .pros-cons { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+  .pros-cons section { display: grid; gap: 8px; align-content: start; }
+  .pros-cons ul { padding-left: 16px; display: grid; gap: 8px; color: var(--body); line-height: 1.6; }
+  @media (max-width: 640px) { .fact, .pros-cons { grid-template-columns: minmax(0, 1fr); } }
 </style>

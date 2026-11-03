@@ -1,77 +1,24 @@
 ---
+// The note's side column: its sections, then the notes it links to. Hidden on phones, like the artboard.
 interface Props {
   headings: { depth: number; slug: string; text: string }[];
+  linksTo: { href: string; title: string }[];
 }
-const sections = Astro.props.headings.filter((heading) => heading.depth === 2);
+const { headings, linksTo } = Astro.props;
+const sections = headings.filter((heading) => heading.depth === 2);
 ---
 
-{sections.length > 1 && (
-  <details class="note-outline">
-    <summary>
-      <span>In this note</span>
-      <span class="section-total">{sections.length} sections</span>
-    </summary>
-    <nav aria-label="In this note">
-      <ol>
-        {sections.map((section) => (
-          <li>
-            <a href={`#${encodeURIComponent(section.slug)}`}>{section.text}</a>
-          </li>
-        ))}
-      </ol>
+<aside class="aside hide-sm" aria-label="On this page">
+  {sections.length > 0 && (
+    <nav class="guide" aria-label="In this note">
+      <span class="eyebrow">On this page</span>
+      {sections.map((section) => <a href={`#${encodeURIComponent(section.slug)}`}>{section.text}</a>)}
     </nav>
-  </details>
-)}
-<style>
-  .note-outline {
-    font-size: var(--type-sm);
-  }
-  summary {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    min-height: 2.75rem;
-    cursor: pointer;
-    color: var(--color-foreground);
-    list-style: none;
-  }
-  summary::-webkit-details-marker {
-    display: none;
-  }
-  summary::before {
-    content: '+';
-    width: 0.75rem;
-    color: var(--color-muted-foreground);
-  }
-  details[open] summary::before {
-    content: '−';
-  }
-  .section-total {
-    font-size: 0.75rem;
-    color: var(--color-muted-foreground);
-  }
-  ol {
-    margin: 0.5rem 0 0.75rem;
-    padding-left: 1.25rem;
-    list-style: decimal;
-  }
-  li {
-    padding-left: 0.25rem;
-  }
-  li::marker {
-    color: var(--color-muted-foreground);
-    font-variant-numeric: tabular-nums;
-  }
-  a {
-    display: block;
-    padding: 0.5rem 0;
-    line-height: 1.5;
-    color: var(--color-body-text);
-    text-decoration: none;
-  }
-  a:hover {
-    color: var(--color-foreground);
-    text-decoration: underline;
-    text-underline-offset: 4px;
-  }
-</style>
+  )}
+  {linksTo.length > 0 && (
+    <nav class="guide" aria-label="Links to">
+      <span class="eyebrow">Links to</span>
+      {linksTo.map((note) => <a href={note.href}>{note.title}</a>)}
+    </nav>
+  )}
+</aside>
