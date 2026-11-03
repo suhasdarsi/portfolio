@@ -7,7 +7,11 @@ import { formatDate } from '../utils/date';
 const dates = Object.fromEntries((await getPublishedBlogEntriesByDate()).map((post) => [`/notes/${post.id}`, formatDate(post.data.pubDate)]));
 ---
 
-<SiteLayout title="Page not found — Suhas Darsi" description="Page not found — Suhas Darsi">
+<SiteLayout
+  title="Page not found — Suhas Darsi"
+  description="The page you were looking for could not be found. Browse the notes or search to find what you need."
+  noindex
+>
   <section class="page-head" style="padding-block: 96px 64px; gap: 24px; max-width: 620px;">
     <span class="eyebrow">404</span>
     <h1 class="title">This page wandered off.</h1>

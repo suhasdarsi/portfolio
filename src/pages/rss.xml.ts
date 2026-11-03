@@ -9,7 +9,8 @@ export async function GET(context: APIContext) {
     title: note.data.title,
     description: note.data.description,
     pubDate: note.data.pubDate,
-    link: `/notes/${note.id}`,
+    // Absolute and slash-free so the item URL matches the canonical page URL.
+    link: `${context.site!.toString().replace(/\/$/, '')}/notes/${note.id}`,
   }));
 
   return rss({

@@ -3,9 +3,11 @@ import sharp from 'sharp';
 import { getPublishedBlogEntries } from '../../utils/content';
 
 export async function getStaticPaths() {
-  return (await getPublishedBlogEntries()).map((post) => ({
+  const notes = (await getPublishedBlogEntries()).map((post) => ({
     params: { slug: post.id }, props: { title: post.data.title },
   }));
+  // 'site' is the default share card for pages that are not notes.
+  return [...notes, { params: { slug: 'site' }, props: { title: 'Suhas Darsi — Notes on AI security' } }];
 }
 
 const escape = (text: string) => text.replace(/[&<>"']/g, (character) =>

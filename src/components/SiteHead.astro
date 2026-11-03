@@ -19,6 +19,8 @@ const { title, description, ogType = 'website', ogImage, noindex = false, author
 const challenges = turnstile ? ' https://challenges.cloudflare.com' : '';
 const siteUrl = Astro.site?.toString().replace(/\/$/, '') || 'https://suhasdarsi.com';
 const canonicalUrl = `${siteUrl}${cleanPath(Astro.url.pathname)}`;
+// Pages without their own preview share the site card, rendered at /og/site.png.
+const cardImage = ogImage || `${siteUrl}/og/site.png`;
 const ogDescription = description || 'Suhas Darsi — practical writing about AI security, agent systems, and network risk.';
 ---
 
@@ -35,15 +37,15 @@ const ogDescription = description || 'Suhas Darsi — practical writing about AI
 <meta property="og:type" content={ogType} />
 <meta property="og:url" content={canonicalUrl} />
 <meta property="og:site_name" content="Suhas Darsi" />
-{ogImage && <>
-  <meta property="og:image" content={ogImage} />
-  <meta property="og:image:width" content="1200" />
-  <meta property="og:image:height" content="630" />
-  <meta property="og:image:alt" content={title} />
-  <meta name="twitter:image" content={ogImage} />
-  <meta name="twitter:image:alt" content={title} />
-</>}
-<meta name="twitter:card" content={ogImage ? 'summary_large_image' : 'summary'} />
+<meta property="og:image" content={cardImage} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content={title} />
+<meta name="twitter:image" content={cardImage} />
+<meta name="twitter:image:alt" content={title} />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={ogDescription} />
+<meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:site" content="@suhas_darsi" />
 <meta name="twitter:creator" content="@suhas_darsi" />
 <meta name="theme-color" content="#fafafa" media="(prefers-color-scheme: light)" />

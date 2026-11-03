@@ -2,6 +2,7 @@
 import SiteLayout from '../layouts/SiteLayout.astro';
 import { getPublishedBlogEntriesByDate } from '../utils/content';
 import { formatDate } from '../utils/date';
+import { person, website } from '../utils/structured-data';
 import { extractWikilinkTargets, resolveWikilink } from '../utils/wikilinks.mjs';
 
 const posts = await getPublishedBlogEntriesByDate();
@@ -59,7 +60,7 @@ const bars: [string, number][] = [['AI security', 46], ['AppSec', 40], ['Detecti
 const external = { target: '_blank', rel: 'noopener noreferrer' };
 ---
 
-<SiteLayout title="Suhas Darsi" description="Notes, micro-apps, and ways to connect with Suhas Darsi.">
+<SiteLayout jsonLd={[website(), person()]} title="Suhas Darsi — AI Security Notes and Micro-Apps" description="Notes on AI security, agent systems, and network risk, plus micro-apps and ways to connect with Suhas Darsi.">
   <section style="padding-top: 64px; padding-bottom: 64px; display: grid; gap: 24px;">
     <h1 class="intro serif">Hi, I'm Suhas. I co-founded <a class="tlink" href="https://superalign.ai/" {...external}>SuperAlign</a> and spend my days on how AI systems fail. <span class="soft">Here I write about it, and make tiny apps anyone can open and use.</span></h1>
     <p class="epigraph">Every network has a hub. Every hub is a way in.<span class="caret" aria-hidden="true"></span></p>
@@ -213,7 +214,7 @@ const external = { target: '_blank', rel: 'noopener noreferrer' };
   .bar .fl { height: 100%; background: var(--line-strong); border-radius: 4px; }
   .app:hover .bar .fl { background: var(--accent); }
   .bar .c { font-family: Geist, sans-serif; text-align: right; }
-  .uses { font-size: 16px; line-height: 1.75; color: var(--body); max-width: 60ch; }
+  .uses { font-size: 16px; line-height: 1.75; color: var(--body); max-width: 52ch; }
   .uses b { font-weight: 500; color: var(--ink); }
   @media (max-width: 760px) { .apps { grid-template-columns: minmax(0, 1fr); } }
 </style>
