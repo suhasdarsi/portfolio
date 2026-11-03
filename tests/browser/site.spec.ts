@@ -3,7 +3,7 @@ import AxeBuilder from '@axe-core/playwright';
 
 const note = '/notes/ai-as-the-ultimate-hub';
 
-test('shared search URLs filter notes, highlight matches, clear, and support history', async ({ page }) => {
+test('topic chips filter notes, and a filtered view can be shared', async ({ page }) => {
   // Every published note is listed; the count grows as notes are added.
   let total = 0;
   await expect(async () => {
@@ -11,40 +11,33 @@ test('shared search URLs filter notes, highlight matches, clear, and support his
     total = await page.locator('.note:visible').count();
     expect(total).toBeGreaterThan(1);
   }).toPass();
-  await expect(page.locator('.excerpt:visible')).toHaveCount(0);
+  // Search lives in the header on every page, not in the notes list.
+  await expect(page.getByRole('searchbox')).toHaveCount(0);
 
-  await page.goto('/notes?q=power-law');
-  const count = page.locator('#notes-count');
-  await expect(page.getByRole('searchbox', { name: 'Search notes' })).toHaveValue('power-law');
-  await expect(count).toContainText(` of ${total}`);
-  await expect(page.locator('.note:visible mark').first()).toBeVisible();
-  await expect(page.locator('.excerpt:visible').first()).toBeVisible();
-  const matches = await page.locator('.note:visible').count();
-  expect(matches).toBeLessThan(total);
+  const all = page.getByRole('button', { name: 'All', exact: true });
+  const security = page.getByRole('button', { name: 'AI Security', exact: true });
+  await expect(all).toHaveAttribute('aria-pressed', 'true');
 
-  // Emptying the box restores every note and drops ?q= from the URL.
-  await page.getByRole('searchbox', { name: 'Search notes' }).fill('');
+  await security.click();
+  await expect(security).toHaveAttribute('aria-pressed', 'true');
+  await expect(all).toHaveAttribute('aria-pressed', 'false');
+  await expect(page).toHaveURL(/\?topic=AI\+Security$/);
+  const filtered = await page.locator('.note:visible').count();
+  expect(filtered).toBeGreaterThan(0);
+  expect(filtered).toBeLessThan(total);
+  await expect(page.locator('#notes-count')).toHaveText(`${filtered} of ${total} notes`);
+
+  // The shared URL opens with the same filter.
+  await page.goto('/notes?topic=AI+Security');
+  await expect(page.locator('.note:visible')).toHaveCount(filtered);
+  await expect(security).toHaveAttribute('aria-pressed', 'true');
+
+  await all.click();
   await expect(page).toHaveURL(/\/notes$/);
   await expect(page.locator('.note:visible')).toHaveCount(total);
-  await expect(page.locator('.excerpt:visible')).toHaveCount(0);
-
-  // A query with no matches offers a way back.
-  await page.getByRole('searchbox', { name: 'Search notes' }).fill('zzzzqqq');
-  await expect(page.locator('#notes-empty')).toBeVisible();
-  await page.getByRole('button', { name: 'Clear search' }).click();
-  await expect(page).toHaveURL(/\/notes$/);
-  await expect(page.locator('.note:visible')).toHaveCount(total);
-
-  // Shared URLs work with browser history.
-  await page.goto('/notes?q=power-law');
-  await expect(page.locator('.note:visible')).toHaveCount(matches);
-  await page.goBack();
-  await expect(page.locator('.note:visible')).toHaveCount(total);
-  await page.goForward();
-  await expect(page.locator('.note:visible')).toHaveCount(matches);
 });
 
-test('search keyboard navigation, focus return and share link', async ({ page }) => {
+test('search keyboard navigation and focus return', async ({ page }) => {
   await page.goto('/');
   const open = page.getByRole('button', { name: 'Search', exact: true });
   await open.click();
@@ -52,7 +45,6 @@ test('search keyboard navigation, focus return and share link', async ({ page })
   await expect(input).toBeFocused();
   await input.fill('network');
   await expect(page.locator('#search-overlay .result').first()).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Browse or share this search' })).toHaveAttribute('href', '/notes?q=network');
   await input.press('ArrowDown');
   const href = await page.locator('#search-overlay .result.active').getAttribute('href');
   await input.press('Enter');

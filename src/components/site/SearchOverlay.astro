@@ -36,7 +36,6 @@ const entries = [...notes, ...pages];
     <p data-search-empty hidden style="padding: 24px 16px; border-top: 1px solid var(--line); color: var(--muted); font-size: 16px;"></p>
     <p class="vh" role="status" data-search-status></p>
     <div style="display: flex; gap: 12px; padding: 8px 16px; border-top: 1px solid var(--line); font-size: 13px; color: var(--faint);">
-      <a class="tlink" href="/notes" data-search-all>Browse or share this search</a>
       <span style="margin-left: auto;"><span class="kbd">Esc</span> close</span>
     </div>
   </div>
@@ -56,7 +55,6 @@ const entries = [...notes, ...pages];
     const results = overlay.querySelector<HTMLElement>('[data-search-results]')!;
     const empty = overlay.querySelector<HTMLElement>('[data-search-empty]')!;
     const status = overlay.querySelector<HTMLElement>('[data-search-status]')!;
-    const allLink = overlay.querySelector<HTMLAnchorElement>('[data-search-all]')!;
     const entries: Entry[] = JSON.parse(overlay.querySelector('[data-search-index]')?.textContent ?? '[]');
     const loadSearch = createSearchLoader<SearchPost>();
     let opener: HTMLElement | null = null;
@@ -86,7 +84,6 @@ const entries = [...notes, ...pages];
     // Note bodies come from /search.json; the apps and pages match on their keywords.
     const update = debounce(async () => {
       const query = input.value.trim();
-      allLink.href = query ? `/notes?q=${encodeURIComponent(query)}` : '/notes';
       if (!query) { render(entries, ''); return; }
       try {
         const bodies = new Map((await loadSearch()).map((post) => [post.href, post.body]));
@@ -113,7 +110,6 @@ const entries = [...notes, ...pages];
       document.body.style.overflow = 'hidden';
       input.value = '';
       render(entries, '');
-      allLink.href = '/notes';
       input.focus();
       void loadSearch().catch(() => {});
     }

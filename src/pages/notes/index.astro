@@ -6,12 +6,13 @@ import { stripDiagramSource } from '../../utils/diagrams.mjs';
 
 const posts = await getPublishedBlogEntriesByDate();
 const links = getNoteLinks(posts);
-const total = `${posts.length} ${posts.length === 1 ? 'note' : 'notes'}`;
+const plural = (n: number) => `${n} ${n === 1 ? 'note' : 'notes'}`;
 
 const topics = new Map<string, number>();
 for (const post of posts) {
   for (const topic of post.data.topics) topics.set(topic, (topics.get(topic) ?? 0) + 1);
 }
+const chips = [{ label: 'All', count: posts.length }, ...[...topics].map(([label, count]) => ({ label, count }))];
 
 const notes = posts.map((post) => {
   const backlinks = links.get(post.id)!.linkedFrom.length;
@@ -21,7 +22,8 @@ const notes = posts.map((post) => {
     desc: post.data.description,
     date: formatDate(post.data.pubDate),
     datetime: post.data.pubDate.toISOString(),
-    meta: `${getReadingTime(stripDiagramSource(post.body ?? ''))} · linked from ${backlinks} ${backlinks === 1 ? 'note' : 'notes'}`,
+    topics: post.data.topics.join('|'),
+    meta: `${getReadingTime(stripDiagramSource(post.body ?? ''))} · linked from ${plural(backlinks)}`,
   };
 });
 ---
@@ -36,124 +38,64 @@ const notes = posts.map((post) => {
     <p class="lede">A small garden of notes on AI security and how networks fail. Each one links to others, so start anywhere and follow the threads. New notes go out on <a class="tlink" href="/rss.xml">RSS</a>.</p>
   </section>
 
-  <section style="display: grid; gap: 16px; padding-bottom: 24px;">
-    <div class="field-wrap" role="search">
-      <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
-      <label for="notes-q" class="vh">Search notes</label>
-      <input id="notes-q" class="field" type="search" placeholder="Search notes, e.g. “network risk”" autocomplete="off">
+  <section style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding-bottom: 24px;">
+    <div class="chips" role="group" aria-label="Filter by topic">
+      {chips.map((chip, i) => (
+        <button type="button" class:list={['chip', { on: i === 0 }]} data-topic={i === 0 ? '' : chip.label} aria-pressed={i === 0 ? 'true' : 'false'}>
+          {chip.label} <span class="k" aria-hidden="true">{chip.count}</span>
+        </button>
+      ))}
     </div>
-    <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px;">
-      <div class="chips" aria-label="Topics">
-        {[...topics].map(([topic, count]) => <span class="chip on">{topic} <span class="k">{count}</span></span>)}
-      </div>
-      <span id="notes-count" class="faint" style="font-size: 13px;" aria-live="polite" data-total={total}>{total}</span>
-    </div>
+    <span id="notes-count" class="faint" style="font-size: 13px;" aria-live="polite" data-total={plural(posts.length)}>{plural(posts.length)}</span>
   </section>
 
   <section id="note-list" class="rows" style="padding-bottom: 64px;">
     {notes.map((note) => (
-      <a class="note" href={`/notes/${note.id}`} data-note-id={note.id}>
+      <a class="note" href={`/notes/${note.id}`} data-note-id={note.id} data-topics={note.topics}>
         <span class="n" aria-hidden="true"><span class="node"></span></span>
         <span class="t">{note.title}</span>
         <time class="when" datetime={note.datetime}>{note.date}</time>
         <span class="d">{note.desc}</span>
-        <span class="d excerpt" hidden></span>
         <span class="links">{note.meta}</span>
       </a>
     ))}
-    <div id="notes-empty" class="empty" hidden>
-      <p class="muted">No notes match “<span id="notes-empty-q"></span>”.</p>
-      <button type="button" class="btn" id="notes-clear" style="justify-self: start;">Clear search</button>
-    </div>
   </section>
 </SiteLayout>
 
 <script>
-  import { searchDocuments } from '../../utils/client-search';
-  import { highlightText, searchExcerpt } from '../../utils/search-display';
-  import { createSearchLoader, debounce } from '../../utils/search-loader';
-  import type { SearchEntry } from '../../utils/search';
-
-  // Filters the list as you type. The query lives in ?q= so a search can be shared or bookmarked.
-  const input = document.querySelector<HTMLInputElement>('#notes-q')!;
+  // Topic chips filter the list. The topic lives in ?topic= so a filtered view can be shared.
+  const chips = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-topic]'));
+  const rows = Array.from(document.querySelectorAll<HTMLElement>('[data-note-id]'));
   const count = document.querySelector<HTMLElement>('#notes-count')!;
-  const list = document.querySelector<HTMLElement>('#note-list')!;
-  const empty = document.querySelector<HTMLElement>('#notes-empty')!;
-  const emptyQuery = document.querySelector<HTMLElement>('#notes-empty-q')!;
-  const rows = Array.from(list.querySelectorAll<HTMLElement>('[data-note-id]'));
-  const titles = new Map(rows.map((row) => [row, row.querySelector('.t')!.textContent!]));
-  const loadSearch = createSearchLoader<SearchEntry>();
-  let version = 0;
 
-  function showAll() {
-    rows.forEach((row) => {
-      row.hidden = false;
-      row.querySelector('.t')!.textContent = titles.get(row)!;
-      row.querySelector<HTMLElement>('.excerpt')!.hidden = true;
-      list.insertBefore(row, empty);
+  function applyTopic(topic: string) {
+    const known = chips.some((chip) => chip.dataset.topic === topic);
+    const active = known ? topic : '';
+    chips.forEach((chip) => {
+      const on = chip.dataset.topic === active;
+      chip.classList.toggle('on', on);
+      chip.setAttribute('aria-pressed', String(on));
     });
-    empty.hidden = true;
-    count.textContent = count.dataset.total!;
+    let shown = 0;
+    rows.forEach((row) => {
+      row.hidden = Boolean(active) && !row.dataset.topics!.split('|').includes(active);
+      if (!row.hidden) shown++;
+    });
+    count.textContent = active ? `${shown} of ${count.dataset.total}` : count.dataset.total!;
   }
 
-  async function applySearch(query: string) {
-    const current = ++version;
-    if (!query.trim()) return showAll();
-    try {
-      const documents = await loadSearch();
-      if (current !== version) return;
-      const results = searchDocuments(documents, query);
-      rows.forEach((row) => (row.hidden = true));
-      results.forEach((result) => {
-        const row = rows.find((item) => item.dataset.noteId === result.id);
-        if (!row) return;
-        row.hidden = false;
-        highlightText(row.querySelector<HTMLElement>('.t')!, result.title, query);
-        // While searching, a short excerpt shows where the match is.
-        const excerpt = row.querySelector<HTMLElement>('.excerpt')!;
-        highlightText(excerpt, searchExcerpt(result.body, query, result.description), query);
-        excerpt.hidden = false;
-        list.insertBefore(row, empty);
-      });
-      emptyQuery.textContent = query;
-      empty.hidden = results.length > 0;
-      count.textContent = `${results.length} of ${count.dataset.total}`;
-    } catch {
-      if (current !== version) return;
-      count.textContent = 'Search is unavailable. Reload to retry.';
-    }
-  }
-
-  function setQuery(query: string) {
+  chips.forEach((chip) => chip.addEventListener('click', () => {
+    const topic = chip.dataset.topic!;
     const url = new URL(location.href);
-    if (query.trim()) url.searchParams.set('q', query);
-    else url.searchParams.delete('q');
+    if (topic) url.searchParams.set('topic', topic);
+    else url.searchParams.delete('topic');
     history.replaceState(null, '', url);
-  }
+    applyTopic(topic);
+  }));
 
-  const search = debounce((query: string) => applySearch(query), 120);
-  input.addEventListener('input', () => {
-    setQuery(input.value);
-    void search(input.value);
-  });
-  document.querySelector('#notes-clear')!.addEventListener('click', () => {
-    input.value = '';
-    setQuery('');
-    void applySearch('');
-    input.focus();
-  });
-  window.addEventListener('popstate', () => {
-    input.value = new URLSearchParams(location.search).get('q') ?? '';
-    void applySearch(input.value);
-  });
-
-  input.value = new URLSearchParams(location.search).get('q') ?? '';
-  void applySearch(input.value);
+  applyTopic(new URLSearchParams(location.search).get('topic') ?? '');
 </script>
 
 <style is:global>
-  .note[hidden], .note .excerpt[hidden], .empty[hidden] { display: none; }
-  .note:has(.excerpt:not([hidden])) .d:not(.excerpt) { display: none; }
-  .note mark { background: color-mix(in srgb, var(--accent) 18%, transparent); color: inherit; border-radius: 2px; }
-  .empty { padding-block: 24px; display: grid; gap: 8px; }
+  .note[hidden] { display: none; }
 </style>

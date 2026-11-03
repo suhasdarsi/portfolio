@@ -15,11 +15,11 @@ describe('search architecture', () => {
   it('shares one search loader instead of triplicating fetch logic', () => {
     const header = read('src/components/Header.astro');
     const notFound = read('src/pages/404.astro');
-    const notes = read('src/pages/notes/index.astro');
+    const overlay = read('src/components/site/SearchOverlay.astro');
     const loader = read('src/utils/search-loader.ts');
 
     expect(loader).toContain("'/search.json'");
-    for (const consumer of [header, notFound, notes]) {
+    for (const consumer of [header, notFound, overlay]) {
       expect(consumer).toContain('createSearchLoader');
       expect(consumer).toContain('utils/search-loader');
       expect(consumer).not.toContain("fetch('/search.json')");
@@ -34,6 +34,7 @@ describe('search architecture', () => {
     expect(loader).toContain('debounce');
     expect(header).toContain('debounce');
     expect(notFound).toContain('debounce');
+    expect(read('src/components/site/SearchOverlay.astro')).toContain('debounce');
   });
 
   it('ranks title matches ahead of body-only matches', () => {
