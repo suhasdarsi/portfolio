@@ -2,8 +2,8 @@
 // Frame for every page inside a category: the category list, breadcrumb, title and the
 // Overview / Tools / Market guide tabs. Extra lines under the title go in the "head" slot.
 import Sidebar from './Sidebar.astro';
-import { toolSlug, type ToolCategory } from '../../data/toolshed';
-import type { Tool } from '../../utils/content';
+import type { ToolCategory } from '../../toolshed/categories';
+import { categoryHref, inCategory, type Tool } from '../../toolshed/tools';
 
 interface Props {
   tools: Tool[];
@@ -13,12 +13,11 @@ interface Props {
 }
 
 const { tools, category, tab, title = category } = Astro.props;
-const base = `/toolshed/${toolSlug(category)}`;
-const count = tools.filter((tool) => tool.categories.includes(category)).length;
+const base = categoryHref(category);
 const tabs = [
   { id: 'overview', label: 'Overview', href: base },
-  { id: 'tools', label: 'Tools', href: `${base}/tools`, count },
-  { id: 'market', label: 'Market guide', href: `${base}/market` },
+  { id: 'tools', label: 'Tools', href: categoryHref(category, 'tools'), count: inCategory(tools, category).length },
+  { id: 'market', label: 'Market guide', href: categoryHref(category, 'market') },
 ];
 const crumb = tabs.find((t) => t.id === tab)!;
 ---

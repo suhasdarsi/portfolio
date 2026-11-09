@@ -1,8 +1,8 @@
 ---
-// Footer on every Toolshed page: who made it, the disclosure, and the open dataset.
+import { site } from '../../site/site';
 ---
 
 <footer class="foot">
-  <span>Toolshed by <a class="tlink" href="/">Suhas Darsi</a>. I work at SuperAlign, which is listed under AI security.</span>
+  <span>Toolshed by <a class="tlink" href="/">{site.name}</a>. I work at {site.company.name}, which is listed under AI security.</span>
   <nav aria-label="Toolshed footer"><a href="/toolshed/about">How it works</a><a href="/toolshed/suggest">Suggest a tool</a><a href="/toolshed/tools.json">Dataset (JSON)</a><a href="/notes">Notes on AI security</a></nav>
 </footer>

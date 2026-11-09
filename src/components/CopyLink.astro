@@ -5,7 +5,6 @@ const { url } = Astro.props;
 <button type="button" class="tool" id="copy-note-link" data-url={url}><span>Copy link</span></button>
 <span id="copy-link-status" class="vh" role="status" aria-live="polite"></span>
 <script>
-  // Copies the canonical URL and says so in the button for a moment.
   const button = document.querySelector<HTMLButtonElement>('#copy-note-link');
   const status = document.getElementById('copy-link-status');
   const label = button?.querySelector('span');

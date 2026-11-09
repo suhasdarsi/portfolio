@@ -16,7 +16,7 @@ test('homepage lists the garden and tiny apps, and every page links home', async
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await expect(page.getByRole('link', { name: 'LinkedIn', exact: true })).toBeVisible();
   await expect(page.getByRole('link', { name: 'X', exact: true })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Copy email address suhas@superalign.ai', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Copy email address suhas@superalign.ai', exact: true })).toHaveCount(2);
   await expect(page.getByRole('navigation', { name: 'On this site' })).toHaveCount(0);
   await expect(page.getByRole('navigation', { name: 'Micro-apps' })).toHaveCount(0);
 
@@ -34,7 +34,7 @@ test('homepage lists the garden and tiny apps, and every page links home', async
   await expect(page.getByRole('navigation', { name: 'Main', exact: true }).getByRole('link', { name: 'About' })).toHaveAttribute('aria-current', 'page');
   await expect(page.getByRole('heading', { name: 'About', level: 1 })).toBeVisible();
   await expect(page.getByRole('link', { name: 'LinkedIn', exact: true })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'suhas@superalign.ai', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Copy email address suhas@superalign.ai', exact: true })).toBeVisible();
   await expect(page.getByText("I'm a co-founder at", { exact: false })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Currently' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Previously' })).toBeVisible();

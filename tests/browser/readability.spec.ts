@@ -18,7 +18,6 @@ const note = '/notes/ai-as-the-ultimate-hub';
 const MIN_SIZE_DESKTOP = 16;
 const MIN_SIZE_MOBILE = 16;
 const MIN_LEADING = 1.5;
-const MIN_ANY_TEXT = 14;
 const LINE_MIN = 45;
 const LINE_MAX = 80;
 const CONTRAST_MIN = 4.5;

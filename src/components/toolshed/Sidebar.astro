@@ -1,7 +1,6 @@
 ---
-// The category list beside every page with the Toolshed shell: All tools, then each category with its count.
-import { toolCategories, toolSlug, type ToolCategory } from '../../data/toolshed';
-import type { Tool } from '../../utils/content';
+import { toolCategories, type ToolCategory } from '../../toolshed/categories';
+import { categoryHref, inCategory, type Tool } from '../../toolshed/tools';
 
 interface Props { tools: Tool[]; current?: ToolCategory | 'all'; }
 const { tools, current } = Astro.props;
@@ -9,8 +8,8 @@ const links = [
   { label: 'All tools', href: '/toolshed/tools', count: tools.length, active: current === 'all' },
   ...toolCategories.map((category) => ({
     label: category,
-    href: `/toolshed/${toolSlug(category)}`,
-    count: tools.filter((tool) => tool.categories.includes(category)).length,
+    href: categoryHref(category),
+    count: inCategory(tools, category).length,
     active: category === current,
   })),
 ];

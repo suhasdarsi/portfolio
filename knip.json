@@ -1,0 +1,10 @@
+{
+  "$schema": "https://unpkg.com/knip@latest/schema.json",
+  "entry": [
+    "src/pages/**/*.{astro,ts,mjs}",
+    "scripts/*.ts",
+    "tests/**/*.{test,spec}.ts"
+  ],
+  "project": ["src/**/*.{astro,ts,mjs}", "worker/**/*.ts", "scripts/**/*.ts", "tests/**/*.ts", "*.{ts,js,mjs}"],
+  "include": ["files", "dependencies", "devDependencies", "exports", "types"]
+}

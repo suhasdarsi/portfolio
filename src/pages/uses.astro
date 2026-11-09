@@ -1,5 +1,7 @@
 ---
 import SiteLayout from '../layouts/SiteLayout.astro';
+import { hostname } from '../site/format';
+import { site } from '../site/site';
 
 const digital = [
   { name: 'OpenCode', url: 'https://opencode.ai' },
@@ -37,7 +39,6 @@ const physical = [
   { name: 'Pakt Travel Backpack 3', url: 'https://pakt.one' },
 ];
 
-const host = (url: string) => new URL(url).hostname.replace(/^www\./, '');
 const sections = [
   { label: 'Digital', items: digital },
   { label: 'Physical', items: physical },
@@ -55,13 +56,13 @@ const sections = [
       <div class="sec-label"><h2>{section.label}</h2><p>{section.items.length} items</p></div>
       <div class="ugrid">
         {section.items.map((item) => (
-          <a class="uitem" href={item.url} target="_blank" rel="noopener noreferrer"><span>{item.name}</span><span class="h">{host(item.url)} ↗</span></a>
+          <a class="uitem" href={item.url} target="_blank" rel="noopener noreferrer"><span>{item.name}</span><span class="h">{hostname(item.url)} ↗</span></a>
         ))}
       </div>
     </section>
   ))}
 
-  <p class="muted" style="padding-block: 8px 64px; font-size: 16px;">Have a recommendation? <a class="tlink" href="https://x.com/suhas_darsi" target="_blank" rel="noopener noreferrer">Say hi on X</a>.</p>
+  <p class="muted" style="padding-block: 8px 64px; font-size: 16px;">Have a recommendation? <a class="tlink" href={site.x} target="_blank" rel="noopener noreferrer">Say hi on X</a>.</p>
 </SiteLayout>
 
 <style is:global>

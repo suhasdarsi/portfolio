@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { designSystems } from '../../src/data/design-systems';
+import { designSystems } from '../../src/swatchbook/design-systems';
 
 test('Swatchbook can be found from home, searched and filtered', async ({ page }) => {
   await page.goto('/');

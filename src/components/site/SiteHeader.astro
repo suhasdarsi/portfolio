@@ -1,25 +1,20 @@
 ---
-// Top bar on every main-site page: name as text, four links, search (opens SearchOverlay) and the theme switch.
 import ThemeButton from './ThemeButton.astro';
+import { nav, type NavKey } from '../../site/sections';
+import { site } from '../../site/site';
 
 interface Props {
-  current?: 'notes' | 'apps' | 'about' | 'uses';
+  current?: NavKey;
 }
 
 const { current } = Astro.props;
-const links = [
-  { key: 'notes', label: 'Notes', href: '/notes' },
-  { key: 'apps', label: 'Apps', href: '/#apps' },
-  { key: 'about', label: 'About', href: '/about' },
-  { key: 'uses', label: 'Uses', href: '/uses' },
-] as const;
 ---
 
 <header class="topbar">
-  <a class="brand" href="/">Suhas Darsi</a>
+  <a class="brand" href="/">{site.name}</a>
   <div style="display: flex; align-items: center; gap: 16px;">
     <nav aria-label="Main" class="nav">
-      {links.map((link) => (
+      {nav.map((link) => (
         <a class:list={['navlink', { on: current === link.key }]} href={link.href} aria-current={current === link.key ? 'page' : undefined}>{link.label}</a>
       ))}
     </nav>

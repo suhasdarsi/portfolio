@@ -2,14 +2,11 @@
 import { render } from 'astro:content';
 import ToolshedLayout from '../../../layouts/ToolshedLayout.astro';
 import CategoryShell from '../../../components/toolshed/CategoryShell.astro';
-import { categoryTags } from '../../../data/security-tools';
-import { toolCategories, toolSlug } from '../../../data/toolshed';
-import { getMarketGuide, getTools, hasReview, tagCategory, toolHref } from '../../../utils/content';
-import { formatDateWithYear } from '../../../utils/date';
+import { categoryTags } from '../../../toolshed/catalog';
+import { categoryHref, categoryPaths, getMarketGuide, getTools, inCategory, tagsIn, toolLink } from '../../../toolshed/tools';
+import { formatDate } from '../../../site/format';
 
-export async function getStaticPaths() {
-  return toolCategories.map((category) => ({ params: { category: toolSlug(category) }, props: { category } }));
-}
+export const getStaticPaths = categoryPaths;
 
 const { category } = Astro.props;
 const tools = await getTools();
@@ -21,16 +18,15 @@ const columns = groups.flatMap((group) => group.tags.map((tag) => tag.name));
 const jobs = new Set(groups.filter((group) => !group.axes).flatMap((group) => group.tags.map((tag) => tag.name)));
 
 // Tools that do more than one job here, or that reach into other categories. Most tags first.
-const multi = tools
-  .filter((tool) => tool.categories.includes(category))
-  .map((tool) => ({ tool, tags: new Set(tool.tags.filter((tag) => tagCategory.get(tag) === category)), also: tool.categories.filter((other) => other !== category) }))
+const multi = inCategory(tools, category)
+  .map((tool) => ({ tool, link: toolLink(tool), tags: new Set(tagsIn(tool, category)), also: tool.categories.filter((other) => other !== category) }))
   .filter(({ tags, also }) => [...tags].filter((tag) => jobs.has(tag)).length > 1 || also.length > 0)
   .sort((a, b) => b.tags.size - a.tags.size || a.tool.name.localeCompare(b.tool.name));
 ---
 
 <ToolshedLayout title={`${category} market guide — Toolshed`} description={guide?.data.summary ?? `How the ${category.toLowerCase()} security market is shaped.`}>
   <CategoryShell tools={tools} category={category} tab="market" title={`${category} market guide`}>
-    {guide && <p class="faint" style="font-size: 13px;" slot="head">As of <time datetime={guide.data.asOf.toISOString()}>{formatDateWithYear(guide.data.asOf)}</time></p>}
+    {guide && <p class="faint" style="font-size: 13px;" slot="head">As of <time datetime={guide.data.asOf.toISOString()}>{formatDate(guide.data.asOf, { year: true })}</time></p>}
 
     {Content && (
       <section class="prose" style="max-width: 68ch;">
@@ -57,13 +53,13 @@ const multi = tools
               </tr>
             </thead>
             <tbody>
-              {multi.map(({ tool, tags, also }) => (
+              {multi.map(({ tool, link, tags, also }) => (
                 <tr>
-                  <td>{hasReview(tool) ? <a href={toolHref(tool)}>{tool.name}</a> : <a href={tool.url} target="_blank" rel="noopener noreferrer">{tool.name}<span class="vh"> (opens in a new tab)</span></a>}</td>
+                  <td><a href={link.href} {...link.attrs}>{tool.name}{link.external && <span class="vh"> (opens in a new tab)</span>}</a></td>
                   {columns.map((column) => (
                     <td>{tags.has(column) ? <span class="dot"><span class="vh">Yes</span></span> : <span class="nodot"><span class="vh">No</span></span>}</td>
                   ))}
-                  <td class="al">{also.map((other, i) => <>{i > 0 && ', '}<a href={`/toolshed/${toolSlug(other)}/tools`}>{other}</a></>)}</td>
+                  <td class="al">{also.map((other, i) => <>{i > 0 && ', '}<a href={categoryHref(other, 'tools')}>{other}</a></>)}</td>
                 </tr>
               ))}
             </tbody>

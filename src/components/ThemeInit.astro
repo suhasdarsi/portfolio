@@ -1,10 +1,11 @@
 ---
+import { THEME_KEY } from '../site/theme';
 ---
 
-<script is:inline>
+<script is:inline define:vars={{ themeKey: THEME_KEY }}>
   (function() {
     var theme;
-    try { theme = localStorage.getItem('theme'); } catch {}
+    try { theme = localStorage.getItem(themeKey); } catch {}
     if (theme !== 'dark' && theme !== 'light') {
       theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     }

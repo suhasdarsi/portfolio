@@ -1,25 +1,26 @@
 ---
-// One row of All tools: name, site and categories. Reviewed tools open their review; the rest link out.
 import Rating from './Rating.astro';
-import { hasReview, toolHref, type Tool } from '../../utils/content';
+import { hasReview, toolLink, type Tool } from '../../toolshed/tools';
+import { hostname } from '../../site/format';
 
 interface Props { tool: Tool; hidden?: boolean; }
 const { tool, hidden = false } = Astro.props;
 const review = hasReview(tool) ? tool.review : undefined;
-const host = new URL(tool.url).hostname.replace(/^www\./, '');
+const link = toolLink(tool);
+const host = hostname(tool.url);
 ---
 
 <a
   class="trow"
-  href={review ? toolHref(tool) : tool.url}
+  href={link.href}
   data-tool
   hidden={hidden}
   data-search={`${tool.name} ${host} ${tool.categories.join(' ')} ${tool.tags.join(' ')}`.toLowerCase()}
-  {...(review ? {} : { target: '_blank', rel: 'noopener noreferrer' })}
+  {...link.attrs}
 >
   <span><span style="font-weight: 500;">{tool.name}</span>{tool.affiliated && <span class="emp">My employer</span>}{review?.data.rating && <> <Rating rating={review.data.rating} /></>}</span>
   <span class="h">{review?.data.verdict ?? host}</span>
   <span class="cats">{tool.categories.join(' · ')}</span>
-  <span class="faint" aria-hidden="true">{review ? '→' : '↗'}</span>
-  {!review && <span class="vh"> (opens in a new tab)</span>}
+  <span class="faint" aria-hidden="true">{link.external ? '↗' : '→'}</span>
+  {link.external && <span class="vh"> (opens in a new tab)</span>}
 </a>

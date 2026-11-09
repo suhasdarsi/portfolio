@@ -1,5 +1,5 @@
 ---
-import { formatDateWithYear } from '../utils/date';
+import { formatDate } from '../site/format';
 interface Props { revisions: { date: Date; summary: string }[] }
 const revisions = [...Astro.props.revisions].sort((a, b) => b.date.valueOf() - a.date.valueOf());
 ---
@@ -8,7 +8,7 @@ const revisions = [...Astro.props.revisions].sort((a, b) => b.date.valueOf() - a
     <summary>Revision history</summary>
     <ol>
       {revisions.map((revision) => (
-        <li><time datetime={revision.date.toISOString()}>{formatDateWithYear(revision.date)}</time><p>{revision.summary}</p></li>
+        <li><time datetime={revision.date.toISOString()}>{formatDate(revision.date, { year: true })}</time><p>{revision.summary}</p></li>
       ))}
     </ol>
   </details>

@@ -1,15 +1,14 @@
 ---
-import { getCollection, render } from 'astro:content';
+import { render } from 'astro:content';
 import ToolshedLayout from '../../../layouts/ToolshedLayout.astro';
 import CategoryShell from '../../../components/toolshed/CategoryShell.astro';
 import TagMatrix from '../../../components/toolshed/TagMatrix.astro';
-import { categoryTags, type TagGroup } from '../../../data/security-tools';
-import { toolCategories, toolSlug, type ToolCategory } from '../../../data/toolshed';
-import { getCategoryGuide, getTools, isPublished } from '../../../utils/content';
+import { categoryTags, type TagGroup } from '../../../toolshed/catalog';
+import { toolCategories, type ToolCategory } from '../../../toolshed/categories';
+import { categoryHref, categoryPaths, getCategoryGuide, getTools, inCategory, tagHref } from '../../../toolshed/tools';
+import { getNotes, noteHref } from '../../../notes/notes';
 
-export async function getStaticPaths() {
-  return toolCategories.map((category) => ({ params: { category: toolSlug(category) }, props: { category } }));
-}
+export const getStaticPaths = categoryPaths;
 
 // A note of mine that explains the category, shown under the related categories.
 const background: Partial<Record<ToolCategory, string>> = {
@@ -20,19 +19,17 @@ const { category } = Astro.props;
 const tools = await getTools();
 const guide = await getCategoryGuide(category);
 const Content = guide ? (await render(guide)).Content : undefined;
-const base = `/toolshed/${toolSlug(category)}`;
 const groups = categoryTags[category];
 const counts = new Map(groups.flatMap((group) => group.tags.map((tag) => [tag.name, tools.filter((tool) => tool.tags.includes(tag.name)).length] as const)));
-const tagHref = (tag: string) => `${base}/tools?tag=${encodeURIComponent(tag)}`;
 const hasAxes = (group: TagGroup): group is TagGroup & { axes: NonNullable<TagGroup['axes']> } => Boolean(group.axes);
 
 // Categories that share tools with this one, most shared first.
 const shared = new Map<ToolCategory, number>();
-for (const tool of tools.filter((t) => t.categories.includes(category))) {
+for (const tool of inCategory(tools, category)) {
   for (const other of tool.categories) if (other !== category) shared.set(other, (shared.get(other) ?? 0) + 1);
 }
 const related = [...shared].sort((a, b) => b[1] - a[1] || toolCategories.indexOf(a[0]) - toolCategories.indexOf(b[0])).map(([other]) => other);
-const note = background[category] ? (await getCollection('blog')).find((post) => post.id === background[category] && isPublished(post.data)) : undefined;
+const note = (await getNotes()).find((post) => post.id === background[category]);
 ---
 
 <ToolshedLayout title={`${category} — Toolshed`} description={guide?.data.summary ?? `Security tools for ${category.toLowerCase()}.`}>
@@ -68,10 +65,10 @@ const note = background[category] ? (await getCollection('blog')).find((post) =>
         {related.length > 0 && <>
           <h2 class="eyebrow">Related categories</h2>
           <div class="chips">
-            {related.map((other) => <a class="chip" href={`/toolshed/${toolSlug(other)}/tools`}>{other}</a>)}
+            {related.map((other) => <a class="chip" href={categoryHref(other, 'tools')}>{other}</a>)}
           </div>
         </>}
-        {note && <p class="muted" style="font-size: 16px;">Background reading: <a class="tlink" href={`/notes/${note.id}`}>{note.data.title}</a>, in my notes.</p>}
+        {note && <p class="muted" style="font-size: 16px;">Background reading: <a class="tlink" href={noteHref(note.id)}>{note.data.title}</a>, in my notes.</p>}
       </section>
     )}
   </CategoryShell>

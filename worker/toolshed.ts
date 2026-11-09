@@ -1,16 +1,15 @@
-import { issueFor, validateToolRequest } from '../src/utils/toolshed-request';
+import { site } from '../src/site/site';
+import { REQUEST_REPO, TURNSTILE_ACTION, issueFor, validateToolRequest } from '../src/toolshed/request';
+import { fail, readJsonPost, reply, type RateLimiter } from './json-post';
 
 export interface ToolshedEnv {
-  // Turnstile widget secret and the frontend hostnames its tokens may come from (comma-separated).
+  // Turnstile widget secret, and the frontend hostnames its tokens may come from (comma-separated; defaults to the site host).
   TURNSTILE_SECRET?: string;
   TURNSTILE_HOSTNAMES?: string;
-  // A fine-grained token that can only create issues in GITHUB_REPO ("owner/name").
+  // A fine-grained token that can only create issues in REQUEST_REPO.
   GITHUB_TOKEN?: string;
-  GITHUB_REPO?: string;
-  TOOLSHED_LIMIT?: { limit(options: { key: string }): Promise<{ success: boolean }> };
+  TOOLSHED_LIMIT?: RateLimiter;
 }
-
-const TURNSTILE_ACTION = 'toolshed_request';
 
 // POST /api/toolshed/request: a "suggest a tool" form submission becomes a labelled public GitHub issue.
 export async function toolshedRequestResponse(
@@ -18,53 +17,23 @@ export async function toolshedRequestResponse(
   env: ToolshedEnv,
   fetcher: typeof fetch = fetch
 ): Promise<Response> {
-  const headers = { 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' };
-  const fail = (message: string, status: number) =>
-    Response.json({ error: message }, { status, headers });
-  if (request.method !== 'POST') return fail('Use the form on the Toolshed page.', 405);
-  if (request.headers.get('origin') !== new URL(request.url).origin)
-    return fail('Open the form on this website.', 403);
-  if (
-    request.headers.get('content-type')?.split(';', 1)[0].trim().toLowerCase() !==
-    'application/json'
-  )
-    return fail('Invalid request.', 415);
-  if (!env.TURNSTILE_SECRET || !env.TURNSTILE_HOSTNAMES || !env.GITHUB_TOKEN || !env.GITHUB_REPO)
-    return fail('Requests are not open yet. Please use GitHub for now.', 503);
-  const ip = request.headers.get('CF-Connecting-IP') ?? '';
-  if (env.TOOLSHED_LIMIT && !(await env.TOOLSHED_LIMIT.limit({ key: ip || 'local' })).success)
-    return fail('Please wait a minute before sending another request.', 429);
+  const { TURNSTILE_SECRET: secret = '', TURNSTILE_HOSTNAMES: allowedHosts = new URL(site.url).hostname, GITHUB_TOKEN: githubToken = '' } = env;
+  const read = await readJsonPost(request, {
+    ready: Boolean(secret && githubToken),
+    limiter: env.TOOLSHED_LIMIT,
+    messages: {
+      wrongMethod: 'Use the form on the Toolshed page.',
+      notReady: 'Requests are not open yet. Please use GitHub for now.',
+      rateLimited: 'Please wait a minute before sending another request.',
+      tooLarge: 'That request is too large.',
+      invalid: 'Invalid request.',
+    },
+  });
+  if (read instanceof Response) return read;
+  const { payload, ip } = read;
 
-  let payload: Record<string, unknown>;
-  const reader = request.body?.getReader();
-  try {
-    let bytes = 0;
-    let text = '';
-    const decoder = new TextDecoder();
-    if (reader) {
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        bytes += value.byteLength;
-        if (bytes > 8192) {
-          await reader.cancel();
-          return fail('That request is too large.', 413);
-        }
-        text += decoder.decode(value, { stream: true });
-      }
-    }
-    text += decoder.decode();
-    const parsed: unknown = JSON.parse(text);
-    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed))
-      return fail('Invalid request.', 400);
-    payload = parsed as Record<string, unknown>;
-  } catch {
-    return fail('Invalid request.', 400);
-  } finally {
-    reader?.releaseLock();
-  }
   // A field people can't see: anything in it came from a bot. Pretend it worked.
-  if (payload.website) return Response.json({ ok: true }, { headers });
+  if (payload.website) return reply({ ok: true });
 
   let toolRequest;
   try {
@@ -76,47 +45,36 @@ export async function toolshedRequestResponse(
   // Canonical Turnstile siteverify: require success, the expected action and an approved hostname. Fail closed.
   const token = payload.token;
   const hostnames = new Set(
-    env.TURNSTILE_HOSTNAMES.split(',')
+    allowedHosts.split(',')
       .map((hostname) => hostname.trim())
       .filter(Boolean)
   );
-  if (
-    typeof token !== 'string' ||
-    token.length === 0 ||
-    token.length > 2048 ||
-    hostnames.size === 0
-  )
-    return fail('Please complete the check and try again.', 403);
-  let verdict: { success?: boolean; action?: string; hostname?: string };
+  const notVerified = () => fail('Please complete the check and try again.', 403);
+  if (typeof token !== 'string' || token.length === 0 || token.length > 2048 || hostnames.size === 0) return notVerified();
+  let verdict: { success?: boolean; action?: string; hostname?: string } | null;
   try {
     const response = await fetcher('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       signal: AbortSignal.timeout(10_000),
       body: new URLSearchParams({
-        secret: env.TURNSTILE_SECRET,
+        secret,
         response: token,
         ...(ip ? { remoteip: ip } : {}),
       }),
     });
-    if (!response.ok) throw new Error(`siteverify ${response.status}`);
+    if (!response.ok) return notVerified();
     verdict = await response.json();
   } catch {
-    return fail('Please complete the check and try again.', 403);
+    return notVerified();
   }
-  if (
-    !verdict ||
-    verdict.success !== true ||
-    verdict.action !== TURNSTILE_ACTION ||
-    !hostnames.has(verdict.hostname ?? '')
-  )
-    return fail('Please complete the check and try again.', 403);
+  if (verdict?.success !== true || verdict.action !== TURNSTILE_ACTION || !hostnames.has(verdict.hostname ?? '')) return notVerified();
 
   try {
-    const response = await fetcher(`https://api.github.com/repos/${env.GITHUB_REPO}/issues`, {
+    const response = await fetcher(`https://api.github.com/repos/${REQUEST_REPO}/issues`, {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${env.GITHUB_TOKEN}`,
+        Authorization: `Bearer ${githubToken}`,
         Accept: 'application/vnd.github+json',
         'Content-Type': 'application/json',
         'User-Agent': 'suhasdarsi-toolshed',
@@ -127,7 +85,7 @@ export async function toolshedRequestResponse(
     });
     if (!response.ok) throw new Error(`github ${response.status}`);
     const issue = (await response.json()) as { html_url?: string };
-    return Response.json({ ok: true, url: issue.html_url }, { headers });
+    return reply({ ok: true, url: issue.html_url });
   } catch {
     return fail('Your request could not be filed. Please try again later or use GitHub.', 502);
   }

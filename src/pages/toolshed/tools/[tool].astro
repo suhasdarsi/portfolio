@@ -3,9 +3,8 @@ import { render } from 'astro:content';
 import ToolshedLayout from '../../../layouts/ToolshedLayout.astro';
 import Sidebar from '../../../components/toolshed/Sidebar.astro';
 import Rating from '../../../components/toolshed/Rating.astro';
-import { toolSlug } from '../../../data/toolshed';
-import { getTools, hasReview, tagCategory } from '../../../utils/content';
-import { formatDateWithYear } from '../../../utils/date';
+import { categoryHref, getTools, hasReview, tagHref } from '../../../toolshed/tools';
+import { formatDate, hostname } from '../../../site/format';
 
 export async function getStaticPaths() {
   const tools = (await getTools()).filter(hasReview);
@@ -16,13 +15,12 @@ const { tool, review } = Astro.props;
 const tools = await getTools();
 const { Content } = await render(review);
 const { rating, verdict, tried, updated, pricing, openSource, platforms, pros, cons } = review.data;
-const host = new URL(tool.url).hostname.replace(/^www\./, '');
+const host = hostname(tool.url);
 const facts = [
   { label: 'Pricing', value: pricing },
   { label: 'Open source', value: openSource === undefined ? undefined : openSource ? 'Yes' : 'No' },
   { label: 'Platforms', value: platforms.join(', ') },
 ].filter((fact) => fact.value);
-const tagHref = (tag: string) => `/toolshed/${toolSlug(tagCategory.get(tag) ?? '')}/tools?tag=${encodeURIComponent(tag)}`;
 ---
 
 <ToolshedLayout title={`${tool.name} review — Toolshed`} description={verdict ?? `My notes on ${tool.name}.`}>
@@ -35,14 +33,14 @@ const tagHref = (tag: string) => `/toolshed/${toolSlug(tagCategory.get(tag) ?? '
         {verdict && <p class="lede">{verdict}</p>}
         <p class="faint meta" style="font-size: 13px;">
           {rating && <Rating rating={rating} />}
-          {tried && <span>Tried <time datetime={tried.toISOString()}>{formatDateWithYear(tried)}</time></span>}
-          {updated && <span>Updated <time datetime={updated.toISOString()}>{formatDateWithYear(updated)}</time></span>}
+          {tried && <span>Tried <time datetime={tried.toISOString()}>{formatDate(tried, { year: true })}</time></span>}
+          {updated && <span>Updated <time datetime={updated.toISOString()}>{formatDate(updated, { year: true })}</time></span>}
         </p>
       </div>
 
       <dl class="facts">
         <div class="fact"><dt>Tags</dt><dd class="chips">{tool.tags.map((tag) => <a class="chip" href={tagHref(tag)}>{tag}</a>)}</dd></div>
-        <div class="fact"><dt>Categories</dt><dd>{tool.categories.map((category, i) => <>{i > 0 && ', '}<a class="tlink" href={`/toolshed/${toolSlug(category)}`}>{category}</a></>)}</dd></div>
+        <div class="fact"><dt>Categories</dt><dd>{tool.categories.map((category, i) => <>{i > 0 && ', '}<a class="tlink" href={categoryHref(category)}>{category}</a></>)}</dd></div>
         {facts.map((fact) => <div class="fact"><dt>{fact.label}</dt><dd>{fact.value}</dd></div>)}
         <div class="fact"><dt>Website</dt><dd><a class="tlink" href={tool.url} target="_blank" rel="noopener noreferrer">{host} ↗<span class="vh"> (opens in a new tab)</span></a></dd></div>
       </dl>

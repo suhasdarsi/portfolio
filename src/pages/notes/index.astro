@@ -1,10 +1,9 @@
 ---
 import SiteLayout from '../../layouts/SiteLayout.astro';
-import { getNoteLinks, getPublishedBlogEntriesByDate } from '../../utils/content';
-import { formatDate, getReadingTime } from '../../utils/date';
-import { stripDiagramSource } from '../../utils/diagrams.mjs';
+import { getNoteLinks, getNotes, noteHref, readingTime } from '../../notes/notes';
+import { formatDate } from '../../site/format';
 
-const posts = await getPublishedBlogEntriesByDate();
+const posts = await getNotes();
 const links = getNoteLinks(posts);
 const plural = (n: number) => `${n} ${n === 1 ? 'note' : 'notes'}`;
 
@@ -18,12 +17,13 @@ const notes = posts.map((post) => {
   const backlinks = links.get(post.id)!.linkedFrom.length;
   return {
     id: post.id,
+    href: noteHref(post.id),
     title: post.data.title,
     desc: post.data.description,
     date: formatDate(post.data.pubDate),
     datetime: post.data.pubDate.toISOString(),
     topics: post.data.topics.join('|'),
-    meta: `${getReadingTime(stripDiagramSource(post.body ?? ''))} · linked from ${plural(backlinks)}`,
+    meta: `${readingTime(post)} · linked from ${plural(backlinks)}`,
   };
 });
 ---
@@ -51,7 +51,7 @@ const notes = posts.map((post) => {
 
   <section id="note-list" class="rows" style="padding-bottom: 64px;">
     {notes.map((note) => (
-      <a class="note" href={`/notes/${note.id}`} data-note-id={note.id} data-topics={note.topics}>
+      <a class="note" href={note.href} data-note-id={note.id} data-topics={note.topics}>
         <span class="n" aria-hidden="true"><span class="node"></span></span>
         <span class="t">{note.title}</span>
         <time class="when" datetime={note.datetime}>{note.date}</time>
@@ -95,7 +95,3 @@ const notes = posts.map((post) => {
 
   applyTopic(new URLSearchParams(location.search).get('topic') ?? '');
 </script>
-
-<style is:global>
-  .note[hidden] { display: none; }
-</style>

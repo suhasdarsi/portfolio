@@ -1,34 +1,35 @@
 // /llms.txt (llmstxt.org): a plain-text map of the site for answer engines. Generated so it never drifts from the notes.
-import type { APIContext } from 'astro';
-import { getPublishedBlogEntriesByDate } from '../utils/content';
+import { getNotes, noteHref } from '../notes/notes';
+import { apps, pages, type Section } from '../site/sections';
+import { absoluteUrl, isIndexed, site } from '../site/site';
 
-export async function GET(context: APIContext) {
-  const site = context.site!.toString().replace(/\/$/, '');
-  const notes = await getPublishedBlogEntriesByDate();
+export async function GET() {
+  const notes = await getNotes();
   const clean = (s: string) => s.replace(/\s+/g, ' ').trim();
+  const list = (sections: Section[]) =>
+    sections.filter((section) => isIndexed(section.href)).map((section) => `- [${section.title}](${absoluteUrl(section.href)}): ${section.summary}`);
 
   const lines = [
-    '# Suhas Darsi',
+    `# ${site.name}`,
     '',
-    '> Suhas Darsi is a co-founder of SuperAlign who writes about AI security, agent systems and network risk. This site holds his long-form notes and a few small micro-apps.',
+    `> ${site.name} is a co-founder of ${site.company.name} who writes about AI security, agent systems and network risk. This site holds his long-form notes and a few small micro-apps.`,
     '',
     '## Notes',
     '',
-    `- [All notes](${site}/notes): Index of every published note, newest first.`,
-    ...notes.map((n) => `- [${clean(n.data.title)}](${site}/notes/${n.id}): ${clean(n.data.description)}`),
+    `- [All notes](${absoluteUrl('/notes')}): Index of every published note, newest first.`,
+    ...notes.map((n) => `- [${clean(n.data.title)}](${absoluteUrl(noteHref(n.id))}): ${clean(n.data.description)}`),
     '',
     '## About',
     '',
-    `- [About](${site}/about): Background, current work and ways to get in touch.`,
-    `- [Uses](${site}/uses): The tools and gear Suhas uses.`,
+    ...list(pages),
     '',
     '## Micro-apps',
     '',
-    `- [Swatchbook](${site}/swatchbook): Directory of design systems.`,
+    ...list(apps),
     '',
     '## Optional',
     '',
-    `- [RSS feed](${site}/rss.xml): Notes as an RSS feed.`,
+    `- [RSS feed](${absoluteUrl('/rss.xml')}): Notes as an RSS feed.`,
     '',
   ];
 

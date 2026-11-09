@@ -99,3 +99,13 @@ test('clipboard failure gives a useful fallback', async ({ page }) => {
     'Copy the address from your browser'
   );
 });
+test('the reading progress bar fills as the reader reaches the end of the note', async ({ page }) => {
+  await page.goto(note);
+  const width = () => page.locator('#reading-progress').evaluate((bar) => bar.getBoundingClientRect().width / innerWidth);
+  expect(await width()).toBeLessThan(0.1);
+  await page.evaluate(() => {
+    const article = document.querySelector('article')!;
+    scrollTo(0, article.getBoundingClientRect().bottom + scrollY - innerHeight);
+  });
+  await expect.poll(width).toBeGreaterThan(0.99);
+});

@@ -1,10 +1,13 @@
 ---
-// Footer on every main-site page.
+import { apps, pages } from '../../site/sections';
+import { site } from '../../site/site';
+
+const links = [{ title: 'Notes', href: '/notes' }, ...pages, ...apps, { title: 'RSS', href: '/rss.xml' }];
 ---
 
 <footer class="foot">
-  <span>© 2026 Suhas Darsi</span>
+  <span>© 2026 {site.name}</span>
   <nav aria-label="Footer">
-    <a href="/notes">Notes</a><a href="/about">About</a><a href="/uses">Uses</a><a href="/pocket-card">Pocket Card</a><a href="/swatchbook">Swatchbook</a><a href="/toolshed">Toolshed</a><a href="/rss.xml">RSS</a>
+    {links.map((link) => <a href={link.href}>{link.title}</a>)}
   </nav>
 </footer>

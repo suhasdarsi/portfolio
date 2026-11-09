@@ -1,6 +1,6 @@
 ---
 // A tag group drawn as a grid, e.g. AI security's agent types: who built the agent × who runs it.
-import type { TagGroup } from '../../data/security-tools';
+import type { TagGroup } from '../../toolshed/catalog';
 
 interface Props { group: TagGroup & { axes: NonNullable<TagGroup['axes']> }; counts: Map<string, number>; href: (tag: string) => string; }
 const { group, counts, href } = Astro.props;
@@ -36,7 +36,7 @@ const lower = (text: string) => text.charAt(0).toLowerCase() + text.slice(1);
   .cell { display: grid; gap: 8px; padding: 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); align-content: start; }
   .cell:hover { border-color: var(--line-strong); }
   .top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
-  .nm { font-size: 16px; font-weight: 600; line-height: 1.4; }
+  .nm { font-family: "Geist Serif", serif; font-size: 16px; font-weight: 600; line-height: 1.4; }
   .cell:hover .nm { color: var(--accent-text); }
   .ct { font-family: Geist, sans-serif; font-size: 13px; color: var(--faint); }
   .ex { font-size: 13px; color: var(--muted); line-height: 1.5; }

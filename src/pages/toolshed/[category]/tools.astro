@@ -2,20 +2,17 @@
 import ToolshedLayout from '../../../layouts/ToolshedLayout.astro';
 import CategoryShell from '../../../components/toolshed/CategoryShell.astro';
 import ToolCard from '../../../components/toolshed/ToolCard.astro';
-import { categoryTags } from '../../../data/security-tools';
-import { toolCategories, toolSlug } from '../../../data/toolshed';
-import { getTools } from '../../../utils/content';
+import { categoryTags } from '../../../toolshed/catalog';
+import { categoryPaths, getTools, inCategory } from '../../../toolshed/tools';
 
-export async function getStaticPaths() {
-  return toolCategories.map((category) => ({ params: { category: toolSlug(category) }, props: { category } }));
-}
+export const getStaticPaths = categoryPaths;
 
 const { category } = Astro.props;
 const tools = await getTools();
-const inCategory = tools.filter((tool) => tool.categories.includes(category));
+const listed = inCategory(tools, category);
 const groups = categoryTags[category].map((group) => ({
   ...group,
-  tags: group.tags.map((tag) => ({ ...tag, count: inCategory.filter((tool) => tool.tags.includes(tag.name)).length })),
+  tags: group.tags.map((tag) => ({ ...tag, count: listed.filter((tool) => tool.tags.includes(tag.name)).length })),
 }));
 ---
 
@@ -33,13 +30,13 @@ const groups = categoryTags[category].map((group) => ({
         </div>
       ))}
       <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px;">
-        <span class="faint" id="tool-count" style="font-size: 13px;" role="status" aria-live="polite">{inCategory.length} of {inCategory.length} tools</span>
+        <span class="faint" id="tool-count" style="font-size: 13px;" role="status" aria-live="polite">{listed.length} of {listed.length} tools</span>
         <button type="button" class="chip" id="tool-clear" hidden>Clear filters</button>
       </div>
     </div>
 
     <div id="tool-list" style="border-top: 1px solid var(--line);">
-      {inCategory.map((tool) => <ToolCard tool={tool} category={category} />)}
+      {listed.map((tool) => <ToolCard tool={tool} category={category} />)}
       <p id="tool-empty" class="muted" style="padding-block: 24px;" hidden>No tool carries all of those tags.</p>
     </div>
   </CategoryShell>

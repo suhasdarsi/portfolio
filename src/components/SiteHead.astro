@@ -1,27 +1,31 @@
 ---
-// The <head> every page shares: meta, social cards, CSP, fonts and the theme set before paint.
+// The <head> every page shares: meta, social cards, structured data, CSP, fonts and the theme set before paint.
 import '../styles/site.css';
 import ThemeInit from './ThemeInit.astro';
-import { cleanPath } from '../utils/clean-path';
+import { absoluteUrl, isIndexed, site } from '../site/site';
+import { serialize, webPage, type JsonLd } from '../site/structured-data';
 
 export interface Props {
   title: string;
   description?: string;
   ogType?: string;
   ogImage?: string;
-  noindex?: boolean;
   author?: string;
+  // Extra schema.org entities for this page, beside the WebPage entity every indexable page gets.
+  jsonLd?: JsonLd[];
+  pageType?: string;
   // Pages with a Turnstile widget must let Cloudflare's challenge script and frame load.
   turnstile?: boolean;
 }
 
-const { title, description, ogType = 'website', ogImage, noindex = false, author = 'Suhas Darsi', turnstile = false } = Astro.props;
+const { title, description, ogType = 'website', ogImage, author = site.name, jsonLd = [], pageType, turnstile = false } = Astro.props;
 const challenges = turnstile ? ' https://challenges.cloudflare.com' : '';
-const siteUrl = Astro.site?.toString().replace(/\/$/, '') || 'https://suhasdarsi.com';
-const canonicalUrl = `${siteUrl}${cleanPath(Astro.url.pathname)}`;
+const canonicalUrl = absoluteUrl(Astro.url.pathname);
+const indexed = isIndexed(Astro.url.pathname);
+const blocks = indexed ? [webPage(canonicalUrl, title, description, pageType), ...jsonLd] : [];
 // Pages without their own preview share the site card, rendered at /og/site.png.
-const cardImage = ogImage || `${siteUrl}/og/site.png`;
-const ogDescription = description || 'Suhas Darsi — practical writing about AI security, agent systems, and network risk.';
+const cardImage = ogImage || `${site.url}/og/site.png`;
+const ogDescription = description || `${site.name} — practical writing about AI security, agent systems, and network risk.`;
 ---
 
 <meta charset="UTF-8" />
@@ -30,13 +34,13 @@ const ogDescription = description || 'Suhas Darsi — practical writing about AI
 <meta name="generator" content="Astro" />
 <meta name="description" content={ogDescription} />
 <meta name="author" content={author} />
-{noindex && <meta name="robots" content="noindex, nofollow" />}
+{!indexed && <meta name="robots" content="noindex, nofollow" />}
 <link rel="canonical" href={canonicalUrl} />
 <meta property="og:title" content={title} />
 <meta property="og:description" content={ogDescription} />
 <meta property="og:type" content={ogType} />
 <meta property="og:url" content={canonicalUrl} />
-<meta property="og:site_name" content="Suhas Darsi" />
+<meta property="og:site_name" content={site.name} />
 <meta property="og:image" content={cardImage} />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
@@ -46,13 +50,14 @@ const ogDescription = description || 'Suhas Darsi — practical writing about AI
 <meta name="twitter:title" content={title} />
 <meta name="twitter:description" content={ogDescription} />
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:site" content="@suhas_darsi" />
-<meta name="twitter:creator" content="@suhas_darsi" />
+<meta name="twitter:site" content={site.xHandle} />
+<meta name="twitter:creator" content={site.xHandle} />
 <meta name="theme-color" content="#fafafa" media="(prefers-color-scheme: light)" />
 <meta name="theme-color" content="#111214" media="(prefers-color-scheme: dark)" />
 <link rel="sitemap" href="/sitemap-index.xml" />
-<link rel="alternate" type="application/rss+xml" title="Suhas Darsi — Notes" href="/rss.xml" />
+<link rel="alternate" type="application/rss+xml" title={`${site.name} — Notes`} href="/rss.xml" />
 <meta http-equiv="Content-Security-Policy" content={`default-src 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com${challenges}; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' https://cloudflareinsights.com/cdn-cgi/rum; frame-src ${turnstile ? challenges.trim() : "'none'"}; object-src 'none'; base-uri 'self'; form-action 'self';`} />
 <meta name="referrer" content="strict-origin-when-cross-origin" />
 <title>{title}</title>
+{blocks.map((block) => <script type="application/ld+json" set:html={serialize(block)} />)}
 <ThemeInit />

@@ -2,7 +2,7 @@
 import ToolshedLayout from '../../../layouts/ToolshedLayout.astro';
 import Sidebar from '../../../components/toolshed/Sidebar.astro';
 import ToolRow from '../../../components/toolshed/ToolRow.astro';
-import { getTools } from '../../../utils/content';
+import { getTools } from '../../../toolshed/tools';
 
 const tools = await getTools();
 // The first page shows before the script runs; the script owns the list from then on.
@@ -29,21 +29,21 @@ const left = tools.length - Math.min(PAGE, tools.length);
           {tools.map((tool, i) => <ToolRow tool={tool} hidden={i >= PAGE} />)}
         </div>
         <p id="tool-empty" class="muted" style="padding-block: 24px;" hidden>No tools match “<span id="tool-query"></span>”. <a class="tlink" href="/toolshed/suggest">Suggest one</a>.</p>
-        <button type="button" id="tool-more" class="btn" style="margin-top: 16px;" hidden={left <= 0}>Show {Math.min(PAGE, left)} more of {left}</button>
+        <button type="button" id="tool-more" class="btn" style="margin-top: 16px;" data-page={PAGE} hidden={left <= 0}>Show {Math.min(PAGE, left)} more of {left}</button>
       </div>
     </div>
   </div>
 </ToolshedLayout>
 
 <script>
-  // Live search over name, site, categories and tags, shown 60 at a time. The header search lands here as ?q=.
-  const PAGE = 60;
+  // Live search over name, site, categories and tags, shown a page at a time. The header search lands here as ?q=.
   const input = document.querySelector<HTMLInputElement>('#tool-search');
   const items = Array.from(document.querySelectorAll<HTMLElement>('[data-tool]'));
   const count = document.getElementById('tool-count');
   const empty = document.getElementById('tool-empty');
   const query = document.getElementById('tool-query');
   const more = document.getElementById('tool-more');
+  const PAGE = Number(more?.dataset.page);
   let limit = PAGE;
 
   function render() {
