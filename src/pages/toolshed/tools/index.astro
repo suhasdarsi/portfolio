@@ -21,7 +21,7 @@ const left = tools.length - Math.min(PAGE, tools.length);
       <form class="field-wrap" role="search" id="tool-filter">
         <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
         <label for="tool-search" class="vh">Find a tool</label>
-        <input id="tool-search" class="field" type="search" placeholder="Search by name, category or site, e.g. mcp" autocomplete="off" aria-controls="tool-list" />
+        <input id="tool-search" class="field" type="search" placeholder="Search name, category or site" autocomplete="off" aria-controls="tool-list" />
       </form>
       <div>
         <p class="faint" id="tool-count" style="font-size: 13px; padding-bottom: 8px;" role="status" aria-live="polite">{tools.length} {tools.length === 1 ? 'tool' : 'tools'}</p>

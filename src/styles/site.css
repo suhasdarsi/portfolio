@@ -20,10 +20,11 @@ body { font-size: 16px; }
 /* Page frame */
 .page { max-width:920px; margin:0 auto; padding-left:max(24px,env(safe-area-inset-left,0px)); padding-right:max(24px,env(safe-area-inset-right,0px)); }
 .page.wide { max-width:1180px; }
+.top-group { display:flex; align-items:center; }
 .topbar { display:flex; align-items:center; justify-content:space-between; gap:16px; padding-block:24px; }
 .brand { font-weight:500; font-size: 16px; }
 .nav { display:flex; gap:24px; }
-.navlink { font-size: 16px; color:var(--muted); padding:8px 2px; }
+.navlink { display:inline-block; font-size: 16px; color:var(--muted); padding:8px 2px; }
 .navlink:hover, .navlink.on { color:var(--ink); }
 .icon-btn { display:inline-grid; place-items:center; width:40px; height:40px; border-radius:999px; border:0; background:transparent; color:var(--muted); cursor:pointer; }
 .icon-btn:hover { color:var(--ink); background:var(--soft); }
@@ -113,20 +114,20 @@ body { font-size: 16px; }
 .ts-banner { font-size: 13px; color:var(--body); background:var(--soft); border-radius:10px; padding:8px 12px; }
 .ts-shell { display:flex; flex-wrap:wrap; gap:32px; padding-block:32px; }
 .ts-side { flex:1 1 210px; max-width:240px; display:grid; gap:2px; align-content:start; font-size: 16px; }
-.ts-side a { display:flex; justify-content:space-between; gap:8px; padding:8px 8px; border-radius:8px; color:var(--muted); }
+.ts-side a { display:flex; justify-content:space-between; align-items:baseline; gap:8px; padding:8px 8px; border-radius:8px; color:var(--muted); }
 .ts-side a:hover { background:var(--soft); color:var(--ink); }
 .ts-side a.on { background:var(--soft); color:var(--ink); font-weight:500; }
 .ts-side .c { font-family: Geist, sans-serif; font-size: 13px; color:var(--faint); }
 .ts-main { flex:999 1 560px; min-width:0; display:grid; gap:24px; align-content:start; }
 .tabs { display:flex; gap:4px; border-bottom:1px solid var(--line); }
-.tab { padding:8px 12px; font-size: 16px; color:var(--muted); border-bottom:2px solid transparent; margin-bottom:-1px; display:inline-flex; gap:8px; align-items:center; }
+.tab { padding:8px 12px; font-size: 16px; color:var(--muted); border-bottom:2px solid transparent; margin-bottom:-1px; display:inline-flex; gap:8px; align-items:baseline; }
 .tab:hover { color:var(--ink); }
 .tab.on { color:var(--ink); border-bottom-color:var(--ink); font-weight:500; }
 .trow { display:grid; grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) minmax(0,1.3fr) 20px; gap:16px; align-items:center; padding:12px 4px; border-bottom:1px solid var(--line); font-size: 16px; }
 .trow:hover { background:var(--soft); }
 .trow .h { color:var(--faint); font-family: Geist, sans-serif; font-size: 13px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .trow .cats { color:var(--muted); font-size: 13px; }
-.table-box { overflow-x:auto; border:1px solid var(--line); border-radius:12px; }
+.table-box { position:relative; overflow-x:auto; border:1px solid var(--line); border-radius:12px; }
 .matrix { border-collapse:collapse; width:100%; min-width:900px; font-size: 13px; }
 .matrix th, .matrix td { padding:8px 8px; border-bottom:1px solid var(--line); text-align:center; }
 .matrix th { font-weight:500; color:var(--muted); font-size: 13px; vertical-align:bottom; }
@@ -143,9 +144,15 @@ body { font-size: 16px; }
 .rt { font-size: 16px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .rm { font-size: 13px; color:var(--faint); white-space:nowrap; }
 
+/* Contact links under an intro: email, profiles, booking. */
+.elsewhere { display:flex; flex-wrap:wrap; align-items:center; gap:0 24px; font-size: 16px; color:var(--muted); }
+.elsewhere a { display:inline-block; min-width:24px; padding-block:8px; text-align:center; }
+.elsewhere a:hover { color:var(--ink); }
+
 /* Footer */
 .foot { display:flex; flex-wrap:wrap; justify-content:space-between; gap:8px; font-size: 13px; color:var(--faint); padding-block:24px 64px; border-top:1px solid var(--line); }
-.foot nav { display:flex; flex-wrap:wrap; gap:8px 16px; }
+.foot nav { display:flex; flex-wrap:wrap; gap:0 16px; }
+.foot a { display:inline-block; padding-block:4px; }
 .foot a:hover { color:var(--ink); }
 
 @media (prefers-reduced-motion:reduce) { .sd * { animation:none !important; transition:none !important; } } /* !important: must beat every component rule so reduced-motion users never get motion */
@@ -171,11 +178,22 @@ h1, h2, h3, .title, .serif, .note .t { font-family: "Geist Serif", serif; }
 h2.sec-h { font-size: 16px; font-weight: 600; }
 .dialog:focus-within { border-color: var(--accent); }
 /* Phones: keep the nav, wrap it under the name. */
-@media (max-width:760px) { .topbar, .ts-top { flex-wrap:wrap; row-gap:0; padding-block:16px; } .nav { order:3; width:100%; gap:16px; }
-  /* Toolshed nests its nav inside the brand group: let that group wrap so the tabs get their own full-width row. */
-  .ts-top > div:first-child { flex-wrap:wrap; row-gap:0; max-width:100%; }
-  .ts-top .nav { flex-wrap:wrap; }
-  .navlink { white-space:nowrap; } }
+/* Phones: name and icons on the first row, the nav on its own row below, scrolling sideways if it must. */
+@media (max-width:760px) {
+  .topbar, .ts-top { flex-wrap:wrap; row-gap:4px; padding-block:12px; }
+  .top-group { display:contents; }
+  .nav { order:3; width:100%; gap:16px; overflow-x:auto; scrollbar-width:none; }
+  .navlink { position:relative; white-space:nowrap; }
+  .ts-top .nav { gap:8px; }
+  /* Words a phone drops from a label; screen readers still hear them. */
+  .vh-sm { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+  .ts-top .searchlink { order:4; width:100%; margin-bottom:4px; }
+  /* Categories become one sideways-scrolling row, so the page content isn't pushed below fifteen links. */
+  .ts-side { display:flex; gap:8px; overflow-x:auto; scrollbar-width:none; padding-bottom:4px; }
+  .ts-side .eyebrow { display:none; }
+  .ts-side a { flex:none; gap:8px; padding:8px 12px; border:1px solid var(--line); border-radius:999px; white-space:nowrap; }
+  .ts-side a.on { border-color:var(--line-strong); }
+}
 
 /* Page header: title, lede and any actions, same rhythm on every page. */
 .page-head { display:grid; gap:12px; padding-block:64px 48px; }

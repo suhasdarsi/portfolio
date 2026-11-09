@@ -12,7 +12,7 @@ const { current } = Astro.props;
 
 <header class="topbar">
   <a class="brand" href="/">{site.name}</a>
-  <div style="display: flex; align-items: center; gap: 16px;">
+  <div class="top-group" style="gap: 16px;">
     <nav aria-label="Main" class="nav">
       {nav.map((link) => (
         <a class:list={['navlink', { on: current === link.key }]} href={link.href} aria-current={current === link.key ? 'page' : undefined}>{link.label}</a>
