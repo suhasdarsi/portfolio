@@ -14,20 +14,20 @@ const links = [
   { label: 'Categories', href: '/toolshed', active: path === '/toolshed' || inCategory },
   { label: 'All tools', href: '/toolshed/tools', active: path.startsWith('/toolshed/tools') },
   { label: 'How it works', href: '/toolshed/about', active: path === '/toolshed/about' },
-  { label: 'Suggest a tool', href: '/toolshed/suggest', active: path === '/toolshed/suggest' },
+  { label: 'Suggest', more: ' a tool', href: '/toolshed/suggest', active: path === '/toolshed/suggest' },
 ];
 ---
 
 <header class="ts-top">
-  <div style="display: flex; align-items: center; gap: 24px;">
+  <div class="top-group" style="gap: 24px;">
     <a class="ts-brand" href="/toolshed" style="display: flex; align-items: center; gap: 8px; font-weight: 600;">Toolshed <span class="badge">Alpha</span></a>
     <nav aria-label="Toolshed" class="nav">
       {links.map((link) => (
-        <a class:list={['navlink', { on: link.active }]} href={link.href} aria-current={link.active ? 'page' : undefined}>{link.label}</a>
+        <a class:list={['navlink', { on: link.active }]} href={link.href} aria-current={link.active ? 'page' : undefined}>{link.label}{link.more && <span class="vh-sm">{link.more}</span>}</a>
       ))}
     </nav>
   </div>
-  <div style="display: flex; align-items: center; gap: 8px;">
+  <div class="top-group" style="gap: 8px;">
     {search && (
       <form class="searchlink" action="/toolshed/tools" method="get" role="search">
         <svg class="ic" viewBox="0 0 24 24" aria-hidden="true" style="width: 16px; height: 16px;"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
@@ -42,7 +42,8 @@ const links = [
 
 <style>
   .searchlink { display: flex; align-items: center; gap: 8px; height: 38px; padding: 0 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--faint); font-size: 16px; min-width: 220px; }
-  .searchlink:hover, .searchlink:focus-within { border-color: var(--line-strong); color: var(--muted); }
+  .searchlink:hover { border-color: var(--line-strong); color: var(--muted); }
+  .searchlink:focus-within { border-color: var(--accent); color: var(--muted); }
   .searchlink input { flex: 1; min-width: 0; width: 100%; padding: 0; border: 0; background: transparent; color: var(--ink); font-size: 16px; outline: none; }
   .searchlink input::placeholder { color: var(--faint); opacity: 1; }
   @media (max-width: 640px) { .searchlink { min-width: 0; } }

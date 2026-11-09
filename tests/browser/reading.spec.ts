@@ -71,10 +71,10 @@ test('copying a note uses its canonical URL and announces success', async ({ pag
     'https://suhasdarsi.com' + note
   );
 });
-test('section navigation and article content work without JavaScript', async ({ browser, isMobile }) => {
+test('section navigation and article content work without JavaScript', async ({ browser, isMobile, baseURL }) => {
   const context = await browser.newContext({ javaScriptEnabled: false, viewport: isMobile ? { width: 412, height: 915 } : undefined });
   const page = await context.newPage();
-  await page.goto('http://127.0.0.1:4322' + note);
+  await page.goto(baseURL + note);
   if (!isMobile) {
     await expect(
       page.getByRole('navigation', { name: 'In this note' }).getByRole('link').first()

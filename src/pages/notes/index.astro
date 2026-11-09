@@ -23,7 +23,7 @@ const notes = posts.map((post) => {
     date: formatDate(post.data.pubDate),
     datetime: post.data.pubDate.toISOString(),
     topics: post.data.topics.join('|'),
-    meta: `${readingTime(post)} · linked from ${plural(backlinks)}`,
+    meta: backlinks > 0 ? `${readingTime(post)} · linked from ${plural(backlinks)}` : readingTime(post),
   };
 });
 ---

@@ -26,13 +26,13 @@ const elsewhere = tool.categories.filter((other) => other !== category);
 <style>
   .tool { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 16px; padding: 12px 4px; border-bottom: 1px solid var(--line); }
   .tool:hover { background: var(--soft); }
-  .nm { font-weight: 500; font-size: 16px; }
+  .nm { font-weight: 500; font-size: 16px; display: inline-block; padding-block: 2px; }
   .nm::after { content: ''; position: absolute; inset: 0; }
   .h { font-family: Geist, sans-serif; font-size: 13px; color: var(--faint); }
   .tags { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 8px; }
   .tag { font-size: 13px; padding: 2px 8px; border-radius: 999px; background: var(--soft); color: var(--body); }
   .tag.on { background: var(--ink); color: var(--bg); }
   .also { font-size: 13px; color: var(--faint); }
-  .also a { position: relative; z-index: 1; }
+  .also a { position: relative; z-index: 1; display: inline-block; padding-block: 4px; }
   .also a:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
 </style>

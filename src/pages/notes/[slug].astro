@@ -166,8 +166,8 @@ const pageTitle = fullTitle.length <= 65 ? fullTitle : post.data.title;
   .guide { display: grid; gap: 8px; font-size: 13px; }
   .guide a { color: var(--muted); border-left: 1px solid var(--line); padding-left: 12px; }
   .guide a:hover { color: var(--ink); border-left-color: var(--ink); }
-  .tool { display: inline-flex; align-items: center; gap: 8px; font: inherit; font-size: 13px; color: var(--muted); background: none; border: 0; padding: 8px 0; cursor: pointer; }
-  .tool:hover, .tool.on { color: var(--ink); }
+  .tool, .share .tool { display: inline-flex; align-items: center; gap: 8px; font: inherit; font-size: 13px; color: var(--muted); background: none; border: 0; padding: 8px 0; cursor: pointer; }
+  .tool:hover, .tool.on, .share .tool:hover { color: var(--ink); }
   .share { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 4px 24px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding-block: 8px; }
   .linkcard { display: grid; gap: 4px; padding: 12px 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
   .linkcard:hover { border-color: var(--line-strong); }
