@@ -1,23 +1,23 @@
 import type { APIRoute } from 'astro';
-import { categoryTags } from '../../data/security-tools';
-import { toolSlug } from '../../data/toolshed';
-import { getTools, hasReview, toolHref } from '../../utils/content';
+import { categoryTags } from '../../toolshed/catalog';
+import { toolCategories } from '../../toolshed/categories';
+import { categoryHref, getTools, hasReview, toolHref } from '../../toolshed/tools';
+import { absoluteUrl, site } from '../../site/site';
 
 // Open data: the whole Toolshed directory, for people and AI tools to query directly.
-export const GET: APIRoute = async ({ site }) => {
-  const origin = site?.toString().replace(/\/$/, '') ?? 'https://suhasdarsi.com';
+export const GET: APIRoute = async () => {
   const tools = await getTools();
   const body = {
     name: 'Toolshed',
     status: 'alpha',
     notice: 'Work in progress: incomplete and partly unverified. Do not rely on this data yet.',
     description: 'Independent directory of security tools, tagged by the jobs they do. Nobody can pay to be listed.',
-    url: `${origin}/toolshed`,
-    disclosure: 'The author works at SuperAlign, which is listed under AI security.',
-    categories: Object.entries(categoryTags).map(([category, groups]) => ({
+    url: absoluteUrl('/toolshed'),
+    disclosure: `The author works at ${site.company.name}, which is listed under AI security.`,
+    categories: toolCategories.map((category) => ({
       name: category,
-      url: `${origin}/toolshed/${toolSlug(category)}`,
-      tagGroups: groups.map((group) => ({
+      url: absoluteUrl(categoryHref(category)),
+      tagGroups: categoryTags[category].map((group) => ({
         name: group.name,
         tags: group.tags.map(({ name, summary, examples, via }) => ({ name, summary, examples, controlledVia: via })),
       })),
@@ -30,7 +30,7 @@ export const GET: APIRoute = async ({ site }) => {
       tags: tool.tags,
       affiliatedWithAuthor: tool.affiliated,
       review: hasReview(tool)
-        ? { url: `${origin}${toolHref(tool)}`, rating: tool.review.data.rating ?? null, verdict: tool.review.data.verdict ?? null }
+        ? { url: absoluteUrl(toolHref(tool)), rating: tool.review.data.rating ?? null, verdict: tool.review.data.verdict ?? null }
         : null,
     })),
   };

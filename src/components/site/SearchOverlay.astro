@@ -1,23 +1,8 @@
 ---
-// Home-page search: notes from /search.json plus the apps and pages, opened by [data-search-open] or Cmd/Ctrl+K.
-import { getPublishedBlogEntriesByDate } from '../../utils/content';
-import { formatDate } from '../../utils/date';
+// Site search: notes from /search.json plus the apps and pages, opened by [data-search-open] or Cmd/Ctrl+K.
+import { noteEntries, sectionEntries } from '../../search/index';
 
-const notes = (await getPublishedBlogEntriesByDate()).map((post) => ({
-  kind: 'Note',
-  title: post.data.title,
-  meta: formatDate(post.data.pubDate),
-  href: `/notes/${post.id}`,
-  description: post.data.description,
-}));
-const pages = [
-  { kind: 'App', title: 'Pocket Card', meta: 'Apple Wallet card', href: '/pocket-card', description: 'pocket card wallet business card qr contact' },
-  { kind: 'App', title: 'Swatchbook', meta: 'Design systems', href: '/swatchbook', description: 'swatchbook design systems directory' },
-  { kind: 'App', title: 'Toolshed', meta: 'Security tools', href: '/toolshed', description: 'toolshed security tools research market' },
-  { kind: 'Page', title: 'About', meta: 'Background', href: '/about', description: 'about background superalign aztlan iiit rimas suss' },
-  { kind: 'Page', title: 'Uses', meta: 'Tools and gear', href: '/uses', description: 'uses tools gear setup' },
-];
-const entries = [...notes, ...pages];
+const entries = [...(await noteEntries()).map(({ body: _body, ...entry }) => entry), ...sectionEntries];
 ---
 
 <div class="overlay" id="search-overlay" hidden data-search-overlay>
@@ -43,11 +28,7 @@ const entries = [...notes, ...pages];
 </div>
 
 <script>
-  import { searchDocuments } from '../../utils/client-search';
-  import { createSearchLoader, debounce } from '../../utils/search-loader';
-
-  type Entry = { kind: string; title: string; meta: string; href: string; description?: string; body?: string };
-  type SearchPost = { href: string; title: string; description?: string; body?: string };
+  import { createSearchLoader, liveSearch, searchDocuments, type SearchEntry } from '../../search/client';
 
   const overlay = document.querySelector<HTMLElement>('[data-search-overlay]');
   if (overlay) {
@@ -55,14 +36,14 @@ const entries = [...notes, ...pages];
     const results = overlay.querySelector<HTMLElement>('[data-search-results]')!;
     const empty = overlay.querySelector<HTMLElement>('[data-search-empty]')!;
     const status = overlay.querySelector<HTMLElement>('[data-search-status]')!;
-    const entries: Entry[] = JSON.parse(overlay.querySelector('[data-search-index]')?.textContent ?? '[]');
-    const loadSearch = createSearchLoader<SearchPost>();
+    const entries: SearchEntry[] = JSON.parse(overlay.querySelector('[data-search-index]')?.textContent ?? '[]');
+    const loadSearch = createSearchLoader();
     let opener: HTMLElement | null = null;
     let active = -1;
 
     const items = () => Array.from(results.querySelectorAll<HTMLAnchorElement>('.result'));
 
-    function render(list: Entry[], query: string) {
+    function render(list: SearchEntry[], query: string) {
       results.replaceChildren(...list.slice(0, 8).map((entry) => {
         const link = document.createElement('a');
         link.className = 'result';
@@ -81,17 +62,17 @@ const entries = [...notes, ...pages];
       status.textContent = query ? `${list.length} ${list.length === 1 ? 'result' : 'results'}` : '';
     }
 
-    // Note bodies come from /search.json; the apps and pages match on their keywords.
-    const update = debounce(async () => {
-      const query = input.value.trim();
+    // Note bodies come from /search.json; until it loads (or if it can't), titles and keywords still match.
+    liveSearch(input, async (query, isCurrent) => {
       if (!query) { render(entries, ''); return; }
+      let bodies = new Map<string, string | undefined>();
       try {
-        const bodies = new Map((await loadSearch()).map((post) => [post.href, post.body]));
-        if (input.value.trim() !== query) return;
-        render(searchDocuments(entries.map((entry) => ({ ...entry, body: bodies.get(entry.href) })), query), query);
+        bodies = new Map((await loadSearch()).map((note) => [note.href, note.body]));
       } catch {
-        render(searchDocuments(entries, query), query);
+        // Search without note bodies.
       }
+      if (!isCurrent()) return;
+      render(searchDocuments(entries.map((entry) => ({ ...entry, body: bodies.get(entry.href) })), query), query);
     });
 
     function setActive(index: number) {
@@ -128,7 +109,6 @@ const entries = [...notes, ...pages];
     });
     overlay.querySelector('[data-search-close]')?.addEventListener('click', close);
     overlay.addEventListener('click', (event) => { if (event.target === overlay) close(); });
-    input.addEventListener('input', () => void update());
 
     document.addEventListener('keydown', (event) => {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
@@ -147,7 +127,6 @@ const entries = [...notes, ...pages];
         if (first) { event.preventDefault(); first.click(); }
         return;
       }
-      // Keep Tab inside the dialog.
       if (event.key === 'Tab') {
         const focusable = Array.from(overlay.querySelectorAll<HTMLElement>('input, button, a[href]'));
         const first = focusable[0], last = focusable[focusable.length - 1];
@@ -159,6 +138,5 @@ const entries = [...notes, ...pages];
 </script>
 
 <style is:global>
-  .overlay[hidden] { display: none; }
   .result.active { background: var(--soft); }
 </style>

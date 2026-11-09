@@ -1,24 +1,15 @@
-import { mkdtempSync, mkdirSync, renameSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
-import { buildWikilinkIndex, extractWikilinkTargets, resolveWikilink } from '../src/utils/wikilinks.mjs';
+import { buildWikilinkIndex, extractWikilinkTargets, resolveWikilink } from '../src/notes/wikilinks.mjs';
 
 const tempDirs: string[] = [];
 
 function makeFixture() {
-  const root = mkdtempSync(join(tmpdir(), 'wikilinks-'));
-  tempDirs.push(root);
-  const blog = join(root, 'blog');
-  mkdirSync(blog, { recursive: true });
-
-  return {
-    root,
-    blog,
-    collections: [
-      { name: 'blog', directory: blog, routePrefix: '/notes/' },
-    ],
-  };
+  const blog = mkdtempSync(join(tmpdir(), 'wikilinks-'));
+  tempDirs.push(blog);
+  return { blog };
 }
 
 function writeMarkdown(file: string, frontmatter: string, body = '') {
@@ -34,7 +25,6 @@ afterEach(() => {
 describe('native wikilinks', () => {
   it('resolves note filenames, titles, and headings to public routes', () => {
     expect(resolveWikilink('ai-as-the-ultimate-hub')).toMatchObject({
-      collection: 'blog',
       id: 'ai-as-the-ultimate-hub',
       href: '/notes/ai-as-the-ultimate-hub',
     });
@@ -61,27 +51,22 @@ describe('native wikilinks', () => {
     const fixture = makeFixture();
     writeMarkdown(join(fixture.blog, 'published.md'), 'title: "Published Note"');
     writeMarkdown(join(fixture.blog, 'draft.md'), 'title: "Draft Note"\ndraft: true');
-    writeMarkdown(join(fixture.blog, 'hidden.md'), 'title: "Hidden Note"\npublished: false');
+    writeMarkdown(join(fixture.blog, 'due.md'), 'title: "Due Note"\ndraft: true\ndueDate: 2020-01-01');
 
-    const index = buildWikilinkIndex(fixture.collections);
+    const index = buildWikilinkIndex(fixture.blog);
 
     expect(resolveWikilink('Published Note', index)?.href).toBe('/notes/published');
     expect(resolveWikilink('Draft Note', index)).toBeUndefined();
-    expect(resolveWikilink('Hidden Note', index)).toBeUndefined();
-    expect(new Set([...index.values()].map((entry) => entry.id))).toEqual(new Set(['published']));
+    expect(resolveWikilink('Due Note', index)?.href).toBe('/notes/due');
+    expect(new Set([...index.values()].map((entry) => entry.id))).toEqual(new Set(['published', 'due']));
   });
 
-  it('does not validate links from draft or unpublished source documents', () => {
+  it('does not validate links from draft documents', () => {
     const fixture = makeFixture();
     writeMarkdown(join(fixture.blog, 'published.md'), 'title: "Published Note"');
     writeMarkdown(join(fixture.blog, 'draft.md'), 'title: "Draft Note"\ndraft: true', '[[missing-note]]');
-    writeMarkdown(
-      join(fixture.blog, 'unpublished.md'),
-      'title: "Unpublished Note"\npublished: false',
-      '[[missing-note]]'
-    );
 
-    expect(() => buildWikilinkIndex(fixture.collections)).not.toThrow();
+    expect(() => buildWikilinkIndex(fixture.blog)).not.toThrow();
   });
 
   it('prevents public links to unpublished targets', () => {
@@ -89,25 +74,20 @@ describe('native wikilinks', () => {
     writeMarkdown(join(fixture.blog, 'source.md'), 'title: "Source Note"', '[[Target Note]]');
     writeMarkdown(join(fixture.blog, 'target.md'), 'title: "Target Note"\ndraft: true');
 
-    expect(() => buildWikilinkIndex(fixture.collections)).toThrow(
+    expect(() => buildWikilinkIndex(fixture.blog)).toThrow(
       'linked note "Target Note" does not exist or is unpublished'
     );
   });
 
-  it('rebuilds from current files instead of stale module-level cache', () => {
+  it('rejects block references and ambiguous targets', () => {
     const fixture = makeFixture();
-    const original = join(fixture.blog, 'original.md');
-    const renamed = join(fixture.blog, 'renamed.md');
-    writeMarkdown(original, 'title: "Original Title"');
+    writeMarkdown(join(fixture.blog, 'source.md'), 'title: "Source Note"', '[[Target Note#^block]]');
+    writeMarkdown(join(fixture.blog, 'target.md'), 'title: "Target Note"');
+    expect(() => buildWikilinkIndex(fixture.blog)).toThrow('Block-reference wikilinks are not supported');
 
-    const first = buildWikilinkIndex(fixture.collections);
-    expect(resolveWikilink('Original Title', first)?.href).toBe('/notes/original');
-
-    renameSync(original, renamed);
-    writeMarkdown(renamed, 'title: "Renamed Title"');
-
-    const second = buildWikilinkIndex(fixture.collections);
-    expect(resolveWikilink('Original Title', second)).toBeUndefined();
-    expect(resolveWikilink('Renamed Title', second)?.href).toBe('/notes/renamed');
+    const other = makeFixture();
+    writeMarkdown(join(other.blog, 'one.md'), 'title: "Same Title"');
+    writeMarkdown(join(other.blog, 'two.md'), 'title: "Same Title"');
+    expect(() => buildWikilinkIndex(other.blog)).toThrow('Ambiguous wikilink target');
   });
 });

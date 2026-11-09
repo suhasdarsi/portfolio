@@ -1,8 +1,8 @@
 // The Toolshed directory. Each tool is listed once and tagged with every job it does; a tag belongs to one
 // category, so a tool shows up in each category its tags touch. Listing a tool says nothing about it.
-// My verdicts live in src/content/tools/<slug>.md, where <slug> is the tool's name in kebab case
+// My verdicts live in src/content/tools/<slug>.md, where <slug> is the tool's name slugified
 // (e.g. "HashiCorp Vault" → hashicorp-vault.md).
-import type { ToolCategory } from './toolshed';
+import type { ToolCategory } from './categories';
 
 type Tag = {
   name: string;
@@ -14,7 +14,6 @@ type Tag = {
 };
 export type TagGroup = {
   name: string;
-  note?: string;
   // When set, the group's tags are drawn as a grid with these axis labels.
   axes?: { columns: string[]; rows: string[] };
   tags: Tag[];
@@ -26,7 +25,6 @@ export const categoryTags: Record<ToolCategory, TagGroup[]> = {
   'AI security': [
     {
       name: 'Agent type',
-      note: 'Agents are grouped by who built them and who runs them, which decides where they can be seen and controlled.',
       axes: { columns: ['Run by the vendor', 'Run in your environment'], rows: ['Built by a vendor', 'Built by your team'] },
       tags: [
         {

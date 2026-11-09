@@ -6,13 +6,13 @@ import CopyLink from '../../components/CopyLink.astro';
 import ReadingGuide from '../../components/ReadingGuide.astro';
 import ReadingProgress from '../../components/ReadingProgress.astro';
 import RevisionHistory from '../../components/RevisionHistory.astro';
-import { getNoteLinks, getPublishedBlogEntriesByDate, type BlogEntry } from '../../utils/content';
-import { formatDate, formatDateWithYear, getReadingTime } from '../../utils/date';
-import { stripDiagramSource } from '../../utils/diagrams.mjs';
-import { PERSON_ID, breadcrumbs, type JsonLd } from '../../utils/structured-data';
+import { getNoteLinks, getNotes, noteHref, readingTime as noteReadingTime, type Note } from '../../notes/notes';
+import { formatDate } from '../../site/format';
+import { absoluteUrl, site } from '../../site/site';
+import { PERSON_ID, breadcrumbs, type JsonLd } from '../../site/structured-data';
 
 export async function getStaticPaths() {
-  const posts = await getPublishedBlogEntriesByDate();
+  const posts = await getNotes();
   const links = getNoteLinks(posts);
   const byId = new Map(posts.map((post) => [post.id, post]));
   return posts.map((post, index) => {
@@ -32,16 +32,16 @@ export async function getStaticPaths() {
 }
 
 interface Props {
-  post: BlogEntry;
-  newer?: BlogEntry;
-  older?: BlogEntry;
-  linksTo: BlogEntry[];
-  linkedFrom: BlogEntry[];
+  post: Note;
+  newer?: Note;
+  older?: Note;
+  linksTo: Note[];
+  linkedFrom: Note[];
 }
 
 const { post, newer, older, linksTo, linkedFrom } = Astro.props;
 const { Content, headings } = await render(post);
-const href = (note: BlogEntry) => `/notes/${note.id}`;
+const href = (note: Note) => noteHref(note.id);
 const modifiedDates = [
   ...post.data.revisions.map((revision) => revision.date.valueOf()),
   ...(post.data.updatedDate ? [post.data.updatedDate.valueOf()] : []),
@@ -49,19 +49,18 @@ const modifiedDates = [
 const updatedDate = modifiedDates.length
   ? new Date(Math.max(...modifiedDates, post.data.pubDate.valueOf()))
   : undefined;
-const readingTime = getReadingTime(stripDiagramSource(post.body || ''));
+const readingTime = noteReadingTime(post);
 const pubDay = post.data.pubDate.toISOString().slice(0, 10);
 
-const siteUrl = Astro.site?.toString().replace(/\/$/, '') || 'https://suhasdarsi.com';
-const canonicalUrl = `${siteUrl}/notes/${post.id}`;
-const previewImage = `${siteUrl}/og/${post.id}.png`;
+const canonicalUrl = absoluteUrl(href(post));
+const previewImage = absoluteUrl(`/og/${post.id}.png`);
 const encodedUrl = encodeURIComponent(canonicalUrl);
 const share = {
   x: `https://twitter.com/intent/tweet?text=${encodeURIComponent(post.data.title)}&url=${encodedUrl}`,
   linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`,
   bluesky: `https://bsky.app/intent/compose?text=${encodeURIComponent(`${post.data.title} ${canonicalUrl}`)}`,
 };
-const isMe = post.data.author === 'Suhas Darsi';
+const isMe = post.data.author === site.name;
 const structuredData: JsonLd[] = [
   {
     '@context': 'https://schema.org',
@@ -77,13 +76,13 @@ const structuredData: JsonLd[] = [
     url: canonicalUrl,
   },
   breadcrumbs([
-    { name: 'Home', url: siteUrl },
-    { name: 'Notes', url: `${siteUrl}/notes` },
+    { name: 'Home', url: site.url },
+    { name: 'Notes', url: absoluteUrl('/notes') },
     { name: post.data.title, url: canonicalUrl },
   ]),
 ];
 // Keep the full title under the ~65 character display limit: drop the site suffix on long note titles.
-const fullTitle = `${post.data.title} — Suhas Darsi`;
+const fullTitle = `${post.data.title} — ${site.name}`;
 const pageTitle = fullTitle.length <= 65 ? fullTitle : post.data.title;
 ---
 
@@ -94,7 +93,6 @@ const pageTitle = fullTitle.length <= 65 ? fullTitle : post.data.title;
   ogType="article"
   ogImage={previewImage}
   current="notes"
-  pageType="WebPage"
   jsonLd={structuredData}
 >
   <div style="padding-top: 32px; padding-bottom: 32px;">
@@ -104,11 +102,11 @@ const pageTitle = fullTitle.length <= 65 ? fullTitle : post.data.title;
   <div class="layout" style="padding-bottom: 64px;">
     <article class="article" data-reader>
       <header style="display: grid; gap: 12px;">
-        <span class="eyebrow">{post.data.topics[0] && <>{post.data.topics[0]} · </>}<time datetime={pubDay}>{formatDateWithYear(post.data.pubDate)}</time>{readingTime && <> · {readingTime}</>}</span>
+        <span class="eyebrow">{post.data.topics[0] && <>{post.data.topics[0]} · </>}<time datetime={pubDay}>{formatDate(post.data.pubDate, { year: true })}</time>{readingTime && <> · {readingTime}</>}</span>
         <h1 class="title">{post.data.title}</h1>
         {post.data.description && <p class="lede">{post.data.description}</p>}
         {updatedDate && (
-          <span class="faint" style="font-size: 13px;">Updated <time datetime={updatedDate.toISOString()}>{formatDateWithYear(updatedDate)}</time></span>
+          <span class="faint" style="font-size: 13px;">Updated <time datetime={updatedDate.toISOString()}>{formatDate(updatedDate, { year: true })}</time></span>
         )}
         <div class="share" aria-label="Share this note" role="group">
           <CopyLink url={canonicalUrl} />
@@ -145,7 +143,7 @@ const pageTitle = fullTitle.length <= 65 ? fullTitle : post.data.title;
       {isMe ? (
         <a href="/about" class="byline">
           <span aria-hidden="true" class="avatar">SD</span>
-          <span style="display: grid;"><span style="font-weight: 500;">Suhas Darsi</span><span class="muted" style="font-size: 16px;">Co-founder of SuperAlign. Writes about how AI systems fail.</span></span>
+          <span style="display: grid;"><span style="font-weight: 500;">{site.name}</span><span class="muted" style="font-size: 16px;">Co-founder of {site.company.name}. Writes about how AI systems fail.</span></span>
         </a>
       ) : (
         <p class="byline"><span style="font-weight: 500;">{post.data.author}</span></p>
@@ -162,8 +160,6 @@ const pageTitle = fullTitle.length <= 65 ? fullTitle : post.data.title;
 </SiteLayout>
 
 <style is:global>
-  /* Markdown emits <strong>; give it the weight site.css gives .prose b. */
-  .prose strong { color: var(--ink); font-weight: 600; }
   .layout { display: flex; flex-wrap: wrap; gap: 48px; align-items: flex-start; }
   .article { flex: 999 1 560px; min-width: 0; display: grid; gap: 32px; }
   .aside { flex: 1 1 200px; max-width: 230px; display: grid; gap: 24px; align-content: start; padding-top: 8px; }
@@ -176,7 +172,7 @@ const pageTitle = fullTitle.length <= 65 ? fullTitle : post.data.title;
   .linkcard { display: grid; gap: 4px; padding: 12px 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
   .linkcard:hover { border-color: var(--line-strong); }
   .linkcard .k { font-family: Geist, sans-serif; font-size: 13px; color: var(--faint); text-transform: uppercase; letter-spacing: .05em; }
-  .linkcard .t { font-size: 16px; line-height: 1.35; color: var(--ink); }
+  .linkcard .t { font-family: "Geist Serif", serif; font-size: 16px; line-height: 1.35; color: var(--ink); }
   .linkcard:hover .t { color: var(--accent-text); }
   .pager { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
   .byline { display: flex; align-items: center; gap: 12px; padding: 16px 0; border-top: 1px solid var(--line); }

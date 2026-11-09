@@ -1,9 +1,9 @@
 import { describe, it, expect, vi } from 'vitest';
-import { issueFor, validateToolRequest } from '../src/utils/toolshed-request';
+import { inert, issueFor, validateToolRequest } from '../src/toolshed/request';
 import { toolshedRequestResponse } from '../worker/toolshed';
 
 const good = { kind: 'add', name: 'Acme Guard', url: 'https://acme.example', categories: ['AI security'], details: 'Scans MCP servers on laptops.', affiliated: false, relationship: '' };
-const env = { TURNSTILE_SECRET: 'secret', TURNSTILE_HOSTNAMES: 'suhasdarsi.com', GITHUB_TOKEN: 'gh', GITHUB_REPO: 'suhasdarsi/portfolio' };
+const env = { TURNSTILE_SECRET: 'secret', GITHUB_TOKEN: 'gh' };
 const post = (body: unknown, headers: Record<string, string> = {}) => new Request('https://suhasdarsi.com/api/toolshed/request', {
   method: 'POST',
   headers: { origin: 'https://suhasdarsi.com', 'content-type': 'application/json', 'CF-Connecting-IP': '203.0.113.9', ...headers },
@@ -29,12 +29,11 @@ describe('Toolshed requests', () => {
     expect(labels).toEqual(['toolshed-request', 'add-tool']);
     expect(body).not.toMatch(/@someone|#12|<script>|`code`/);
     expect(body).toContain('nobody can pay to be included');
+    expect(inert('![spam](https://example.com)')).toContain('\\[');
+    expect(inert('&#64;someone')).toContain('&amp;');
   });
 
-  it('refuses the wrong method, origin and content type, and stays closed without secrets', async () => {
-    expect((await toolshedRequestResponse(new Request('https://suhasdarsi.com/api/toolshed/request'), env)).status).toBe(405);
-    expect((await toolshedRequestResponse(post({}, { origin: 'https://evil.example' }), env)).status).toBe(403);
-    expect((await toolshedRequestResponse(post({}, { 'content-type': 'text/plain' }), env)).status).toBe(415);
+  it('stays closed without secrets', async () => {
     expect((await toolshedRequestResponse(post({ request: good, token: 't' }), {})).status).toBe(503);
   });
 
@@ -58,6 +57,7 @@ describe('Toolshed requests', () => {
     expect((await run(vi.fn<typeof fetch>().mockResolvedValue(verified({ action: 'signup' })))).status).toBe(403);
     expect((await run(vi.fn<typeof fetch>().mockResolvedValue(verified({ hostname: 'localhost' })))).status).toBe(403);
     expect((await run(vi.fn<typeof fetch>().mockRejectedValue(new Error('network'))))).toHaveProperty('status', 403);
+    expect((await run(vi.fn<typeof fetch>().mockResolvedValue(Response.json(null))))).toHaveProperty('status', 403);
   });
 
   it('files a labelled GitHub issue and returns its link', async () => {

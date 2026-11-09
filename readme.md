@@ -1,47 +1,16 @@
 # Suhas Darsi — AI Security Notes
 
-A focused collection of practical writing about AI security, agent systems, and network risk, built with Astro, Tailwind CSS, and Bun.
+A focused collection of practical writing about AI security, agent systems, and network risk, built with Astro and Bun.
 
 ## 🚀 Project Structure
 
-```
-/
-├── public/
-├── src/
-│   ├── components/
-│   │   ├── CopyCode.astro            # Copy-to-clipboard button for code blocks
-│   │   ├── ReadingProgress.astro     # Reading progress bar at top of viewport
-│   │   └── ThemeInit.astro           # Initial theme before first paint
-│   ├── content/                      # Open this folder as the Obsidian vault
-│   │   ├── .obsidian/                # Shared vault settings
-│   │   ├── blog/                     # Long-form notes published at /notes
-│   │   └── templates/note.md         # Template for new blog notes
-│   ├── layouts/
-│   │   └── SiteLayout.astro          # Shared shell for site pages
-│   ├── pages/
-│   │   ├── index.astro               # Homepage — hybrid landing + recent notes
-│   │   ├── 404.astro                 # 404 page with inline search
-│   │   ├── rss.xml.ts                # RSS feed endpoint
-│   │   └── notes/
-│   │       ├── index.astro           # Notes listing with topic labels
-│   │       └── [slug].astro          # Static note pages with sharing
-│   ├── styles/
-│   │   └── site.css                  # Site styles and design tokens
-│   └── utils/
-│       └── date.ts                   # Date formatting and reading time utilities
-├── tests/
-│   └── integrity.test.ts             # File structure and build integrity tests
-├── astro.config.mjs                  # Astro and sitemap configuration
-├── content.config.ts                 # Content collection schema
-├── package.json
-├── tsconfig.json
-└── README.md
-```
+See [REPO_MAP.md](REPO_MAP.md) for the layout, commands and conventions. In short: `src/pages` holds the routes,
+and the code behind them is grouped by feature — `src/site` (identity, URLs, sections), `src/notes`, `src/search`,
+`src/toolshed`, `src/pocket-card` and `src/swatchbook` — with the Cloudflare Worker for the form endpoints in `worker/`.
 
 ## 🛠️ Technologies Used
 
 - [Astro](https://astro.build) — Static site builder
-- [Tailwind CSS](https://tailwindcss.com) — Utility-first CSS framework
 - [Bun](https://bun.sh) — Fast JavaScript runtime & package manager
 - [TypeScript](https://www.typescriptlang.org) — Type safety
 - [Vite](https://vitejs.dev) — Build tool (via Astro)
@@ -60,7 +29,7 @@ All commands run from the project root:
 | `bun build`      | Build production site to `./dist/`             |
 | `bun preview`    | Preview production build locally               |
 | `bun astro`      | Run Astro CLI commands                         |
-| `bun run test`   | Run integrity tests                            |
+| `bun run test`   | Run unit and build tests                       |
 | `bun test:watch` | Run tests in watch mode                        |
 | `bun run check`  | Run lint, typechecking, unit and browser tests |
 | `bun audit`      | Check dependency vulnerabilities               |
@@ -89,7 +58,7 @@ Open `src/content/` as a vault in Obsidian using **Open folder as vault**. The v
 
 ### Draft notes
 
-Set `draft: true` to exclude a note from generated pages, listings, search, and RSS. A draft with a past `dueDate` is published on the next build. Set `published: false` to keep it excluded regardless of due date.
+Set `draft: true` to exclude a note from generated pages, listings, search, and RSS. A draft with a past `dueDate` is published on the next build.
 
 ## 🌐 Deployment
 
@@ -116,7 +85,7 @@ Can also be deployed to any static host: Vercel, Netlify, GitHub Pages, etc.
 - **RSS feed** — Available at `/rss.xml`
 - **Responsive design** — Mobile-first, works across all screen sizes
 - **SEO-friendly** — Open Graph, Twitter cards, sitemap, structured data
-- **Integrity tests** — Validates file structure and build output
+- **Build tests** — Validates build output, canonical URLs and the search index
 
 ---
 
@@ -136,7 +105,7 @@ To activate publishing, commit the workflow to the default branch and configure 
 
 ## Search links and previews
 
-`/notes?q=network` opens a shareable search. Submit a new query to add it to browser history; Back and Forward restore earlier searches. Results show matching excerpts with highlighted terms. The global search dialog also links to the shareable search page.
+Search (the header button or Cmd/Ctrl+K) ranks notes by title, description and full text from `/search.json`, alongside the apps and pages. `/notes?topic=AI+Security` opens a shareable topic filter.
 
 Each published note receives a generated 1200×630 PNG at `/og/<note-id>.png`, referenced by Open Graph and Twitter metadata. Published notes are included in the sitemap; unpublished notes and their preview images are omitted.
 

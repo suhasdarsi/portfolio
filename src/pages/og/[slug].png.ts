@@ -1,13 +1,14 @@
 import type { APIRoute } from 'astro';
 import sharp from 'sharp';
-import { getPublishedBlogEntries } from '../../utils/content';
+import { getNotes } from '../../notes/notes';
+import { site } from '../../site/site';
 
 export async function getStaticPaths() {
-  const notes = (await getPublishedBlogEntries()).map((post) => ({
+  const notes = (await getNotes()).map((post) => ({
     params: { slug: post.id }, props: { title: post.data.title },
   }));
   // 'site' is the default share card for pages that are not notes.
-  return [...notes, { params: { slug: 'site' }, props: { title: 'Suhas Darsi — Notes on AI security' } }];
+  return [...notes, { params: { slug: 'site' }, props: { title: `${site.name} — Notes on AI security` } }];
 }
 
 const escape = (text: string) => text.replace(/[&<>"']/g, (character) =>
@@ -28,8 +29,8 @@ export const GET: APIRoute = async ({ props }) => {
     <g font-family="sans-serif" font-weight="bold" font-size="${size}" fill="#2b2825">
       ${lines.map((line, index) => `<text x="72" y="${185 + index * size * 1.15}">${escape(line)}</text>`).join('')}
     </g>
-    <text x="72" y="565" font-family="sans-serif" font-size="28" fill="#5d5751">Suhas Darsi</text>
-    <text x="1128" y="565" text-anchor="end" font-family="sans-serif" font-size="24" fill="#625c56">suhasdarsi.com</text>
+    <text x="72" y="565" font-family="sans-serif" font-size="28" fill="#5d5751">${site.name}</text>
+    <text x="1128" y="565" text-anchor="end" font-family="sans-serif" font-size="24" fill="#625c56">${new URL(site.url).host}</text>
   </svg>`;
   const png = await sharp(Buffer.from(svg)).png().toBuffer();
   return new Response(new Uint8Array(png), { headers: { 'Content-Type': 'image/png' } });

@@ -1,36 +1,23 @@
 ---
 // Frame for every main-site page: one centred 920px column with the top bar and footer, so the header
 // sits in the same place on every page. Search is available everywhere. Page overlays go in the "after" slot.
-import SiteHead from '../components/SiteHead.astro';
+import SiteHead, { type Props as HeadProps } from '../components/SiteHead.astro';
 import SiteHeader from '../components/site/SiteHeader.astro';
 import SiteFooter from '../components/site/SiteFooter.astro';
 import SearchOverlay from '../components/site/SearchOverlay.astro';
-import { webPage, serialize, type JsonLd } from '../utils/structured-data';
-import { cleanPath } from '../utils/clean-path';
+import type { NavKey } from '../site/sections';
 
-interface Props {
-  title: string;
-  description?: string;
-  ogType?: string;
-  ogImage?: string;
-  noindex?: boolean;
-  author?: string;
-  current?: 'notes' | 'apps' | 'about' | 'uses';
-  // Extra schema.org entities for this page, beside the WebPage entity every indexable page gets.
-  jsonLd?: JsonLd[];
-  pageType?: string;
+interface Props extends HeadProps {
+  current?: NavKey;
 }
 
-const { title, description, ogType, ogImage, noindex, author, current, jsonLd = [], pageType } = Astro.props;
-const pageUrl = `${Astro.site?.toString().replace(/\/$/, '') || 'https://suhasdarsi.com'}${cleanPath(Astro.url.pathname)}`;
-const blocks = noindex ? [] : [webPage(pageUrl, title, description, pageType), ...jsonLd];
+const { current, ...head } = Astro.props;
 ---
 
 <!doctype html>
 <html lang="en">
   <head>
-    <SiteHead title={title} description={description} ogType={ogType} ogImage={ogImage} noindex={noindex} author={author} />
-    {blocks.map((block) => <script type="application/ld+json" set:html={serialize(block)} />)}
+    <SiteHead {...head} />
   </head>
   <body class="sd">
     <a href="#main-content" class="skip-link">Skip to main content</a>

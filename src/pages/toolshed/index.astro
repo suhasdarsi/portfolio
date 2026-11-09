@@ -1,17 +1,17 @@
 ---
 import ToolshedLayout from '../../layouts/ToolshedLayout.astro';
-import { categoryTags } from '../../data/security-tools';
-import { toolCategories, toolSlug } from '../../data/toolshed';
-import { getCategoryGuide, getTools } from '../../utils/content';
+import { categoryTags } from '../../toolshed/catalog';
+import { toolCategories } from '../../toolshed/categories';
+import { categoryHref, getCategoryGuide, getTools, inCategory } from '../../toolshed/tools';
 
 const tools = await getTools();
 const categories = await Promise.all(toolCategories.map(async (category) => {
   const kinds = categoryTags[category][0].tags.map((tag) => tag.name);
   return {
     category,
-    href: `/toolshed/${toolSlug(category)}`,
+    href: categoryHref(category),
     summary: (await getCategoryGuide(category))?.data.summary,
-    count: tools.filter((tool) => tool.categories.includes(category)).length,
+    count: inCategory(tools, category).length,
     kinds: kinds.slice(0, 3).join(' · ') + (kinds.length > 3 ? ` · +${kinds.length - 3}` : ''),
   };
 }));
@@ -43,7 +43,7 @@ const categories = await Promise.all(toolCategories.map(async (category) => {
   .ccard { display: grid; gap: 8px; align-content: start; padding: 24px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); min-width: 0; }
   .ccard:hover { border-color: var(--line-strong); }
   .ccard .top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
-  .ccard .nm { font-size: 16px; font-weight: 600; line-height: 1.4; }
+  .ccard .nm { font-family: "Geist Serif", serif; font-size: 16px; font-weight: 600; line-height: 1.4; }
   .ccard:hover .nm { color: var(--accent-text); }
   .ccard .ct { font-family: Geist, sans-serif; font-size: 13px; color: var(--faint); }
   .ccard .sm { font-size: 16px; line-height: 1.5; color: var(--muted); }

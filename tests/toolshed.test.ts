@@ -1,8 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { readdirSync } from 'fs';
 import { join } from 'path';
-import { categoryTags, securityTools } from '../src/data/security-tools';
-import { toolCategories, toolSlug } from '../src/data/toolshed';
+import { categoryTags, securityTools } from '../src/toolshed/catalog';
+import { toolCategories } from '../src/toolshed/categories';
+import { slugify as toolSlug } from '../src/site/slug.mjs';
 
 const tags = Object.entries(categoryTags).flatMap(([category, groups]) => groups.flatMap((group) => group.tags.map((tag) => ({ ...tag, category, group }))));
 const tagNames = tags.map((tag) => tag.name);

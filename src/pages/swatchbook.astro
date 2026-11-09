@@ -1,10 +1,10 @@
 ---
 import SiteLayout from '../layouts/SiteLayout.astro';
-import { categories as systemCategories, designSystems } from '../data/design-systems';
+import { categories as systemCategories, designSystems } from '../swatchbook/design-systems';
+import { hostname } from '../site/format';
 
 const categories = ['All', ...systemCategories];
 const counts = Object.fromEntries(categories.map((c) => [c, c === 'All' ? designSystems.length : designSystems.filter((s) => s.category === c).length]));
-const host = (url: string) => new URL(url).hostname.replace(/^www\./, '');
 ---
 
 <SiteLayout title="Swatchbook — Design Systems — Suhas Darsi" description="Swatchbook: a searchable collection of company and public-service design systems, with links to their official documentation." current="apps">
@@ -33,7 +33,7 @@ const host = (url: string) => new URL(url).hostname.replace(/^www\./, '');
   <ul id="system-list" class="sgrid" style="padding-bottom: 64px;">
     {designSystems.map((system) => (
       <li data-system data-category={system.category} data-search={`${system.name} ${system.owner} ${system.category}`.toLowerCase()}>
-        <a class="sys" href={system.url} target="_blank" rel="noopener noreferrer"><span class="n">{system.name}</span><span class="c">{system.category}</span><span class="o">{system.owner} · {host(system.url)}</span><span class="vh"> (opens in a new tab)</span></a>
+        <a class="sys" href={system.url} target="_blank" rel="noopener noreferrer"><span class="n">{system.name}</span><span class="c">{system.category}</span><span class="o">{system.owner} · {hostname(system.url)}</span><span class="vh"> (opens in a new tab)</span></a>
       </li>
     ))}
   </ul>

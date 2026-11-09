@@ -1,5 +1,5 @@
 // The Pocket Card mark: a pocket hem with a dashed U-stitch beneath it.
-// Single source for the site icon and the Wallet pass artwork (scripts/build-pocket-art.ts).
+// Source for the Wallet pass artwork (scripts/build-pocket-art.ts).
 const pocketMark = {
   viewBox: '0 0 32 32',
   hem: 'M5 8H27',

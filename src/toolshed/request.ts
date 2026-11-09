@@ -1,6 +1,10 @@
 // Toolshed "suggest a tool" requests: validated the same way in the browser, the Worker and the tests.
 // Requests become public GitHub issues, so the issue body keeps submitted text inert (no mentions, no HTML).
-import { toolCategories } from '../data/toolshed';
+import { toolCategories } from './categories';
+
+// Requests are filed as issues here, and the Turnstile check must have been run for this action.
+export const REQUEST_REPO = 'suhasdarsi/portfolio';
+export const TURNSTILE_ACTION = 'toolshed_request';
 
 type RequestKind = 'add' | 'correct';
 
@@ -104,14 +108,11 @@ export function issueFor(request: ToolRequest): { title: string; body: string; l
   };
 }
 
-// Fallback when the form isn't live yet: the same request as a prefilled GitHub issue.
-export function githubIssueLink(repo: string, request?: Partial<ToolRequest>): string {
-  const url = new URL(`https://github.com/${repo}/issues/new`);
+// Fallback when the form isn't live yet: a prefilled GitHub issue asking the same questions.
+export function githubIssueLink(): string {
+  const url = new URL(`https://github.com/${REQUEST_REPO}/issues/new`);
   url.searchParams.set('labels', 'toolshed-request');
-  url.searchParams.set(
-    'title',
-    `Toolshed: ${request?.kind === 'correct' ? 'correct' : 'add'} ${request?.name ?? ''}`.trim()
-  );
+  url.searchParams.set('title', 'Toolshed: add');
   url.searchParams.set(
     'body',
     '**Website:** \n**Categories:** \n**Do you work for or with the vendor?** \n\n**What it does / what should change**\n'

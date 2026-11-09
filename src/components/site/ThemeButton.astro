@@ -8,13 +8,15 @@
 </button>
 
 <script>
+  import { THEME_KEY } from '../../site/theme';
+
   const html = document.documentElement;
   const label = () => (html.classList.contains('dark') ? 'Switch to light mode' : 'Switch to dark mode');
   document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle]').forEach((button) => {
     button.setAttribute('aria-label', label());
     button.addEventListener('click', () => {
       const next = html.classList.contains('dark') ? 'light' : 'dark';
-      try { localStorage.setItem('theme', next); } catch { /* The theme still applies for this page. */ }
+      try { localStorage.setItem(THEME_KEY, next); } catch { /* The theme still applies for this page. */ }
       html.classList.toggle('dark', next === 'dark');
       document.querySelectorAll('[data-theme-toggle]').forEach((b) => b.setAttribute('aria-label', label()));
     });

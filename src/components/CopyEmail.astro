@@ -1,0 +1,41 @@
+---
+import { site } from '../site/site';
+
+interface Props { icon?: boolean; style?: string }
+const { icon = false, style } = Astro.props;
+---
+<button type="button" class="copy" data-copy-email={site.email} aria-label={`Copy email address ${site.email}`} style={style}>
+  <span>{site.email}</span>
+  <span class="copied" hidden>copied</span>
+  {icon && <svg class="ic copy-ic" viewBox="0 0 24 24" aria-hidden="true" style="width: 14px; height: 14px;"><rect x="9" y="9" width="11" height="11" rx="2"></rect><path d="M5 15V5a1 1 0 0 1 1-1h9"></path></svg>}
+</button>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('[data-copy-email]').forEach((button) => {
+    const address = button.dataset.copyEmail ?? '';
+    const copied = button.querySelector<HTMLElement>('.copied')!;
+    const icon = button.querySelector<SVGElement>('.copy-ic');
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    button.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(address);
+      } catch {
+        window.location.href = `mailto:${address}`;
+        return;
+      }
+      copied.hidden = false;
+      icon?.toggleAttribute('hidden', true);
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        copied.hidden = true;
+        icon?.toggleAttribute('hidden', false);
+      }, 1600);
+    });
+  });
+</script>
+
+<style is:global>
+  .copy { font: inherit; font-size: 16px; color: var(--muted); background: none; border: 0; padding: 0; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
+  .copy:hover { color: var(--ink); }
+  .copy .copied { color: var(--accent-text); }
+</style>

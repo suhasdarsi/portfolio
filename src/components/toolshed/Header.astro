@@ -1,17 +1,17 @@
 ---
-// Toolshed's own top bar: name and alpha badge, four tabs, then search (home page only), theme and the way home.
 import ThemeButton from '../site/ThemeButton.astro';
-import { cleanPath } from '../../utils/clean-path';
-import { getTools } from '../../utils/content';
+import { cleanPath, site } from '../../site/site';
+import { toolCategories } from '../../toolshed/categories';
+import { categoryHref, getTools } from '../../toolshed/tools';
 
 interface Props { search?: boolean; }
 const { search = false } = Astro.props;
 const toolCount = search ? (await getTools()).length : 0;
 
 const path = cleanPath(Astro.url.pathname);
-const fixed = ['/toolshed/tools', '/toolshed/about', '/toolshed/suggest'];
+const inCategory = toolCategories.some((category) => path === categoryHref(category) || path.startsWith(`${categoryHref(category)}/`));
 const links = [
-  { label: 'Categories', href: '/toolshed', active: path === '/toolshed' || (path.startsWith('/toolshed/') && !fixed.some((p) => path === p || path.startsWith(`${p}/`))) },
+  { label: 'Categories', href: '/toolshed', active: path === '/toolshed' || inCategory },
   { label: 'All tools', href: '/toolshed/tools', active: path.startsWith('/toolshed/tools') },
   { label: 'How it works', href: '/toolshed/about', active: path === '/toolshed/about' },
   { label: 'Suggest a tool', href: '/toolshed/suggest', active: path === '/toolshed/suggest' },
@@ -36,7 +36,7 @@ const links = [
       </form>
     )}
     <ThemeButton />
-    <a class="navlink hide-sm" href="/" aria-label="Suhas Darsi, home">Suhas Darsi</a>
+    <a class="navlink hide-sm" href="/" aria-label={`${site.name}, home`}>{site.name}</a>
   </div>
 </header>
 

@@ -1,22 +1,18 @@
 import rss from '@astrojs/rss';
-import { getPublishedBlogEntriesByDate } from '../utils/content';
-import type { APIContext } from 'astro';
+import { getNotes, noteHref } from '../notes/notes';
+import { absoluteUrl, site } from '../site/site';
 
-export async function GET(context: APIContext) {
-  const notes = await getPublishedBlogEntriesByDate();
-
-  const items = notes.map((note) => ({
-    title: note.data.title,
-    description: note.data.description,
-    pubDate: note.data.pubDate,
-    // Absolute and slash-free so the item URL matches the canonical page URL.
-    link: `${context.site!.toString().replace(/\/$/, '')}/notes/${note.id}`,
-  }));
-
+export async function GET() {
+  const notes = await getNotes();
   return rss({
-    title: 'Suhas Darsi — Notes',
+    title: `${site.name} — Notes`,
     description: 'Long-form notes about AI security, agent systems, and network risk.',
-    site: context.site!,
-    items,
+    site: site.url,
+    items: notes.map((note) => ({
+      title: note.data.title,
+      description: note.data.description,
+      pubDate: note.data.pubDate,
+      link: absoluteUrl(noteHref(note.id)),
+    })),
   });
 }

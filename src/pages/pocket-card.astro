@@ -1,8 +1,8 @@
 ---
 import SiteLayout from '../layouts/SiteLayout.astro';
+import { fieldMax, pocketCardColors, type ContactField } from '../pocket-card/contact';
 
-type Field = { name: string; label: string; placeholder: string; type?: 'text' | 'tel' | 'email' | 'url'; autocomplete?: string };
-// Each group is a list of rows; a row with two fields sits side by side.
+type Field = { name: ContactField; label: string; placeholder: string; type?: 'text' | 'tel' | 'email' | 'url'; autocomplete?: string };
 const groups: { legend: string; rows: Field[][] }[] = [
   { legend: 'You', rows: [
     [{ name: 'name', label: 'Full name', placeholder: 'Ada Lovelace', autocomplete: 'name' }],
@@ -22,9 +22,11 @@ const groups: { legend: string; rows: Field[][] }[] = [
     [{ name: 'note', label: 'Anything else to show on the back', placeholder: 'Pronouns, timezone, a line about you' }],
   ] },
 ];
+// The preview takes its colours from the signed pass, so the two can't drift apart.
+const passTokens = `#wallet-preview { --pass-bg: ${pocketCardColors.backgroundColor}; --pass-fg: ${pocketCardColors.foregroundColor}; --pass-label: ${pocketCardColors.labelColor}; }`;
 ---
 
-<SiteLayout title="Pocket Card — Suhas Darsi" description="Make a contact card for Apple Wallet and share it with a scan." noindex current="apps">
+<SiteLayout title="Pocket Card — Suhas Darsi" description="Make a contact card for Apple Wallet and share it with a scan." current="apps">
   <section class="page-head">
     <span class="eyebrow">Tiny app</span>
     <h1 class="title">Pocket Card</h1>
@@ -39,7 +41,7 @@ const groups: { legend: string; rows: Field[][] }[] = [
           {group.rows.map((row) => {
             const fields = row.map((field) => (
               <label class="lab" for={field.name}>{field.label}<input id={field.name} name={field.name} class="field plain" type={field.type ?? 'text'} placeholder={field.placeholder}
-                maxlength={field.name === 'note' ? 240 : 160} autocomplete={field.autocomplete ?? 'off'} spellcheck="false" required={field.name === 'name'} /></label>
+                maxlength={fieldMax(field.name)} autocomplete={field.autocomplete ?? 'off'} spellcheck="false" required={field.name === 'name'} /></label>
             ));
             return row.length > 1 ? <div class="two">{fields}</div> : fields;
           })}
@@ -47,6 +49,7 @@ const groups: { legend: string; rows: Field[][] }[] = [
       ))}
     </form>
 
+    <Fragment set:html={`<style>${passTokens}</style>`} />
     <aside class="preview" aria-label="Live preview">
       <div class="pass" id="wallet-preview">
         <div style="display: grid; gap: 8px;">
@@ -76,15 +79,15 @@ const groups: { legend: string; rows: Field[][] }[] = [
 
 <script>
   import QRCode from 'qrcode';
-  import { cardRoleLine, contactFields, generateVCard, validateContact } from '../utils/contact-card';
+  import { cardRoleLine, contactFields, generateVCard, validateContact } from '../pocket-card/contact';
   const $ = <T extends Element = HTMLElement>(selector: string) => document.querySelector<T>(selector)!;
   const status = $('#contact-status');
   const image = $<HTMLImageElement>('#contact-qr');
   const placeholder = $('#qr-placeholder');
   const form = $<HTMLFormElement>('#contact-form');
   const actions = ['#save-wallet', '#save-qr', '#save-contact'].map((selector) => $<HTMLButtonElement>(selector));
-  const inputs = Object.fromEntries(contactFields.map((name) => [name, $<HTMLInputElement>(`#${name}`)]));
-  const read = () => validateContact(Object.fromEntries(contactFields.map((name) => [name, inputs[name].value])));
+  const inputs = Object.fromEntries(contactFields.map(({ name }) => [name, $<HTMLInputElement>(`#${name}`)]));
+  const read = () => validateContact(Object.fromEntries(contactFields.map(({ name }) => [name, inputs[name].value])));
   const message = (error: unknown, tone: 'error' | 'info' = error instanceof Error ? 'error' : 'info') => {
     status.textContent = error instanceof Error ? error.message : String(error); status.dataset.tone = tone;
   };
@@ -160,15 +163,14 @@ const groups: { legend: string; rows: Field[][] }[] = [
   .two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
   .lab { display: grid; gap: 8px; font-size: 13px; color: var(--muted); }
   .lab .field:user-invalid { border-color: var(--alert); }
-  .pass { border-radius: 20px; background: var(--ink); color: var(--bg); padding: 24px; display: grid; gap: 16px; aspect-ratio: 1 / 1.35; max-width: 100%; align-content: space-between; }
-  .pass [hidden] { display: none; }
-  .pass .pk { font-family: Geist, sans-serif; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; opacity: .6; }
+  .pass { border-radius: 20px; background: var(--pass-bg); color: var(--pass-fg); padding: 24px; display: grid; gap: 16px; aspect-ratio: 1 / 1.35; max-width: 100%; align-content: space-between; }
+  .pass .pk { font-family: Geist, sans-serif; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--pass-label); }
   .pass .pn { font-size: 28px; font-weight: 600; letter-spacing: -.015em; line-height: 1.15; overflow-wrap: anywhere; }
   .pass .pr { font-size: 16px; opacity: .72; overflow-wrap: anywhere; }
   .pass .row { overflow-wrap: anywhere; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; font-size: 13px; }
-  .pass .row span:first-child { display: block; font-family: Geist, sans-serif; font-size: 13px; letter-spacing: .06em; text-transform: uppercase; opacity: .7; }
+  .pass .row span:first-child { display: block; font-family: Geist, sans-serif; font-size: 13px; letter-spacing: .06em; text-transform: uppercase; color: var(--pass-label); }
   .pass .qr { justify-self: center; width: 160px; height: auto; padding: 8px; background: #ffffff; border-radius: 8px; }
-  .qr-empty { justify-self: center; width: 121px; height: 121px; border-radius: 8px; border: 1px dashed color-mix(in srgb, var(--bg) 40%, transparent); display: grid; place-items: center; text-align: center; font-size: 13px; opacity: .7; padding: 8px; }
+  .qr-empty { justify-self: center; width: 121px; height: 121px; border-radius: 8px; border: 1px dashed color-mix(in srgb, var(--pass-fg) 40%, transparent); display: grid; place-items: center; text-align: center; font-size: 13px; opacity: .7; padding: 8px; }
   .preview .btn:disabled { cursor: not-allowed; }
   #contact-status { font-size: 13px; color: var(--accent-text); }
   #contact-status:empty { display: none; }

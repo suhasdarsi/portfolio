@@ -10,7 +10,6 @@ import { join } from 'node:path';
  *   - title/description length for search: tests/quality/seo.test.ts
  *   - answer-engine structure: tests/quality/aeo.test.ts
  *   - type scale (13/16/28px) and 16px/1.6 body: tests/browser/typography.spec.ts, reading.spec.ts
- *   - prose column has no max-width override: tests/layout-widths.test.ts
  *
  * Counted text: the rendered note body (<div class="prose">) only. <pre>, <code>, <svg>,
  * <figure>, <table>, nav, footer and the table of contents sit outside that div or are

@@ -12,7 +12,7 @@ import { dirname, join, resolve } from 'node:path';
  *   - type scale 13/16/28px: tests/browser/typography.spec.ts
  *   - axe contrast and general a11y: tests/browser/site.spec.ts
  *   - reading controls: tests/browser/reading.spec.ts; swatch page: tests/browser/swatchbook.spec.ts
- *   - single column and mobile gutter rule exist in the CSS: tests/layout-widths.test.ts
+ *   - single column and mobile gutters: tests/browser/styling.spec.ts
  *   - body size, line length, paragraph gap: tests/quality/readability.test.ts, tests/browser/readability.spec.ts
  *
  * Scope note: only files reachable from src/pages through imports are checked, so dead code cannot

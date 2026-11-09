@@ -1,7 +1,7 @@
 ---
 // Toolshed is an independent app inside the site: its own top bar and footer around the wide column.
-// It's in alpha: pages carry the alpha banner (About explains it in its own box instead), and search
-// engines are asked not to index it yet.
+// It's in alpha: pages carry the alpha banner (About explains it in its own box instead), and src/site/site.ts
+// keeps it out of search engines.
 import SiteHead from '../components/SiteHead.astro';
 import ToolshedHeader from '../components/toolshed/Header.astro';
 import ToolshedFooter from '../components/toolshed/Footer.astro';
@@ -21,7 +21,7 @@ const { title, description, turnstile = false, search = false, banner = true } =
 <!doctype html>
 <html lang="en">
   <head>
-    <SiteHead title={title} description={description} noindex turnstile={turnstile} />
+    <SiteHead title={title} description={description} turnstile={turnstile} />
   </head>
   <body class="sd">
     <a href="#main-content" class="skip-link">Skip to main content</a>
@@ -39,10 +39,8 @@ const { title, description, turnstile = false, search = false, banner = true } =
 </html>
 
 <style is:global>
-  /* Shared by the Toolshed pages: the employer disclosure next to a tool, and lists filtered with [hidden]. */
+  /* Shared by the Toolshed pages: the employer disclosure next to a tool. */
   .emp { font-family: Geist, sans-serif; font-size: 13px; letter-spacing: .04em; text-transform: uppercase; color: var(--accent-text); margin-left: 8px; }
-  .sd [hidden] { display: none !important; }
-  /* Bold stops at 600, as in the design; Markdown writes <strong> where the design has <b>. */
+  /* Bold stops at 600, as in the design. */
   .sd h2.eyebrow { font-weight: 600; }
-  .prose strong { color: var(--ink); font-weight: 600; }
 </style>

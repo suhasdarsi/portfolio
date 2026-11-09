@@ -1,11 +1,11 @@
 ---
 import ToolshedLayout from '../../layouts/ToolshedLayout.astro';
-import { toolCategories } from '../../data/toolshed';
-import { githubIssueLink } from '../../utils/toolshed-request';
+import { toolCategories } from '../../toolshed/categories';
+import { TURNSTILE_ACTION, githubIssueLink } from '../../toolshed/request';
 
 // The form goes live once the Turnstile sitekey is set at build time; until then it points to GitHub.
 const sitekey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY ?? '';
-const fallback = githubIssueLink('suhasdarsi/portfolio');
+const fallback = githubIssueLink();
 ---
 
 <ToolshedLayout
@@ -27,7 +27,7 @@ const fallback = githubIssueLink('suhasdarsi/portfolio');
     </div>
 
     {sitekey ? (
-      <form id="suggest-form" class="box form" novalidate data-sitekey={sitekey}>
+      <form id="suggest-form" class="box form" novalidate data-sitekey={sitekey} data-action={TURNSTILE_ACTION}>
         <fieldset class="kind">
           <legend>What would you like to do?</legend>
           <label><input type="radio" name="kind" value="add" checked /> Add a tool</label>
@@ -81,45 +81,35 @@ const fallback = githubIssueLink('suhasdarsi/portfolio');
   </div>
 </ToolshedLayout>
 
-{sitekey && (
-  <script
-    is:inline
-    src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
-    async
-    defer
-  ></script>
-)}
-
 <script>
-  import { validateToolRequest } from '../../utils/toolshed-request';
+  import { validateToolRequest } from '../../toolshed/request';
 
   type Turnstile = {
     render(el: string, options: Record<string, unknown>): string;
     reset(id: string): void;
     getResponse(id: string): string | undefined;
   };
+  const turnstileWindow = window as unknown as { turnstile?: Turnstile; onTurnstileLoad?: () => void };
   const form = document.querySelector<HTMLFormElement>('#suggest-form');
   const status = document.getElementById('suggest-status');
   const relationship = document.getElementById('relationship');
   const detailsLabel = document.getElementById('details-label');
   let widgetId: string | undefined;
 
-  // Render the widget explicitly so it can be reset after each attempt; tokens are single-use.
-  function renderWidget() {
-    const turnstile = (window as unknown as { turnstile?: Turnstile }).turnstile;
-    if (!form || widgetId !== undefined) return;
-    if (!turnstile) {
-      setTimeout(renderWidget, 200);
-      return;
-    }
-    widgetId = turnstile.render('#turnstile', {
-      sitekey: form.dataset.sitekey,
-      action: 'toolshed_request',
-    });
-  }
-
   if (form) {
-    renderWidget();
+    // Render the widget explicitly, once Turnstile has loaded, so it can be reset after each attempt;
+    // tokens are single-use.
+    turnstileWindow.onTurnstileLoad = () => {
+      widgetId = turnstileWindow.turnstile!.render('#turnstile', {
+        sitekey: form.dataset.sitekey,
+        action: form.dataset.action,
+      });
+    };
+    document.head.append(Object.assign(document.createElement('script'), {
+      src: 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=onTurnstileLoad',
+      async: true,
+    }));
+
     form.addEventListener('change', () => {
       const data = new FormData(form);
       if (relationship) relationship.hidden = data.get('affiliated') !== 'yes';
@@ -130,7 +120,7 @@ const fallback = githubIssueLink('suhasdarsi/portfolio');
 
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
-      const turnstile = (window as unknown as { turnstile?: Turnstile }).turnstile;
+      const { turnstile } = turnstileWindow;
       const data = new FormData(form);
       const say = (message: string) => {
         if (status) status.textContent = message;

@@ -92,7 +92,11 @@ test('404 search recovers after a failed request', async ({ page }) => {
   await input.fill('network');
   await expect(page.locator('#error-search-status')).toContainText('unavailable');
   await input.fill('network risk');
-  await expect(page.locator('.error-search-result').first()).toBeVisible();
+  const result = page.locator('.error-search-result').first();
+  await expect(result).toBeVisible();
+  // Rows built at runtime still get the site's row style and the note's date.
+  await expect(result).toHaveCSS('border-bottom-style', 'solid');
+  await expect(result.locator('.l')).toHaveText(/^[A-Z][a-z]{2} \d{1,2}$/);
 });
 
 for (const path of ['/', '/about', '/notes', note, '/uses', '/404']) {

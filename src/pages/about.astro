@@ -1,18 +1,11 @@
 ---
+import CopyEmail from '../components/CopyEmail.astro';
 import SiteLayout from '../layouts/SiteLayout.astro';
-import { person } from '../utils/structured-data';
+import { roles, site } from '../site/site';
+import { person } from '../site/structured-data';
 
-const currently = [
-  { label: 'Founder', name: 'SuperAlign AI', url: 'https://superalign.ai' },
-  { label: 'Chair at AI Alignment Chapter', name: 'RIMAS Singapore', url: 'https://www.rimas.org.sg/' },
-  { label: 'Guest Lecturer', name: 'SUSS', url: 'https://www.suss.edu.sg/' },
-];
-const previously = [
-  { label: 'Founder', name: 'Aztlan', url: 'https://www.linkedin.com/company/aztlan/' },
-  { label: 'Masters in AI', name: 'IIIT Hyderabad', url: 'https://www.iiit.ac.in/' },
-  { label: 'Bachelors', name: 'IIIT Hyderabad', url: 'https://www.iiit.ac.in/' },
-];
-const email = 'suhas@superalign.ai';
+const currently = roles.filter((r) => r.current);
+const previously = roles.filter((r) => !r.current);
 ---
 
 <SiteLayout pageType="AboutPage" jsonLd={[person()]} title="About Suhas Darsi — Founder and AI Security Writer" description="About Suhas Darsi — founder, researcher, and writer working on AI security." current="about">
@@ -25,47 +18,29 @@ const email = 'suhas@superalign.ai';
       <p>This site is where I publish long-form notes on AI security, agent architecture, and the network dynamics behind systemic failures.</p>
     </div>
     <div style="display: flex; flex-wrap: wrap; gap: 8px 24px; font-size: 16px; color: var(--muted);">
-      <button type="button" class="copy" data-copy-email={email}>{email}</button>
-      <a href="https://www.linkedin.com/in/suhasdarsi/">LinkedIn</a>
-      <a href="https://x.com/suhas_darsi">X</a>
-      <a href="https://booking.akiflow.com/suhas--a84d">Book a time to talk</a>
+      <CopyEmail />
+      <a href={site.linkedin}>LinkedIn</a>
+      <a href={site.x}>X</a>
+      <a href={site.booking}>Book a time to talk</a>
     </div>
   </section>
 
   <section class="sec">
     <div class="sec-label"><h2>Currently</h2></div>
     <div class="rows">
-      {currently.map((r) => <a class="mrow" href={r.url} target="_blank" rel="noopener noreferrer"><span>{r.name}</span><span class="l">{r.label} ↗</span></a>)}
+      {currently.map((r) => <a class="mrow" href={r.url} target="_blank" rel="noopener noreferrer"><span>{r.name}</span><span class="l">{r.role} ↗</span></a>)}
     </div>
   </section>
   <section class="sec" style="padding-bottom: 64px;">
     <div class="sec-label"><h2>Previously</h2></div>
     <div class="rows">
-      {previously.map((r) => <a class="mrow" href={r.url} target="_blank" rel="noopener noreferrer"><span>{r.name}</span><span class="l">{r.label} ↗</span></a>)}
+      {previously.map((r) => <a class="mrow" href={r.url} target="_blank" rel="noopener noreferrer"><span>{r.name}</span><span class="l">{r.role} ↗</span></a>)}
     </div>
   </section>
 </SiteLayout>
-
-<script>
-  // Copy the address; fall back to opening the mail app if the clipboard is unavailable.
-  document.querySelectorAll<HTMLButtonElement>('[data-copy-email]').forEach((button) => {
-    const address = button.dataset.copyEmail ?? '';
-    button.addEventListener('click', async () => {
-      try {
-        await navigator.clipboard.writeText(address);
-        button.textContent = 'Email copied';
-        setTimeout(() => { button.textContent = address; }, 1600);
-      } catch {
-        window.location.href = `mailto:${address}`;
-      }
-    });
-  });
-</script>
 
 <style is:global>
   .bio { font-size: 16px; line-height: 1.7; color: var(--body); max-width: 62ch; display: grid; gap: 16px; }
   .bio p:first-child { font-family: "Geist Serif", serif; font-size: 28px; line-height: 1.3; letter-spacing: -.012em; color: var(--ink); }
   .bio b { color: var(--ink); font-weight: 500; }
-  .copy { font: inherit; color: var(--muted); background: none; border: 0; padding: 0; cursor: pointer; }
-  .copy:hover { color: var(--ink); }
 </style>

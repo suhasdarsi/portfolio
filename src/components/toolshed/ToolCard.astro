@@ -1,26 +1,25 @@
 ---
-// One tool in a category's list: name, site, its tags here, and the other categories it appears in.
-// The whole row opens the tool (its review if I've written one); the "Also in" links sit above that.
 import Rating from './Rating.astro';
-import { toolSlug, type ToolCategory } from '../../data/toolshed';
-import { hasReview, tagCategory, toolHref, type Tool } from '../../utils/content';
+import type { ToolCategory } from '../../toolshed/categories';
+import { categoryHref, hasReview, tagsIn, toolLink, type Tool } from '../../toolshed/tools';
+import { hostname } from '../../site/format';
 
 interface Props { tool: Tool; category: ToolCategory; }
 const { tool, category } = Astro.props;
 const review = hasReview(tool) ? tool.review : undefined;
-const host = new URL(tool.url).hostname.replace(/^www\./, '');
-const tags = tool.tags.filter((tag) => tagCategory.get(tag) === category);
+const link = toolLink(tool);
+const tags = tagsIn(tool, category);
 const elsewhere = tool.categories.filter((other) => other !== category);
 ---
 
 <div class="tool" data-tool data-tags={JSON.stringify(tags)}>
   <span>
-    <a class="nm" href={review ? toolHref(tool) : tool.url} {...(review ? {} : { target: '_blank', rel: 'noopener noreferrer' })}>{tool.name}{!review && <span class="vh"> (opens in a new tab)</span>}</a>{tool.affiliated && <span class="emp">My employer</span>}{review?.data.rating && <> <Rating rating={review.data.rating} /></>}
+    <a class="nm" href={link.href} {...link.attrs}>{tool.name}{link.external && <span class="vh"> (opens in a new tab)</span>}</a>{tool.affiliated && <span class="emp">My employer</span>}{review?.data.rating && <> <Rating rating={review.data.rating} /></>}
   </span>
-  <span class="h">{review?.data.verdict ?? host} {review ? '→' : '↗'}</span>
+  <span class="h">{review?.data.verdict ?? hostname(tool.url)} {link.external ? '↗' : '→'}</span>
   <span class="tags">
     {tags.map((tag) => <span class="tag" data-tag-name={tag}>{tag}</span>)}
-    {elsewhere.length > 0 && <span class="also">Also in {elsewhere.map((other, i) => <>{i > 0 && ', '}<a href={`/toolshed/${toolSlug(other)}/tools`}>{other}</a></>)}</span>}
+    {elsewhere.length > 0 && <span class="also">Also in {elsewhere.map((other, i) => <>{i > 0 && ', '}<a href={categoryHref(other, 'tools')}>{other}</a></>)}</span>}
   </span>
 </div>
 

@@ -3,29 +3,26 @@
 import { createHash, randomUUID } from 'node:crypto';
 import { chmod, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
-import { homedir } from 'node:os';
 import { dirname, join, resolve, relative } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { parseArgs } from 'node:util';
 import sharp from 'sharp';
-import { createContactCard } from '../src/utils/contact-card';
+import { createContactCard, walletPass } from '../src/pocket-card/contact';
+import { site } from '../src/site/site';
+import { credentialDir, credentials } from './wallet-credentials';
 
 const { values } = parseArgs({
   args: process.argv.slice(2),
   options: { contact: { type: 'string' }, output: { type: 'string' } },
 });
-const privateDir = join(homedir(), '.wallet-contact');
-const output = resolve(values.output ?? join(privateDir, 'suhas-darsi.pkpass'));
+const output = resolve(values.output ?? join(credentialDir, 'suhas-darsi.pkpass'));
 const repo = resolve(import.meta.dirname, '..');
 const outputRelative = relative(repo, output);
 if (outputRelative !== '..' && !outputRelative.startsWith('../'))
   throw new Error('Save Wallet passes outside the website repository.');
 if (existsSync(output)) throw new Error('Output already exists. Choose a new --output path.');
 
-const certificate = join(privateDir, 'pass.com.suhasdarsi.contact.cert.pem');
-const key = join(privateDir, 'pass.com.suhasdarsi.contact.key.pem');
-const intermediate = join(privateDir, 'wwdr.pem');
-const root = join(privateDir, 'apple-root.pem');
+const { certificate, key, intermediate, root } = credentials;
 for (const file of [certificate, key, intermediate, root]) {
   if (!existsSync(file))
     throw new Error('Wallet signing credentials are missing from the private local folder.');
@@ -36,23 +33,21 @@ execFileSync('openssl', ['verify', '-CAfile', root, '-untrusted', intermediate, 
 const card = values.contact ? await readFile(resolve(values.contact), 'utf8') : createContactCard();
 if (
   !card.startsWith('BEGIN:VCARD') ||
-  !card.includes('FN:Suhas Darsi') ||
+  !card.includes(`FN:${site.name}`) ||
   !card.includes('END:VCARD')
 ) {
-  throw new Error('Use Suhas Darsi’s contact file downloaded from the contact page.');
+  throw new Error(`Use ${site.name}’s contact file downloaded from the contact page.`);
 }
 
 await mkdir(dirname(output), { recursive: true, mode: 0o700 });
-const work = await mkdtemp(join(privateDir, 'pass-build-'));
+const work = await mkdtemp(join(credentialDir, 'pass-build-'));
 try {
   const files = ['pass.json', 'icon.png', 'icon@2x.png', 'icon@3x.png'];
   const pass = {
     formatVersion: 1,
-    passTypeIdentifier: 'pass.com.suhasdarsi.contact',
-    teamIdentifier: 'Q24Y9Q3T67',
+    ...walletPass,
     serialNumber: randomUUID(),
-    organizationName: 'PureML Inc',
-    description: 'Suhas Darsi Contact Card',
+    description: `${site.name} Contact Card`,
     logoText: 'Contact card',
     foregroundColor: 'rgb(247, 240, 231)',
     backgroundColor: 'rgb(20, 19, 15)',
@@ -60,16 +55,16 @@ try {
     sharingProhibited: true,
     generic: {
       primaryFields: [
-        { key: 'name', label: 'FOUNDER · RESEARCHER · WRITER', value: 'Suhas Darsi' },
+        { key: 'name', label: 'FOUNDER · RESEARCHER · WRITER', value: site.name },
       ],
       secondaryFields: [
-        { key: 'company', label: 'COMPANY', value: 'SuperAlign' },
+        { key: 'company', label: 'COMPANY', value: site.company.name },
         { key: 'role', label: 'ROLE', value: 'Co-founder' },
       ],
-      auxiliaryFields: [{ key: 'website', label: 'WEBSITE', value: 'suhasdarsi.com' }],
+      auxiliaryFields: [{ key: 'website', label: 'WEBSITE', value: new URL(site.url).host }],
       backFields: [
-        { key: 'email', label: 'Email', value: 'suhas@superalign.ai' },
-        { key: 'web', label: 'Website', value: 'https://suhasdarsi.com/' },
+        { key: 'email', label: 'Email', value: site.email },
+        { key: 'web', label: 'Website', value: `${site.url}/` },
         {
           key: 'instructions',
           label: 'Save my contact',

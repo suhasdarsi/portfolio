@@ -1,16 +1,10 @@
 ---
 import SiteLayout from '../layouts/SiteLayout.astro';
-import { getPublishedBlogEntriesByDate } from '../utils/content';
-import { formatDate } from '../utils/date';
-
-// Note dates for the result rows; titles and bodies come from /search.json.
-const dates = Object.fromEntries((await getPublishedBlogEntriesByDate()).map((post) => [`/notes/${post.id}`, formatDate(post.data.pubDate)]));
 ---
 
 <SiteLayout
   title="Page not found — Suhas Darsi"
   description="The page you were looking for could not be found. Browse the notes or search to find what you need."
-  noindex
 >
   <section class="page-head" style="padding-block: 96px 64px; gap: 24px; max-width: 620px;">
     <span class="eyebrow">404</span>
@@ -26,38 +20,31 @@ const dates = Object.fromEntries((await getPublishedBlogEntriesByDate()).map((po
         <label for="error-search-input" class="vh">Search all notes</label>
         <input id="error-search-input" class="field" type="search" placeholder="Try “network risk”" autocomplete="off" />
       </div>
-      <div class="rows" id="error-search-results" data-dates={JSON.stringify(dates)}></div>
+      <div class="rows" id="error-search-results"></div>
       <p class="muted" id="error-search-status" role="status" style="font-size: 16px;"></p>
     </div>
   </section>
 </SiteLayout>
 
 <script>
-  import { searchDocuments } from '../utils/client-search';
-  import { createSearchLoader, debounce } from '../utils/search-loader';
+  import { createSearchLoader, liveSearch, searchDocuments } from '../search/client';
 
-  type SearchPost = { href: string; title: string; description?: string; body?: string };
+  const input = document.getElementById('error-search-input') as HTMLInputElement;
+  const results = document.getElementById('error-search-results')!;
+  const status = document.getElementById('error-search-status')!;
+  const loadSearch = createSearchLoader();
 
-  const input = document.getElementById('error-search-input') as HTMLInputElement | null;
-  const results = document.getElementById('error-search-results');
-  const status = document.getElementById('error-search-status');
-  const dates: Record<string, string> = JSON.parse(results?.dataset.dates ?? '{}');
-  const loadSearch = createSearchLoader<SearchPost>();
-  let requestId = 0;
-
-  const update = debounce(async () => {
-    const currentRequest = ++requestId;
-    const query = input?.value.trim() ?? '';
-    results?.replaceChildren();
-    if (status) status.textContent = '';
+  liveSearch(input, async (query, isCurrent) => {
+    results.replaceChildren();
+    status.textContent = '';
     if (!query) return;
 
     try {
-      const posts = await loadSearch();
-      if (currentRequest !== requestId) return;
-      const hits = searchDocuments(posts, query).slice(0, 5);
-      if (status) status.textContent = hits.length ? '' : 'No notes match that yet.';
-      results?.replaceChildren(...hits.map((hit) => {
+      const notes = await loadSearch();
+      if (!isCurrent()) return;
+      const hits = searchDocuments(notes, query).slice(0, 5);
+      status.textContent = hits.length ? '' : 'No notes match that yet.';
+      results.replaceChildren(...hits.map((hit) => {
         const link = document.createElement('a');
         link.className = 'mrow error-search-result';
         link.href = hit.href;
@@ -66,17 +53,14 @@ const dates = Object.fromEntries((await getPublishedBlogEntriesByDate()).map((po
         title.textContent = hit.title;
         const date = document.createElement('span');
         date.className = 'l';
-        date.textContent = dates[hit.href] ?? '';
+        date.textContent = hit.meta;
         link.append(title, date);
         return link;
       }));
     } catch {
-      if (currentRequest !== requestId) return;
-      if (status) status.textContent = 'Search is unavailable. Type again to retry.';
+      if (isCurrent()) status.textContent = 'Search is unavailable. Type again to retry.';
     }
   });
-
-  input?.addEventListener('input', () => void update());
 </script>
 
 <style is:global>

@@ -1,105 +1,55 @@
 import forge from 'node-forge';
 import { strToU8, zipSync } from 'fflate';
-import { cardRoleLine, generateVCard, validateContact } from '../src/utils/contact-card';
+import { cardRoleLine, contactFields, generateVCard, pocketCardColors, validateContact, walletPass } from '../src/pocket-card/contact';
+import { fail, headers, readJsonPost, type RateLimiter } from './json-post';
 
 export interface WalletEnv {
   WALLET_SIGNER_CERT?: string;
   WALLET_SIGNER_KEY?: string;
   WALLET_WWDR_CERT?: string;
   ASSETS: { fetch(request: Request): Promise<Response> };
-  WALLET_LIMIT?: { limit(options: { key: string }): Promise<{ success: boolean }> };
+  WALLET_LIMIT?: RateLimiter;
 }
-const backLabels = {
-  name: 'Name',
-  title: 'Role',
-  company: 'Company',
-  phone: 'Phone',
-  email: 'Email',
-  website: 'Website',
-  linkedin: 'LinkedIn',
-  twitter: 'X',
-  note: 'Notes',
-};
+
 export async function walletResponse(request: Request, env: WalletEnv): Promise<Response> {
-  const headers = { 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' };
-  const fail = (message: string, status: number) =>
-    Response.json({ error: message }, { status, headers });
-  if (request.method !== 'POST') return fail('Use the contact card form.', 405);
-  if (request.headers.get('origin') !== new URL(request.url).origin)
-    return fail('Open the form on this website.', 403);
-  if (
-    request.headers.get('content-type')?.split(';', 1)[0].trim().toLowerCase() !==
-    'application/json'
-  )
-    return fail('Invalid request.', 415);
-  if (!env.WALLET_SIGNER_CERT || !env.WALLET_SIGNER_KEY || !env.WALLET_WWDR_CERT)
-    return fail(
-      'Wallet generation is not activated yet. QR and contact downloads still work.',
-      503
-    );
-  if (
-    env.WALLET_LIMIT &&
-    !(await env.WALLET_LIMIT.limit({ key: request.headers.get('CF-Connecting-IP') ?? 'local' }))
-      .success
-  )
-    return fail('Please wait a minute before generating another card.', 429);
-  const reader = request.body?.getReader();
-  if (!reader) return fail('Missing contact details.', 400);
-  let size = 0;
-  const chunks: Uint8Array[] = [];
-  try {
-    while (true) {
-      const part = await reader.read();
-      if (part.done) break;
-      size += part.value.byteLength;
-      if (size > 8192) {
-        await reader.cancel();
-        return fail('Contact details are too large.', 413);
-      }
-      chunks.push(part.value);
-    }
-  } catch {
-    return fail('Invalid contact details.', 400);
-  } finally {
-    reader.releaseLock();
-  }
-  let payload;
+  const { WALLET_SIGNER_CERT: certificate = '', WALLET_SIGNER_KEY: key = '', WALLET_WWDR_CERT: intermediate = '' } = env;
+  const read = await readJsonPost(request, {
+    ready: Boolean(certificate && key && intermediate),
+    limiter: env.WALLET_LIMIT,
+    messages: {
+      wrongMethod: 'Use the contact card form.',
+      notReady: 'Wallet generation is not activated yet. QR and contact downloads still work.',
+      rateLimited: 'Please wait a minute before generating another card.',
+      tooLarge: 'Contact details are too large.',
+      invalid: 'Invalid contact details.',
+    },
+  });
+  if (read instanceof Response) return read;
+  const { payload } = read;
   let details;
   try {
-    const bytes = new Uint8Array(size);
-    let offset = 0;
-    for (const chunk of chunks) {
-      bytes.set(chunk, offset);
-      offset += chunk.length;
-    }
-    payload = JSON.parse(new TextDecoder().decode(bytes));
     details = validateContact(payload.contact);
-    if (!/^[0-9a-f-]{36}$/i.test(payload.id)) throw new Error('Invalid card ID.');
+    if (typeof payload.id !== 'string' || !/^[0-9a-f-]{36}$/i.test(payload.id)) throw new Error('Invalid card ID.');
   } catch (error) {
     return fail(error instanceof Error ? error.message : 'Invalid details.', 400);
   }
   try {
     const pass = {
       formatVersion: 1,
-      passTypeIdentifier: 'pass.com.suhasdarsi.contact',
-      teamIdentifier: 'Q24Y9Q3T67',
+      ...walletPass,
       serialNumber: payload.id,
-      organizationName: 'PureML Inc.',
       description: 'Pocket Card',
       logoText: 'Pocket Card',
-      // The one Pocket Card look: stone grey with ink text. Keep in sync with the preview in src/pages/pocket-card.astro.
-      backgroundColor: 'rgb(232, 229, 224)',
-      foregroundColor: 'rgb(43, 40, 37)',
-      labelColor: 'rgb(105, 100, 94)',
+      ...pocketCardColors,
       generic: {
         primaryFields: [{ key: 'name', value: details.name }],
         // Front stays minimal: name and "Role · Company". Everything else is on the back and in the QR.
         secondaryFields: [cardRoleLine(details)]
           .filter((role) => role.value)
           .map((role) => ({ key: 'role', ...role })),
-        backFields: Object.entries(details)
-          .filter(([, value]) => value)
-          .map(([key, value]) => ({ key, label: backLabels[key as keyof typeof details], value })),
+        backFields: contactFields
+          .filter(({ name }) => details[name])
+          .map(({ name, label }) => ({ key: name, label, value: details[name] })),
       },
       barcodes: [
         { format: 'PKBarcodeFormatQR', message: generateVCard(details), messageEncoding: 'utf-8' },
@@ -127,11 +77,11 @@ export async function walletResponse(request: Request, env: WalletEnv): Promise<
     files['manifest.json'] = strToU8(JSON.stringify(manifest));
     const signature = forge.pkcs7.createSignedData();
     signature.content = forge.util.createBuffer(binary(files['manifest.json']));
-    signature.addCertificate(env.WALLET_SIGNER_CERT);
-    signature.addCertificate(env.WALLET_WWDR_CERT);
+    signature.addCertificate(certificate);
+    signature.addCertificate(intermediate);
     signature.addSigner({
-      key: env.WALLET_SIGNER_KEY,
-      certificate: env.WALLET_SIGNER_CERT,
+      key,
+      certificate,
       digestAlgorithm: forge.pki.oids.sha256,
       authenticatedAttributes: [
         { type: forge.pki.oids.contentType, value: forge.pki.oids.data },

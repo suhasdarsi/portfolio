@@ -1,7 +1,8 @@
 // Shared schema.org entities. Pages link to these by @id so an answer engine resolves one Person and one WebSite.
-const SITE_URL = 'https://suhasdarsi.com';
-export const PERSON_ID = `${SITE_URL}/#person`;
-const WEBSITE_ID = `${SITE_URL}/#website`;
+import { site } from './site';
+
+export const PERSON_ID = `${site.url}/#person`;
+const WEBSITE_ID = `${site.url}/#website`;
 const CONTEXT = 'https://schema.org';
 
 export type JsonLd = Record<string, unknown>;
@@ -10,20 +11,20 @@ export const person = (): JsonLd => ({
   '@context': CONTEXT,
   '@type': 'Person',
   '@id': PERSON_ID,
-  name: 'Suhas Darsi',
-  url: SITE_URL,
-  jobTitle: 'Co-founder of SuperAlign',
-  description: 'Suhas Darsi is a co-founder of SuperAlign who writes about AI security, agent systems and network risk.',
-  worksFor: { '@type': 'Organization', name: 'SuperAlign', url: 'https://superalign.ai/' },
-  sameAs: ['https://www.linkedin.com/in/suhasdarsi/', 'https://x.com/suhas_darsi'],
+  name: site.name,
+  url: site.url,
+  jobTitle: `Co-founder of ${site.company.name}`,
+  description: `${site.name} is a co-founder of ${site.company.name} who writes about AI security, agent systems and network risk.`,
+  worksFor: { '@type': 'Organization', name: site.company.name, url: site.company.url },
+  sameAs: [site.linkedin, site.x],
 });
 
 export const website = (): JsonLd => ({
   '@context': CONTEXT,
   '@type': 'WebSite',
   '@id': WEBSITE_ID,
-  name: 'Suhas Darsi',
-  url: SITE_URL,
+  name: site.name,
+  url: site.url,
   description: 'Notes on AI security, agent systems and network risk, plus small micro-apps.',
   publisher: { '@id': PERSON_ID },
   inLanguage: 'en',

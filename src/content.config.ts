@@ -1,30 +1,31 @@
 import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
-import { toolCategories } from './data/toolshed';
+import { toolCategories } from './toolshed/categories';
+import { NOTES_DIRECTORY } from './notes/publishing.mjs';
+import { site } from './site/site';
 
 const dateSchema = z.coerce.date().refine((date) => !Number.isNaN(date.valueOf()), {
   message: 'Invalid date',
 });
 
 const blog = defineCollection({
-  loader: glob({ pattern: "**/*.md", base: "./src/content/blog" }),
+  loader: glob({ pattern: "**/*.md", base: `./${NOTES_DIRECTORY}` }),
   schema: z.object({
     title: z.string(),
     description: z.string(),
     pubDate: dateSchema,
     updatedDate: dateSchema.optional(),
     revisions: z.array(z.object({ date: dateSchema, summary: z.string().trim().min(1) })).default([]),
-    author: z.string().default('Suhas Darsi'),
+    author: z.string().default(site.name),
     draft: z.boolean().default(false),
-    published: z.boolean().optional(),
     dueDate: dateSchema.optional(),
     topics: z.array(z.enum(['AI Security', 'Building with AI'])).default([]),
   }),
 });
 
 // Toolshed reviews: one file per security tool I've tried, named after the tool's slug in
-// src/data/security-tools.ts. Name, link and tags come from there; a tool that isn't listed
+// src/toolshed/catalog.ts. Name, link and tags come from there; a tool that isn't listed
 // must set them here. Only my own feedback goes in these files.
 const tools = defineCollection({
   loader: glob({ pattern: "**/*.md", base: "./src/content/tools" }),

@@ -1,7 +1,7 @@
 ---
 import ToolshedLayout from '../../layouts/ToolshedLayout.astro';
-import { getTools } from '../../utils/content';
-import { toolCategories } from '../../data/toolshed';
+import { getTools } from '../../toolshed/tools';
+import { toolCategories } from '../../toolshed/categories';
 
 const tools = await getTools();
 ---
