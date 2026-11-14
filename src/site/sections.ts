@@ -25,7 +25,7 @@ export const pages: Section[] = [
 
 export const nav = [
   { key: 'notes', label: 'Notes', href: '/notes' },
-  { key: 'apps', label: 'Apps', href: '/#apps' },
+  { key: 'apps', label: 'Apps', href: '/apps' },
   { key: 'about', label: 'About', href: '/about' },
   { key: 'uses', label: 'Uses', href: '/uses' },
 ] as const;

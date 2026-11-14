@@ -2,8 +2,8 @@ import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { designSystems } from '../../src/swatchbook/design-systems';
 
-test('Swatchbook can be found from home, searched and filtered', async ({ page }) => {
-  await page.goto('/');
+test('Swatchbook can be found from the apps page, searched and filtered', async ({ page }) => {
+  await page.goto('/apps');
   await page.locator('a.app[href="/swatchbook"]').click();
   await expect(page).toHaveURL(/\/swatchbook$/);
   await expect(page.getByRole('heading', { name: 'Swatchbook', level: 1 })).toBeVisible();

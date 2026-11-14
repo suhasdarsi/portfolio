@@ -79,23 +79,3 @@ function fromLinks(id: string, links: NoteLinks): string {
 export function noteCover(id: string, links: NoteLinks): string {
   return drawn[id]?.() ?? fromLinks(id, links);
 }
-
-export interface GraphNode {
-  id: string;
-  x: number;
-  y: number;
-}
-
-export const GRAPH_SIZE = 220;
-const MOST_NEIGHBOURS = 16; // more than this and the nodes touch at rail width
-
-// The note and the notes linked with it (in either direction) only, so the drawing stays readable however many notes there are.
-export function localGraph(id: string, links: NoteLinks): { nodes: GraphNode[]; hidden: number } {
-  const ids = [...new Set([...links.linksTo, ...links.linkedFrom])];
-  const shown = ids.slice(0, MOST_NEIGHBOURS);
-  const turn = ([...id].reduce((sum, ch) => sum + ch.charCodeAt(0), 0) % 60) / 10;
-  const middle = GRAPH_SIZE / 2;
-  const points = ring([middle, middle], middle - 24, shown.length, turn);
-  const nodes = shown.map((neighbour, i): GraphNode => ({ id: neighbour, x: points[i][0], y: points[i][1] }));
-  return { nodes, hidden: ids.length - shown.length };
-}

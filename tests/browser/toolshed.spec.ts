@@ -12,7 +12,7 @@ async function expectAccessible(page: Page) {
 const fits = (page: Page) => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth);
 
 test('Toolshed is its own app: own navigation, category cards, independence footer', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/apps');
   await page.locator('a.app[href="/toolshed"]').click();
   await expect(page).toHaveURL(/\/toolshed$/);
   await expect(page.getByRole('heading', { name: 'Toolshed', level: 1 })).toBeVisible();

@@ -1,0 +1,82 @@
+---
+// The graph of notes, used two ways. On a note (`here`), it is that note and only the notes linked with it.
+// Without `here` it is every published note. Each node is a link to its note; the name shows in the hover preview
+// (NotePreviews) and is read out by screen readers. Pointing at a node lights up its links and fades the rest.
+import { noteGraph } from '../notes/graph';
+import { noteHref, type Note, type NoteLinks } from '../notes/notes';
+
+interface Props {
+  /** Every published note. */
+  notes: Note[];
+  links: Map<string, NoteLinks>;
+  /** The note being read: show only its linked notes. */
+  here?: Note;
+  /** The side of the square drawing, about the width it is shown at, so nodes are the same size everywhere. */
+  size?: number;
+}
+const { notes, links, here, size = 220 } = Astro.props;
+const { nodes, edges, hidden } = noteGraph(notes.map((note) => note.id), links, size, here?.id);
+const titles = new Map(notes.map((note) => [note.id, note.data.title]));
+---
+
+{nodes.length > 1 && (
+  <nav class="graph" aria-label={here ? 'Graph of linked notes' : 'Graph of all notes'}>
+    {here && <span class="eyebrow">Graph</span>}
+    <svg viewBox={`0 0 ${size} ${size}`} role="group" aria-label={here ? `${here.data.title} and its linked notes` : 'Every note and the links between them'}>
+      {edges.map(([a, b]) => <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} data-a={a.id} data-b={b.id} />)}
+      {nodes.map((node) => node.here
+        ? <circle class="node here" cx={node.x} cy={node.y} r={node.r} data-id={node.id} />
+        : (
+          <a href={noteHref(node.id)} aria-label={titles.get(node.id)} data-id={node.id}>
+            <circle class="hit" cx={node.x} cy={node.y} r={node.r + 8} />
+            <circle class="node" cx={node.x} cy={node.y} r={node.r} />
+          </a>
+        ))}
+    </svg>
+    {hidden > 0 && <span class="graph-key">and {hidden} more, listed below</span>}
+    {!here && <span class="graph-key">Every note and the links between them. Point at a note to see it.</span>}
+  </nav>
+)}
+
+<script>
+  // Pointing at (or tabbing to) a node marks it, its links and the notes at the other end; the stylesheet fades the rest.
+  for (const svg of document.querySelectorAll<SVGSVGElement>('.graph svg')) {
+    const lit = () => svg.querySelectorAll('.lit');
+    const clear = () => {
+      svg.classList.remove('focused');
+      for (const el of lit()) el.classList.remove('lit');
+    };
+    const focus = (target: EventTarget | null) => {
+      const link = target instanceof Element ? target.closest<SVGAElement>('a[data-id]') : null;
+      clear();
+      if (!link) return;
+      const id = link.dataset.id;
+      const near = new Set([id]);
+      for (const line of svg.querySelectorAll<SVGLineElement>('line')) {
+        if (line.dataset.a !== id && line.dataset.b !== id) continue;
+        line.classList.add('lit');
+        near.add(line.dataset.a).add(line.dataset.b);
+      }
+      for (const node of svg.querySelectorAll<SVGElement>('[data-id]')) if (near.has(node.dataset.id)) node.classList.add('lit');
+      svg.classList.add('focused');
+    };
+    svg.addEventListener('pointerover', (event) => focus(event.target));
+    svg.addEventListener('pointerleave', clear);
+    svg.addEventListener('focusin', (event) => focus(event.target));
+    svg.addEventListener('focusout', clear);
+  }
+</script>
+
+<style>
+  .graph { display: grid; gap: 8px; font-size: 13px; color: var(--faint); max-width: 440px; }
+  .graph svg { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+  .graph line { stroke: var(--line-strong); stroke-width: 1; transition: opacity .15s, stroke .15s; }
+  .graph .node { fill: var(--muted); transition: opacity .15s, fill .15s; }
+  .graph .node.here { fill: var(--accent-text); }
+  .graph .hit { fill: transparent; }
+  .graph a:hover .node, .graph a:focus-visible .node { fill: var(--accent-text); }
+  .graph a:focus-visible { outline: none; }
+  .graph a:focus-visible .hit { stroke: var(--focus); stroke-width: 2; }
+  .graph .focused line:not(.lit), .graph .focused a:not(.lit) .node, .graph .focused .node.here:not(.lit) { opacity: .25; }
+  .graph .focused line.lit { stroke: var(--accent-text); }
+</style>

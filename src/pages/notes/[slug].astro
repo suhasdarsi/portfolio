@@ -3,7 +3,7 @@ import { render } from 'astro:content';
 import SiteLayout from '../../layouts/SiteLayout.astro';
 import CopyCode from '../../components/CopyCode.astro';
 import CopyLink from '../../components/CopyLink.astro';
-import LocalGraph from '../../components/LocalGraph.astro';
+import NoteGraph from '../../components/NoteGraph.astro';
 import NotePreviews from '../../components/NotePreviews.astro';
 import NoteStage from '../../components/NoteStage.astro';
 import ReadingGuide from '../../components/ReadingGuide.astro';
@@ -157,7 +157,7 @@ const pageTitle = fullTitle.length <= 65 ? fullTitle : post.data.title;
 
     <aside class="rail">
       <ReadingGuide headings={headings} />
-      <LocalGraph note={post} links={links.get(post.id)!} byId={byId} />
+      <NoteGraph notes={[...byId.values()]} links={links} here={post} />
       {neighbours.length > 0 && (
         <nav class="connected" aria-label="Linked notes">
           <span class="eyebrow">Linked notes</span>

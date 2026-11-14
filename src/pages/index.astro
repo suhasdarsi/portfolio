@@ -4,12 +4,11 @@ import SiteLayout from '../layouts/SiteLayout.astro';
 import { noteCover } from '../notes/cover';
 import { getNoteLinks, getNotes, noteHref } from '../notes/notes';
 import { formatDate } from '../site/format';
+import NotePreviews from '../components/NotePreviews.astro';
+import NoteGraph from '../components/NoteGraph.astro';
 import NoteStage from '../components/NoteStage.astro';
-import { roles, site } from '../site/site';
+import { site } from '../site/site';
 import { person, website } from '../site/structured-data';
-import { designSystems } from '../swatchbook/design-systems';
-import { toolCategories } from '../toolshed/categories';
-import { getTools, inCategory } from '../toolshed/tools';
 
 const posts = await getNotes();
 const links = getNoteLinks(posts);
@@ -21,48 +20,15 @@ const notes = posts.map((post) => ({
   cover: noteCover(post.id, links.get(post.id)!),
   stage: post.data.stage,
 }));
-// The newest notes get a card with a cover; the next few are a plain list beside them.
-const CARDS = 4;
-const LISTED = 6;
-const cards = notes.slice(0, CARDS);
-const listed = notes.slice(CARDS, CARDS + LISTED);
-const tools = await getTools();
-// The six biggest Toolshed categories, for the thumbnail.
-const bars = toolCategories
-  .map((category) => [category, inCategory(tools, category).length] as const)
-  .sort((a, b) => b[1] - a[1])
-  .slice(0, 6);
-const barMax = bars[0][1];
-
-
-function qrCells() {
-  const cells: boolean[] = [];
-  const finder = (x: number, y: number, ox: number, oy: number) => {
-    const dx = x - ox, dy = y - oy;
-    if (dx < 0 || dy < 0 || dx > 6 || dy > 6) return null;
-    return dx === 0 || dy === 0 || dx === 6 || dy === 6 || (dx >= 2 && dx <= 4 && dy >= 2 && dy <= 4);
-  };
-  let seed = 7;
-  for (let y = 0; y < 21; y++) for (let x = 0; x < 21; x++) {
-    let on = finder(x, y, 0, 0) ?? finder(x, y, 14, 0) ?? finder(x, y, 0, 14);
-    if (on === null) {
-      const near = (x < 8 && y < 8) || (x > 12 && y < 8) || (x < 8 && y > 12);
-      seed = (seed * 1103515245 + 12345) % 2147483648;
-      on = near ? false : seed % 100 < 47;
-    }
-    cells.push(on);
-  }
-  return cells;
-}
-const qr = qrCells();
-const spines = [['Carbon', '78%'], ['Primer', '92%'], ['GOV.UK', '70%'], ['Polaris', '86%'], ['Radix', '64%'], ['Fluent 2', '96%']];
+// The newest notes get a card with a cover; the graph beside them reaches every note.
+const cards = notes.slice(0, 4);
 const external = { target: '_blank', rel: 'noopener noreferrer' };
 ---
 
 <SiteLayout jsonLd={[website(), person()]} title="Suhas Darsi — AI Security Notes and Micro-Apps" description="Notes on AI security, agent systems, and network risk, plus micro-apps and ways to connect with Suhas Darsi.">
   <section class="g-hero">
-    <h1 class="serif">Suhas writes notes on how AI systems fail.</h1>
-    <p class="g-sub">Co-founder of <a class="g-link" href={site.company.url} {...external}>{site.company.name}</a>, working on AI security. Also a maker of tiny apps anyone can open and use.</p>
+    <h1 class="serif">I study how AI systems fail, and how to deploy them safely.</h1>
+    <p class="g-sub">I’m {site.name}, co-founder of <a class="g-link" href={site.company.url} {...external}>{site.company.name}</a>, where we help security teams see and control how AI is used in their organizations. I write about what happens when AI becomes the hub everything else connects through.</p>
     <div class="elsewhere">
       <CopyEmail icon />
       <a href={site.linkedin} {...external}>LinkedIn</a>
@@ -73,119 +39,40 @@ const external = { target: '_blank', rel: 'noopener noreferrer' };
 
   <section id="writing" class="g-section">
     <div class="g-head">
-      <h2 class="serif">Garden</h2>
+      <h2 class="serif">Notes</h2>
       <p>Every network has a hub. Every hub is a way in. These notes on AI security link to each other, so start anywhere and follow the threads. <a class="g-link" href="/notes">All notes</a></p>
     </div>
     <div class="g-grid">
-      <div>
-        <h3 class="g-kind">Newest notes</h3>
-        <p class="g-gloss">Each cover is a diagram of the idea inside.</p>
-        <div class="g-cards">
-          {cards.map((note) => (
-            <a class="g-card" href={note.href}>
-              <span class="g-cover"><svg viewBox="0 0 320 220" aria-hidden="true" set:html={note.cover} /></span>
-              <span class="g-title serif">{note.title}</span>
-              <span class="g-desc">{note.desc}</span>
-              <span class="g-meta"><NoteStage stage={note.stage} /><span>{note.date}</span></span>
-            </a>
-          ))}
-        </div>
+      <div class="g-cards">
+        {cards.map((note) => (
+          <a class="g-card" href={note.href}>
+            <span class="g-cover"><svg viewBox="0 0 320 220" aria-hidden="true" set:html={note.cover} /></span>
+            <span class="g-title serif">{note.title}</span>
+            <span class="g-desc">{note.desc}</span>
+            <span class="g-meta"><NoteStage stage={note.stage} /><span>{note.date}</span></span>
+          </a>
+        ))}
       </div>
-      {listed.length > 0 && (
-        <div>
-          <h3 class="g-kind">Earlier notes</h3>
-          <p class="g-gloss">Where the thread starts.</p>
-          <div class="rows">
-            {listed.map((note) => (
-              <a class="g-item" href={note.href}>
-                <svg class="g-glyph" viewBox="0 0 22 22" aria-hidden="true"><path d="M11 11 4 5M11 11l7-5M11 11v8"></path><circle class="fill" cx="11" cy="11" r="3.2"></circle><circle cx="4" cy="5" r="1.6"></circle><circle cx="18" cy="6" r="1.6"></circle><circle cx="11" cy="19" r="1.6"></circle></svg>
-                <span class="g-title serif">{note.title}</span>
-                <span class="g-desc">{note.desc}</span>
-                <span class="g-meta"><NoteStage stage={note.stage} /><span>{note.date}</span></span>
-              </a>
-            ))}
-          </div>
-        </div>
-      )}
+      <NoteGraph notes={posts} links={links} size={360} />
     </div>
   </section>
 
-  <section id="apps" class="g-section">
-    <h2 class="g-kind">Tiny apps</h2>
-    <p class="g-gloss">Small tools that each do one thing. Open one and use it. No account, no login.</p>
-    <div class="apps">
-      <a class="app" href="/pocket-card">
-        <div class="thumb" aria-hidden="true">
-          <div class="pass">
-            <div style="display: grid; gap: 4px; min-width: 0;"><span class="pn">Your Name</span><span class="pr">Role · Company</span></div>
-            <div class="qr">{qr.map((on) => <span class:list={['q', { on }]}></span>)}</div>
-          </div>
-        </div>
-        <span class="an">Pocket Card</span>
-        <span class="ad">Make a business card for Apple Wallet. Nothing you type is saved.</span>
-      </a>
-      <a class="app" href="/swatchbook">
-        <div class="thumb" aria-hidden="true">
-          <div class="spines">{spines.map(([name, h]) => <div class="spine" style={`height: ${h};`}><span>{name}</span></div>)}</div>
-        </div>
-        <span class="an">Swatchbook</span>
-        <span class="ad">A directory of {designSystems.length} public design systems, from product teams to governments.</span>
-      </a>
-      <a class="app" href="/toolshed">
-        <div class="thumb" aria-hidden="true">
-          <div class="bars">{bars.map(([name, count]) => <div class="bar"><span>{name}</span><span class="tr"><span class="fl" style={`width: ${Math.round((count / barMax) * 100)}%;`}></span></span><span class="c">{count}</span></div>)}</div>
-        </div>
-        <span class="an">Toolshed <span class="badge">alpha</span></span>
-        <span class="ad">My research on the security tools market: {tools.length} tools in {toolCategories.length} categories. Free to read.</span>
-      </a>
-    </div>
-  </section>
-
-  <section class="sec">
-    <div class="sec-label"><h2>About</h2><p>Background in computer vision research. These days, AI security.</p></div>
-    <div style="display: grid; gap: 24px;">
-      <div class="rows">
-        {roles.map((r) => <a class="mrow" href={r.url} {...external}><span>{r.name}</span><span class="l">{r.current ? r.role : `${r.role}, before`}</span></a>)}
-      </div>
-      <a class="tlink" href="/about" style="justify-self: start; font-size: 16px;">More about me</a>
-    </div>
-  </section>
-
-  <section class="sec">
-    <div class="sec-label"><h2>Uses</h2><p>What's on my desk and in my dock.</p></div>
-    <div style="display: grid; gap: 24px;">
-      <p class="uses">I write code in <b>Zed</b> and <b>OpenCode</b>, think with <b>Claude</b> and <b>Perplexity</b>, keep notes in <b>Obsidian</b>, and plan the week in <b>Akiflow</b> and <b>Things 3</b>. Most of it runs on a <b>Mac Mini M4</b> with a <b>Keychron K8 Pro</b>, and this site runs on <b>Cloudflare</b>.</p>
-      <a class="tlink" href="/uses" style="justify-self: start; font-size: 16px;">The full list</a>
-    </div>
-  </section>
-
-  <section class="sec" style="padding-bottom: 64px;">
-    <div class="sec-label"><h2>Say hello</h2></div>
-    <p style="font-size: 16px; color: var(--body); max-width: 52ch;">Write to <CopyEmail style="color: var(--ink); text-decoration: underline; text-decoration-color: var(--line-strong); text-underline-offset: 4px;" /> or <a class="tlink" href={site.booking} {...external}>book a time to talk</a>. New notes go out on <a class="tlink" href="/rss.xml">RSS</a>.</p>
-  </section>
-
+  <NotePreviews slot="after" notes={posts} links={links} />
 </SiteLayout>
 
 <style is:global>
-  /* Garden look: a large serif headline, a thin section heading, note cards with diagram covers beside a list. */
+  /* Garden look: a large serif headline, a thin section heading, note cards with diagram covers beside a graph of every note. */
   .g-hero { display: grid; gap: 24px; padding-block: 64px 96px; }
-  .g-hero h1 { font-size: 80px; line-height: 1.08; font-weight: 400; letter-spacing: -.02em; max-width: 18ch; }
+  .g-hero h1 { font-size: 80px; line-height: 1.08; font-weight: 400; letter-spacing: -.02em; max-width: 28ch; text-wrap: balance; }
   .g-sub { font-size: 28px; line-height: 1.5; font-weight: 300; color: var(--body); max-width: 30em; }
   .sd a.g-link { color: var(--accent-text); font-weight: 500; } /* a.: must beat the site's a { color: inherit } */
   .g-link:hover { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; }
   .g-section { padding-bottom: 64px; }
-  .g-section + .g-section { border-top: 1px solid var(--line); padding-top: 48px; }
   .g-head { display: grid; gap: 8px; padding-bottom: 48px; }
   .g-head h2 { font-size: 44px; line-height: 1.2; font-weight: 400; }
   .g-head p { font-size: 16px; color: var(--body); max-width: 52ch; }
   .g-grid { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 64px; align-items: start; }
-  .g-gloss { font-size: 16px; color: var(--body); margin-top: 4px; margin-bottom: 24px; max-width: 52ch; }
   .g-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-  .g-item { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 0 12px; padding-block: 16px; border-bottom: 1px solid var(--line); }
-  .g-item > span { grid-column: 2; }
-  .g-item .g-meta { margin-top: 8px; }
-  .g-glyph { width: 22px; height: 22px; margin-top: 4px; fill: none; stroke: var(--accent-text); stroke-width: 1.5; stroke-linecap: round; }
-  .g-glyph .fill { fill: var(--accent-text); stroke: none; }
   @media (max-width: 900px) { .g-grid { grid-template-columns: minmax(0, 1fr); gap: 48px; } }
   @media (max-width: 760px) {
     .g-hero { padding-block: 40px 64px; }
@@ -194,31 +81,4 @@ const external = { target: '_blank', rel: 'noopener noreferrer' };
     .g-section { padding-bottom: 64px; }
   }
   @media (max-width: 560px) { .g-cards { grid-template-columns: minmax(0, 1fr); } }
-  .apps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
-  .app { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
-  .thumb { height: 168px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); overflow: hidden; position: relative; transition: border-color .18s; }
-  .app:hover .thumb { border-color: var(--line-strong); }
-  .app .an { display: flex; align-items: center; gap: 8px; font-weight: 500; font-size: 16px; }
-  .app .ad { font-size: 16px; line-height: 1.5; color: var(--muted); }
-  .app:hover .an { color: var(--accent-text); }
-  .pass { position: absolute; left: 22px; right: 22px; top: 24px; bottom: 24px; border-radius: 12px; background: var(--ink); color: var(--bg); padding: 12px; display: flex; justify-content: space-between; align-items: flex-end; gap: 8px; }
-  .pass .pn { font-size: 16px; font-weight: 600; letter-spacing: -.01em; }
-  .pass .pr { font-size: 13px; opacity: .7; }
-  .pass .pn, .pass .pr { line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .qr { display: grid; grid-template-columns: repeat(21, 2px); grid-auto-rows: 2px; padding: 4px; background: #ffffff; border-radius: 5px; }
-  .q { background: #ffffff; }
-  .q.on { background: #16171a; }
-  .spines { position: absolute; inset: 18px 18px 0; display: flex; align-items: flex-end; gap: 4px; }
-  .spine { flex: 1; border-radius: 4px 4px 0 0; background: var(--soft); border: 1px solid var(--line); border-bottom: 0; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px; overflow: hidden; }
-  .spine span { writing-mode: vertical-rl; transform: rotate(180deg); font-family: Geist, sans-serif; font-size: 13px; line-height: 1; color: var(--muted); white-space: nowrap; }
-  .bars { position: absolute; inset: 20px 20px; display: grid; gap: 8px; align-content: center; }
-  .bar { display: grid; grid-template-columns: 96px minmax(0, 1fr) 22px; gap: 8px; align-items: center; font-size: 13px; line-height: 1.2; color: var(--muted); }
-  .bar > span:first-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .bar .tr { height: 4px; border-radius: 4px; background: var(--soft); overflow: hidden; }
-  .bar .fl { height: 100%; background: var(--line-strong); border-radius: 4px; }
-  .app:hover .bar .fl { background: var(--accent); }
-  .bar .c { font-family: Geist, sans-serif; text-align: right; }
-  .uses { font-size: 16px; line-height: 1.75; color: var(--body); max-width: 52ch; }
-  .uses b { font-weight: 500; color: var(--ink); }
-  @media (max-width: 760px) { .apps { grid-template-columns: minmax(0, 1fr); } }
 </style>

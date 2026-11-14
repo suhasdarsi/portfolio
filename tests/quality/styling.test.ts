@@ -31,7 +31,7 @@ const COLOUR_LITERAL = /#[0-9a-fA-F]{3,8}\b|\brgba?\(|\bhsla?\(/g;
 /* Colour literals that are allowed outside the token definitions. One entry per file and value, each with a reason. */
 const COLOUR_ALLOWLIST: Record<string, string[]> = {
   // QR code modules must be true white and near-black to scan reliably, whatever the theme.
-  'src/pages/index.astro': ['#ffffff', '#16171a'],
+  'src/pages/apps.astro': ['#ffffff', '#16171a'],
   'src/pages/pocket-card.astro': ['#ffffff'],
   // White text on the accent-filled hub node; accent is dark enough in both themes for white to pass contrast.
   'src/styles/site.css': ['#ffffff', 'rgba(0,0,0,.35)'],

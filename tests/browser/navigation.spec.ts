@@ -1,22 +1,24 @@
 import { test, expect } from '@playwright/test';
 
-test('homepage lists the garden and tiny apps, and every page links home', async ({ page, request }) => {
+test('homepage is the introduction and the garden, and every page links home', async ({ page, request }) => {
   await page.goto('/');
-  await expect(page.getByRole('heading', { level: 1 })).toContainText("Suhas writes notes on how AI systems fail");
-  await expect(page.getByRole('heading', { name: 'Garden', level: 2 })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1 })).toContainText("I study how AI systems fail");
   expect(await page.locator('#writing a[href^="/notes/"]').count()).toBeGreaterThanOrEqual(5);
-  await expect(page.locator('.app .an')).toHaveText(['Pocket Card', 'Swatchbook', 'Toolshed alpha']);
-  await expect(page.getByRole('heading', { name: 'Tiny apps', level: 2 })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Uses', level: 2 })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Say hello', level: 2 })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'book a time to talk' })).toHaveAttribute('href', 'https://booking.akiflow.com/suhas--a84d');
+  await expect(page.getByRole('heading', { level: 2 })).toHaveText(['Notes']);
+  // The graph has a node for every note, and each node opens its note.
+  const graph = page.getByRole('navigation', { name: 'Graph of all notes' });
+  const entries = (await (await request.get('/search.json')).json()) as { kind: string }[];
+  await expect(graph.getByRole('link')).toHaveCount(entries.filter((entry) => entry.kind === 'Note').length);
+  const node = graph.getByRole('link').first();
+  const nodeHref = await node.getAttribute('href');
+  expect(nodeHref).toMatch(/^\/notes\//);
   await expect(page.getByRole('link', { name: 'RSS' }).first()).toHaveAttribute('href', '/rss.xml');
   await expect(page.locator('a[href="/superalign"]')).toHaveCount(0);
   expect((await request.get('/superalign')).status()).toBe(404);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await expect(page.getByRole('link', { name: 'LinkedIn', exact: true })).toBeVisible();
   await expect(page.getByRole('link', { name: 'X', exact: true })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Copy email address suhas@superalign.ai', exact: true })).toHaveCount(2);
+  await expect(page.getByRole('button', { name: 'Copy email address suhas@superalign.ai', exact: true })).toHaveCount(1);
   await expect(page.getByRole('navigation', { name: 'On this site' })).toHaveCount(0);
   await expect(page.getByRole('navigation', { name: 'Micro-apps' })).toHaveCount(0);
 
@@ -42,4 +44,13 @@ test('homepage lists the garden and tiny apps, and every page links home', async
   await page.goto('/');
   await page.getByRole('navigation', { name: 'Main', exact: true }).getByRole('link', { name: 'About' }).click();
   await expect(page).toHaveURL(/\/about\/?$/);
+});
+
+test('the Apps link in the header opens a page listing the tiny apps', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('navigation', { name: 'Main', exact: true }).getByRole('link', { name: 'Apps' }).click();
+  await expect(page).toHaveURL(/\/apps\/?$/);
+  await expect(page.getByRole('heading', { name: 'Tiny apps', level: 1 })).toBeVisible();
+  await expect(page.locator('.app .an')).toHaveText(['Pocket Card', 'Swatchbook', 'Toolshed alpha']);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });

@@ -47,7 +47,7 @@ body { font-size: 16px; }
 /* Sections with a label gutter */
 .sec { display:grid; grid-template-columns:200px minmax(0,1fr); gap:16px 48px; padding-block:48px; border-top:1px solid var(--line); }
 .sec-label { display:grid; gap:8px; align-content:start; }
-.sec-label h2, .g-kind, .sd h2.sec-h { font-family: Geist, sans-serif; font-size: 22px; line-height:1.3; font-weight:600; color:var(--ink); }
+.sec-label h2, .sd h2.sec-h { font-family: Geist, sans-serif; font-size: 22px; line-height:1.3; font-weight:600; color:var(--ink); }
 .sec-label p { font-size: 13px; line-height:1.5; color:var(--faint); }
 
 /* Rows */
@@ -95,7 +95,7 @@ body { font-size: 16px; }
 .g-meta { display:flex; flex-wrap:wrap; align-items:center; gap:4px 12px; }
 .stage { display:inline-flex; align-items:center; gap:4px; color:var(--accent-text); white-space:nowrap; }
 .stage svg { flex:none; }
-.g-card:hover .g-title, .g-item:hover .g-title { color: var(--accent-text); }
+.g-card:hover .g-title { color: var(--accent-text); }
 
 /* Note cover diagrams (src/notes/cover.ts): on the home cards and at the top of each note. */
 .g-cover { display: block; aspect-ratio: 16 / 11; background: var(--soft); border-radius: 8px; margin-bottom: 20px; }
@@ -186,7 +186,7 @@ body { font-size: 16px; }
 @media (max-width:760px) {
   .title { font-size: 28px; }
   .lede { font-size: 16px; }
-  .sec-label h2, .g-kind, .sd h2.sec-h { font-size: 16px; }
+  .sec-label h2, .sd h2.sec-h { font-size: 16px; }
   .g-cover.banner { aspect-ratio: 16 / 9; }
   .sec { grid-template-columns:minmax(0,1fr); padding-block:48px; }
   .hide-sm { display:none !important; } /* !important: utility must win over display set by component classes */

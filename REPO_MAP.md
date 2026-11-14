@@ -1,4 +1,4 @@
-<!-- commit: 3e8a6a1d -->
+<!-- commit: ef5acc90 -->
 # suhas-darsi-portfolio — personal site: AI-security notes plus tiny apps (Pocket Card, Swatchbook, Toolshed)
 
 ## Stack
@@ -16,7 +16,7 @@ mermaid plugins. Tests: Vitest (unit + build) and Playwright (desktop + Pixel 7)
 - Wallet art: `bun scripts/build-pocket-art.ts` · local pass: `bun scripts/build-wallet-pass.ts` · Wallet preview: `bun scripts/preview-wallet.ts`
 
 ## Layout
-- `src/pages/` — routes only; each page reads from the feature modules below.
+- `src/pages/` — routes only; each page reads from the feature modules below. Home (`index.astro`) is the introduction and the Notes section only (newest note cards beside `NoteGraph.astro` with no `here`, a graph of every note drawn by `noteGraph` in `graph.ts`); the tiny apps are listed on `apps.astro` (`/apps`, the header's Apps link).
 - `src/site/` — bottom layer: `site.ts` (name, URL, email, profiles, `roles`, `absoluteUrl`, `cleanPath`, `isIndexed`), `sections.ts` (apps/pages/nav for header, footer, search, llms.txt), `structured-data.ts`, `format.ts`, `slug.mjs`, `theme.ts` (theme storage key).
 - `src/notes/` — `publishing.mjs` (notes dir, `noteHref`, draft/due-date rule), `notes.ts` (`getNotes`, links, reading time), `wikilinks.mjs`, `obsidian.mjs` (callouts, `==highlights==`, `%%comments%%`, `![[embeds]]` found anywhere in the vault), `diagrams.mjs` (mermaid → HTML boxes), `cover.ts` (SVG cover diagram per note, for the home cards and the top of each note; styles are `.g-cover` in `site.css`; drawn by hand per slug, else from the note's links).
 - `src/search/` — `index.ts` (entries for `/search.json` and the overlay), `client.ts` (ranking, loader, `liveSearch`).
@@ -37,7 +37,7 @@ mermaid plugins. Tests: Vitest (unit + build) and Playwright (desktop + Pixel 7)
 
 ## Conventions & gotchas
 - Notes are written in Obsidian (vault = `content/`, `NOTES_DIRECTORY`). The file name is the title (`noteTitle`; a `title` property overrides it) and the address (`noteId`: "My Note.md" → `/notes/my-note`; a `slug` property pins it). `author` defaults to the site owner; `pubDate` is written by `bun run notes publish` on first publish, is today in local previews, and a published note without one fails the build on CI (`withNoteDefaults`). Tests read notes through `tests/note-files.ts`, never by file name. A `[[link]]` to a draft or unwritten note renders as plain text, not an error. `draft: true` keeps a note off the site; `%%comments%%` are stripped from pages, search, RSS and llms.txt.
-- Garden features on note pages: `NoteStage.astro` (growth stage from the optional `stage` frontmatter: seedling/budding/evergreen; "Planted" = `pubDate`, "Last tended" = `lastRevised()`), `LocalGraph.astro` (the note and its direct neighbours, in the rail; layout from `localGraph` in `cover.ts`), `NotePreviews.astro` (hover cards for `.prose a.wikilink` and graph nodes; built with the page, mouse and keyboard only).
+- Garden features on note pages: `NoteStage.astro` (growth stage from the optional `stage` frontmatter: seedling/budding/evergreen; "Planted" = `pubDate`, "Last tended" = `lastRevised()`), `NoteGraph.astro` (one graph component: with `here`, the note and its direct neighbours; without, every note, as on home; in the rail; layout from `noteGraph` in `src/notes/graph.ts`, a d3-force simulation run at build time), `NotePreviews.astro` (hover cards for `.prose a.wikilink` and graph nodes; built with the page, mouse and keyboard only).
 - After changing the note schema in `src/content.config.ts`, the dev server can serve stale note data: stop it, delete `.astro/data-store.json` and `node_modules/.astro/data-store.json`, start again.
 - Never build URLs by hand: `noteHref`, `categoryHref`, `tagHref`, `toolHref`/`toolLink`, `absoluteUrl`.
 - New app or page: add it to `src/site/sections.ts`; mark it unindexed in `site.ts` if search engines should skip it.

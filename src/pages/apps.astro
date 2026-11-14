@@ -1,0 +1,102 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+import { designSystems } from '../swatchbook/design-systems';
+import { toolCategories } from '../toolshed/categories';
+import { getTools, inCategory } from '../toolshed/tools';
+
+const tools = await getTools();
+// The six biggest Toolshed categories, for the thumbnail.
+const bars = toolCategories
+  .map((category) => [category, inCategory(tools, category).length] as const)
+  .sort((a, b) => b[1] - a[1])
+  .slice(0, 6);
+const barMax = bars[0][1];
+
+
+function qrCells() {
+  const cells: boolean[] = [];
+  const finder = (x: number, y: number, ox: number, oy: number) => {
+    const dx = x - ox, dy = y - oy;
+    if (dx < 0 || dy < 0 || dx > 6 || dy > 6) return null;
+    return dx === 0 || dy === 0 || dx === 6 || dy === 6 || (dx >= 2 && dx <= 4 && dy >= 2 && dy <= 4);
+  };
+  let seed = 7;
+  for (let y = 0; y < 21; y++) for (let x = 0; x < 21; x++) {
+    let on = finder(x, y, 0, 0) ?? finder(x, y, 14, 0) ?? finder(x, y, 0, 14);
+    if (on === null) {
+      const near = (x < 8 && y < 8) || (x > 12 && y < 8) || (x < 8 && y > 12);
+      seed = (seed * 1103515245 + 12345) % 2147483648;
+      on = near ? false : seed % 100 < 47;
+    }
+    cells.push(on);
+  }
+  return cells;
+}
+const qr = qrCells();
+const spines = [['Carbon', '78%'], ['Primer', '92%'], ['GOV.UK', '70%'], ['Polaris', '86%'], ['Radix', '64%'], ['Fluent 2', '96%']];
+---
+
+<SiteLayout title="Tiny Apps by Suhas Darsi — Small Free Web Apps" description="Small free apps by Suhas Darsi that each do one job: Pocket Card, Swatchbook and Toolshed. No account needed." current="apps">
+  <section class="page-head">
+    <h1 class="title">Tiny apps</h1>
+    <p class="lede">Small apps I’ve built that each do one job. Free to use, no account needed.</p>
+  </section>
+
+  <section class="apps-list">
+    <div class="apps">
+      <a class="app" href="/pocket-card">
+        <div class="thumb" aria-hidden="true">
+          <div class="pass">
+            <div style="display: grid; gap: 4px; min-width: 0;"><span class="pn">Your Name</span><span class="pr">Role · Company</span></div>
+            <div class="qr">{qr.map((on) => <span class:list={['q', { on }]}></span>)}</div>
+          </div>
+        </div>
+        <span class="an">Pocket Card</span>
+        <span class="ad">Make a business card for Apple Wallet. Nothing you type is saved.</span>
+      </a>
+      <a class="app" href="/swatchbook">
+        <div class="thumb" aria-hidden="true">
+          <div class="spines">{spines.map(([name, h]) => <div class="spine" style={`height: ${h};`}><span>{name}</span></div>)}</div>
+        </div>
+        <span class="an">Swatchbook</span>
+        <span class="ad">A directory of {designSystems.length} public design systems, from product teams to governments.</span>
+      </a>
+      <a class="app" href="/toolshed">
+        <div class="thumb" aria-hidden="true">
+          <div class="bars">{bars.map(([name, count]) => <div class="bar"><span>{name}</span><span class="tr"><span class="fl" style={`width: ${Math.round((count / barMax) * 100)}%;`}></span></span><span class="c">{count}</span></div>)}</div>
+        </div>
+        <span class="an">Toolshed <span class="badge">alpha</span></span>
+        <span class="ad">My research on the security tools market: {tools.length} tools in {toolCategories.length} categories. Free to read.</span>
+      </a>
+    </div>
+  </section>
+</SiteLayout>
+
+<style is:global>
+  .apps-list { padding-bottom: 64px; }
+  .apps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+  .app { display: flex; flex-direction: column; min-width: 0; }
+  .thumb { margin-bottom: 16px; height: 168px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); overflow: hidden; position: relative; transition: border-color .18s; }
+  .app:hover .thumb { border-color: var(--line-strong); }
+  .app .an { display: flex; align-items: center; gap: 8px; font-weight: 500; font-size: 16px; }
+  .app .ad { margin-top: 4px; font-size: 16px; line-height: 1.5; color: var(--muted); }
+  .app:hover .an { color: var(--accent-text); }
+  .pass { position: absolute; left: 22px; right: 22px; top: 24px; bottom: 24px; border-radius: 12px; background: var(--ink); color: var(--bg); padding: 12px; display: flex; justify-content: space-between; align-items: flex-end; gap: 8px; }
+  .pass .pn { font-size: 16px; font-weight: 600; letter-spacing: -.01em; }
+  .pass .pr { font-size: 13px; opacity: .7; }
+  .pass .pn, .pass .pr { line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .qr { display: grid; grid-template-columns: repeat(21, 2px); grid-auto-rows: 2px; padding: 4px; background: #ffffff; border-radius: 5px; }
+  .q { background: #ffffff; }
+  .q.on { background: #16171a; }
+  .spines { position: absolute; inset: 18px 18px 0; display: flex; align-items: flex-end; gap: 4px; }
+  .spine { flex: 1; border-radius: 4px 4px 0 0; background: var(--soft); border: 1px solid var(--line); border-bottom: 0; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px; overflow: hidden; }
+  .spine span { writing-mode: vertical-rl; transform: rotate(180deg); font-family: Geist, sans-serif; font-size: 13px; line-height: 1; color: var(--muted); white-space: nowrap; }
+  .bars { position: absolute; inset: 20px 20px; display: grid; gap: 8px; align-content: center; }
+  .bar { display: grid; grid-template-columns: 96px minmax(0, 1fr) 22px; gap: 8px; align-items: center; font-size: 13px; line-height: 1.2; color: var(--muted); }
+  .bar > span:first-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bar .tr { height: 4px; border-radius: 4px; background: var(--soft); overflow: hidden; }
+  .bar .fl { height: 100%; background: var(--line-strong); border-radius: 4px; }
+  .app:hover .bar .fl { background: var(--accent); }
+  .bar .c { font-family: Geist, sans-serif; text-align: right; }
+  @media (max-width: 760px) { .apps { grid-template-columns: minmax(0, 1fr); gap: 40px; } }
+</style>
