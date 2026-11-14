@@ -1,24 +1,15 @@
 ---
-// The note's side column: its sections, then the notes it links to. Hidden on phones, like the artboard.
+// The note's contents list: its sections, at the top of the rail beside the text (the rail is hidden under 1000px).
 interface Props {
   headings: { depth: number; slug: string; text: string }[];
-  linksTo: { href: string; title: string }[];
 }
-const { headings, linksTo } = Astro.props;
+const { headings } = Astro.props;
 const sections = headings.filter((heading) => heading.depth === 2);
 ---
 
-<aside class="aside hide-sm" aria-label="On this page">
-  {sections.length > 0 && (
-    <nav class="guide" aria-label="In this note">
-      <span class="eyebrow">On this page</span>
-      {sections.map((section) => <a href={`#${encodeURIComponent(section.slug)}`}>{section.text}</a>)}
-    </nav>
-  )}
-  {linksTo.length > 0 && (
-    <nav class="guide" aria-label="Links to">
-      <span class="eyebrow">Links to</span>
-      {linksTo.map((note) => <a href={note.href}>{note.title}</a>)}
-    </nav>
-  )}
-</aside>
+{sections.length > 0 && (
+  <nav class="guide" aria-label="In this note">
+    <span class="eyebrow">On this page</span>
+    {sections.map((section) => <a href={`#${encodeURIComponent(section.slug)}`}>{section.text}</a>)}
+  </nav>
+)}

@@ -1,4 +1,4 @@
-<!-- commit: b0c87ee3 -->
+<!-- commit: a28158de -->
 # suhas-darsi-portfolio — personal site: AI-security notes plus tiny apps (Pocket Card, Swatchbook, Toolshed)
 
 ## Stack
@@ -8,6 +8,7 @@ mermaid plugins. Tests: Vitest (unit + build) and Playwright (desktop + Pixel 7)
 
 ## Commands
 - install: `bun install` (browsers once: `bunx playwright install chromium`)
+- notes: `bun run notes` (what's live, changed, new or draft) · `bun run notes publish` (build check, commit the new/changed/removed notes and their images but never drafts, push when on `main`)
 - dev: `bun run dev` · build: `bun run build` · preview: `bun run preview`
 - typecheck: `bun run typecheck` · lint: `bun run lint` · dead code: `bun run deadcode` (knip)
 - test: `bun run test` (Vitest; builds the site twice) · browser: `bun run test:browser` (builds, serves on 4322)
@@ -17,25 +18,33 @@ mermaid plugins. Tests: Vitest (unit + build) and Playwright (desktop + Pixel 7)
 ## Layout
 - `src/pages/` — routes only; each page reads from the feature modules below.
 - `src/site/` — bottom layer: `site.ts` (name, URL, email, profiles, `roles`, `absoluteUrl`, `cleanPath`, `isIndexed`), `sections.ts` (apps/pages/nav for header, footer, search, llms.txt), `structured-data.ts`, `format.ts`, `slug.mjs`, `theme.ts` (theme storage key).
-- `src/notes/` — `publishing.mjs` (notes dir, `noteHref`, draft/due-date rule), `notes.ts` (`getNotes`, links, reading time), `wikilinks.mjs`, `diagrams.mjs` (mermaid → HTML boxes).
+- `src/notes/` — `publishing.mjs` (notes dir, `noteHref`, draft/due-date rule), `notes.ts` (`getNotes`, links, reading time), `wikilinks.mjs`, `obsidian.mjs` (callouts, `==highlights==`, `%%comments%%`, `![[embeds]]` found anywhere in the vault), `diagrams.mjs` (mermaid → HTML boxes), `cover.ts` (SVG cover diagram per note, for the home cards and the top of each note; styles are `.g-cover` in `site.css`; drawn by hand per slug, else from the note's links).
 - `src/search/` — `index.ts` (entries for `/search.json` and the overlay), `client.ts` (ranking, loader, `liveSearch`).
 - `src/toolshed/` — `categories.ts`, `catalog.ts` (every tool + tag taxonomy), `tools.ts` (`getTools`, every Toolshed URL helper), `request.ts` (suggest-a-tool validation, GitHub issue body).
 - `src/pocket-card/` — `contact.ts` (fields, validation, vCard, `walletPass` identity, `pocketCardColors` used by the pass, the page preview and the artwork), `mark.ts` (Wallet artwork SVG; `bun scripts/build-pocket-art.ts` renders it).
 - `src/swatchbook/design-systems.ts` — Swatchbook data.
-- `src/components/` (`site/`, `toolshed/`), `src/layouts/` (`SiteLayout`, `ToolshedLayout`), `src/content/` (Obsidian vault: `blog/`, `tools/`, `toolshed/`, `toolshed-market/`).
+- `src/components/` (`site/`, `toolshed/`), `src/layouts/` (`SiteLayout`, `ToolshedLayout`), `src/content/` (Toolshed Markdown: `tools/`, `toolshed/`, `toolshed-market/`, `templates/tool.md`).
+- `content/` — the Obsidian vault and the only place notes live: every `.md` at any depth is a note, except in folders starting with `_` or `.` (`_templates/note.md`, `.obsidian/`); pasted images go to `attachments/`.
 - `worker/` — `index.ts` routes `/api/wallet` and `/api/toolshed/request`; `json-post.ts` is the shared same-origin/JSON/rate-limit/8 KB gate.
 - `scripts/` — local Wallet tooling (`wallet-credentials.ts`, `dist-assets.ts`).
 - `tests/` — unit/build tests; `tests/browser/` Playwright; `tests/quality/` SEO/AEO/readability/styling verifiers over `dist/`.
 
 ## Entry points & data flow
-- Notes: Markdown in `src/content/blog` → `getNotes()` (published + newest first) → pages, `/rss.xml`, `/llms.txt`, `/search.json`, `/og/<id>.png`.
+- Notes: Markdown in `content/` → `getNotes()` (published + newest first) → pages, `/rss.xml`, `/llms.txt`, `/search.json`, `/og/<id>.png`.
 - `SiteHead` owns the whole `<head>`: canonical from `absoluteUrl`, robots + JSON-LD from `isIndexed`; the sitemap filter in `astro.config.mjs` uses the same `isIndexed`; `robots.txt` is generated from `site.url`.
 - Toolshed: `catalog.ts` + reviews in `src/content/tools` → `getTools()` → `/toolshed/**` and `/toolshed/tools.json`.
 - Forms: Pocket Card → `POST /api/wallet` (signs a pkpass); Toolshed suggest → `POST /api/toolshed/request` (Turnstile → GitHub issue in `REQUEST_REPO`; allowed Turnstile hosts default to the `site.url` host, override with `TURNSTILE_HOSTNAMES`).
 
 ## Conventions & gotchas
+- Notes are written in Obsidian (vault = `content/`, `NOTES_DIRECTORY`). A file name becomes the address through `noteId` ("My Note.md" → `/notes/my-note`). A `[[link]]` to a draft or unwritten note renders as plain text, not an error. `draft: true` keeps a note off the site; `%%comments%%` are stripped from pages, search, RSS and llms.txt.
+- Garden features on note pages: `NoteStage.astro` (growth stage from the optional `stage` frontmatter: seedling/budding/evergreen; "Planted" = `pubDate`, "Last tended" = `lastRevised()`), `LocalGraph.astro` (the note and its direct neighbours, in the rail; layout from `localGraph` in `cover.ts`), `NotePreviews.astro` (hover cards for `.prose a.wikilink` and graph nodes; built with the page, mouse and keyboard only).
+- After changing the note schema in `src/content.config.ts`, the dev server can serve stale note data: stop it, delete `.astro/data-store.json` and `node_modules/.astro/data-store.json`, start again.
 - Never build URLs by hand: `noteHref`, `categoryHref`, `tagHref`, `toolHref`/`toolLink`, `absoluteUrl`.
 - New app or page: add it to `src/site/sections.ts`; mark it unindexed in `site.ts` if search engines should skip it.
-- `[hidden]` is enforced globally in `site.css`; type scale is 13/16/28px only (browser tests enforce it).
+- `[hidden]` is enforced globally in `site.css`; type scale is 13/16/22/28/44/80px only (browser tests enforce it; 80 is the home headline).
+- Geist Serif ships as one weight (400): bold or light serif text will not render. Note bodies use the `Geist Serif Text` name (same file, declared 400) so the browser synthesises bold there.
+- Note cards (`.g-card`, `.g-cover`, `.g-title`, `.g-desc`, `.g-meta` in `site.css`) are shared by the home page and the notes index (`src/pages/notes/index.astro`, a card grid with topic chips).
+- Note pages (`src/pages/notes/[slug].astro`) are a 680px text column on the left with a sticky rail on the right (contents list first): 22px serif body on desktop, 16px under 760px; The rail also holds the local graph and one "Linked notes" list (links in either direction, never split into to/from); under 1000px only that list remains, below the note.
+- Every page sits in one 1180px frame (`.page`) with the same `.page-head` (64px above, 48px below), `h1.title` and `.lede` (22px serif). Don't give a page its own width or header spacing. The home page is the one exception: its hero has an 80px headline in place of `.page-head`. Section headings are `.sec-label h2`, `.g-kind` or `h2.sec-h` (all 22px Geist 600, 16px under 760px).
 - Unit tests run sequentially (`fileParallelism: false`) because two of them run full Astro builds.
 - Toolshed category slugs must not collide with `tools`, `about`, `suggest` (tested).

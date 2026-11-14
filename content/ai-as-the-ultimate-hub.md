@@ -4,6 +4,7 @@ description: "AI isn’t just another node in our networks — it’s a fundamen
 pubDate: "2026-04-04"
 author: "Suhas Darsi"
 topics: ["AI Security"]
+stage: "budding"
 ---
 
 As we explored in [[small-world-networks-and-hubs|Small World Networks and the Power of Hubs]], complex networks are defined by their hubs — nodes with disproportionately many connections that give the system both its efficiency and its fragility. Now we stand at the threshold of something unprecedented.

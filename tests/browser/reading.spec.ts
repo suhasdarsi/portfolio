@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 const note = '/notes/ai-as-the-ultimate-hub';
-test('readers can jump to a section from the side column, which is hidden on phones', async ({ page }) => {
+test('readers can jump to a section from the contents rail beside the text, which is hidden on phones', async ({ page }) => {
   await page.goto(note);
   const guide = page.getByRole('navigation', { name: 'In this note' });
   if ((page.viewportSize()?.width ?? 0) < 760) {
@@ -15,13 +15,10 @@ test('readers can jump to a section from the side column, which is hidden on pho
   await expect(page).toHaveURL(new RegExp(href! + '$'));
   await expect(page.locator(href!)).toBeInViewport();
 });
-test('the side column lists the notes this note links to', async ({ page }) => {
+test('a note lists its linked notes in one list, on every screen size', async ({ page }) => {
   await page.goto(note);
-  const links = page.getByRole('navigation', { name: 'Links to' }).getByRole('link');
-  if ((page.viewportSize()?.width ?? 0) < 760) {
-    await expect(page.getByRole('navigation', { name: 'Links to' })).toBeHidden();
-    return;
-  }
+  const links = page.getByRole('navigation', { name: 'Linked notes', exact: true }).getByRole('link');
+  await expect(links).toHaveCount(4);
   const first = links.first();
   const href = await first.getAttribute('href');
   expect(href).toMatch(/^\/notes\//);
@@ -50,7 +47,8 @@ test('note text stays comfortable with blocked storage', async ({ page }) => {
       leading: parseFloat(s.lineHeight) / parseFloat(s.fontSize),
     };
   });
-  expect(type.size).toBe(16);
+  // 22px serif on desktop, 16px on phones (the breakpoint is 760px).
+  expect(type.size).toBe((page.viewportSize()?.width ?? 0) < 760 ? 16 : 22);
   expect(type.leading).toBeGreaterThanOrEqual(1.6);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
@@ -108,4 +106,50 @@ test('the reading progress bar fills as the reader reaches the end of the note',
     scrollTo(0, article.getBoundingClientRect().bottom + scrollY - innerHeight);
   });
   await expect.poll(width).toBeGreaterThan(0.99);
+});
+test('a note shows its growth stage and the day it was planted', async ({ page }) => {
+  await page.goto(note);
+  const meta = page.locator('article header .g-meta');
+  await expect(meta.locator('.stage')).toHaveText(/Seedling|Budding|Evergreen/);
+  await expect(meta).toContainText('Planted');
+  await page.goto('/notes');
+  await expect(page.locator('[data-note-id] .stage').first()).toBeVisible();
+});
+test('pointing at a link to another note previews it, and Escape puts the preview away', async ({ page }) => {
+  await page.goto(note);
+  const link = page.locator('.prose a.wikilink').first();
+  const preview = page.locator(`.peek[data-peek="${await link.getAttribute('href')}"]`);
+  await expect(preview).toBeHidden();
+  if ((page.viewportSize()?.width ?? 0) < 760) return; // touch screens follow the link; there is no hover
+  // Scrolling puts a preview away, so bring the link into view and let the page settle before pointing at it.
+  await link.scrollIntoViewIfNeeded();
+  await page.waitForTimeout(200);
+  await link.hover();
+  await expect(preview).toBeVisible();
+  await expect(preview).toContainText(await link.innerText());
+  await expect(preview).toBeInViewport({ ratio: 1 });
+  await page.keyboard.press('Escape');
+  await expect(preview).toBeHidden();
+  // Keyboard: tabbing to the link opens the same preview, even when that scrolls the page.
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+  await page.keyboard.press('Tab');
+  await link.focus();
+  await expect(preview).toBeVisible();
+  await page.waitForTimeout(400);
+  await expect(preview).toBeVisible();
+});
+test('the local graph links to each linked note and is hidden on phones', async ({ page }) => {
+  await page.goto(note);
+  const graph = page.getByRole('navigation', { name: 'Graph of linked notes' });
+  if ((page.viewportSize()?.width ?? 0) < 760) {
+    await expect(graph).toBeHidden();
+    return;
+  }
+  const nodes = graph.getByRole('link');
+  await expect(nodes).toHaveCount(4);
+  await nodes.first().hover();
+  await expect(page.locator('.peek:visible')).toHaveCount(1);
+  const href = await nodes.first().getAttribute('href');
+  await nodes.first().click();
+  await expect(page).toHaveURL(new RegExp(href! + '$'));
 });

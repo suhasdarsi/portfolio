@@ -17,7 +17,7 @@ const AI_AGENTS = ['*', 'GPTBot', 'ChatGPT-User', 'OAI-SearchBot', 'ClaudeBot', 
 
 const ROOT = process.cwd();
 const DIST = join(ROOT, 'dist');
-const BLOG = join(ROOT, 'src/content/blog');
+const BLOG = join(ROOT, 'content');
 
 if (!existsSync(join(DIST, 'index.html'))) {
   throw new Error('dist/ is missing. Run `bun run build` before running the AEO verifier.');

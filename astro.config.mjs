@@ -4,6 +4,7 @@ import { satteri } from '@astrojs/markdown-satteri';
 import sitemap from '@astrojs/sitemap';
 
 import { wikilinkRoutesPlugin } from './src/notes/wikilinks.mjs';
+import { obsidianSyntaxPlugin } from './src/notes/obsidian.mjs';
 import { mermaidDiagramsPlugin } from './src/notes/diagrams.mjs';
 import { isIndexed, site } from './src/site/site';
 
@@ -20,7 +21,7 @@ export default defineConfig({
   markdown: {
     processor: satteri({
       features: { wikilinks: true },
-      mdastPlugins: [wikilinkRoutesPlugin(), mermaidDiagramsPlugin()],
+      mdastPlugins: [obsidianSyntaxPlugin(), wikilinkRoutesPlugin(), mermaidDiagramsPlugin()],
     }),
   },
 });

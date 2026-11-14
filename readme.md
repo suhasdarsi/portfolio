@@ -38,12 +38,12 @@ See [dependency maintenance](docs/dependency-maintenance.md) for upgrade notes a
 
 ## 📝 Writing in Obsidian
 
-Open `src/content/` as a vault in Obsidian using **Open folder as vault**. The vault is configured to create new files in `blog/`, use shortest-path wikilinks, and update links when files are renamed.
+Open `content/` as a vault in Obsidian using **Open folder as vault**. The vault is configured to create new files at its top level, use shortest-path wikilinks, and update links when files are renamed.
 
 ### New notes
 
-1. Create a note in Obsidian. New files default to `src/content/blog/`.
-2. Run **Templates: Insert template** and select `templates/note`.
+1. Create a note in Obsidian. New files default to `content/`.
+2. Run **Templates: Insert template** and select `_templates/note`.
 3. Fill in `description`, `pubDate`, and `topics`.
 4. Write the note using normal Markdown and wikilinks.
 5. Set `draft: false` when the note is ready to publish.

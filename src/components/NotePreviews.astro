@@ -1,0 +1,86 @@
+---
+// Hover previews: point at a link to another note (in the text, the graph or the lists beside it) and a small card shows what
+// that note is, without leaving the page. The cards are built with the page; the script only places them.
+// Mouse and keyboard only: on a touch screen a tap follows the link as usual.
+import NoteStage from './NoteStage.astro';
+import { noteCover } from '../notes/cover';
+import { noteHref, readingTime, type Note, type NoteLinks } from '../notes/notes';
+
+interface Props {
+  notes: Note[];
+  links: Map<string, NoteLinks>;
+}
+const { notes, links } = Astro.props;
+---
+
+{notes.map((note) => (
+  <div class="peek" data-peek={noteHref(note.id)} aria-hidden="true" hidden>
+    <span class="g-cover"><svg viewBox="0 0 320 220" set:html={noteCover(note.id, links.get(note.id)!)} /></span>
+    <span class="g-title">{note.data.title}</span>
+    <span class="g-desc">{note.data.description}</span>
+    <span class="g-meta"><NoteStage stage={note.data.stage} /><span>{readingTime(note)}</span></span>
+  </div>
+))}
+
+<script>
+  const cards = new Map([...document.querySelectorAll<HTMLElement>('.peek')].map((card) => [card.dataset.peek, card]));
+  const canHover = window.matchMedia('(hover: hover)');
+  let open: HTMLElement | undefined;
+  let shownAt = 0;
+
+  const cardFor = (target: EventTarget | null) => {
+    const link = target instanceof Element ? target.closest<HTMLAnchorElement | SVGAElement>('.prose a.wikilink, .graph a, .connected a') : null;
+    if (!link) return {};
+    return { link, card: cards.get((link.getAttribute('href') ?? '').split('#')[0]) };
+  };
+
+  function hide() {
+    if (open) open.hidden = true;
+    open = undefined;
+  }
+
+  // `pointerY` picks the line being pointed at when a link wraps over two lines.
+  function show(link: Element, card: HTMLElement, pointerY?: number) {
+    if (open !== card) hide();
+    card.hidden = false;
+    open = card;
+    shownAt = performance.now();
+    // Below the link when there is room, otherwise above; kept inside the window.
+    const gap = 8, edge = 16;
+    const lines = [...link.getClientRects()];
+    const at = lines.find((line) => pointerY !== undefined && pointerY >= line.top && pointerY <= line.bottom) ?? lines[0] ?? link.getBoundingClientRect();
+    const size = card.getBoundingClientRect();
+    const below = at.bottom + gap + size.height <= window.innerHeight - edge;
+    const left = Math.min(Math.max(edge, at.left), window.innerWidth - size.width - edge);
+    card.style.left = `${left}px`;
+    card.style.top = `${below ? at.bottom + gap : Math.max(edge, at.top - gap - size.height)}px`;
+  }
+
+  if (cards.size) {
+    document.addEventListener('mouseover', (event) => {
+      if (!canHover.matches) return;
+      const { link, card } = cardFor(event.target);
+      if (link && card) show(link, card, event.clientY);
+      else hide();
+    });
+    document.addEventListener('focusin', (event) => {
+      const { link, card } = cardFor(event.target);
+      if (link && card && link.matches(':focus-visible')) show(link, card);
+      else hide();
+    });
+    document.addEventListener('keydown', (event) => { if (event.key === 'Escape') hide(); });
+    // Tabbing to a link scrolls it into view just after the preview opens; that scroll must not close it.
+    window.addEventListener('scroll', () => { if (performance.now() - shownAt > 200) hide(); }, { passive: true });
+    document.documentElement.addEventListener('mouseleave', hide);
+    window.addEventListener('blur', hide);
+    window.addEventListener('pagehide', hide);
+  }
+</script>
+
+<style>
+  .peek { position: fixed; z-index: 30; left: 0; top: 0; width: min(300px, 100vw - 32px); display: grid; gap: 8px; padding: 12px; border: 1px solid var(--line-strong); border-radius: 12px; background: var(--surface); box-shadow: 0 12px 32px color-mix(in srgb, var(--ink) 14%, transparent); pointer-events: none; }
+  .peek .g-cover { aspect-ratio: 16 / 7; margin-bottom: 4px; }
+  .peek .g-title { font-size: 16px; }
+  .peek .g-desc { font-size: 13px; margin-top: 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  @media print { .peek { display: none; } }
+</style>

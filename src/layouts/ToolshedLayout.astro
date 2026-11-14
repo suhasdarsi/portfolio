@@ -1,5 +1,5 @@
 ---
-// Toolshed is an independent app inside the site: its own top bar and footer around the wide column.
+// Toolshed is an independent app inside the site: its own top bar and footer around the same 1180px column as the rest of the site.
 // It's in alpha: pages carry the alpha banner (About explains it in its own box instead), and src/site/site.ts
 // keeps it out of search engines.
 import SiteHead from '../components/SiteHead.astro';
@@ -25,7 +25,7 @@ const { title, description, turnstile = false, search = false, banner = true } =
   </head>
   <body class="sd">
     <a href="#main-content" class="skip-link">Skip to main content</a>
-    <div class="page wide">
+    <div class="page">
       <ToolshedHeader search={search} />
       {banner && (
         <p class="ts-banner" role="note" style="margin-top: 16px;"><b>Alpha.</b> Toolshed is a work in progress: the tools, tags and market notes are incomplete and some will be wrong. Please don’t rely on it or share it yet.</p>

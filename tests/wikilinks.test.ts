@@ -69,14 +69,15 @@ describe('native wikilinks', () => {
     expect(() => buildWikilinkIndex(fixture.blog)).not.toThrow();
   });
 
-  it('prevents public links to unpublished targets', () => {
+  it('allows links to notes that are not published yet, and resolves aliases', () => {
     const fixture = makeFixture();
-    writeMarkdown(join(fixture.blog, 'source.md'), 'title: "Source Note"', '[[Target Note]]');
+    writeMarkdown(join(fixture.blog, 'source.md'), 'title: "Source Note"\naliases: ["Src"]', '[[Target Note]] %%[[Hidden Note]]%%');
     writeMarkdown(join(fixture.blog, 'target.md'), 'title: "Target Note"\ndraft: true');
 
-    expect(() => buildWikilinkIndex(fixture.blog)).toThrow(
-      'linked note "Target Note" does not exist or is unpublished'
-    );
+    const index = buildWikilinkIndex(fixture.blog);
+    expect(resolveWikilink('Target Note', index)).toBeUndefined();
+    expect(resolveWikilink('Src', index)?.href).toBe('/notes/source');
+    expect(extractWikilinkTargets('[[Target Note]] %%[[Hidden Note]]%%')).toEqual(['Target Note']);
   });
 
   it('rejects block references and ambiguous targets', () => {

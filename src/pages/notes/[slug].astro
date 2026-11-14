@@ -3,10 +3,14 @@ import { render } from 'astro:content';
 import SiteLayout from '../../layouts/SiteLayout.astro';
 import CopyCode from '../../components/CopyCode.astro';
 import CopyLink from '../../components/CopyLink.astro';
+import LocalGraph from '../../components/LocalGraph.astro';
+import NotePreviews from '../../components/NotePreviews.astro';
+import NoteStage from '../../components/NoteStage.astro';
 import ReadingGuide from '../../components/ReadingGuide.astro';
 import ReadingProgress from '../../components/ReadingProgress.astro';
 import RevisionHistory from '../../components/RevisionHistory.astro';
-import { getNoteLinks, getNotes, noteHref, readingTime as noteReadingTime, type Note } from '../../notes/notes';
+import { noteCover } from '../../notes/cover';
+import { getNoteLinks, getNotes, lastRevised, noteHref, readingTime as noteReadingTime, type Note, type NoteLinks } from '../../notes/notes';
 import { formatDate } from '../../site/format';
 import { absoluteUrl, site } from '../../site/site';
 import { PERSON_ID, breadcrumbs, type JsonLd } from '../../site/structured-data';
@@ -21,6 +25,9 @@ export async function getStaticPaths() {
       params: { slug: post.id },
       props: {
         post,
+        links,
+        byId,
+        cover: noteCover(post.id, links.get(post.id)!),
         newer: posts[index - 1],
         older: posts[index + 1],
         linksTo: linksTo.map((id) => byId.get(id)!),
@@ -33,22 +40,25 @@ export async function getStaticPaths() {
 
 interface Props {
   post: Note;
+  /** The link graph and every published note, for the local graph and the hover previews. */
+  links: Map<string, NoteLinks>;
+  byId: Map<string, Note>;
+  /** SVG markup for the note's cover diagram. */
+  cover: string;
   newer?: Note;
   older?: Note;
   linksTo: Note[];
   linkedFrom: Note[];
 }
 
-const { post, newer, older, linksTo, linkedFrom } = Astro.props;
+const { post, links, byId, cover, newer, older, linksTo, linkedFrom } = Astro.props;
 const { Content, headings } = await render(post);
 const href = (note: Note) => noteHref(note.id);
-const modifiedDates = [
-  ...post.data.revisions.map((revision) => revision.date.valueOf()),
-  ...(post.data.updatedDate ? [post.data.updatedDate.valueOf()] : []),
-];
-const updatedDate = modifiedDates.length
-  ? new Date(Math.max(...modifiedDates, post.data.pubDate.valueOf()))
-  : undefined;
+const updatedDate = lastRevised(post);
+// "Last tended" is only worth showing when it is a later day than "Planted".
+const tendedDate = updatedDate && updatedDate.valueOf() > post.data.pubDate.valueOf() ? updatedDate : undefined;
+// Every note connected to this one, whichever way the link runs: readers see one list of linked notes.
+const neighbours = [...new Set([...linksTo, ...linkedFrom])];
 const readingTime = noteReadingTime(post);
 const pubDay = post.data.pubDate.toISOString().slice(0, 10);
 
@@ -95,19 +105,22 @@ const pageTitle = fullTitle.length <= 65 ? fullTitle : post.data.title;
   current="notes"
   jsonLd={structuredData}
 >
-  <div style="padding-top: 32px; padding-bottom: 32px;">
-    <a class="tool" href="/notes">← Notes</a>
-  </div>
+  <div class="reading">
+    <div>
+    <div style="padding-top: 56px; padding-bottom: 16px;">
+      <a class="tool" href="/notes">← Notes</a>
+    </div>
 
-  <div class="layout" style="padding-bottom: 64px;">
     <article class="article" data-reader>
-      <header style="display: grid; gap: 12px;">
-        <span class="eyebrow">{post.data.topics[0] && <>{post.data.topics[0]} · </>}<time datetime={pubDay}>{formatDate(post.data.pubDate, { year: true })}</time>{readingTime && <> · {readingTime}</>}</span>
+      <header style="display: grid; gap: 16px;">
+        <span class="eyebrow">{[post.data.topics[0], readingTime].filter(Boolean).join(' · ')}</span>
         <h1 class="title">{post.data.title}</h1>
         {post.data.description && <p class="lede">{post.data.description}</p>}
-        {updatedDate && (
-          <span class="faint" style="font-size: 13px;">Updated <time datetime={updatedDate.toISOString()}>{formatDate(updatedDate, { year: true })}</time></span>
-        )}
+        <p class="g-meta">
+          <NoteStage stage={post.data.stage} />
+          <span>Planted <time datetime={pubDay}>{formatDate(post.data.pubDate, { year: true })}</time></span>
+          {tendedDate && <span>Last tended <time datetime={tendedDate.toISOString()}>{formatDate(tendedDate, { year: true })}</time></span>}
+        </p>
         <div class="share" aria-label="Share this note" role="group">
           <CopyLink url={canonicalUrl} />
           <a class="tool" href={share.x} target="_blank" rel="noopener noreferrer">Share on X</a>
@@ -116,22 +129,13 @@ const pageTitle = fullTitle.length <= 65 ? fullTitle : post.data.title;
         </div>
       </header>
 
+      <span class="g-cover banner"><svg viewBox="0 0 320 220" aria-hidden="true" set:html={cover} /></span>
+
       <div class="prose">
         <Content />
       </div>
 
       <RevisionHistory revisions={post.data.revisions} />
-
-      {linkedFrom.length > 0 && (
-        <section style="display: grid; gap: 12px; border-top: 1px solid var(--line); padding-top: 24px;">
-          <h2 style="font-size: 16px; font-weight: 500;">Linked from</h2>
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px;">
-            {linkedFrom.map((note) => (
-              <a class="linkcard" href={href(note)}><span class="k">{formatDate(note.data.pubDate)}</span><span class="t">{note.data.title}</span></a>
-            ))}
-          </div>
-        </section>
-      )}
 
       {(older || newer) && (
         <nav class="pager" aria-label="More notes">
@@ -149,20 +153,41 @@ const pageTitle = fullTitle.length <= 65 ? fullTitle : post.data.title;
         <p class="byline"><span style="font-weight: 500;">{post.data.author}</span></p>
       )}
     </article>
+    </div>
 
-    <ReadingGuide headings={headings} linksTo={linksTo.map((note) => ({ href: href(note), title: note.data.title }))} />
+    <aside class="rail">
+      <ReadingGuide headings={headings} />
+      <LocalGraph note={post} links={links.get(post.id)!} byId={byId} />
+      {neighbours.length > 0 && (
+        <nav class="connected" aria-label="Linked notes">
+          <span class="eyebrow">Linked notes</span>
+          {neighbours.map((note) => <a href={href(note)}>{note.data.title}</a>)}
+        </nav>
+      )}
+    </aside>
   </div>
 
   <Fragment slot="after">
     <ReadingProgress />
     <CopyCode />
+    <NotePreviews notes={neighbours} links={links} />
   </Fragment>
 </SiteLayout>
 
 <style is:global>
-  .layout { display: flex; flex-wrap: wrap; gap: 48px; align-items: flex-start; }
-  .article { flex: 999 1 560px; min-width: 0; display: grid; gap: 32px; }
-  .aside { flex: 1 1 200px; max-width: 230px; display: grid; gap: 24px; align-content: start; padding-top: 8px; }
+  /* The article starts at the page's left edge like every other page; the contents list is a rail on the right. */
+  .reading { display: grid; grid-template-columns: minmax(0, 680px) 220px; justify-content: space-between; gap: 48px; align-items: start; padding-bottom: 64px; }
+  .article { min-width: 0; display: grid; gap: 40px; }
+  .article .prose { font-family: "Geist Serif Text", "Geist Serif", serif; font-size: 22px; line-height: 1.7; max-width: none; gap: 28px; }
+  .article .prose h2 { font-size: 28px; line-height: 1.25; font-weight: 400; margin-top: 28px; margin-bottom: -8px; letter-spacing: -.01em; }
+  .article .prose h3 { font-family: Geist, sans-serif; font-size: 22px; line-height: 1.3; font-weight: 600; margin-top: 12px; margin-bottom: -12px; }
+  .article .prose ul, .article .prose ol { padding-left: 28px; gap: 12px; }
+  .article .prose .fig { font-size: 16px; line-height: 1.6; }
+  /* The rail holds everything about the note that isn't the text: contents, the graph, and the linked notes. */
+  .rail { display: grid; gap: 32px; position: sticky; top: 24px; margin-top: 104px; max-height: calc(100vh - 48px); overflow-y: auto; scrollbar-width: none; }
+  .connected { display: grid; gap: 8px; font-size: 13px; }
+  .connected a { font-family: "Geist Serif", serif; font-size: 16px; line-height: 1.35; color: var(--ink); }
+  .connected a:hover { color: var(--accent-text); }
   .guide { display: grid; gap: 8px; font-size: 13px; }
   .guide a { color: var(--muted); border-left: 1px solid var(--line); padding-left: 12px; }
   .guide a:hover { color: var(--ink); border-left-color: var(--ink); }
@@ -177,6 +202,19 @@ const pageTitle = fullTitle.length <= 65 ? fullTitle : post.data.title;
   .pager { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
   .byline { display: flex; align-items: center; gap: 12px; padding: 16px 0; border-top: 1px solid var(--line); }
   .avatar { display: inline-grid; place-items: center; width: 40px; height: 40px; border-radius: 999px; background: var(--soft); font-size: 13px; font-weight: 600; }
-  @media (max-width: 760px) { .aside { max-width: none; } .pager { grid-template-columns: minmax(0, 1fr); } }
-  @media print { .share, .pager, .aside { display: none; } }
+  /* No room for a rail: the linked notes follow the note, and the contents list and graph are left out. */
+  @media (max-width: 1000px) {
+    .reading { grid-template-columns: minmax(0, 680px); }
+    .rail { position: static; margin-top: 0; max-height: none; overflow: visible; border-top: 1px solid var(--line); padding-top: 24px; }
+    .reading .rail .guide, .reading .rail .graph { display: none; }
+    .connected a { padding-block: 8px; }
+  }
+  @media (max-width: 760px) {
+    .pager { grid-template-columns: minmax(0, 1fr); }
+    .article { gap: 32px; }
+    .article .prose { font-size: 16px; gap: 16px; }
+    .article .prose h2 { font-size: 22px; margin-top: 16px; }
+    .article .prose h3 { font-size: 16px; margin-top: 8px; margin-bottom: -8px; }
+  }
+  @media print { .share, .pager, .rail, .g-cover { display: none; } }
 </style>

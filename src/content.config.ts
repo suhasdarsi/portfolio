@@ -2,7 +2,7 @@ import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
 import { toolCategories } from './toolshed/categories';
-import { NOTES_DIRECTORY } from './notes/publishing.mjs';
+import { NOTES_DIRECTORY, noteId, noteStages } from './notes/publishing.mjs';
 import { site } from './site/site';
 
 const dateSchema = z.coerce.date().refine((date) => !Number.isNaN(date.valueOf()), {
@@ -10,7 +10,7 @@ const dateSchema = z.coerce.date().refine((date) => !Number.isNaN(date.valueOf()
 });
 
 const blog = defineCollection({
-  loader: glob({ pattern: "**/*.md", base: `./${NOTES_DIRECTORY}` }),
+  loader: glob({ pattern: ["**/*.md", "!**/_*/**"], base: `./${NOTES_DIRECTORY}`, generateId: ({ entry }) => noteId(entry) }),
   schema: z.object({
     title: z.string(),
     description: z.string(),
@@ -21,6 +21,8 @@ const blog = defineCollection({
     draft: z.boolean().default(false),
     dueDate: dateSchema.optional(),
     topics: z.array(z.enum(['AI Security', 'Building with AI'])).default([]),
+    // How finished the note is: a rough idea, a working draft of the idea, or settled. Shown beside the dates.
+    stage: z.enum(noteStages).optional(),
   }),
 });
 

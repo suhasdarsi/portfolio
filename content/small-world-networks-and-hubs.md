@@ -4,6 +4,7 @@ description: "Why highly connected hubs make AI systems efficient, and how the s
 pubDate: "2026-04-04"
 author: "Suhas Darsi"
 topics: ["AI Security"]
+stage: "budding"
 ---
 
 Back in the 1960s, social psychologist Stanley Milgram discovered something remarkable: any two people in the United States were connected by an average of just six acquaintances. This "small world" phenomenon isn't unique to human relationships — it's a fundamental property of many complex networks, from the internet to cellular biology.

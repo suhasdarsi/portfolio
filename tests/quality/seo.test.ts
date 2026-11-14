@@ -12,7 +12,7 @@ const DESC_MAX = 160; // Google truncates snippets near 155-160 characters
 const ROOT = process.cwd();
 const DIST = join(ROOT, 'dist');
 const PUBLIC = join(ROOT, 'public');
-const BLOG = join(ROOT, 'src/content/blog');
+const BLOG = join(ROOT, 'content');
 
 if (!existsSync(join(DIST, 'index.html'))) {
   throw new Error('dist/ is missing. Run `bun run build` before running the SEO verifier.');

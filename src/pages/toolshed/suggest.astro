@@ -14,12 +14,12 @@ const fallback = githubIssueLink();
   description="Suggest a security tool for Toolshed, or a correction to one that's listed. Listing is free and decided on merit."
   turnstile={Boolean(sitekey)}
 >
+  <div class="page-head">
+    <p class="faint" style="font-size: 13px;"><a href="/toolshed">Toolshed</a> / Suggest a tool</p>
+    <h1 class="title">Suggest a tool or a correction</h1>
+    <p class="lede">Free, and decided on merit. Nobody can pay to be listed, and suggesting a tool doesn’t guarantee it gets added.</p>
+  </div>
   <div style="max-width: 760px; padding-bottom: 64px; display: grid; gap: 32px;">
-    <div class="page-head" style="padding-bottom: 0;">
-      <p class="faint" style="font-size: 13px;"><a href="/toolshed">Toolshed</a> / Suggest a tool</p>
-      <h1 class="title">Suggest a tool or a correction</h1>
-      <p class="lede">Free, and decided on merit. Nobody can pay to be listed, and suggesting a tool doesn’t guarantee it gets added.</p>
-    </div>
     <div class="points">
       <div class="point"><b>Vendors are welcome</b><span>Just say you work for or with them. It won’t count against the tool.</span></div>
       <div class="point"><b>Requests are public</b><span>Each one becomes a GitHub issue anyone can read, so don’t include anything private.</span></div>
@@ -188,7 +188,7 @@ const fallback = githubIssueLink();
   .point { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 8px 24px; padding-block: 16px; border-bottom: 1px solid var(--line); font-size: 16px; }
   .point b { font-weight: 500; }
   .point span { color: var(--muted); line-height: 1.55; }
-  .box { display: grid; gap: 12px; padding: 24px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
+  .box { display: grid; gap: 12px; padding: 24px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
   .form { gap: 20px; }
   .form > label, #relationship { display: grid; gap: 8px; font-size: 13px; color: var(--ink); }
   fieldset { margin: 0; padding: 0; border: 0; display: grid; gap: 8px; }

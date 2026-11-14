@@ -2,9 +2,9 @@ import { test, expect } from '@playwright/test';
 
 test('homepage lists the garden and tiny apps, and every page links home', async ({ page, request }) => {
   await page.goto('/');
-  await expect(page.getByRole('heading', { level: 1 })).toContainText("Hi, I'm Suhas");
+  await expect(page.getByRole('heading', { level: 1 })).toContainText("Suhas writes notes on how AI systems fail");
   await expect(page.getByRole('heading', { name: 'Garden', level: 2 })).toBeVisible();
-  expect(await page.locator('#writing .note').count()).toBeGreaterThanOrEqual(5);
+  expect(await page.locator('#writing a[href^="/notes/"]').count()).toBeGreaterThanOrEqual(5);
   await expect(page.locator('.app .an')).toHaveText(['Pocket Card', 'Swatchbook', 'Toolshed alpha']);
   await expect(page.getByRole('heading', { name: 'Tiny apps', level: 2 })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Uses', level: 2 })).toBeVisible();

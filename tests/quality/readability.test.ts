@@ -4,12 +4,12 @@ import { join } from 'node:path';
 
 /*
  * Readability verifier. Static text metrics for every note, computed from the built
- * dist/notes/<slug>.html (rendered body) and the markdown frontmatter in src/content/blog.
+ * dist/notes/<slug>.html (rendered body) and the markdown frontmatter in content.
  * Rendered typography (size, line length, contrast, spacing) lives in
  * tests/browser/readability.spec.ts. Related checks that already exist and are NOT repeated:
  *   - title/description length for search: tests/quality/seo.test.ts
  *   - answer-engine structure: tests/quality/aeo.test.ts
- *   - type scale (13/16/28px) and 16px/1.6 body: tests/browser/typography.spec.ts, reading.spec.ts
+ *   - type scale (13/16/22/28/44/80px) and 16px/1.6 body: tests/browser/typography.spec.ts, reading.spec.ts
  *
  * Counted text: the rendered note body (<div class="prose">) only. <pre>, <code>, <svg>,
  * <figure>, <table>, nav, footer and the table of contents sit outside that div or are
@@ -33,7 +33,7 @@ const HEADINGS_REQUIRED_OVER = 300; // words; longer bodies need headings to be 
 
 const ROOT = process.cwd();
 const DIST_NOTES = join(ROOT, 'dist/notes');
-const BLOG = join(ROOT, 'src/content/blog');
+const BLOG = join(ROOT, 'content');
 
 if (!existsSync(DIST_NOTES)) {
   throw new Error('dist/ is missing. Run `bun run build` before running the readability verifier.');
@@ -167,7 +167,7 @@ describe.each(slugs)('note %s', (slug) => {
   const prose = proseHtml(html);
   const bs = blocks(prose);
   const fm = frontmatter(slug);
-  const path = `src/content/blog/${slug}.md`;
+  const path = `content/${slug}.md`;
 
   it('has a rendered body', () => {
     expect(prose.length, slug).toBeGreaterThan(0);

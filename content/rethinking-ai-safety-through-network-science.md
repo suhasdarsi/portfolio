@@ -4,6 +4,7 @@ description: "How redundancy, circuit breakers, monitoring, and intentional fric
 pubDate: "2026-04-05"
 author: "Suhas Darsi"
 topics: ["AI Security"]
+stage: "budding"
 ---
 
 We've seen how [[small-world-networks-and-hubs|network hubs create both efficiency and fragility]], how [[ai-as-the-ultimate-hub|AI is emerging as the ultimate hub]], how [[the-cascade-risk-of-hub-to-hub-ai-networks|hub-to-hub connections amplify risk]], and [[why-ai-security-is-fundamentally-different|why traditional security falls short]]. The question is: what do we do about it?

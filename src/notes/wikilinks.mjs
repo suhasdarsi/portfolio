@@ -1,15 +1,16 @@
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { basename, extname, join, relative, resolve, sep } from 'node:path';
 import { parseFrontmatter } from 'astro/markdown';
-import { NOTES_DIRECTORY, isPublished, noteHref } from './publishing.mjs';
+import { NOTES_DIRECTORY, isHiddenFolder, isPublished, noteHref, noteId } from './publishing.mjs';
 import { slugify } from '../site/slug.mjs';
+import { escapeHtml, stripComments } from './obsidian.mjs';
 
 function markdownFiles(directory) {
   if (!existsSync(directory)) return [];
 
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
     const path = join(directory, entry.name);
-    if (entry.isDirectory()) return markdownFiles(path);
+    if (entry.isDirectory()) return isHiddenFolder(entry.name) ? [] : markdownFiles(path);
     return extname(entry.name).toLowerCase() === '.md' ? [path] : [];
   });
 }
@@ -38,14 +39,17 @@ function headingSlug(value) {
     .replace(/\s+/g, '-');
 }
 
+export function safeDecode(value) {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value; // not percent-encoded; use it as written
+  }
+}
+
 // "Note title#Heading" → the note part and the heading part.
 function parseTarget(rawTarget) {
-  let decoded = rawTarget;
-  try {
-    decoded = decodeURIComponent(rawTarget);
-  } catch {
-    // Not percent-encoded; use it as written.
-  }
+  const decoded = safeDecode(rawTarget);
   const [target, ...rest] = decoded.split('#');
   return { decoded, key: normalizeTarget(target), fragment: rest.join('#') };
 }
@@ -64,13 +68,18 @@ export function buildWikilinkIndex(directory = NOTES_DIRECTORY) {
     if (!isPublished(document.data)) continue;
     documents.push(document);
 
-    const id = relative(root, file).slice(0, -extname(file).length).split(sep).join('/');
+    const path = relative(root, file).slice(0, -extname(file).length).split(sep).join('/');
+    const id = noteId(path);
+    const sameAddress = documents.slice(0, -1).find((other) => other.id === id);
+    if (sameAddress) throw new Error(`${file} and ${sameAddress.file} would both be published at ${noteHref(id)}. Rename one.`);
+    document.id = id;
     const title = typeof document.data.title === 'string' && document.data.title.trim()
       ? document.data.title.trim()
       : basename(file, extname(file));
     const entry = { id, title, href: noteHref(id) };
 
-    for (const key of new Set([id, basename(id), title, slugify(title)])) {
+    const aliases = [document.data.aliases].flat().filter((alias) => typeof alias === 'string' && alias.trim());
+    for (const key of new Set([id, path, basename(path), title, slugify(title), ...aliases])) {
       const normalized = normalizeTarget(key);
       const existing = index.get(normalized);
       if (existing && existing.id !== entry.id) {
@@ -80,16 +89,14 @@ export function buildWikilinkIndex(directory = NOTES_DIRECTORY) {
     }
   }
 
+  // A link to a note that isn't written or published yet is allowed: it shows as plain text until that note
+  // goes live (see wikilinkRoutesPlugin). Block references can't be shown at all, so they stop the build.
   for (const { file, content } of documents) {
     for (const rawTarget of extractWikilinkTargets(content)) {
-      const target = parseTarget(rawTarget);
       try {
-        rejectBlockReference(target);
+        rejectBlockReference(parseTarget(rawTarget));
       } catch (error) {
         throw new Error(`${file}: ${error.message}`);
-      }
-      if (!index.has(target.key)) {
-        throw new Error(`${file}: linked note "${target.decoded}" does not exist or is unpublished.`);
       }
     }
   }
@@ -126,7 +133,7 @@ export function resolveWikilink(rawTarget, index = getWikilinkIndex()) {
 }
 
 export function extractWikilinkTargets(markdown) {
-  return [...markdown.matchAll(/(?<!!)\[\[([^\]|]+)(?:\|[^\]]+)?\]\]/g)].map((match) => match[1].trim());
+  return [...stripComments(markdown).matchAll(/(?<!!)\[\[([^\]|]+)(?:\|[^\]]+)?\]\]/g)].map((match) => match[1].trim());
 }
 
 export function wikilinkRoutesPlugin() {
@@ -134,7 +141,16 @@ export function wikilinkRoutesPlugin() {
     name: 'wikilink-routes',
     link(node, context) {
       const resolved = resolveWikilink(node.url);
-      if (!resolved) return;
+      if (!resolved) {
+        // Written as [[link]] to a note that isn't live: show the words, not a dead link. Ordinary Markdown
+        // links ([text](file.pdf), [text](https://…)) never come through here.
+        if (!extractWikilinkTargets(context.source).includes(safeDecode(node.url).trim())) return;
+        context.replaceNode(node, {
+          type: 'html',
+          value: `<span class="wikilink unwritten" title="This note isn’t published yet">${escapeHtml(context.textContent(node))}</span>`,
+        });
+        return;
+      }
 
       context.setProperty(node, 'url', resolved.href);
       context.setProperty(node, 'data', {

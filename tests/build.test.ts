@@ -8,7 +8,7 @@ import { isPublished } from '../src/notes/publishing.mjs';
 import { stripDiagramSource } from '../src/notes/diagrams.mjs';
 
 const ROOT = join(__dirname, '..');
-const BLOG = join(ROOT, 'src/content/blog');
+const BLOG = join(ROOT, 'content');
 
 describe('build', () => {
   it('produces every page with clean canonical URLs, and indexes note text for search', () => {

@@ -24,7 +24,7 @@ Notes that model AI risk as a network problem: hubs, small-world structure, and 
 
 ## Operating Context
 
-- Notes are written in Obsidian. `src/content/` is the vault, and each note is published with a date and topics. Drafts with future dates stay unpublished.
+- Notes are written in Obsidian. `content/` is the vault, and each note is published with a date and topics. Drafts with future dates stay unpublished.
 - Readers arrive by search, the RSS feed (`/rss.xml`), the sitemap, and direct links.
 - Contact runs through a visible email address (copy-to-clipboard) and a booking link on the About page.
 
@@ -43,7 +43,7 @@ Notes that model AI risk as a network problem: hubs, small-world structure, and 
 
 ## Evidence on Hand
 
-- Six published notes in `src/content/blog/`.
+- Six published notes in `content/`.
 - Toolshed market research in `src/content/toolshed/` and `src/content/toolshed-market/`, with 15 categories.
 - Absent, and not to be invented: testimonials, customer case studies, press mentions, and benchmarks. None were found in the repository.
 

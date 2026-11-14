@@ -1,7 +1,9 @@
 ---
 import SiteLayout from '../../layouts/SiteLayout.astro';
+import { noteCover } from '../../notes/cover';
 import { getNoteLinks, getNotes, noteHref, readingTime } from '../../notes/notes';
 import { formatDate } from '../../site/format';
+import NoteStage from '../../components/NoteStage.astro';
 
 const posts = await getNotes();
 const links = getNoteLinks(posts);
@@ -14,16 +16,20 @@ for (const post of posts) {
 const chips = [{ label: 'All', count: posts.length }, ...[...topics].map(([label, count]) => ({ label, count }))];
 
 const notes = posts.map((post) => {
-  const backlinks = links.get(post.id)!.linkedFrom.length;
+  const { linksTo, linkedFrom } = links.get(post.id)!;
+  const linked = new Set([...linksTo, ...linkedFrom]).size;
   return {
     id: post.id,
     href: noteHref(post.id),
     title: post.data.title,
     desc: post.data.description,
-    date: formatDate(post.data.pubDate),
+    date: formatDate(post.data.pubDate, { year: true }),
+    cover: noteCover(post.id, links.get(post.id)!),
     datetime: post.data.pubDate.toISOString(),
     topics: post.data.topics.join('|'),
-    meta: backlinks > 0 ? `${readingTime(post)} · linked from ${plural(backlinks)}` : readingTime(post),
+    stage: post.data.stage,
+    readingTime: readingTime(post),
+    linked: linked > 0 ? `${linked} linked ${linked === 1 ? 'note' : 'notes'}` : '',
   };
 });
 ---
@@ -34,12 +40,14 @@ const notes = posts.map((post) => {
   current="notes"
 >
   <section class="page-head">
+    <span class="g-count" aria-hidden="true">{posts.length}</span>
     <h1 class="title">Notes</h1>
-    <p class="lede">A small garden of notes on AI security and how networks fail. Each one links to others, so start anywhere and follow the threads. New notes go out on <a class="tlink" href="/rss.xml">RSS</a>.</p>
+    <p class="lede">A garden of notes on AI security and how networks fail. Each one links to others, so start anywhere and follow the threads. New notes go out on <a class="tlink" href="/rss.xml">RSS</a>.</p>
   </section>
 
   <section style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding-bottom: 24px;">
     <div class="chips" role="group" aria-label="Filter by topic">
+      <span class="eyebrow" style="align-self: center; margin-right: 4px;">Topics</span>
       {chips.map((chip, i) => (
         <button type="button" class:list={['chip', { on: i === 0 }]} data-topic={i === 0 ? '' : chip.label} aria-pressed={i === 0 ? 'true' : 'false'}>
           {chip.label} <span class="k" aria-hidden="true">{chip.count}</span>
@@ -49,14 +57,13 @@ const notes = posts.map((post) => {
     <span id="notes-count" class="faint" style="font-size: 13px;" aria-live="polite" data-total={plural(posts.length)}>{plural(posts.length)}</span>
   </section>
 
-  <section id="note-list" class="rows" style="padding-bottom: 64px;">
+  <section id="note-list" class="g-index">
     {notes.map((note) => (
-      <a class="note" href={note.href} data-note-id={note.id} data-topics={note.topics}>
-        <span class="n" aria-hidden="true"><span class="node"></span></span>
-        <span class="t">{note.title}</span>
-        <time class="when" datetime={note.datetime}>{note.date}</time>
-        <span class="d">{note.desc}</span>
-        <span class="links">{note.meta}</span>
+      <a class="g-card" href={note.href} data-note-id={note.id} data-topics={note.topics}>
+        <span class="g-cover"><svg viewBox="0 0 320 220" aria-hidden="true" set:html={note.cover} /></span>
+        <span class="g-title serif">{note.title}</span>
+        <span class="g-desc">{note.desc}</span>
+        <span class="g-meta"><NoteStage stage={note.stage} /><time datetime={note.datetime}>{note.date}</time><span>{note.readingTime}</span>{note.linked && <span>{note.linked}</span>}</span>
       </a>
     ))}
   </section>
@@ -95,3 +102,9 @@ const notes = posts.map((post) => {
 
   applyTopic(new URLSearchParams(location.search).get('topic') ?? '');
 </script>
+
+<style is:global>
+  /* The garden index: every note as a card, three across on a wide screen. */
+  .g-count { font-size: 16px; color: var(--accent-text); font-weight: 500; }
+  .g-index { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; padding-bottom: 64px; }
+</style>

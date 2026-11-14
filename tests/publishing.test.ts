@@ -10,7 +10,7 @@ it('publishes due drafts with revisions, preview images, and sitemap entries whi
   const prefix = `publishing-fixture-${Date.now()}`;
   const due = `${prefix}-due`;
   const future = `${prefix}-future`;
-  const paths = [due, future].map((id) => join('src/content/blog', `${id}.md`));
+  const paths = [due, future].map((id) => join('content', `${id}.md`));
   try {
     writeFileSync(
       paths[0],

@@ -1,8 +1,9 @@
 import { test, expect } from '@playwright/test';
 
-const allowedSizes = ['13px', '16px', '28px'];
+// 80px is the home headline only; 44px is page titles and the home section heading.
+const allowedSizes = ['13px', '16px', '22px', '28px', '44px', '80px'];
 
-test('Geist and Geist Serif are self-hosted, loaded, and the type scale stays at 13, 16 and 28px', async ({ page }) => {
+test('Geist and Geist Serif are self-hosted, loaded, and the type scale stays at 13, 16, 22, 28, 44 and 80px', async ({ page }) => {
   for (const path of ['/', '/about', '/notes', '/notes/ai-as-the-ultimate-hub', '/uses', '/swatchbook', '/pocket-card', '/toolshed']) {
     await page.goto(path);
     const styles = await page.evaluate(async () => {

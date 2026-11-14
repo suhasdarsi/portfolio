@@ -8,7 +8,7 @@ test('topic chips filter notes, and a filtered view can be shared', async ({ pag
   let total = 0;
   await expect(async () => {
     await page.goto('/notes');
-    total = await page.locator('.note:visible').count();
+    total = await page.locator('[data-note-id]:visible').count();
     expect(total).toBeGreaterThan(1);
   }).toPass();
   // Search lives in the header on every page, not in the notes list.
@@ -22,19 +22,19 @@ test('topic chips filter notes, and a filtered view can be shared', async ({ pag
   await expect(security).toHaveAttribute('aria-pressed', 'true');
   await expect(all).toHaveAttribute('aria-pressed', 'false');
   await expect(page).toHaveURL(/\?topic=AI\+Security$/);
-  const filtered = await page.locator('.note:visible').count();
+  const filtered = await page.locator('[data-note-id]:visible').count();
   expect(filtered).toBeGreaterThan(0);
   expect(filtered).toBeLessThan(total);
   await expect(page.locator('#notes-count')).toHaveText(`${filtered} of ${total} notes`);
 
   // The shared URL opens with the same filter.
   await page.goto('/notes?topic=AI+Security');
-  await expect(page.locator('.note:visible')).toHaveCount(filtered);
+  await expect(page.locator('[data-note-id]:visible')).toHaveCount(filtered);
   await expect(security).toHaveAttribute('aria-pressed', 'true');
 
   await all.click();
   await expect(page).toHaveURL(/\/notes$/);
-  await expect(page.locator('.note:visible')).toHaveCount(total);
+  await expect(page.locator('[data-note-id]:visible')).toHaveCount(total);
 });
 
 test('search keyboard navigation and focus return', async ({ page }) => {

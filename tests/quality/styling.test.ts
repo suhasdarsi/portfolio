@@ -9,7 +9,7 @@ import { dirname, join, resolve } from 'node:path';
  * tests/browser/styling.spec.ts.
  *
  * Already covered elsewhere and NOT repeated here:
- *   - type scale 13/16/28px: tests/browser/typography.spec.ts
+ *   - type scale 13/16/22/28/44/80px: tests/browser/typography.spec.ts
  *   - axe contrast and general a11y: tests/browser/site.spec.ts
  *   - reading controls: tests/browser/reading.spec.ts; swatch page: tests/browser/swatchbook.spec.ts
  *   - single column and mobile gutters: tests/browser/styling.spec.ts
