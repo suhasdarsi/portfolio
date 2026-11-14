@@ -43,17 +43,17 @@ Open `content/` as a vault in Obsidian using **Open folder as vault**. The vault
 ### New notes
 
 1. Create a note in Obsidian. New files default to `content/`.
-2. Run **Templates: Insert template** and select `_templates/note`.
-3. Fill in `description`, `pubDate`, and `topics`.
+2. The file name is the note's title and its address (`My Note.md` → `/notes/my-note`). No `title`, `author` or date is needed: `bun run notes publish` writes the date the day a note first goes live.
+3. Run **Templates: Insert template** and select `_templates/note`, then fill in `description` and `topics`.
 4. Write the note using normal Markdown and wikilinks.
 5. Set `draft: false` when the note is ready to publish.
 
 ### Linked notes
 
-- Link by filename or exact title: `[[ai-as-the-ultimate-hub]]`
-- Add display text: `[[ai-as-the-ultimate-hub|AI as a hub]]`
-- Link to a heading: `[[ai-as-the-ultimate-hub#The Implications|hub risks]]`
-- Builds fail when a target is missing or ambiguous.
+- Link by the note's name: `[[AI as the Ultimate Hub]]`
+- Add display text: `[[AI as the Ultimate Hub|AI as a hub]]`
+- Link to a heading: `[[AI as the Ultimate Hub#The Implications|hub risks]]`
+- A link to a note that is missing or still a draft shows as plain text. Builds fail only when a target is ambiguous.
 - Obsidian block references such as `[[note#^block-id]]` are not supported.
 
 ### Draft notes

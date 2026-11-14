@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { basename, extname, join, relative, resolve, sep } from 'node:path';
 import { parseFrontmatter } from 'astro/markdown';
-import { NOTES_DIRECTORY, isHiddenFolder, isPublished, noteHref, noteId } from './publishing.mjs';
+import { NOTES_DIRECTORY, isHiddenFolder, isPublished, noteHref, noteId, noteTitle } from './publishing.mjs';
 import { slugify } from '../site/slug.mjs';
 import { escapeHtml, stripComments } from './obsidian.mjs';
 
@@ -69,13 +69,11 @@ export function buildWikilinkIndex(directory = NOTES_DIRECTORY) {
     documents.push(document);
 
     const path = relative(root, file).slice(0, -extname(file).length).split(sep).join('/');
-    const id = noteId(path);
+    const id = noteId(path, document.data);
     const sameAddress = documents.slice(0, -1).find((other) => other.id === id);
     if (sameAddress) throw new Error(`${file} and ${sameAddress.file} would both be published at ${noteHref(id)}. Rename one.`);
     document.id = id;
-    const title = typeof document.data.title === 'string' && document.data.title.trim()
-      ? document.data.title.trim()
-      : basename(file, extname(file));
+    const title = noteTitle(file, document.data);
     const entry = { id, title, href: noteHref(id) };
 
     const aliases = [document.data.aliases].flat().filter((alias) => typeof alias === 'string' && alias.trim());

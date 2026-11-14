@@ -1,14 +1,12 @@
 import { describe, it, expect } from 'vitest';
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { parseFrontmatter } from 'astro/markdown';
-import { isPublished } from '../src/notes/publishing.mjs';
 import { stripDiagramSource } from '../src/notes/diagrams.mjs';
+import { noteFiles } from './note-files';
 
 const ROOT = join(__dirname, '..');
-const BLOG = join(ROOT, 'content');
 
 describe('build', () => {
   it('produces every page with clean canonical URLs, and indexes note text for search', () => {
@@ -23,10 +21,8 @@ describe('build', () => {
       rmSync(cache, { recursive: true, force: true });
     }
 
-    const published = readdirSync(BLOG)
-      .filter((file) => file.endsWith('.md'))
-      .filter((file) => isPublished(parseFrontmatter(readFileSync(join(BLOG, file), 'utf-8')).frontmatter))
-      .map((file) => file.replace(/\.md$/, ''));
+    const notes = noteFiles().filter((note) => !note.draft);
+    const published = notes.map((note) => note.slug);
 
     for (const page of ['dist/index.html', 'dist/notes.html', ...published.map((slug) => `dist/notes/${slug}.html`)]) {
       expect(existsSync(join(ROOT, page)), `${page} should exist after build`).toBe(true);
@@ -42,8 +38,8 @@ describe('build', () => {
     for (const entry of searchIndex) {
       expect(entry).toMatchObject({ kind: 'Note', title: expect.any(String), description: expect.any(String) });
       expect(entry.meta).toMatch(/^[A-Z][a-z]{2} \d{1,2}$/);
-      const markdown = readFileSync(join(BLOG, `${entry.href.replace('/notes/', '')}.md`), 'utf8');
-      expect(entry.body.trim()).toBe(stripDiagramSource(markdown.replace(/^---[\s\S]*?---\s*/, '')).trim());
+      const markdown = notes.find((note) => `/notes/${note.slug}` === entry.href)!.body;
+      expect(entry.body.trim()).toBe(stripDiagramSource(markdown).trim());
       expect(entry.body).not.toContain('```mermaid');
     }
   }, 120_000);

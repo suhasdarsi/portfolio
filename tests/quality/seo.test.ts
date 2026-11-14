@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
+import { noteFiles } from '../note-files';
 
 // Thresholds. Each is a deliberate bound, not a rubber stamp.
 const SITE = 'https://suhasdarsi.com'; // canonical origin every absolute URL must use
@@ -12,7 +13,6 @@ const DESC_MAX = 160; // Google truncates snippets near 155-160 characters
 const ROOT = process.cwd();
 const DIST = join(ROOT, 'dist');
 const PUBLIC = join(ROOT, 'public');
-const BLOG = join(ROOT, 'content');
 
 if (!existsSync(join(DIST, 'index.html'))) {
   throw new Error('dist/ is missing. Run `bun run build` before running the SEO verifier.');
@@ -96,15 +96,6 @@ function toSitePath(ref: string): string | null {
   if (/^[a-z][a-z0-9+.-]*:/i.test(ref)) return null;
   if (ref.startsWith('/')) return ref;
   return null;
-}
-
-function frontmatter(file: string): { title: string; description: string; draft: boolean } {
-  const fm = readFileSync(file, 'utf8').match(/^---\n([\s\S]*?)\n---/)![1];
-  const get = (k: string) => {
-    const m = fm.match(new RegExp(`^${k}:\\s*(?:"((?:[^"\\\\]|\\\\.)*)"|'([^']*)'|(.+))\\s*$`, 'm'));
-    return m ? (m[1] ?? m[2] ?? m[3]).trim() : '';
-  };
-  return { title: get('title'), description: get('description'), draft: get('draft') === 'true' };
 }
 
 const label = (p: { url: string }) => p.url;
@@ -344,10 +335,7 @@ describe('SEO: sitemap, robots, feeds', () => {
   });
 
   it('13. note pages take title and description from frontmatter, unique and descriptive', () => {
-    const notes = readdirSync(BLOG)
-      .filter((f) => f.endsWith('.md'))
-      .map((f) => ({ slug: f.replace(/\.md$/, ''), ...frontmatter(join(BLOG, f)) }))
-      .filter((n) => !n.draft);
+    const notes = noteFiles().filter((n) => !n.draft);
     expect(notes.length).toBeGreaterThan(0);
     const bad: string[] = [];
     for (const n of notes) {

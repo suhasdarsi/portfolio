@@ -1,8 +1,7 @@
 ---
-title: "Small World Networks and the Power of Hubs"
+slug: "small-world-networks-and-hubs"
 description: "Why highly connected hubs make AI systems efficient, and how the same network structure creates concentrated security risk."
 pubDate: "2026-04-04"
-author: "Suhas Darsi"
 topics: ["AI Security"]
 stage: "budding"
 ---
@@ -47,6 +46,6 @@ flowchart LR
   end
 ```
 
-This paradox — efficiency born from concentration, fragility born from the same — has profound implications for how we think about our increasingly connected world. It becomes especially urgent when we consider what's emerging as the most powerful hub our networks have ever seen: [[ai-as-the-ultimate-hub|Artificial Intelligence]].
+This paradox — efficiency born from concentration, fragility born from the same — has profound implications for how we think about our increasingly connected world. It becomes especially urgent when we consider what's emerging as the most powerful hub our networks have ever seen: [[AI as the Ultimate Hub|Artificial Intelligence]].
 
-Understanding this network architecture isn't just academic. It's essential context for thinking about [[the-cascade-risk-of-hub-to-hub-ai-networks|what happens when these hubs start connecting to each other]].
+Understanding this network architecture isn't just academic. It's essential context for thinking about [[The Cascade Risk of Hub-to-Hub AI Networks|what happens when these hubs start connecting to each other]].

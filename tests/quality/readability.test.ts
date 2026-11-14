@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { noteFiles } from '../note-files';
 
 /*
  * Readability verifier. Static text metrics for every note, computed from the built
@@ -33,7 +34,6 @@ const HEADINGS_REQUIRED_OVER = 300; // words; longer bodies need headings to be 
 
 const ROOT = process.cwd();
 const DIST_NOTES = join(ROOT, 'dist/notes');
-const BLOG = join(ROOT, 'content');
 
 if (!existsSync(DIST_NOTES)) {
   throw new Error('dist/ is missing. Run `bun run build` before running the readability verifier.');
@@ -134,20 +134,8 @@ function scores(prose: string) {
   return { W, S, avg: W / S, fre, fk };
 }
 
-const slugs = readdirSync(BLOG)
-  .filter((f) => f.endsWith('.md'))
-  .map((f) => f.replace(/\.md$/, ''));
-
-function frontmatter(slug: string): Record<string, string> {
-  const raw = readFileSync(join(BLOG, `${slug}.md`), 'utf-8');
-  const m = raw.match(/^---\r?\n([\s\S]*?)\r?\n---/);
-  const out: Record<string, string> = {};
-  for (const line of (m?.[1] ?? '').split(/\r?\n/)) {
-    const kv = line.match(/^(\w+):\s*(.*)$/);
-    if (kv) out[kv[1]] = kv[2].trim().replace(/^(["'])([\s\S]*)\1$/, '$2');
-  }
-  return out;
-}
+const notes = noteFiles();
+const slugs = notes.map((note) => note.slug);
 
 describe('readability sanity', () => {
   it('finds a note for every markdown source', () => {
@@ -166,8 +154,8 @@ describe.each(slugs)('note %s', (slug) => {
   const html = readFileSync(join(DIST_NOTES, `${slug}.html`), 'utf-8');
   const prose = proseHtml(html);
   const bs = blocks(prose);
-  const fm = frontmatter(slug);
-  const path = `content/${slug}.md`;
+  const fm = notes.find((note) => note.slug === slug)!;
+  const path = fm.path;
 
   it('has a rendered body', () => {
     expect(prose.length, slug).toBeGreaterThan(0);

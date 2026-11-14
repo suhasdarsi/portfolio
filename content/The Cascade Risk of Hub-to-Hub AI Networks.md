@@ -1,13 +1,11 @@
 ---
-title: "The Cascade Risk of Hub-to-Hub AI Networks"
 description: "The danger isn’t just AI hubs failing — it’s what happens when they start talking to each other."
 pubDate: "2026-04-05"
-author: "Suhas Darsi"
 topics: ["AI Security"]
 stage: "budding"
 ---
 
-In [[ai-as-the-ultimate-hub|AI as the Ultimate Hub]], we explored how AI is emerging as a new kind of network node — one that compresses complexity by bridging previously siloed systems. But here's where [[small-world-networks-and-hubs|network theory]] delivers its most sobering lesson.
+In [[AI as the Ultimate Hub]], we explored how AI is emerging as a new kind of network node — one that compresses complexity by bridging previously siloed systems. But here's where [[Small World Networks and the Power of Hubs|network theory]] delivers its most sobering lesson.
 
 ## When Hubs Connect to Hubs
 
@@ -37,4 +35,4 @@ flowchart LR
   C --> G((Gov AI)):::hub --> g[Identity, tax, benefits]
 ```
 
-This non-linear scaling is exactly what [[why-ai-security-is-fundamentally-different|makes AI security categorically different]] from traditional IT security — and why we need [[rethinking-ai-safety-through-network-science|fundamentally new approaches]] to managing it.
+This non-linear scaling is exactly what [[Why AI Security Is Fundamentally Different|makes AI security categorically different]] from traditional IT security — and why we need [[Designing Resilient AI Systems Through Network Science|fundamentally new approaches]] to managing it.

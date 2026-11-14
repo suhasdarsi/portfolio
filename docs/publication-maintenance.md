@@ -11,7 +11,7 @@ Verified against this checkout on 25 October 2026. Editorial approval belongs to
 ## Per-article release preparation
 
 1. Obtain approval of the exact title, body, description, author, references, and release time. Check evidence and publication rights with the editorial owner.
-2. Keep the approved URL slug stable. Files in `content/` create `/notes/<file-id>` routes; changing filenames changes URLs and requires a redirect plan.
+2. Keep the approved URL slug stable. Files in `content/` create `/notes/<file-id>` routes; the file name is also the note's title. To retitle a published note, rename the file and add `slug: <old-address>` to its properties so the URL does not change.
 3. Validate frontmatter against `src/content.config.ts`. Use `published: false` to hold material regardless of dates. `draft: true` without a due date stays hidden. `draft: true` with a due `dueDate` becomes public on the next build. **A future `pubDate` alone does not hold publication.** Use an ISO timestamp with an explicit timezone when release timing matters.
 4. Check links, wikilinks, heading targets, image alternative text, and reading order. Wikilink targets must exist and be unambiguous. Add revisions only for actual substantive updates; do not invent modification dates.
 5. Run `bun run lint`, `bun run typecheck`, `bun run test`, and `bun run build`. Tests create temporary publication fixtures; do not run simultaneous builds or edits in the content directory.

@@ -5,7 +5,7 @@ import { afterAll, beforeAll, expect, it } from 'vitest';
 import { markdownToHtml } from 'satteri';
 import { obsidianSyntaxPlugin, stripComments } from '../src/notes/obsidian.mjs';
 import { wikilinkRoutesPlugin } from '../src/notes/wikilinks.mjs';
-import { NOTES_DIRECTORY, noteId } from '../src/notes/publishing.mjs';
+import { NOTES_DIRECTORY, noteId, noteTitle, today, withNoteDefaults } from '../src/notes/publishing.mjs';
 
 // A folder only this test uses, inside the vault, so image embeds have something to find.
 const attachments = resolve(NOTES_DIRECTORY, `attachments-test-${Date.now()}`);
@@ -28,6 +28,29 @@ const render = async (markdown: string) =>
 it('turns a file name into the note address', () => {
   expect(noteId('My New Note.md')).toBe('my-new-note');
   expect(noteId('ai-as-the-ultimate-hub.md')).toBe('ai-as-the-ultimate-hub');
+});
+
+it('takes the title from the file name and the date from the day of publishing', () => {
+  expect(noteTitle('ideas/My New Note.md', {})).toBe('My New Note');
+  expect(noteTitle('My New Note.md', { title: 'What is a hub: a primer' })).toBe('What is a hub: a primer');
+  // A pinned address survives renaming the file.
+  expect(noteId('A Better Title.md', { slug: 'my-new-note' })).toBe('my-new-note');
+  expect(today(new Date(2026, 0, 5))).toBe('2026-01-05');
+  // The date rule depends on where the build runs, so set that explicitly and put it back afterwards.
+  const ci = process.env.CI;
+  try {
+    process.env.CI = '';
+    expect(withNoteDefaults('My New Note.md', {})).toEqual({ title: 'My New Note', pubDate: today() });
+    expect(withNoteDefaults('My New Note.md', { pubDate: '2020-01-01' }).pubDate).toBe('2020-01-01');
+    // On GitHub a published note must carry its date; a draft need not.
+    process.env.CI = 'true';
+    expect(() => withNoteDefaults('My New Note.md', {})).toThrow('bun run notes publish');
+    expect(() => withNoteDefaults('My New Note.md', { draft: true })).not.toThrow();
+  } finally {
+    if (ci === undefined) delete process.env.CI;
+    else process.env.CI = ci;
+  }
+  expect(() => noteId('My Note.md', { slug: '***' })).toThrow('Rename the file');
 });
 
 it('links live notes and shows links to unwritten notes as text', async () => {

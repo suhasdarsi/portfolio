@@ -2,18 +2,29 @@ import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
 import { toolCategories } from './toolshed/categories';
-import { NOTES_DIRECTORY, noteId, noteStages } from './notes/publishing.mjs';
+import { NOTES_DIRECTORY, noteId, noteStages, withNoteDefaults } from './notes/publishing.mjs';
 import { site } from './site/site';
 
 const dateSchema = z.coerce.date().refine((date) => !Number.isNaN(date.valueOf()), {
   message: 'Invalid date',
 });
 
+// Notes: every Markdown file in the vault. The file name is the title and the address comes from it, so a
+// note needs no title, author or date typed in (see withNoteDefaults).
+const noteFiles = glob({ pattern: ["**/*.md", "!**/_*/**"], base: `./${NOTES_DIRECTORY}`, generateId: ({ entry, data }) => noteId(entry, data) });
 const blog = defineCollection({
-  loader: glob({ pattern: ["**/*.md", "!**/_*/**"], base: `./${NOTES_DIRECTORY}`, generateId: ({ entry }) => noteId(entry) }),
+  loader: {
+    ...noteFiles,
+    load: (context) => noteFiles.load({
+      ...context,
+      parseData: (entry) => context.parseData({ ...entry, data: withNoteDefaults(entry.filePath ?? entry.id, entry.data) }),
+    }),
+  },
   schema: z.object({
     title: z.string(),
-    description: z.string(),
+    // Pins the note's address when the file is renamed. Without it the address comes from the file name.
+    slug: z.string().optional(),
+    description: z.string().default(''),
     pubDate: dateSchema,
     updatedDate: dateSchema.optional(),
     revisions: z.array(z.object({ date: dateSchema, summary: z.string().trim().min(1) })).default([]),

@@ -1,13 +1,11 @@
 ---
-title: "Why AI Security Is Fundamentally Different"
 description: "Traditional security assumes boundaries. AI is designed to break them. That’s the problem."
 pubDate: "2026-04-05"
-author: "Suhas Darsi"
 topics: ["AI Security"]
 stage: "budding"
 ---
 
-As we explored in [[the-cascade-risk-of-hub-to-hub-ai-networks|The Cascade Risk of Hub-to-Hub AI Networks]], AI hubs connecting to each other creates a new class of systemic risk. This brings us to why AI risk represents a categorically different challenge than traditional IT security.
+As we explored in [[The Cascade Risk of Hub-to-Hub AI Networks]], AI hubs connecting to each other creates a new class of systemic risk. This brings us to why AI risk represents a categorically different challenge than traditional IT security.
 
 ## The Isolation Assumption
 
@@ -17,7 +15,7 @@ AI hubs, by their very nature, are designed to break down these barriers. Their 
 
 ## Non-Linear Impact
 
-In a [[small-world-networks-and-hubs|hub-based network]], the impact of failure scales non-linearly. A traditional security breach might expose one database or compromise one service. An [[ai-as-the-ultimate-hub|AI hub failure]] could simultaneously affect every system it touches, in ways that cascade through its connections to other AI hubs.
+In a [[Small World Networks and the Power of Hubs|hub-based network]], the impact of failure scales non-linearly. A traditional security breach might expose one database or compromise one service. An [[AI as the Ultimate Hub|AI hub failure]] could simultaneously affect every system it touches, in ways that cascade through its connections to other AI hubs.
 
 ```mermaid A traditional breach stays where it lands. An AI hub failure spreads to everything the hub can touch.
 flowchart LR
@@ -50,4 +48,4 @@ These failure modes don't respect traditional security boundaries. They operate 
 
 This is the core tension: we design AI systems to be maximally integrated and capable, then try to secure them with tools built for isolated, constrained systems. The security model and the capability model are fundamentally at odds.
 
-Recognizing this paradox is the first step toward [[rethinking-ai-safety-through-network-science|building approaches that account for AI's unique properties]].
+Recognizing this paradox is the first step toward [[Designing Resilient AI Systems Through Network Science|building approaches that account for AI's unique properties]].

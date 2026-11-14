@@ -1,4 +1,4 @@
-<!-- commit: a28158de -->
+<!-- commit: 3e8a6a1d -->
 # suhas-darsi-portfolio — personal site: AI-security notes plus tiny apps (Pocket Card, Swatchbook, Toolshed)
 
 ## Stack
@@ -36,7 +36,7 @@ mermaid plugins. Tests: Vitest (unit + build) and Playwright (desktop + Pixel 7)
 - Forms: Pocket Card → `POST /api/wallet` (signs a pkpass); Toolshed suggest → `POST /api/toolshed/request` (Turnstile → GitHub issue in `REQUEST_REPO`; allowed Turnstile hosts default to the `site.url` host, override with `TURNSTILE_HOSTNAMES`).
 
 ## Conventions & gotchas
-- Notes are written in Obsidian (vault = `content/`, `NOTES_DIRECTORY`). A file name becomes the address through `noteId` ("My Note.md" → `/notes/my-note`). A `[[link]]` to a draft or unwritten note renders as plain text, not an error. `draft: true` keeps a note off the site; `%%comments%%` are stripped from pages, search, RSS and llms.txt.
+- Notes are written in Obsidian (vault = `content/`, `NOTES_DIRECTORY`). The file name is the title (`noteTitle`; a `title` property overrides it) and the address (`noteId`: "My Note.md" → `/notes/my-note`; a `slug` property pins it). `author` defaults to the site owner; `pubDate` is written by `bun run notes publish` on first publish, is today in local previews, and a published note without one fails the build on CI (`withNoteDefaults`). Tests read notes through `tests/note-files.ts`, never by file name. A `[[link]]` to a draft or unwritten note renders as plain text, not an error. `draft: true` keeps a note off the site; `%%comments%%` are stripped from pages, search, RSS and llms.txt.
 - Garden features on note pages: `NoteStage.astro` (growth stage from the optional `stage` frontmatter: seedling/budding/evergreen; "Planted" = `pubDate`, "Last tended" = `lastRevised()`), `LocalGraph.astro` (the note and its direct neighbours, in the rail; layout from `localGraph` in `cover.ts`), `NotePreviews.astro` (hover cards for `.prose a.wikilink` and graph nodes; built with the page, mouse and keyboard only).
 - After changing the note schema in `src/content.config.ts`, the dev server can serve stale note data: stop it, delete `.astro/data-store.json` and `node_modules/.astro/data-store.json`, start again.
 - Never build URLs by hand: `noteHref`, `categoryHref`, `tagHref`, `toolHref`/`toolLink`, `absoluteUrl`.

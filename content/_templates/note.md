@@ -1,11 +1,8 @@
 ---
-title: '{{title}}'
 description: ''
-pubDate: '{{date:YYYY-MM-DD}}'
-author: 'Suhas Darsi'
-draft: true
 topics: ['AI Security']
 stage: seedling # seedling → budding → evergreen
+draft: true
 ---
 
-<!-- When revising, add a revisions array to frontmatter with date and summary for actual changes. -->
+<!-- The file name is the title. The date is added when the note is published. When revising, add a revisions array with date and summary. -->

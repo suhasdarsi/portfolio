@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
+import { noteFiles } from '../note-files';
 
 // Thresholds. Each is a deliberate bound, not a rubber stamp.
 const SITE = 'https://suhasdarsi.com'; // canonical origin every absolute URL must use
@@ -17,7 +18,6 @@ const AI_AGENTS = ['*', 'GPTBot', 'ChatGPT-User', 'OAI-SearchBot', 'ClaudeBot', 
 
 const ROOT = process.cwd();
 const DIST = join(ROOT, 'dist');
-const BLOG = join(ROOT, 'content');
 
 if (!existsSync(join(DIST, 'index.html'))) {
   throw new Error('dist/ is missing. Run `bun run build` before running the AEO verifier.');
@@ -89,25 +89,7 @@ function sitePath(url: string): string {
   return url.slice(SITE.length) || '/';
 }
 
-function frontmatter(file: string) {
-  const fm = readFileSync(file, 'utf8').match(/^---\n([\s\S]*?)\n---/)![1];
-  const get = (k: string) => {
-    const m = fm.match(new RegExp(`^${k}:\\s*(?:"((?:[^"\\\\]|\\\\.)*)"|'([^']*)'|(.+))\\s*$`, 'm'));
-    return m ? (m[1] ?? m[2] ?? m[3]).trim() : '';
-  };
-  return {
-    title: get('title'),
-    description: get('description'),
-    pubDate: get('pubDate'),
-    draft: get('draft') === 'true',
-    body: readFileSync(file, 'utf8').replace(/^---\n[\s\S]*?\n---\n?/, ''),
-  };
-}
-
-const notes = readdirSync(BLOG)
-  .filter((f) => f.endsWith('.md'))
-  .map((f) => ({ slug: f.replace(/\.md$/, ''), ...frontmatter(join(BLOG, f)) }))
-  .filter((n) => !n.draft && page(`/notes/${n.slug}`));
+const notes = noteFiles().filter((n) => !n.draft && page(`/notes/${n.slug}`));
 
 /** First visible body paragraph of a rendered note, as HTML. */
 function firstParagraph(html: string): string | undefined {

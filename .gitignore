@@ -29,6 +29,8 @@ pnpm-debug.log*
 # Obsidian local workspace state
 **/.obsidian/workspace*.json
 **/.obsidian/cache/
+# Obsidian themes are installed per computer
+**/.obsidian/themes/
 
 
 # Browser test artifacts

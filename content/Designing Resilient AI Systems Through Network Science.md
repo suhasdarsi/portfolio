@@ -1,13 +1,12 @@
 ---
-title: "Designing Resilient AI Systems Through Network Science"
+slug: "rethinking-ai-safety-through-network-science"
 description: "How redundancy, circuit breakers, monitoring, and intentional friction can contain security failures across connected AI systems."
 pubDate: "2026-04-05"
-author: "Suhas Darsi"
 topics: ["AI Security"]
 stage: "budding"
 ---
 
-We've seen how [[small-world-networks-and-hubs|network hubs create both efficiency and fragility]], how [[ai-as-the-ultimate-hub|AI is emerging as the ultimate hub]], how [[the-cascade-risk-of-hub-to-hub-ai-networks|hub-to-hub connections amplify risk]], and [[why-ai-security-is-fundamentally-different|why traditional security falls short]]. The question is: what do we do about it?
+We've seen how [[Small World Networks and the Power of Hubs|network hubs create both efficiency and fragility]], how [[AI as the Ultimate Hub|AI is emerging as the ultimate hub]], how [[The Cascade Risk of Hub-to-Hub AI Networks|hub-to-hub connections amplify risk]], and [[Why AI Security Is Fundamentally Different|why traditional security falls short]]. The question is: what do we do about it?
 
 ## Redundancy and Diversity
 
@@ -49,7 +48,7 @@ Monitoring isn't optional — it's a prerequisite for any system that occupies a
 
 ## Intentional Friction
 
-Sometimes inefficiency is a feature, not a bug. The [[small-world-networks-and-hubs|natural boundaries]] between traditional systems exist for a reason — they contain failures, slow down cascades, and create checkpoints.
+Sometimes inefficiency is a feature, not a bug. The [[Small World Networks and the Power of Hubs|natural boundaries]] between traditional systems exist for a reason — they contain failures, slow down cascades, and create checkpoints.
 
 Strategic air gaps between AI hubs — moments where human judgment is required before actions propagate to the next system — may be necessary safeguards, even if they slow things down. The goal isn't to recreate the inefficiency of isolated systems, but to introduce thoughtful friction at the points where cascading risk is highest.
 

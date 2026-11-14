@@ -4,10 +4,10 @@
 //                            Drafts are never saved or sent.
 // The site itself is updated by GitHub (.github/workflows/quality.yml) once the notes reach the main branch.
 import { execFileSync } from 'node:child_process';
-import { readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { parseFrontmatter } from 'astro/markdown';
-import { NOTES_DIRECTORY, isHiddenFolder, isPublished, noteHref, noteId } from '../src/notes/publishing.mjs';
+import { NOTES_DIRECTORY, isHiddenFolder, isPublished, noteHref, noteId, noteTitle, today } from '../src/notes/publishing.mjs';
 
 const LIVE_BRANCH = 'main';
 const live = `origin/${LIVE_BRANCH}`;
@@ -44,8 +44,8 @@ function status(): { rows: Row[]; attachments: string[] } {
   const local = noteFiles(NOTES_DIRECTORY);
   const rows: Row[] = local.map((file) => {
     const data = frontmatter(readFileSync(file, 'utf8'));
-    const title = typeof data.title === 'string' && data.title.trim() ? data.title : file;
-    const address = noteHref(noteId(file.slice(NOTES_DIRECTORY.length + 1)));
+    const title = noteTitle(file, data);
+    const address = noteHref(noteId(file.slice(NOTES_DIRECTORY.length + 1), data));
     if (!isPublished(data)) {
       // A draft stays on this computer. One that is public right now is being taken down.
       const wasPublic = onLive.has(file) && isPublished(frontmatter(git('show', `${live}:${file}`)));
@@ -88,6 +88,17 @@ if (!command) {
     process.exit(0);
   }
   print({ rows: waiting, attachments: current.attachments });
+  // A note's date is the day it is first published. Write it into the note so it never changes afterwards.
+  const date = today();
+  for (const { file } of waiting) {
+    if (!existsSync(file)) continue;
+    const text = readFileSync(file, 'utf8').replace(/^\uFEFF/, '');
+    const newline = text.includes('\r\n') ? '\r\n' : '\n';
+    const properties = text.match(/^---[ \t]*\r?\n([\s\S]*?\r?\n)?---[ \t]*(\r?\n|$)/);
+    if (properties && /^pubDate:/m.test(properties[1] ?? '')) continue;
+    const stamp = `pubDate: ${date}${newline}`;
+    writeFileSync(file, properties ? text.replace(/^---[ \t]*\r?\n/, `---${newline}${stamp}`) : `---${newline}${stamp}---${newline}${newline}${text}`);
+  }
   console.log('\nChecking the site builds with these notes…');
   execFileSync('bun', ['run', 'build'], { stdio: ['ignore', 'ignore', 'inherit'] });
 

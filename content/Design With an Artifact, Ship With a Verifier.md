@@ -1,8 +1,6 @@
 ---
-title: "Design With an Artifact, Ship With a Verifier"
 description: "I redesigned this site with AI agents. The design artifact set the target. Verifiers made the result reliable, and they are the part I'd build first next time."
 pubDate: "2026-11-03"
-author: "Suhas Darsi"
 topics: ["Building with AI"]
 stage: "budding"
 ---
@@ -70,6 +68,6 @@ A verifier changes that in four ways.
 - **It's a second opinion without the same blind spots.** An agent that wrote a page is the worst judge of it. A rule, a screenshot comparison or an independent reviewer doesn't share its assumptions.
 - **It keeps the work honest over time.** The checks stay in the repository, so the next change to this site is held to the same standard without anyone remembering to look.
 
-This is the same idea as the [[rethinking-ai-safety-through-network-science|checkpoints between AI hubs]] I've written about before: intentional friction placed where mistakes would otherwise pass straight through. Here the stakes are a misplaced nav link, not a cascading failure, but the shape is the same.
+This is the same idea as the [[Designing Resilient AI Systems Through Network Science|checkpoints between AI hubs]] I've written about before: intentional friction placed where mistakes would otherwise pass straight through. Here the stakes are a misplaced nav link, not a cascading failure, but the shape is the same.
 
 The artifact told the agents where to go. The verifiers told them, and me, when they'd actually arrived. Next time I'll write the verifiers before the first line of the port, not after the first round of "done".
