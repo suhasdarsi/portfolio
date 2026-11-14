@@ -56,7 +56,8 @@ function status(): { rows: Row[]; attachments: string[] } {
     return { state: differs.has(file) ? 'changed' : 'live', title, detail: address, file };
   });
   for (const file of onLive) {
-    if (file.toLowerCase().endsWith('.md') && !local.includes(file)) rows.push({ state: 'removed', title: file, detail: 'deleted: will be taken off the site', file });
+    const hidden = file.slice(NOTES_DIRECTORY.length + 1).split('/').slice(0, -1).some(isHiddenFolder); // e.g. the note template
+    if (file.toLowerCase().endsWith('.md') && !hidden && !local.includes(file)) rows.push({ state: 'removed', title: file, detail: 'deleted: will be taken off the site', file });
   }
   // Everything else in the vault that changed: pasted images, the note template, Obsidian's settings.
   const noteFilesListed = new Set(rows.map((row) => row.file));
