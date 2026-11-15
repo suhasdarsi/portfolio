@@ -26,13 +26,13 @@ const crumb = tabs.find((t) => t.id === tab)!;
   <Sidebar tools={tools} current={category} />
   <div class="ts-main">
     <div style="display: grid; gap: 12px;">
-      <p class="faint" style="font-size: 13px;"><a href="/toolshed">Toolshed</a> / {tab === 'overview' ? category : <><a href={base}>{category}</a> / {crumb.label}</>}</p>
+      <p class="faint" style="font-size: 15px;"><a href="/toolshed">Toolshed</a> / {tab === 'overview' ? category : <><a href={base}>{category}</a> / {crumb.label}</>}</p>
       <h1 class="title">{title}</h1>
       <slot name="head" />
     </div>
     <nav class="tabs" aria-label={`${category} sections`}>
       {tabs.map((t) => (
-        <a class:list={['tab', { on: t.id === tab }]} href={t.href} aria-current={t.id === tab ? 'page' : undefined}>{t.label}{t.count !== undefined && <> <span class="faint" style="font-size: 13px;">{t.count}</span></>}</a>
+        <a class:list={['tab', { on: t.id === tab }]} href={t.href} aria-current={t.id === tab ? 'page' : undefined}>{t.label}{t.count !== undefined && <> <span class="faint" style="font-size: 15px;">{t.count}</span></>}</a>
       ))}
     </nav>
     <slot />

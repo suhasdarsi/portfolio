@@ -10,7 +10,7 @@ import { noteFiles } from '../note-files';
  * tests/browser/readability.spec.ts. Related checks that already exist and are NOT repeated:
  *   - title/description length for search: tests/quality/seo.test.ts
  *   - answer-engine structure: tests/quality/aeo.test.ts
- *   - type scale (13/16/22/28/44/80px) and 16px/1.6 body: tests/browser/typography.spec.ts, reading.spec.ts
+ *   - type scale (15/18/22/28/44/80px) and 16px/1.6 body: tests/browser/typography.spec.ts, reading.spec.ts
  *
  * Counted text: the rendered note body (<div class="prose">) only. <pre>, <code>, <svg>,
  * <figure>, <table>, nav, footer and the table of contents sit outside that div or are

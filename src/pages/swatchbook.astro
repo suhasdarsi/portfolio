@@ -26,7 +26,7 @@ const counts = Object.fromEntries(categories.map((c) => [c, c === 'All' ? design
           <button type="button" class:list={['chip', { on: category === 'All' }]} data-category={category} aria-pressed={category === 'All' ? 'true' : 'false'}>{category} <span class="k" aria-hidden="true">{counts[category]}</span></button>
         ))}
       </div>
-      <span class="faint" style="font-size: 13px;" id="system-count" role="status" aria-live="polite">{designSystems.length} systems</span>
+      <span class="faint" style="font-size: 15px;" id="system-count" role="status" aria-live="polite">{designSystems.length} systems</span>
     </div>
   </section>
 
@@ -78,9 +78,9 @@ const counts = Object.fromEntries(categories.map((c) => [c, c === 'All' ? design
 <style is:global>
   .sgrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 24px; list-style: none; margin: 0; padding: 0; }
   .sys { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; padding-block: 12px; border-bottom: 1px solid var(--line); align-items: baseline; }
-  .sys .n { font-weight: 500; font-size: 16px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .sys .c { font-size: 13px; color: var(--faint); white-space: nowrap; }
-  .sys .o { grid-column: 1 / -1; font-size: 13px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .sys .n { font-weight: 500; font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .sys .c { font-size: 15px; color: var(--faint); white-space: nowrap; }
+  .sys .o { grid-column: 1 / -1; font-size: 15px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .sys:hover .n { color: var(--accent-text); }
   @media (max-width: 1000px) { .sgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   @media (max-width: 640px) { .sgrid { grid-template-columns: minmax(0, 1fr); } }

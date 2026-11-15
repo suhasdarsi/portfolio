@@ -15,6 +15,7 @@
     "test:watch": "vitest",
     "lint": "eslint src tests worker scripts *.config.*",
     "test:browser": "playwright test",
+    "fonts": "playwright test tests/browser/fonts.spec.ts --reporter=line",
     "verify": "vitest run tests/quality && playwright test tests/browser/styling.spec.ts tests/browser/readability.spec.ts",
     "typecheck": "astro check",
     "deadcode": "knip",

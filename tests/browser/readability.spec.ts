@@ -2,14 +2,14 @@ import { test, expect, type Page } from '@playwright/test';
 
 /*
  * Rendered readability verifier (desktop Chrome and Pixel 7). Static text metrics live in
- * tests/quality/readability.test.ts. Not repeated here: the 13/16/22/28/44/80px type scale
+ * tests/quality/readability.test.ts. Not repeated here: the 15/18/22/28/44/80px type scale
  * (typography.spec.ts), the exact 16px / 1.6 note body with blocked storage (reading.spec.ts),
  * and axe colour-contrast on notes in light and dark (site.spec.ts). Contrast is still
  * measured below on the body text itself so the numeric ratio is reported.
  *
  * Thresholds:
  *  - Body size: 16px on both viewports. The brief suggested 17px on desktop, but the site's
- *    deliberate type scale (13/16/22/28/44/80px, enforced by typography.spec.ts) has no 17px, so
+ *    deliberate type scale (15/18/22/28/44/80px, enforced by typography.spec.ts) has no 17px, so
  *    16px is the floor; line-height must be at least 1.5x (site uses 1.7).
  *  - Line length 45-80 characters on desktop (the usual 45-75 comfort band with slack for
  *    wide glyph mixes). Phones are only required to stay at or under 80.

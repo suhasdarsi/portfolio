@@ -68,10 +68,11 @@ const titles = new Map(notes.map((note) => [note.id, note.data.title]));
 </script>
 
 <style>
-  .graph { display: grid; gap: 8px; font-size: 13px; color: var(--faint); max-width: 440px; }
+  .graph { display: grid; gap: 8px; font-size: 15px; color: var(--faint); max-width: 440px; }
   .graph svg { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
   .graph line { stroke: var(--line-strong); stroke-width: 1; transition: opacity .15s, stroke .15s; }
-  .graph .node { fill: var(--muted); transition: opacity .15s, fill .15s; }
+  .graph .node { fill: var(--muted); transform-box: fill-box; transform-origin: center; transition: opacity .15s, fill .15s, scale .24s var(--ease-spring); }
+  .graph a:hover .node, .graph a:focus-visible .node { scale: 1.3; }
   .graph .node.here { fill: var(--accent-text); }
   .graph .hit { fill: transparent; }
   .graph a:hover .node, .graph a:focus-visible .node { fill: var(--accent-text); }

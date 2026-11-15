@@ -1,4 +1,4 @@
-<!-- commit: ef5acc90 -->
+<!-- commit: 394fa864 -->
 # suhas-darsi-portfolio — personal site: AI-security notes plus tiny apps (Pocket Card, Swatchbook, Toolshed)
 
 ## Stack
@@ -41,10 +41,12 @@ mermaid plugins. Tests: Vitest (unit + build) and Playwright (desktop + Pixel 7)
 - After changing the note schema in `src/content.config.ts`, the dev server can serve stale note data: stop it, delete `.astro/data-store.json` and `node_modules/.astro/data-store.json`, start again.
 - Never build URLs by hand: `noteHref`, `categoryHref`, `tagHref`, `toolHref`/`toolLink`, `absoluteUrl`.
 - New app or page: add it to `src/site/sections.ts`; mark it unindexed in `site.ts` if search engines should skip it.
-- `[hidden]` is enforced globally in `site.css`; type scale is 13/16/22/28/44/80px only (browser tests enforce it; 80 is the home headline).
+- Font checker: `bun run fonts` (`tests/browser/fonts.spec.ts`) crawls every linked page on desktop and phone and fails on any text that fits no role in `tests/browser/type-roles.ts` (typeface, size, weight, line height, letter spacing). It runs with `test:browser`. Small text is always Geist; the serif is 18px and up, weight 400 only. Mark drawings of other things with `data-type-drawing`.
+- `[hidden]` is enforced globally in `site.css`; type scale is one size per role (browser tests enforce it): 15px all interface text, 22px reading text and intros (18px on phones), 28px note section headings, 44px page titles, 80px home headline. Form fields stay 16px so phones don't zoom.
 - Geist Serif ships as one weight (400): bold or light serif text will not render. Note bodies use the `Geist Serif Text` name (same file, declared 400) so the browser synthesises bold there.
 - Note cards (`.g-card`, `.g-cover`, `.g-title`, `.g-desc`, `.g-meta` in `site.css`) are shared by the home page and the notes index (`src/pages/notes/index.astro`, a card grid with topic chips).
-- Note pages (`src/pages/notes/[slug].astro`) are a 680px text column on the left with a sticky rail on the right (contents list first): 22px serif body on desktop, 16px under 760px; The rail also holds the local graph and one "Linked notes" list (links in either direction, never split into to/from); under 1000px only that list remains, below the note.
+- Note pages (`src/pages/notes/[slug].astro`) are a 680px text column on the left with a sticky rail on the right (contents list first): 22px serif body on desktop, 18px under 760px; The rail also holds the local graph and one "Linked notes" list (links in either direction, never split into to/from); under 1000px only that list remains, below the note.
+- Motion lives in the "Motion" block of `site.css`: every link and button already transitions colour, `translate` and `scale` (curves `--ease-out`, `--ease-spring`), so a component only sets the hover or pressed value. Nothing over 300ms (tested); hover must not change the size of header controls (tested). `ReadingGuide.astro` marks the section being read (`.on`, `.past`).
 - Every page sits in one 1180px frame (`.page`) with the same `.page-head` (64px above, 48px below), `h1.title` and `.lede` (22px serif). Don't give a page its own width or header spacing. The home page is the one exception: its hero has an 80px headline in place of `.page-head`. Section headings are `.sec-label h2`, `.g-kind` or `h2.sec-h` (all 22px Geist 600, 16px under 760px).
 - Unit tests run sequentially (`fileParallelism: false`) because two of them run full Astro builds.
 - Toolshed category slugs must not collide with `tools`, `about`, `suggest` (tested).

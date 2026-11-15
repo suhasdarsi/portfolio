@@ -28,10 +28,10 @@ const facts = [
     <Sidebar tools={tools} />
     <article class="ts-main" style="max-width: 760px;">
       <div style="display: grid; gap: 12px;">
-        <p class="faint" style="font-size: 13px;"><a href="/toolshed">Toolshed</a> / <a href="/toolshed/tools">All tools</a> / {tool.name}</p>
+        <p class="faint" style="font-size: 15px;"><a href="/toolshed">Toolshed</a> / <a href="/toolshed/tools">All tools</a> / {tool.name}</p>
         <h1 class="title">{tool.name}{tool.affiliated && <span class="emp">My employer</span>}</h1>
         {verdict && <p class="lede">{verdict}</p>}
-        <p class="faint meta" style="font-size: 13px;">
+        <p class="faint meta" style="font-size: 15px;">
           {rating && <Rating rating={rating} />}
           {tried && <span>Tried <time datetime={tried.toISOString()}>{formatDate(tried, { year: true })}</time></span>}
           {updated && <span>Updated <time datetime={updated.toISOString()}>{formatDate(updated, { year: true })}</time></span>}
@@ -60,7 +60,7 @@ const facts = [
 <style>
   .meta { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
   .facts { margin: 0; border-top: 1px solid var(--line); }
-  .fact { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 8px 24px; padding-block: 12px; border-bottom: 1px solid var(--line); font-size: 16px; }
+  .fact { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 8px 24px; padding-block: 12px; border-bottom: 1px solid var(--line); font-size: 15px; }
   .fact dt { color: var(--muted); }
   .fact dd { margin: 0; overflow-wrap: anywhere; }
   .pros-cons { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }

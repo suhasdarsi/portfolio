@@ -47,8 +47,8 @@ test('note text stays comfortable with blocked storage', async ({ page }) => {
       leading: parseFloat(s.lineHeight) / parseFloat(s.fontSize),
     };
   });
-  // 22px serif on desktop, 16px on phones (the breakpoint is 760px).
-  expect(type.size).toBe((page.viewportSize()?.width ?? 0) < 760 ? 16 : 22);
+  // 22px serif on desktop, 18px on phones (the breakpoint is 760px).
+  expect(type.size).toBe((page.viewportSize()?.width ?? 0) < 760 ? 18 : 22);
   expect(type.leading).toBeGreaterThanOrEqual(1.6);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
@@ -107,9 +107,11 @@ test('the reading progress bar fills as the reader reaches the end of the note',
   });
   await expect.poll(width).toBeGreaterThan(0.99);
 });
-test('a note shows its growth stage and the day it was planted', async ({ page }) => {
+test('a note opens with a way back, its name and its description; its growth stage and planting day follow the text', async ({ page }) => {
   await page.goto(note);
-  const meta = page.locator('article header .g-meta');
+  await expect(page.locator('article header > *')).toHaveCount(3);
+  await expect(page.locator('article header a')).toHaveAttribute('href', '/notes');
+  const meta = page.locator('article .note-foot .g-meta');
   await expect(meta.locator('.stage')).toHaveText(/Seedling|Budding|Evergreen/);
   await expect(meta).toContainText('Planted');
   await page.goto('/notes');

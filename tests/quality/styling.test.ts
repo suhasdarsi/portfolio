@@ -9,7 +9,7 @@ import { dirname, join, resolve } from 'node:path';
  * tests/browser/styling.spec.ts.
  *
  * Already covered elsewhere and NOT repeated here:
- *   - type scale 13/16/22/28/44/80px: tests/browser/typography.spec.ts
+ *   - type scale 15/18/22/28/44/80px: tests/browser/typography.spec.ts
  *   - axe contrast and general a11y: tests/browser/site.spec.ts
  *   - reading controls: tests/browser/reading.spec.ts; swatch page: tests/browser/swatchbook.spec.ts
  *   - single column and mobile gutters: tests/browser/styling.spec.ts
@@ -111,7 +111,7 @@ describe('design tokens', () => {
     for (const token of ['--bg', '--surface', '--soft', '--ink', '--body', '--muted', '--faint', '--line', '--line-strong', '--accent', '--accent-text', '--alert']) {
       expect(light.has(token), `${token} missing from .sd`).toBe(true);
     }
-    expect(stripComments(css)).toMatch(/\.sd\s*\{[^}]*font-size:\s*16px/);
+    expect(stripComments(css)).toMatch(/\.sd\s*\{[^}]*font-size:\s*15px/);
   });
 
   it('every var(--x) used by live styles is defined somewhere in live styles or inline', () => {

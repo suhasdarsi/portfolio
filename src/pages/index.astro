@@ -40,7 +40,7 @@ const external = { target: '_blank', rel: 'noopener noreferrer' };
   <section id="writing" class="g-section">
     <div class="g-head">
       <h2 class="serif">Notes</h2>
-      <p>Every network has a hub. Every hub is a way in. These notes on AI security link to each other, so start anywhere and follow the threads. <a class="g-link" href="/notes">All notes</a></p>
+      <p class="lede">Every network has a hub. Every hub is a way in. These notes on AI security link to each other, so start anywhere and follow the threads. <a class="g-link" href="/notes">All notes</a></p>
     </div>
     <div class="g-grid">
       <div class="g-cards">
@@ -63,14 +63,15 @@ const external = { target: '_blank', rel: 'noopener noreferrer' };
 <style is:global>
   /* Garden look: a large serif headline, a thin section heading, note cards with diagram covers beside a graph of every note. */
   .g-hero { display: grid; gap: 24px; padding-block: 64px 96px; }
-  .g-hero h1 { font-size: 80px; line-height: 1.08; font-weight: 400; letter-spacing: -.02em; max-width: 28ch; text-wrap: balance; }
-  .g-sub { font-size: 28px; line-height: 1.5; font-weight: 300; color: var(--body); max-width: 30em; }
-  .sd a.g-link { color: var(--accent-text); font-weight: 500; } /* a.: must beat the site's a { color: inherit } */
-  .g-link:hover { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; }
+  .g-hero h1 { font-size: 80px; line-height: 1.1; font-weight: 400; letter-spacing: -.02em; max-width: 28ch; text-wrap: balance; }
+  /* The same serif as the lede on every other page, one size up; a light sans here went thin on the dark theme. */
+  .g-sub { font-family: "Geist Serif", serif; font-size: 28px; line-height: 1.45; font-weight: 400; color: var(--body); max-width: 30em; text-wrap: pretty; }
+  /* a.: must beat the site's a { color: inherit }. The serif has no bold, so links in the intros are underlined to stand apart from the text. */
+  .sd a.g-link { color: var(--accent-text); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; text-decoration-color: color-mix(in srgb, var(--accent-text) 45%, transparent); }
+  .sd a.g-link:hover { text-decoration-color: var(--accent-text); }
   .g-section { padding-bottom: 64px; }
-  .g-head { display: grid; gap: 8px; padding-bottom: 48px; }
-  .g-head h2 { font-size: 44px; line-height: 1.2; font-weight: 400; }
-  .g-head p { font-size: 16px; color: var(--body); max-width: 52ch; }
+  .g-head { display: grid; gap: 12px; padding-bottom: 48px; }
+  .g-head h2 { font-size: 44px; line-height: 1.1; letter-spacing: -.02em; font-weight: 400; }
   .g-grid { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 64px; align-items: start; }
   .g-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
   @media (max-width: 900px) { .g-grid { grid-template-columns: minmax(0, 1fr); gap: 48px; } }

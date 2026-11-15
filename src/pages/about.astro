@@ -13,7 +13,7 @@ const previously = roles.filter((r) => !r.current);
     <h1 class="title">About</h1>
     <p class="lede">Suhas Darsi is a co-founder of SuperAlign who writes about how AI systems fail and how to deploy them safely.</p>
     <div class="bio">
-      <p><b>I'm a co-founder at <a class="tlink" href="https://superalign.ai/">SuperAlign</a></b>, where we help security teams see, understand, and control AI adoption across their organizations.</p>
+      <p><b>I’m a co-founder at <a class="tlink" href="https://superalign.ai/">SuperAlign</a></b>, where we help security teams see, understand, and control AI adoption across their organizations.</p>
       <p>My background is in Computer Vision research at IIIT Hyderabad. These days I focus on how AI systems fail, how risk propagates through connected agents, and the controls required to deploy them safely.</p>
       <p>This site is where I publish long-form notes on AI security, agent architecture, and the network dynamics behind systemic failures.</p>
     </div>
@@ -40,6 +40,12 @@ const previously = roles.filter((r) => !r.current);
 </SiteLayout>
 
 <style is:global>
-  .bio { font-size: 16px; line-height: 1.7; color: var(--body); max-width: 62ch; display: grid; gap: 16px; }
-  .bio b { color: var(--ink); font-weight: 500; }
+  /* The bio is reading text, so it uses the reading serif like a note, not the 15px interface sans.
+     The serif has one weight: the opening words are marked by colour, not a faked bold. */
+  .bio { font-family: "Geist Serif", serif; font-size: 22px; line-height: 1.6; color: var(--body); max-width: 34em; display: grid; gap: 16px; text-wrap: pretty; }
+  .bio b { color: var(--ink); font-weight: 400; }
+  /* With no bold to set it apart, the link in the bio needs a line under it that is plainly visible. */
+  .bio a.tlink { text-decoration: none; border-bottom: 1px solid var(--muted); }
+  .bio a.tlink:hover { border-bottom-color: var(--accent-text); }
+  @media (max-width: 760px) { .bio { font-size: 18px; } }
 </style>

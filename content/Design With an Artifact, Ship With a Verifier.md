@@ -1,5 +1,5 @@
 ---
-description: "I redesigned this site with AI agents. The design artifact set the target. Verifiers made the result reliable, and they are the part I'd build first next time."
+description: "I redesigned this site with AI agents. The design artifact set the target. Verifiers made the result reliable, and they are the part I’d build first next time."
 pubDate: "2026-11-03"
 topics: ["Building with AI"]
 stage: "budding"

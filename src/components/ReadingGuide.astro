@@ -1,5 +1,7 @@
 ---
-// The note's contents list: its sections, at the top of the rail beside the text (the rail is hidden under 1000px).
+// The note's contents list, at the top of the rail beside the text (the rail is hidden under 1000px).
+// Each section has a tick. As the reader scrolls, the tick for the section being read grows and takes the accent
+// colour, and the sections already read darken, so the list also shows how far through the note they are.
 interface Props {
   headings: { depth: number; slug: string; text: string }[];
 }
@@ -10,6 +12,51 @@ const sections = headings.filter((heading) => heading.depth === 2);
 {sections.length > 0 && (
   <nav class="guide" aria-label="In this note">
     <span class="eyebrow">On this page</span>
-    {sections.map((section) => <a href={`#${encodeURIComponent(section.slug)}`}>{section.text}</a>)}
+    <ol>
+      {sections.map((section) => (
+        <li>
+          <a href={`#${encodeURIComponent(section.slug)}`} data-section={section.slug}>
+            <span class="tick" aria-hidden="true"></span>
+            <span class="label">{section.text}</span>
+          </a>
+        </li>
+      ))}
+    </ol>
   </nav>
 )}
+
+<script>
+  const links = [...document.querySelectorAll<HTMLAnchorElement>('.guide a[data-section]')];
+  const headings = links.map((link) => document.getElementById(link.dataset.section!));
+  if (links.length) {
+    let queued = false;
+    const mark = () => {
+      queued = false;
+      // The section being read is the last one whose heading has passed the top third of the window.
+      const line = window.innerHeight / 3;
+      let current = -1;
+      headings.forEach((heading, i) => { if (heading && heading.getBoundingClientRect().top <= line) current = i; });
+      links.forEach((link, i) => {
+        link.classList.toggle('on', i === current);
+        link.classList.toggle('past', i < current);
+        if (i === current) link.setAttribute('aria-current', 'true');
+        else link.removeAttribute('aria-current');
+      });
+    };
+    window.addEventListener('scroll', () => { if (!queued) { queued = true; requestAnimationFrame(mark); } }, { passive: true });
+    mark();
+  }
+</script>
+
+<style>
+  .guide { display: grid; gap: 12px; font-size: 15px; }
+  .guide ol { list-style: none; margin: 0; padding: 0; display: grid; }
+  .guide a { display: grid; grid-template-columns: 24px minmax(0, 1fr); align-items: start; padding-block: 4px; color: var(--muted); }
+  /* The tick sits on the label's first line: 15px text at 1.5 line height is about 22px tall. */
+  .guide .tick { width: 8px; height: 2px; margin-top: 10px; border-radius: 1px; background: var(--line-strong); transition: width .24s var(--ease-out), background-color .18s ease; }
+  .guide a.past .tick { background: var(--muted); }
+  .guide a:hover, .guide a.on { color: var(--ink); }
+  .guide a:hover .tick { width: 14px; background: var(--ink); }
+  .guide a.on .tick { width: 20px; background: var(--accent-text); }
+  .guide a:hover .label { translate: 2px 0; }
+</style>

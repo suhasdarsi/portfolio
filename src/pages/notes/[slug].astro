@@ -107,26 +107,11 @@ const pageTitle = fullTitle.length <= 65 ? fullTitle : post.data.title;
 >
   <div class="reading">
     <div>
-    <div style="padding-top: 56px; padding-bottom: 16px;">
-      <a class="tool" href="/notes">← Notes</a>
-    </div>
-
     <article class="article" data-reader>
       <header style="display: grid; gap: 16px;">
-        <span class="eyebrow">{[post.data.topics[0], readingTime].filter(Boolean).join(' · ')}</span>
+        <a class="back-link" href="/notes"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 12 3 8l4-4M3 8h10" /></svg><span>Notes</span></a>
         <h1 class="title">{post.data.title}</h1>
         {post.data.description && <p class="lede">{post.data.description}</p>}
-        <p class="g-meta">
-          <NoteStage stage={post.data.stage} />
-          <span>Planted <time datetime={pubDay}>{formatDate(post.data.pubDate, { year: true })}</time></span>
-          {tendedDate && <span>Last tended <time datetime={tendedDate.toISOString()}>{formatDate(tendedDate, { year: true })}</time></span>}
-        </p>
-        <div class="share" aria-label="Share this note" role="group">
-          <CopyLink url={canonicalUrl} />
-          <a class="tool" href={share.x} target="_blank" rel="noopener noreferrer">Share on X</a>
-          <a class="tool" href={share.linkedin} target="_blank" rel="noopener noreferrer" aria-label="Share on LinkedIn">LinkedIn</a>
-          <a class="tool" href={share.bluesky} target="_blank" rel="noopener noreferrer" aria-label="Share on Bluesky">Bluesky</a>
-        </div>
       </header>
 
       <span class="g-cover banner"><svg viewBox="0 0 320 220" aria-hidden="true" set:html={cover} /></span>
@@ -136,6 +121,21 @@ const pageTitle = fullTitle.length <= 65 ? fullTitle : post.data.title;
       </div>
 
       <RevisionHistory revisions={post.data.revisions} />
+
+      <footer class="note-foot">
+        <p class="g-meta">
+          <NoteStage stage={post.data.stage} />
+          <span>{readingTime}</span>
+          <span>Planted <time datetime={pubDay}>{formatDate(post.data.pubDate, { year: true })}</time></span>
+          {tendedDate && <span>Last tended <time datetime={tendedDate.toISOString()}>{formatDate(tendedDate, { year: true })}</time></span>}
+        </p>
+        <div class="share" aria-label="Share this note" role="group">
+          <CopyLink url={canonicalUrl} />
+          <a class="tool" href={share.x} target="_blank" rel="noopener noreferrer">Share on X</a>
+          <a class="tool" href={share.linkedin} target="_blank" rel="noopener noreferrer" aria-label="Share on LinkedIn">LinkedIn</a>
+          <a class="tool" href={share.bluesky} target="_blank" rel="noopener noreferrer" aria-label="Share on Bluesky">Bluesky</a>
+        </div>
+      </footer>
 
       {(older || newer) && (
         <nav class="pager" aria-label="More notes">
@@ -147,7 +147,7 @@ const pageTitle = fullTitle.length <= 65 ? fullTitle : post.data.title;
       {isMe ? (
         <a href="/about" class="byline">
           <span aria-hidden="true" class="avatar">SD</span>
-          <span style="display: grid;"><span style="font-weight: 500;">{site.name}</span><span class="muted" style="font-size: 16px;">Co-founder of {site.company.name}. Writes about how AI systems fail.</span></span>
+          <span style="display: grid;"><span style="font-weight: 500;">{site.name}</span><span class="muted" style="font-size: 15px;">Co-founder of {site.company.name}. Writes about how AI systems fail.</span></span>
         </a>
       ) : (
         <p class="byline"><span style="font-weight: 500;">{post.data.author}</span></p>
@@ -177,31 +177,35 @@ const pageTitle = fullTitle.length <= 65 ? fullTitle : post.data.title;
 <style is:global>
   /* The article starts at the page's left edge like every other page; the contents list is a rail on the right. */
   .reading { display: grid; grid-template-columns: minmax(0, 680px) 220px; justify-content: space-between; gap: 48px; align-items: start; padding-bottom: 64px; }
-  .article { min-width: 0; display: grid; gap: 40px; }
-  .article .prose { font-family: "Geist Serif Text", "Geist Serif", serif; font-size: 22px; line-height: 1.7; max-width: none; gap: 28px; }
+  /* The note opens with a way back, its name and its description; its stage, dates and sharing follow the text. */
+  .back-link { justify-self: start; display: inline-flex; align-items: center; gap: 8px; padding-block: 8px; margin-bottom: -8px; font-size: 15px; color: var(--muted); }
+  .back-link:hover { color: var(--ink); }
+  .note-foot { display: grid; gap: 16px; }
+  .article { min-width: 0; display: grid; gap: 40px; padding-top: 32px; }
+  .article .prose { font-family: "Geist Serif Text", "Geist Serif", serif; font-size: 22px; line-height: 1.6; max-width: none; gap: 28px; }
+  .article .prose p, .article .prose li { text-wrap: pretty; }
+  /* The serif has one weight, so bold text would be a smeared fake. Bold runs are set in the sans instead, which has a real 600. */
+  .article .prose b, .article .prose strong { font-family: Geist, sans-serif; font-weight: 600; letter-spacing: -.01em; font-synthesis: none; }
   .article .prose h2 { font-size: 28px; line-height: 1.25; font-weight: 400; margin-top: 28px; margin-bottom: -8px; letter-spacing: -.01em; }
-  .article .prose h3 { font-family: Geist, sans-serif; font-size: 22px; line-height: 1.3; font-weight: 600; margin-top: 12px; margin-bottom: -12px; }
+  .article .prose h3 { font-family: Geist, sans-serif; font-size: 22px; line-height: 1.3; font-weight: 600; letter-spacing: -.01em; margin-top: 12px; margin-bottom: -12px; }
   .article .prose ul, .article .prose ol { padding-left: 28px; gap: 12px; }
-  .article .prose .fig { font-size: 16px; line-height: 1.6; }
+  .article .prose .fig { font-size: 15px; line-height: 1.6; }
   /* The rail holds everything about the note that isn't the text: contents, the graph, and the linked notes. */
-  .rail { display: grid; gap: 32px; position: sticky; top: 24px; margin-top: 104px; max-height: calc(100vh - 48px); overflow-y: auto; scrollbar-width: none; }
-  .connected { display: grid; gap: 8px; font-size: 13px; }
-  .connected a { font-family: "Geist Serif", serif; font-size: 16px; line-height: 1.35; color: var(--ink); }
+  .rail { display: grid; gap: 32px; position: sticky; top: 24px; margin-top: 64px; max-height: calc(100vh - 48px); overflow-y: auto; scrollbar-width: none; }
+  .connected { display: grid; gap: 8px; font-size: 15px; }
+  .connected a { font-size: 15px; font-weight: 500; color: var(--ink); }
   .connected a:hover { color: var(--accent-text); }
-  .guide { display: grid; gap: 8px; font-size: 13px; }
-  .guide a { color: var(--muted); border-left: 1px solid var(--line); padding-left: 12px; }
-  .guide a:hover { color: var(--ink); border-left-color: var(--ink); }
-  .tool, .share .tool { display: inline-flex; align-items: center; gap: 8px; font: inherit; font-size: 13px; color: var(--muted); background: none; border: 0; padding: 8px 0; cursor: pointer; }
+  .tool, .share .tool { display: inline-flex; align-items: center; gap: 8px; font: inherit; font-size: 15px; color: var(--muted); background: none; border: 0; padding: 8px 0; cursor: pointer; }
   .tool:hover, .tool.on, .share .tool:hover { color: var(--ink); }
-  .share { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 4px 24px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding-block: 8px; }
+  .share { display: flex; flex-wrap: wrap; gap: 4px 24px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding-block: 8px; }
   .linkcard { display: grid; gap: 4px; padding: 12px 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
-  .linkcard:hover { border-color: var(--line-strong); }
-  .linkcard .k { font-family: Geist, sans-serif; font-size: 13px; color: var(--faint); text-transform: uppercase; letter-spacing: .05em; }
-  .linkcard .t { font-family: "Geist Serif", serif; font-size: 16px; line-height: 1.35; color: var(--ink); }
+  .linkcard:hover { border-color: var(--line-strong); translate: 0 -2px; }
+  .linkcard .k { font-family: Geist, sans-serif; font-size: 15px; color: var(--faint); text-transform: uppercase; letter-spacing: .06em; }
+  .linkcard .t { font-size: 15px; font-weight: 500; color: var(--ink); }
   .linkcard:hover .t { color: var(--accent-text); }
   .pager { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
   .byline { display: flex; align-items: center; gap: 12px; padding: 16px 0; border-top: 1px solid var(--line); }
-  .avatar { display: inline-grid; place-items: center; width: 40px; height: 40px; border-radius: 999px; background: var(--soft); font-size: 13px; font-weight: 600; }
+  .avatar { display: inline-grid; place-items: center; width: 40px; height: 40px; border-radius: 999px; background: var(--soft); font-size: 15px; font-weight: 600; }
   /* No room for a rail: the linked notes follow the note, and the contents list and graph are left out. */
   @media (max-width: 1000px) {
     .reading { grid-template-columns: minmax(0, 680px); }
@@ -212,9 +216,9 @@ const pageTitle = fullTitle.length <= 65 ? fullTitle : post.data.title;
   @media (max-width: 760px) {
     .pager { grid-template-columns: minmax(0, 1fr); }
     .article { gap: 32px; }
-    .article .prose { font-size: 16px; gap: 16px; }
+    .article .prose { font-size: 18px; gap: 16px; }
     .article .prose h2 { font-size: 22px; margin-top: 16px; }
-    .article .prose h3 { font-size: 16px; margin-top: 8px; margin-bottom: -8px; }
+    .article .prose h3 { font-size: 18px; margin-top: 8px; margin-bottom: -8px; }
   }
-  @media print { .share, .pager, .rail, .g-cover { display: none; } }
+  @media print { .share, .pager, .rail, .g-cover, .back-link { display: none; } }
 </style>

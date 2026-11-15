@@ -15,7 +15,7 @@ const left = tools.length - Math.min(PAGE, tools.length);
     <Sidebar tools={tools} current="all" />
     <div class="ts-main">
       <div style="display: grid; gap: 12px;">
-        <p class="faint" style="font-size: 13px;"><a href="/toolshed">Toolshed</a> / All tools</p>
+        <p class="faint" style="font-size: 15px;"><a href="/toolshed">Toolshed</a> / All tools</p>
         <h1 class="title">All tools</h1>
       </div>
       <form class="field-wrap" role="search" id="tool-filter">
@@ -24,7 +24,7 @@ const left = tools.length - Math.min(PAGE, tools.length);
         <input id="tool-search" class="field" type="search" placeholder="Search name, category or site" autocomplete="off" aria-controls="tool-list" />
       </form>
       <div>
-        <p class="faint" id="tool-count" style="font-size: 13px; padding-bottom: 8px;" role="status" aria-live="polite">{tools.length} {tools.length === 1 ? 'tool' : 'tools'}</p>
+        <p class="faint" id="tool-count" style="font-size: 15px; padding-bottom: 8px;" role="status" aria-live="polite">{tools.length} {tools.length === 1 ? 'tool' : 'tools'}</p>
         <div id="tool-list" style="border-top: 1px solid var(--line);">
           {tools.map((tool, i) => <ToolRow tool={tool} hidden={i >= PAGE} />)}
         </div>

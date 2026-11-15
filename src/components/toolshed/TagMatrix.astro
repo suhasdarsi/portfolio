@@ -31,17 +31,17 @@ const lower = (text: string) => text.charAt(0).toLowerCase() + text.slice(1);
 
 <style>
   .quad { display: grid; gap: 8px; }
-  .ax { font-family: Geist, sans-serif; font-size: 13px; color: var(--faint); text-transform: uppercase; letter-spacing: .05em; align-self: end; padding-bottom: 4px; }
-  .rl { font-size: 13px; color: var(--muted); align-self: center; }
+  .ax { font-family: Geist, sans-serif; font-size: 15px; color: var(--faint); text-transform: uppercase; letter-spacing: .06em; align-self: end; padding-bottom: 4px; }
+  .rl { font-size: 15px; color: var(--muted); align-self: center; }
   .cell { display: grid; gap: 8px; padding: 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); align-content: start; }
   .cell:hover { border-color: var(--line-strong); }
   .top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
-  .nm { font-family: "Geist Serif", serif; font-size: 16px; font-weight: 600; line-height: 1.4; }
+  .nm { font-size: 15px; font-weight: 500; }
   .cell:hover .nm { color: var(--accent-text); }
-  .ct { font-family: Geist, sans-serif; font-size: 13px; color: var(--faint); }
-  .ex { font-size: 13px; color: var(--muted); line-height: 1.5; }
-  .cv { font-size: 13px; color: var(--faint); }
-  .pos { display: none; font-size: 13px; color: var(--faint); }
+  .ct { font-family: Geist, sans-serif; font-size: 15px; color: var(--faint); }
+  .ex { font-size: 15px; color: var(--muted); line-height: 1.5; }
+  .cv { font-size: 15px; color: var(--faint); }
+  .pos { display: none; font-size: 15px; color: var(--faint); }
   /* Phones: one column; each cell names its own row and column instead of the axis labels. */
   @media (max-width: 760px) {
     .quad { grid-template-columns: minmax(0, 1fr) !important; }

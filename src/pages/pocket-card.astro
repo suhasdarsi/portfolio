@@ -51,7 +51,7 @@ const passTokens = `#wallet-preview { --pass-bg: ${pocketCardColors.backgroundCo
 
     <Fragment set:html={`<style>${passTokens}</style>`} />
     <aside class="preview" aria-label="Live preview">
-      <div class="pass" id="wallet-preview">
+      <div class="pass" id="wallet-preview" data-type-drawing>
         <div style="display: grid; gap: 8px;">
           <span class="pk">Pocket Card</span>
           <span class="pn" id="preview-name">Your name</span>
@@ -64,15 +64,15 @@ const passTokens = `#wallet-preview { --pass-bg: ${pocketCardColors.backgroundCo
         <img id="contact-qr" class="qr" width="720" height="720" alt="QR code for your contact" hidden />
         <div id="qr-placeholder" class="qr-empty">Add your name to create your QR.</div>
       </div>
-      <p class="faint" style="font-size: 13px; text-align: center;">Live preview. Apple Wallet sets the final layout.</p>
+      <p class="faint" style="font-size: 15px; text-align: center;">Live preview. Apple Wallet sets the final layout.</p>
       <button id="save-wallet" type="button" class="btn dark" disabled><span class="btn-label">Download for Apple Wallet</span></button>
       <div class="two actions">
         <button id="save-qr" type="button" class="btn" disabled>Save QR</button>
         <button id="save-contact" type="button" class="btn" disabled>Download contact</button>
       </div>
       <p id="contact-status" role="status" aria-live="polite"></p>
-      <p class="muted" style="font-size: 13px; line-height: 1.55;">Nothing is saved. Your details go to a signing service only to create the Wallet file, and the card works offline once added. Anyone who scans your QR can read its details. On Android, scan the QR or import the contact file instead.</p>
-      <noscript><p class="muted" style="font-size: 13px;">Enable JavaScript to create your card.</p></noscript>
+      <p class="muted" style="font-size: 15px; line-height: 1.5;">Nothing is saved. Your details go to a signing service only to create the Wallet file, and the card works offline once added. Anyone who scans your QR can read its details. On Android, scan the QR or import the contact file instead.</p>
+      <noscript><p class="muted" style="font-size: 15px;">Enable JavaScript to create your card.</p></noscript>
     </aside>
   </div>
 </SiteLayout>
@@ -159,21 +159,21 @@ const passTokens = `#wallet-preview { --pass-bg: ${pocketCardColors.backgroundCo
   .app-grid .form { flex: 999 1 460px; min-width: 0; display: grid; gap: 24px; }
   .preview { flex: 1 1 320px; max-width: 380px; display: grid; gap: 12px; }
   .group { display: grid; gap: 12px; border: 0; padding: 0; margin: 0; min-width: 0; }
-  .group legend { font-size: 16px; font-weight: 500; margin-bottom: 4px; padding: 0; }
+  .group legend { font-size: 15px; font-weight: 500; margin-bottom: 4px; padding: 0; }
   .actions .btn { padding-inline: 8px; white-space: nowrap; }
   .two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-  .lab { display: grid; gap: 8px; font-size: 13px; color: var(--muted); }
+  .lab { display: grid; gap: 8px; font-size: 15px; color: var(--muted); }
   .lab .field:user-invalid { border-color: var(--alert); }
   .pass { border-radius: 20px; background: var(--pass-bg); color: var(--pass-fg); padding: 24px; display: grid; gap: 16px; aspect-ratio: 1 / 1.35; max-width: 100%; align-content: space-between; }
-  .pass .pk { font-family: Geist, sans-serif; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--pass-label); }
+  .pass .pk { font-family: Geist, sans-serif; font-size: 15px; letter-spacing: .06em; text-transform: uppercase; color: var(--pass-label); }
   .pass .pn { font-size: 28px; font-weight: 600; letter-spacing: -.015em; line-height: 1.15; overflow-wrap: anywhere; }
-  .pass .pr { font-size: 16px; opacity: .72; overflow-wrap: anywhere; }
-  .pass .row { overflow-wrap: anywhere; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; font-size: 13px; }
-  .pass .row span:first-child { display: block; font-family: Geist, sans-serif; font-size: 13px; letter-spacing: .06em; text-transform: uppercase; color: var(--pass-label); }
+  .pass .pr { font-size: 15px; opacity: .72; overflow-wrap: anywhere; }
+  .pass .row { overflow-wrap: anywhere; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; font-size: 15px; }
+  .pass .row span:first-child { display: block; font-family: Geist, sans-serif; font-size: 15px; letter-spacing: .06em; text-transform: uppercase; color: var(--pass-label); }
   .pass .qr { justify-self: center; width: 160px; height: auto; padding: 8px; background: #ffffff; border-radius: 8px; }
-  .qr-empty { justify-self: center; width: 121px; height: 121px; border-radius: 8px; border: 1px dashed color-mix(in srgb, var(--pass-fg) 40%, transparent); display: grid; place-items: center; text-align: center; font-size: 13px; opacity: .7; padding: 8px; }
+  .qr-empty { justify-self: center; width: 121px; height: 121px; border-radius: 8px; border: 1px dashed color-mix(in srgb, var(--pass-fg) 40%, transparent); display: grid; place-items: center; text-align: center; font-size: 15px; opacity: .7; padding: 8px; }
   .preview .btn:disabled { cursor: not-allowed; }
-  #contact-status { font-size: 13px; color: var(--accent-text); }
+  #contact-status { font-size: 15px; color: var(--accent-text); }
   #contact-status:empty { display: none; }
   #contact-status[data-tone='error'] { color: var(--alert); }
   @media (max-width: 640px) { .two { grid-template-columns: minmax(0, 1fr); } .preview { max-width: none; } }

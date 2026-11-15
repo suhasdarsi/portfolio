@@ -26,7 +26,7 @@ const multi = inCategory(tools, category)
 
 <ToolshedLayout title={`${category} market guide — Toolshed`} description={guide?.data.summary ?? `How the ${category.toLowerCase()} security market is shaped.`}>
   <CategoryShell tools={tools} category={category} tab="market" title={`${category} market guide`}>
-    {guide && <p class="faint" style="font-size: 13px;" slot="head">As of <time datetime={guide.data.asOf.toISOString()}>{formatDate(guide.data.asOf, { year: true })}</time></p>}
+    {guide && <p class="faint" style="font-size: 15px;" slot="head">As of <time datetime={guide.data.asOf.toISOString()}>{formatDate(guide.data.asOf, { year: true })}</time></p>}
 
     {Content && (
       <section class="prose" style="max-width: 68ch;">
@@ -38,7 +38,7 @@ const multi = inCategory(tools, category)
       <section style="display: grid; gap: 12px;" aria-labelledby="overlap-title">
         <div style="display: grid; gap: 8px;">
           <h2 class="sec-h" id="overlap-title">Tools that do more than one job</h2>
-          <p class="muted" style="font-size: 16px;">Each dot is a tag the tool carries. Based on what vendors offer, not on my testing.</p>
+          <p class="muted" style="font-size: 15px;">Each dot is a tag the tool carries. Based on what vendors offer, not on my testing.</p>
         </div>
         <div class="table-box" tabindex="0" role="region" aria-label="Tags by tool">
           <table class="matrix">
@@ -71,10 +71,10 @@ const multi = inCategory(tools, category)
 </ToolshedLayout>
 
 <style>
-  .matrix .grp th { font-family: Geist, sans-serif; font-size: 13px; text-transform: uppercase; letter-spacing: .05em; color: var(--faint); border-bottom: 0; padding-bottom: 8px; }
-  .colh { writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; height: 184px; text-align: left; font-size: 13px; }
+  .matrix .grp th { font-family: Geist, sans-serif; font-size: 15px; text-transform: uppercase; letter-spacing: .06em; color: var(--faint); border-bottom: 0; padding-bottom: 8px; }
+  .colh { writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; height: 184px; text-align: left; font-size: 15px; }
   .matrix tbody tr:hover { background: var(--soft); }
-  .matrix td.al { font-size: 13px; color: var(--faint); text-align: left; white-space: nowrap; }
+  .matrix td.al { font-size: 15px; color: var(--faint); text-align: left; white-space: nowrap; }
   .matrix td a { display: inline-block; padding-block: 4px; }
   .matrix a:hover { color: var(--accent-text); }
   .table-box:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }

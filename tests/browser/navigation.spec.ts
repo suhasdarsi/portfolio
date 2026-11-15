@@ -37,7 +37,7 @@ test('homepage is the introduction and the garden, and every page links home', a
   await expect(page.getByRole('heading', { name: 'About', level: 1 })).toBeVisible();
   await expect(page.getByRole('link', { name: 'LinkedIn', exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Copy email address suhas@superalign.ai', exact: true })).toBeVisible();
-  await expect(page.getByText("I'm a co-founder at", { exact: false })).toBeVisible();
+  await expect(page.getByText('I’m a co-founder at', { exact: false })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Currently' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Previously' })).toBeVisible();
 

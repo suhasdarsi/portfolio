@@ -68,7 +68,7 @@ const note = (await getNotes()).find((post) => post.id === background[category])
             {related.map((other) => <a class="chip" href={categoryHref(other, 'tools')}>{other}</a>)}
           </div>
         </>}
-        {note && <p class="muted" style="font-size: 16px;">Background reading: <a class="tlink" href={noteHref(note.id)}>{note.data.title}</a>, in my notes.</p>}
+        {note && <p class="muted" style="font-size: 15px;">Background reading: <a class="tlink" href={noteHref(note.id)}>{note.data.title}</a>, in my notes.</p>}
       </section>
     )}
   </CategoryShell>
@@ -77,9 +77,9 @@ const note = (await getNotes()).find((post) => post.id === background[category])
 <style>
   .caps { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 24px; }
   .cap { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; padding-block: 12px; border-bottom: 1px solid var(--line); }
-  .cap .nm { font-weight: 500; font-size: 16px; }
+  .cap .nm { font-weight: 500; font-size: 15px; }
   .cap:hover .nm { color: var(--accent-text); }
-  .cap .ct { font-family: Geist, sans-serif; font-size: 13px; color: var(--faint); }
-  .cap .sm { grid-column: 1 / -1; font-size: 13px; color: var(--muted); line-height: 1.5; }
+  .cap .ct { font-family: Geist, sans-serif; font-size: 15px; color: var(--faint); }
+  .cap .sm { grid-column: 1 / -1; font-size: 15px; color: var(--muted); line-height: 1.5; }
   @media (max-width: 760px) { .caps { grid-template-columns: minmax(0, 1fr); } }
 </style>

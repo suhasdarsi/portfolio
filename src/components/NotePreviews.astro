@@ -79,8 +79,11 @@ const { notes, links } = Astro.props;
 
 <style>
   .peek { position: fixed; z-index: 30; left: 0; top: 0; width: min(300px, 100vw - 32px); display: grid; gap: 8px; padding: 12px; border: 1px solid var(--line-strong); border-radius: 12px; background: var(--surface); box-shadow: 0 12px 32px color-mix(in srgb, var(--ink) 14%, transparent); pointer-events: none; }
+  /* The card fades up into place when it opens. Position and size are not animated, so it is measured correctly. */
+  .peek { transition: opacity .18s ease, translate .24s var(--ease-out); }
+  @starting-style { .peek { opacity: 0; translate: 0 6px; } }
   .peek .g-cover { aspect-ratio: 16 / 7; margin-bottom: 4px; }
-  .peek .g-title { font-size: 16px; }
-  .peek .g-desc { font-size: 13px; margin-top: 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  .peek .g-title { font-size: 15px; }
+  .peek .g-desc { font-size: 15px; margin-top: 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
   @media print { .peek { display: none; } }
 </style>
