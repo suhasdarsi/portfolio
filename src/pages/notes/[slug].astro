@@ -1,6 +1,7 @@
 ---
 import { render } from 'astro:content';
 import SiteLayout from '../../layouts/SiteLayout.astro';
+import ContactCta from '../../components/ContactCta.astro';
 import CopyCode from '../../components/CopyCode.astro';
 import CopyLink from '../../components/CopyLink.astro';
 import NoteGraph from '../../components/NoteGraph.astro';
@@ -136,6 +137,8 @@ const pageTitle = fullTitle.length <= 65 ? fullTitle : post.data.title;
           <a class="tool" href={share.bluesky} target="_blank" rel="noopener noreferrer" aria-label="Share on Bluesky">Bluesky</a>
         </div>
       </footer>
+
+      <ContactCta />
 
       {(older || newer) && (
         <nav class="pager" aria-label="More notes">

@@ -80,6 +80,10 @@ body { font-size: 15px; }
 .btn:hover { border-color:var(--ink); }
 .btn.dark { background:var(--ink); border-color:var(--ink); color:var(--bg); }
 .btn.dark:hover { opacity:.9; }
+.btn .ic { width:16px; height:16px; }
+.btn:hover .ic { translate: 3px 0; }
+/* A button in the row of contact links keeps its own padding and sits a little apart from the text links. */
+.elsewhere a.btn { padding:0 16px; margin-inline:0 8px; }
 .badge { font-family: Geist, sans-serif; font-size: 15px; letter-spacing:.06em; text-transform:uppercase; border:1px solid var(--line-strong); border-radius:999px; padding:1px 8px; color:var(--muted); font-weight:500; white-space:nowrap; }
 .kbd { font-family: Geist, sans-serif; font-size: 15px; border:1px solid var(--line); border-radius:5px; padding:1px 4px; color:var(--faint); }
 
@@ -179,7 +183,8 @@ body { font-size: 15px; }
 
 /* Contact links under an intro: email, profiles, booking. */
 .elsewhere { display:flex; flex-wrap:wrap; align-items:center; gap:0 24px; font-size: 15px; color:var(--muted); }
-.elsewhere a { display:inline-block; min-width:24px; padding-block:8px; text-align:center; }
+/* Each item is padded for an easy tap, with the padding pulled back by a margin so the visible gaps between the words are all 24px. */
+.elsewhere a, .elsewhere .copy { display:inline-flex; align-items:center; padding:8px 6px; margin-inline:-6px; }
 .elsewhere a:hover { color:var(--ink); }
 
 /* Footer */

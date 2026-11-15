@@ -1,0 +1,26 @@
+---
+// The site's one ask: get in touch about a project. A booking button first, the email address beside it.
+// Shown at the end of the home page and of every note, so contacting Suhas is one step from anything a visitor reads.
+import CopyEmail from './CopyEmail.astro';
+import { site } from '../site/site';
+---
+
+<aside class="cta" aria-labelledby="cta-title">
+  <div class="cta-text">
+    <h2 id="cta-title" class="sec-h">Working through an AI security problem?</h2>
+    <p>I’m happy to talk it through. Book a time, or write to me.</p>
+  </div>
+  <div class="cta-actions">
+    <a class="btn dark" href={site.booking} target="_blank" rel="noopener noreferrer">Book a time to talk <svg class="ic" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" /></svg></a>
+    <CopyEmail icon />
+  </div>
+</aside>
+
+<style>
+  .cta { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 24px 48px; padding: 32px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+  .cta-text { display: grid; gap: 8px; }
+  .cta-text p { color: var(--muted); }
+  .cta-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 24px; }
+  @media (max-width: 760px) { .cta { padding: 24px; } }
+  @media print { .cta { display: none; } }
+</style>

@@ -27,6 +27,8 @@ test('a note lists its linked notes in one list, on every screen size', async ({
 });
 test('notes offer older and newer neighbours without a text-size control', async ({ page }) => {
   await page.goto(note);
+  // Getting in touch is one step from any note.
+  await expect(page.locator('article').getByRole('link', { name: 'Book a time to talk' })).toHaveAttribute('href', /booking/);
   await expect(page.getByRole('navigation', { name: 'More notes' }).getByRole('link').first()).toBeVisible();
   await expect(page.getByRole('button', { name: 'Larger text' })).toHaveCount(0);
 });

@@ -1,4 +1,4 @@
-<!-- commit: 394fa864 -->
+<!-- commit: 7358548c -->
 # suhas-darsi-portfolio — personal site: AI-security notes plus tiny apps (Pocket Card, Swatchbook, Toolshed)
 
 ## Stack
@@ -41,6 +41,7 @@ mermaid plugins. Tests: Vitest (unit + build) and Playwright (desktop + Pixel 7)
 - After changing the note schema in `src/content.config.ts`, the dev server can serve stale note data: stop it, delete `.astro/data-store.json` and `node_modules/.astro/data-store.json`, start again.
 - Never build URLs by hand: `noteHref`, `categoryHref`, `tagHref`, `toolHref`/`toolLink`, `absoluteUrl`.
 - New app or page: add it to `src/site/sections.ts`; mark it unindexed in `site.ts` if search engines should skip it.
+- The site's one call to action is getting in touch: `ContactCta.astro` (booking button + copy email) closes the home page and every note; the home and About introductions carry the same booking button.
 - Font checker: `bun run fonts` (`tests/browser/fonts.spec.ts`) crawls every linked page on desktop and phone and fails on any text that fits no role in `tests/browser/type-roles.ts` (typeface, size, weight, line height, letter spacing). It runs with `test:browser`. Small text is always Geist; the serif is 18px and up, weight 400 only. Mark drawings of other things with `data-type-drawing`.
 - `[hidden]` is enforced globally in `site.css`; type scale is one size per role (browser tests enforce it): 15px all interface text, 22px reading text and intros (18px on phones), 28px note section headings, 44px page titles, 80px home headline. Form fields stay 16px so phones don't zoom.
 - Geist Serif ships as one weight (400): bold or light serif text will not render. Note bodies use the `Geist Serif Text` name (same file, declared 400) so the browser synthesises bold there.

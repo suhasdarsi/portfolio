@@ -26,7 +26,7 @@ Notes that model AI risk as a network problem: hubs, small-world structure, and 
 
 - Notes are written in Obsidian. `content/` is the vault, and each note is published with a date and topics. Drafts with future dates stay unpublished.
 - Readers arrive by search, the RSS feed (`/rss.xml`), the sitemap, and direct links.
-- Contact runs through a visible email address (copy-to-clipboard) and a booking link on the About page.
+- Contact runs through a booking button ("Book a time to talk") and a visible email address (copy-to-clipboard), in the home and About introductions and at the end of the home page and every note.
 
 ## Capabilities and Constraints
 

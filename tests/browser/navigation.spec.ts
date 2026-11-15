@@ -4,7 +4,10 @@ test('homepage is the introduction and the garden, and every page links home', a
   await page.goto('/');
   await expect(page.getByRole('heading', { level: 1 })).toContainText("I study how AI systems fail");
   expect(await page.locator('#writing a[href^="/notes/"]').count()).toBeGreaterThanOrEqual(5);
-  await expect(page.getByRole('heading', { level: 2 })).toHaveText(['Notes']);
+  await expect(page.getByRole('heading', { level: 2 })).toHaveText(['Notes', 'Working through an AI security problem?']);
+  // The site's one ask: a booking button in the introduction and again after the notes.
+  await expect(page.getByRole('link', { name: 'Book a time to talk' })).toHaveCount(2);
+  await expect(page.getByRole('link', { name: 'Book a time to talk' }).first()).toHaveAttribute('href', 'https://booking.akiflow.com/suhas--a84d');
   // The graph has a node for every note, and each node opens its note.
   const graph = page.getByRole('navigation', { name: 'Graph of all notes' });
   const entries = (await (await request.get('/search.json')).json()) as { kind: string }[];
@@ -18,7 +21,7 @@ test('homepage is the introduction and the garden, and every page links home', a
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await expect(page.getByRole('link', { name: 'LinkedIn', exact: true })).toBeVisible();
   await expect(page.getByRole('link', { name: 'X', exact: true })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Copy email address suhas@superalign.ai', exact: true })).toHaveCount(1);
+  await expect(page.getByRole('button', { name: 'Copy email address suhas@superalign.ai', exact: true })).toHaveCount(2);
   await expect(page.getByRole('navigation', { name: 'On this site' })).toHaveCount(0);
   await expect(page.getByRole('navigation', { name: 'Micro-apps' })).toHaveCount(0);
 

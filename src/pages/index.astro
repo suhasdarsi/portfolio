@@ -1,4 +1,5 @@
 ---
+import ContactCta from '../components/ContactCta.astro';
 import CopyEmail from '../components/CopyEmail.astro';
 import SiteLayout from '../layouts/SiteLayout.astro';
 import { noteCover } from '../notes/cover';
@@ -30,6 +31,7 @@ const external = { target: '_blank', rel: 'noopener noreferrer' };
     <h1 class="serif">I study how AI systems fail, and how to deploy them safely.</h1>
     <p class="g-sub">I’m {site.name}, co-founder of <a class="g-link" href={site.company.url} {...external}>{site.company.name}</a>, where we help security teams see and control how AI is used in their organizations. I write about what happens when AI becomes the hub everything else connects through.</p>
     <div class="elsewhere">
+      <a class="btn dark" href={site.booking} {...external}>Book a time to talk <svg class="ic" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" /></svg></a>
       <CopyEmail icon />
       <a href={site.linkedin} {...external}>LinkedIn</a>
       <a href={site.x} {...external}>X</a>
@@ -55,6 +57,10 @@ const external = { target: '_blank', rel: 'noopener noreferrer' };
       </div>
       <NoteGraph notes={posts} links={links} size={360} />
     </div>
+  </section>
+
+  <section class="g-section">
+    <ContactCta />
   </section>
 
   <NotePreviews slot="after" notes={posts} links={links} />
