@@ -38,8 +38,8 @@ it('publishes due drafts with revisions, preview images, and sitemap entries whi
     expect(metadata.author).toEqual({ '@id': 'https://suhasdarsi.com/#person' });
     expect(metadata.image).toBe(`https://suhasdarsi.com/og/${due}.png`);
     expect(metadata.mainEntityOfPage['@id']).toBe(`https://suhasdarsi.com/notes/${due}`);
-    expect(article).toContain('Revision history');
-    expect(article).toContain('Added a containment example.');
+    expect(article).not.toContain('Revision history');
+    expect(article).not.toContain('Added a containment example.');
     expect(article).toContain('"dateModified":"2020-01-03T00:00:00.000Z"');
     expect(existsSync(join(out, 'og', `${due}.png`))).toBe(true);
     expect(existsSync(join(out, 'notes', `${future}.html`))).toBe(false);

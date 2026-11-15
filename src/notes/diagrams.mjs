@@ -7,13 +7,7 @@
 //   A statement that starts with a labelled edge (`Q -- Yes --> B`) reads as that branch: "Yes → B".
 // - xychart-beta: the `bar` series becomes a bar chart labelled by the x-axis; the last bar is highlighted.
 
-function escapeHtml(value) {
-  return String(value)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
+import { escapeHtml } from './obsidian.mjs';
 
 const unquote = (value) => value.trim().replace(/^["']|["']$/g, '');
 

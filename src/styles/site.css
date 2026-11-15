@@ -70,7 +70,6 @@ body { font-size: 15px; }
 .chip.on { background:var(--ink); border-color:var(--ink); color:var(--bg); }
 .chip .k { font-size: 15px; color:var(--faint); }
 .chip.on .k { color:inherit; opacity:.75; }
-.pill { display:inline-flex; align-items:center; min-height:30px; padding:0 12px; border-radius:999px; background:var(--soft); font-size: 15px; color:var(--body); }
 .field-wrap { position:relative; display:flex; }
 .field-wrap .ic { position:absolute; left:14px; top:13px; color:var(--faint); }
 .field { flex:1; min-width:0; height:44px; border:1px solid var(--control); border-radius:10px; background:var(--surface); color:var(--ink); padding:0 12px 0 48px; font:inherit; font-size: 15px; }

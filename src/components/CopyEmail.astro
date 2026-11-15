@@ -1,10 +1,10 @@
 ---
 import { site } from '../site/site';
 
-interface Props { icon?: boolean; style?: string }
-const { icon = false, style } = Astro.props;
+interface Props { icon?: boolean }
+const { icon = false } = Astro.props;
 ---
-<button type="button" class="copy" data-copy-email={site.email} aria-label={`Copy email address ${site.email}`} style={style}>
+<button type="button" class="copy" data-copy-email={site.email} aria-label={`Copy email address ${site.email}`}>
   <span>{site.email}</span>
   <span class="copied" hidden>copied</span>
   {icon && <svg class="ic copy-ic" viewBox="0 0 24 24" aria-hidden="true" style="width: 14px; height: 14px;"><rect x="9" y="9" width="11" height="11" rx="2"></rect><path d="M5 15V5a1 1 0 0 1 1-1h9"></path></svg>}
