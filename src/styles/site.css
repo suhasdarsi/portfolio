@@ -96,19 +96,19 @@ body { font-size: 15px; }
 .prose a:hover { color:var(--accent-text); text-decoration-color:var(--accent-text); }
 
 /* Note cards: cover, serif title, description, meta. Home and the notes index. */
-.g-card { display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 20px; box-shadow: 0 8px 24px -16px color-mix(in srgb, var(--ink) 30%, transparent); }
-.g-card:hover { translate: 0 -3px; }
+/* No box around the card: the cover is the only frame, and the text sits on the page beneath it. */
+.g-card { display: flex; flex-direction: column; }
 .g-title { font-size: 22px; line-height: 1.3; color: var(--ink); }
 .g-desc { font-size: 15px; line-height: 1.5; color: var(--muted); margin-top: 8px; }
 .g-meta { font-size: 15px; color: var(--faint); }
-.g-card .g-meta { margin-top: auto; padding-top: 20px; }
+.g-card .g-meta { margin-top: 12px; }
 .g-meta { display:flex; flex-wrap:wrap; align-items:center; gap:4px 12px; }
 .stage { display:inline-flex; align-items:center; gap:4px; color:var(--accent-text); white-space:nowrap; }
 .stage svg { flex:none; }
 .g-card:hover .g-title { color: var(--accent-text); }
 
 /* Note cover diagrams (src/notes/cover.ts): on the home cards and at the top of each note. */
-.g-cover { display: block; aspect-ratio: 16 / 11; background: var(--soft); border-radius: 8px; margin-bottom: 20px; }
+.g-cover { display: block; aspect-ratio: 16 / 11; background: var(--soft); border: 1px solid var(--line); border-radius: 12px; margin-bottom: 16px; overflow: hidden; transition: border-color .18s ease; }
 .g-cover svg { display: block; width: 100%; height: 100%; }
 .g-cover line { stroke: var(--ink); stroke-width: 1.2; opacity: .5; }
 .g-cover .n { fill: var(--surface); stroke: var(--ink); stroke-width: 1.4; }
@@ -199,15 +199,15 @@ body { font-size: 15px; }
 .sd { --ease-out:cubic-bezier(.23,1,.32,1); --ease-spring:cubic-bezier(.34,1.36,.64,1); }
 .sd a, .sd button { transition: color .18s ease, background-color .18s ease, border-color .18s ease, text-decoration-color .18s ease, box-shadow .24s ease, translate .24s var(--ease-spring), scale .12s ease; }
 .sd a *, .sd button * { transition: color .18s ease, translate .24s var(--ease-out), scale .24s var(--ease-spring), rotate .24s var(--ease-spring); }
-.sd button:active, .g-card:active, .linkcard:active { scale: .98; }
+.sd button:active, .linkcard:active { scale: .98; }
 /* Header: a line draws in under the link being pointed at; icons grow a touch and dip when pressed. */
 .navlink { position: relative; }
 .navlink::after { content: ""; position: absolute; left: 2px; right: 2px; bottom: 4px; height: 1px; background: currentColor; scale: 0 1; transform-origin: left; transition: scale .24s var(--ease-out); }
 .navlink:hover::after, .navlink.on::after { scale: 1 1; }
 .icon-btn:hover .ic { scale: 1.12; }
 .sd .icon-btn:active { scale: .9; }
-/* Cards: the cover diagram eases forward and the stage sprout leans as the card lifts. */
-.g-card:hover { box-shadow: 0 14px 28px -16px color-mix(in srgb, var(--ink) 32%, transparent); }
+/* Cards: the cover's border darkens, its diagram eases forward and the stage sprout leans. */
+.g-card:hover .g-cover { border-color: var(--line-strong); }
 .g-card:hover .g-cover svg { scale: 1.04; }
 .stage svg { transform-origin: 50% 100%; }
 .g-card:hover .stage svg { rotate: -10deg; }

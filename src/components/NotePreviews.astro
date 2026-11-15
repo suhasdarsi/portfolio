@@ -82,7 +82,7 @@ const { notes, links } = Astro.props;
   /* The card fades up into place when it opens. Position and size are not animated, so it is measured correctly. */
   .peek { transition: opacity .18s ease, translate .24s var(--ease-out); }
   @starting-style { .peek { opacity: 0; translate: 0 6px; } }
-  .peek .g-cover { aspect-ratio: 16 / 7; margin-bottom: 4px; }
+  .peek .g-cover { aspect-ratio: 16 / 7; margin-bottom: 4px; border: 0; border-radius: 8px; }
   .peek .g-title { font-size: 15px; }
   .peek .g-desc { font-size: 15px; margin-top: 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
   @media print { .peek { display: none; } }
