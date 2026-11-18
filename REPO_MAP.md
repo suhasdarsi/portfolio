@@ -1,4 +1,4 @@
-<!-- commit: 7358548c -->
+<!-- commit: 78e42fd9 -->
 # suhas-darsi-portfolio — personal site: AI-security notes plus tiny apps (Pocket Card, Swatchbook, Toolshed)
 
 ## Stack
@@ -7,11 +7,12 @@ static assets + a small Worker for `/api/*`. Markdown via `@astrojs/markdown-sat
 mermaid plugins. Tests: Vitest (unit + build) and Playwright (desktop + Pixel 7).
 
 ## Commands
-- install: `bun install` (browsers once: `bunx playwright install chromium`)
+- install: `bun install` (its `prepare` script points `core.hooksPath` at `scripts/git-hooks`; browsers once: `bunx playwright install chromium`)
+- pre-commit hook: `scripts/git-hooks/pre-commit` runs `bun run lint` + `bun run typecheck` (~2s); tests stay in CI; skip once with `--no-verify`
 - notes: `bun run notes` (what's live, changed, new or draft) · `bun run notes publish` (build check, commit the new/changed/removed notes and their images but never drafts, push when on `main`)
 - dev: `bun run dev` · build: `bun run build` · preview: `bun run preview`
 - typecheck: `bun run typecheck` · lint: `bun run lint` · dead code: `bun run deadcode` (knip)
-- test: `bun run test` (Vitest; builds the site twice) · browser: `bun run test:browser` (builds, serves on 4322)
+- test: `bun run test` (Vitest; builds the site twice; `vitest.config.ts` runs `tests/build.test.ts` first because the `tests/quality` verifiers read the `dist/` it writes) · browser: `bun run test:browser` (builds, serves on 4322)
 - verifiers (need `dist/`): `bun run verify` · everything: `bun run check`
 - Wallet art: `bun scripts/build-pocket-art.ts` · local pass: `bun scripts/build-wallet-pass.ts` · Wallet preview: `bun scripts/preview-wallet.ts`
 
@@ -26,7 +27,7 @@ mermaid plugins. Tests: Vitest (unit + build) and Playwright (desktop + Pixel 7)
 - `src/components/` (`site/`, `toolshed/`), `src/layouts/` (`SiteLayout`, `ToolshedLayout`), `src/content/` (Toolshed Markdown: `tools/`, `toolshed/`, `toolshed-market/`, `templates/tool.md`).
 - `content/` — the Obsidian vault and the only place notes live: every `.md` at any depth is a note, except in folders starting with `_` or `.` (`_templates/note.md`, `.obsidian/`); pasted images go to `attachments/`.
 - `worker/` — `index.ts` routes `/api/wallet` and `/api/toolshed/request`; `json-post.ts` is the shared same-origin/JSON/rate-limit/8 KB gate.
-- `scripts/` — local Wallet tooling (`wallet-credentials.ts`, `dist-assets.ts`).
+- `scripts/` — local Wallet tooling (`wallet-credentials.ts`, `dist-assets.ts`), `notes.ts` (the `notes` command), `git-hooks/pre-commit`.
 - `tests/` — unit/build tests; `tests/browser/` Playwright; `tests/quality/` SEO/AEO/readability/styling verifiers over `dist/`.
 
 ## Entry points & data flow
@@ -49,5 +50,6 @@ mermaid plugins. Tests: Vitest (unit + build) and Playwright (desktop + Pixel 7)
 - Note pages (`src/pages/notes/[slug].astro`) are a 680px text column on the left with a sticky rail on the right (contents list first): 22px serif body on desktop, 18px under 760px; The rail also holds the local graph and one "Linked notes" list (links in either direction, never split into to/from); under 1000px only that list remains, below the note.
 - Motion lives in the "Motion" block of `site.css`: every link and button already transitions colour, `translate` and `scale` (curves `--ease-out`, `--ease-spring`), so a component only sets the hover or pressed value. Nothing over 300ms (tested); hover must not change the size of header controls (tested). `ReadingGuide.astro` marks the section being read (`.on`, `.past`).
 - Every page sits in one 1180px frame (`.page`) with the same `.page-head` (64px above, 48px below), `h1.title` and `.lede` (22px serif). Don't give a page its own width or header spacing. The home page is the one exception: its hero has an 80px headline in place of `.page-head`. Section headings are `.sec-label h2`, `.g-kind` or `h2.sec-h` (all 22px Geist 600, 16px under 760px).
+- Dependency pins and overrides (TypeScript 6, `minimatch`, `@emnapi/*`) are explained in `docs/dependency-maintenance.md`; read it before upgrading.
 - Unit tests run sequentially (`fileParallelism: false`) because two of them run full Astro builds.
 - Toolshed category slugs must not collide with `tools`, `about`, `suggest` (tested).

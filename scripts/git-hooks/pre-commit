@@ -1,0 +1,10 @@
+#!/bin/sh
+# Pre-commit: lint and typecheck (about 2s together). Tests and browser tests run in CI.
+# Installed by `bun install` (the `prepare` script sets core.hooksPath to scripts/git-hooks).
+# Skip once with `git commit --no-verify`.
+set -e
+echo "pre-commit: bun run lint"
+bun run --silent lint
+echo "pre-commit: bun run typecheck"
+bun run --silent typecheck > /tmp/portfolio-typecheck.$$ 2>&1 || { cat /tmp/portfolio-typecheck.$$; rm -f /tmp/portfolio-typecheck.$$; exit 1; }
+rm -f /tmp/portfolio-typecheck.$$

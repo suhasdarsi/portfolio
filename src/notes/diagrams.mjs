@@ -144,7 +144,7 @@ export function mermaidDiagramsPlugin() {
     code(node) {
       if (node.lang !== 'mermaid') return;
       const caption = node.meta?.trim().replace(/^["']|["']$/g, '') || undefined;
-      return { type: 'html', value: renderDiagram(node.value, { caption }) };
+      return { type: /** @type {const} */ ('html'), value: renderDiagram(node.value, { caption }) };
     },
   });
 }
