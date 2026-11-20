@@ -1,10 +1,13 @@
 // Turns ```mermaid fences into figures drawn from boxes (.fig, .panel, .flow, .nd, .barchart in site.css),
-// so the Markdown stays the source of truth and pages ship no diagram JS or SVG.
+// so the Markdown stays the source of truth and pages ship no diagram JS.
 //
-// Two kinds of diagram are supported:
+// Three kinds of diagram are supported:
 // - flowchart: each subgraph becomes a panel (or one panel titled by accTitle when there are none), and each
 //   statement becomes a row of nodes and connectors. `:::hub`, `:::alert` and `:::faded` style a node.
 //   A statement that starts with a labelled edge (`Q -- Yes --> B`) reads as that branch: "Yes → B".
+// - a hub fan-out: a flowchart that is only one statement, a `:::hub` node pointing at three or more nodes
+//   (`H((Hub)):::hub --> a[A] & b[B] & c[C]`), is drawn as an animated SVG (.hubfig in site.css): flowing links,
+//   dots travelling from the hub and a gentle pulse, all CSS and SMIL. Reduced motion shows it still.
 // - xychart-beta: the `bar` series becomes a bar chart labelled by the x-axis; the last bar is highlighted.
 
 import { escapeHtml } from './obsidian.mjs';
@@ -89,6 +92,55 @@ function renderPanels(panels, title, description) {
   return `<div class="fig-panels"${label}>${html}</div>`;
 }
 
+// The flowchart's only row, when it is a hub pointing at three or more nodes: `H:::hub --> a & b & c`.
+function hubFanOut(panels) {
+  if (panels.length !== 1 || panels[0].title || panels[0].rows.length !== 1) return undefined;
+  const [hub, link, ...targets] = panels[0].rows[0];
+  if (hub?.node?.style !== 'hub' || link?.to !== '→' || targets.length < 3 || targets.some((t) => !t.node)) return undefined;
+  return { hub: hub.node.label, targets: targets.map((t) => t.node.label) };
+}
+
+// Breaks a label into lines of at most `max` characters, at spaces.
+function wrap(label, max) {
+  const lines = [];
+  for (const word of label.split(/\s+/)) {
+    const last = lines.at(-1);
+    if (last && `${last} ${word}`.length <= max) lines[lines.length - 1] = `${last} ${word}`;
+    else lines.push(word);
+  }
+  return lines;
+}
+
+// Drawn at 1:1 in a phone-width box: 15px labels stay readable when the figure scales down.
+function renderHub({ hub, targets }, title, description) {
+  const gap = 48;
+  const height = Math.max(200, 50 + (targets.length - 1) * gap);
+  const cx = 64;
+  const cy = height / 2;
+  const r = 26;
+  const nodeX = 180;
+  const nodeW = Math.max(...targets.map((label) => label.length)) * 8 + 24;
+  const width = nodeX + nodeW + 4;
+  const top = cy - ((targets.length - 1) * gap) / 2;
+  const curve = (y) => `M${cx + r} ${cy} C ${nodeX - 48} ${cy}, ${nodeX - 48} ${y}, ${nodeX} ${y}`;
+  const dur = 2.4;
+
+  const links = targets.map((_, i) => `<path class="hf-link" d="${curve(top + i * gap)}"/>`).join('');
+  const dots = targets.map((_, i) => {
+    const begin = -((i * dur) / targets.length).toFixed(2);
+    return `<circle class="hf-dot" r="3"><animateMotion dur="${dur}s" begin="${begin}s" repeatCount="indefinite" path="${curve(top + i * gap)}"/></circle>`;
+  }).join('');
+  const nodes = targets.map((label, i) => {
+    const y = top + i * gap;
+    return `<g class="hf-co" style="--i:${i}"><rect class="hf-node" x="${nodeX}" y="${y - 15}" width="${nodeW}" height="30" rx="8"/><text x="${nodeX + 12}" y="${y + 5}">${escapeHtml(label)}</text></g>`;
+  }).join('');
+  const hubLines = wrap(hub, 18).map((line, i) => `<tspan x="${cx}" dy="${i ? 18 : 0}">${escapeHtml(line)}</tspan>`).join('');
+  const hubText = `<text class="hf-hub-t" x="${cx}" y="${cy + r + 24}" text-anchor="middle">${hubLines}</text>`;
+  const a11y = `<title>${escapeHtml(title ?? hub)}</title>${description ? `<desc>${escapeHtml(description)}</desc>` : ''}`;
+  return `<svg class="hubfig" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" role="img">${a11y}`
+    + `<g aria-hidden="true">${links}<circle class="hf-pulse" cx="${cx}" cy="${cy}" r="${r}"/><circle class="hf-hub" cx="${cx}" cy="${cy}" r="${r}"/>${dots}${hubText}${nodes}</g></svg>`;
+}
+
 function parseList(source) {
   return [...source.matchAll(/"([^"]*)"|([^,\s\[\]][^,\]]*)/g)].map((m) => (m[1] ?? m[2]).trim());
 }
@@ -129,7 +181,9 @@ function renderDiagram(source, { caption } = {}) {
     text = [caption, chart.summary].filter(Boolean).join(' ');
     body = renderBars(chart, description ?? text);
   } else if (/^(flowchart|graph)\b/.test(lines[0])) {
-    body = renderPanels(parseFlowchart(lines), title, description);
+    const panels = parseFlowchart(lines);
+    const fan = hubFanOut(panels);
+    body = fan ? renderHub(fan, title, description) : renderPanels(panels, title, description);
   } else {
     throw new Error(`Unsupported mermaid diagram "${lines[0]}".`);
   }

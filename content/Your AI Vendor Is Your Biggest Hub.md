@@ -30,6 +30,13 @@ The result, in the CSA's words, is a small number of foundation-model providers 
 
 Hubs are efficient. They are also where [[The Cascade Risk of Hub-to-Hub AI Networks]] begins. If your supplier, your competitor and your bank all depend on the same hub, a failure at that hub is not your incident. It is everyone's incident, at the same moment and no one has spare capacity to help anyone else.
 
+```mermaid Illustration: when many companies depend on the same hub, one failure reaches all of them at once.
+flowchart LR
+  accTitle: One hub, many companies
+  accDescr: A shared AI and cloud provider sits in the middle, linked to your company, your bank, your supplier, your competitor and your customer. A failure at the provider reaches all five at once.
+  H((Shared AI and cloud provider)):::hub --> a[Your company] & b[Your bank] & c[Your supplier] & d[Your competitor] & e[Your customer]
+```
+
 ## Three ways the hub fails you
 
 The CSA separates the warnings into three channels. They are useful because each one asks the board a different question.

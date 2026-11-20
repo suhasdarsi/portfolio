@@ -1,4 +1,4 @@
-<!-- commit: 78e42fd9 -->
+<!-- commit: b4002290 -->
 # suhas-darsi-portfolio — personal site: AI-security notes plus tiny apps (Pocket Card, Swatchbook, Toolshed)
 
 ## Stack
@@ -19,7 +19,7 @@ mermaid plugins. Tests: Vitest (unit + build) and Playwright (desktop + Pixel 7)
 ## Layout
 - `src/pages/` — routes only; each page reads from the feature modules below. Home (`index.astro`) is the introduction and the Notes section only (newest note cards beside `NoteGraph.astro` with no `here`, a graph of every note drawn by `noteGraph` in `graph.ts`); the tiny apps are listed on `apps.astro` (`/apps`, the header's Apps link).
 - `src/site/` — bottom layer: `site.ts` (name, URL, email, profiles, `roles`, `absoluteUrl`, `cleanPath`, `isIndexed`), `sections.ts` (apps/pages/nav for header, footer, search, llms.txt), `structured-data.ts`, `format.ts`, `slug.mjs`, `theme.ts` (theme storage key).
-- `src/notes/` — `publishing.mjs` (notes dir, `noteHref`, draft/due-date rule), `notes.ts` (`getNotes`, links, reading time), `wikilinks.mjs`, `obsidian.mjs` (callouts, `==highlights==`, `%%comments%%`, `![[embeds]]` found anywhere in the vault), `diagrams.mjs` (mermaid → HTML boxes), `cover.ts` (SVG cover diagram per note, for the home cards and the top of each note; styles are `.g-cover` in `site.css`; drawn by hand per slug, else from the note's links).
+- `src/notes/` — `publishing.mjs` (notes dir, `noteHref`, draft/due-date rule), `notes.ts` (`getNotes`, links, reading time), `wikilinks.mjs`, `obsidian.mjs` (callouts, `==highlights==`, `%%comments%%`, `![[embeds]]` found anywhere in the vault), `diagrams.mjs` (mermaid → HTML boxes; a lone `:::hub` fanning out to 3+ nodes becomes an animated SVG, `.hubfig`), `cover.ts` (SVG cover diagram per note, for the home cards and the top of each note; styles are `.g-cover` in `site.css`; drawn by hand per slug, else from the note's links).
 - `src/search/` — `index.ts` (entries for `/search.json` and the overlay), `client.ts` (ranking, loader, `liveSearch`).
 - `src/toolshed/` — `categories.ts`, `catalog.ts` (every tool + tag taxonomy), `tools.ts` (`getTools`, every Toolshed URL helper), `request.ts` (suggest-a-tool validation, GitHub issue body).
 - `src/pocket-card/` — `contact.ts` (fields, validation, vCard, `walletPass` identity, `pocketCardColors` used by the pass, the page preview and the artwork), `mark.ts` (Wallet artwork SVG; `bun scripts/build-pocket-art.ts` renders it).

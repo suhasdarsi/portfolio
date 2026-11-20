@@ -139,6 +139,24 @@ body { font-size: 15px; }
 .nd.faded { opacity:.65; border-style:dashed; }
 .to { color:var(--faint); font-size: 15px; }
 .caption { font-size: 15px; color:var(--muted); line-height:1.5; }
+.hubfig { display:block; width:100%; max-width:420px; height:auto; margin:0 auto; overflow:visible; }
+.hubfig text { font-family: Geist, sans-serif; font-size: 15px; fill:var(--ink); }
+.hubfig .hf-hub-t { fill:var(--accent-text); font-weight:500; }
+.hf-hub { fill:var(--accent-text); }
+.hf-node { fill:var(--bg); stroke:var(--line-strong); }
+.hf-dot { fill:var(--accent-text); }
+/* An illustration, not a UI response: its loops run longer than the 300ms motion limit, and only on note figures.
+   Reduced motion stops them (the rule at the end of Motion) and hides the travelling dots, which are SMIL, not CSS. */
+.hf-link { fill:none; stroke:var(--accent-text); stroke-width:1.4; stroke-dasharray:3 5; opacity:.7; animation:hf-flow 1.3s linear infinite; }
+.hf-pulse { fill:var(--accent-text); transform-box:fill-box; transform-origin:center; opacity:0; animation:hf-pulse 2.4s ease-out infinite; }
+@keyframes hf-flow { to { stroke-dashoffset:-16px; } }
+@keyframes hf-pulse { 0% { scale:1; opacity:.28; } 70%, 100% { scale:1.6; opacity:0; } }
+@keyframes hf-rise { from { opacity:0; translate:0 8px; } }
+/* Company boxes rise in as they scroll into view. The timeline sits in its own rule so the minifier can't fold it
+   into the shorthand, which browsers then drop. */
+.hf-co { --i:0; } /* its place in the list, set on each box; staggers the rise below */
+@supports (animation-timeline: view()) { .hf-co { animation:hf-rise linear both; } .hubfig .hf-co { animation-timeline:view(); animation-range:entry calc(10% + var(--i) * 8%) entry calc(60% + var(--i) * 8%); } }
+@media (prefers-reduced-motion:reduce) { .hf-dot { display:none; } }
 .barchart { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:8px; align-items:end; height:170px; }
 .bc { display:grid; gap:8px; align-items:end; height:100%; grid-template-rows:1fr auto; }
 .bc-bar { background:var(--line-strong); border-radius:4px 4px 0 0; align-self:end; }

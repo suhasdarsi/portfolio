@@ -133,7 +133,9 @@ describe('SEO: per-page head', () => {
     const bad: string[] = [];
     const seen = new Map<string, string>();
     for (const p of pages) {
-      const titles = [...p.html.matchAll(/<title\b[^>]*>([\s\S]*?)<\/title>/gi)];
+      // The document's own title, in <head>: inline SVG figures carry <title>s of their own.
+      const head = p.html.match(/<head\b[\s\S]*?<\/head>/i)?.[0] ?? p.html;
+      const titles = [...head.matchAll(/<title\b[^>]*>([\s\S]*?)<\/title>/gi)];
       if (titles.length !== 1) {
         bad.push(`${label(p)}: ${titles.length} <title> tags`);
         continue;
