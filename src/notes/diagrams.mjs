@@ -8,8 +8,11 @@
 // - a hub fan-out: a flowchart that is only one statement, a `:::hub` node pointing at three or more nodes
 //   (`H((Hub)):::hub --> a[A] & b[B] & c[C]`), is drawn as an animated SVG (.hubfig in site.css): flowing links,
 //   dots travelling from the hub and a gentle pulse, all CSS and SMIL. Reduced motion shows it still.
+// - any flowchart with a `%% animate` line is drawn as an animated network (netfig.mjs, .gf in site.css): a red
+//   wave out of `:::alert` nodes, a dot walking any loop, steady traffic elsewhere, cut links for dotted ones.
 // - xychart-beta: the `bar` series becomes a bar chart labelled by the x-axis; the last bar is highlighted.
 
+import { renderNet, wrap } from './netfig.mjs';
 import { escapeHtml } from './obsidian.mjs';
 
 const unquote = (value) => value.trim().replace(/^["']|["']$/g, '');
@@ -22,6 +25,8 @@ function directive(lines, name) {
 // Connectors, labelled forms first: `-- label -->`, `-->|label|`, then the plain arrows and lines.
 const LINK = /\s*(?:--\s+([^-]+?)\s+(-->|---)|(-->|---|-\.->|-\.-)(?:\|([^|]+)\|)?)\s*/g;
 const SYMBOL = { '-->': '→', '---': '—', '-.->': '- -', '-.-': '- -' };
+// The bracket groups in NODE, in order: ((circle)), [(database)], [box], {decision}, (rounded).
+const SHAPES = ['circle', 'database', 'box', 'decision', 'rounded'];
 const NODE = /^([\w-]+)\s*(?:\(\((.+)\)\)|\[\((.+)\)\]|\[(.+)\]|\{(.+)\}|\((.+)\))?\s*(?::::(\w+))?$/;
 
 function parseFlowchart(lines) {
@@ -34,11 +39,15 @@ function parseFlowchart(lines) {
     if (!match) throw new Error(`Unsupported mermaid node "${source.trim()}".`);
     const [, id, ...rest] = match;
     const style = rest.pop();
-    const label = rest.find((value) => value !== undefined);
-    const known = nodes.get(id) ?? { label: id };
-    if (label) known.label = unquote(label);
+    const index = rest.findIndex((value) => value !== undefined);
+    const known = nodes.get(id) ?? { label: id, shape: 'box' };
+    if (index >= 0) {
+      known.label = unquote(rest[index]);
+      known.shape = SHAPES[index];
+    }
     if (style) known.style = style;
     nodes.set(id, known);
+    if (!panel.nodes.includes(known)) panel.nodes.push(known);
     return { node: known };
   };
 
@@ -46,7 +55,7 @@ function parseFlowchart(lines) {
     if (/^(flowchart|graph|direction|classDef|class |style |acc|%%)/.test(line)) continue;
     const subgraph = line.match(/^subgraph\s+[\w-]+\s*(?:\[(.+)\])?$/);
     if (subgraph) {
-      panel = { title: unquote(subgraph[1] ?? ''), rows: [] };
+      panel = { title: unquote(subgraph[1] ?? ''), rows: [], nodes: [], edges: [] };
       panels.push(panel);
       continue;
     }
@@ -55,21 +64,33 @@ function parseFlowchart(lines) {
       continue;
     }
     if (!panel) {
-      panel = { title: '', rows: [] };
+      panel = { title: '', rows: [], nodes: [], edges: [] };
       panels.push(panel);
     }
 
     const row = [];
     let last = 0;
     let first = true;
+    let previous;
+    // Every node in one group links to every node in the next: `A --> b & c` is two edges.
+    const connect = (group, link) => {
+      if (previous) {
+        for (const from of previous.group) for (const to of group) panel.edges.push({ from: from.node, to: to.node, ...previous.link });
+      }
+      previous = { group, link };
+    };
     for (const link of line.matchAll(LINK)) {
       const group = line.slice(last, link.index).split('&').map(node);
       const label = link[1] ?? link[4];
-      row.push(...(first && label ? [{ text: unquote(label) }] : group), { to: SYMBOL[link[2] ?? link[3]] });
+      const arrow = link[2] ?? link[3];
+      row.push(...(first && label ? [{ text: unquote(label) }] : group), { to: SYMBOL[arrow] });
+      connect(group, { label: label && unquote(label), dotted: arrow.startsWith('-.'), directed: arrow.endsWith('>') });
       last = link.index + link[0].length;
       first = false;
     }
-    row.push(...line.slice(last).split('&').map(node));
+    const tail = line.slice(last).split('&').map(node);
+    row.push(...tail);
+    connect(tail);
     panel.rows.push(row);
   }
 
@@ -98,17 +119,6 @@ function hubFanOut(panels) {
   const [hub, link, ...targets] = panels[0].rows[0];
   if (hub?.node?.style !== 'hub' || link?.to !== '→' || targets.length < 3 || targets.some((t) => !t.node)) return undefined;
   return { hub: hub.node.label, targets: targets.map((t) => t.node.label) };
-}
-
-// Breaks a label into lines of at most `max` characters, at spaces.
-function wrap(label, max) {
-  const lines = [];
-  for (const word of label.split(/\s+/)) {
-    const last = lines.at(-1);
-    if (last && `${last} ${word}`.length <= max) lines[lines.length - 1] = `${last} ${word}`;
-    else lines.push(word);
-  }
-  return lines;
 }
 
 // Drawn at 1:1 in a phone-width box: 15px labels stay readable when the figure scales down.
@@ -183,7 +193,8 @@ function renderDiagram(source, { caption } = {}) {
   } else if (/^(flowchart|graph)\b/.test(lines[0])) {
     const panels = parseFlowchart(lines);
     const fan = hubFanOut(panels);
-    body = fan ? renderHub(fan, title, description) : renderPanels(panels, title, description);
+    if (lines.some((line) => /^%%\s*animate\b/.test(line))) body = renderNet(panels, title, description);
+    else body = fan ? renderHub(fan, title, description) : renderPanels(panels, title, description);
   } else {
     throw new Error(`Unsupported mermaid diagram "${lines[0]}".`);
   }

@@ -157,6 +157,40 @@ body { font-size: 15px; }
 .hf-co { --i:0; } /* its place in the list, set on each box; staggers the rise below */
 @supports (animation-timeline: view()) { .hf-co { animation:hf-rise linear both; } .hubfig .hf-co { animation-timeline:view(); animation-range:entry calc(10% + var(--i) * 8%) entry calc(60% + var(--i) * 8%); } }
 @media (prefers-reduced-motion:reduce) { .hf-dot { display:none; } }
+/* Animated network figures (netfig.mjs): the hub figure's links, dots, pulse and rise, plus a red wave for alerts. */
+.gf { display:block; max-width:100%; height:auto; margin:0 auto; overflow:visible; }
+.gf-panels { display:flex; flex-wrap:wrap; gap:16px; }
+.gf-panels > .panel { flex-grow:1; flex-shrink:1; min-width:0; }
+.gf text { font-family: Geist, sans-serif; font-size: 15px; fill:var(--ink); }
+.gf .gf-t.hub, .gf .gf-t.alert, .gf .gf-in.hub, .gf .gf-in.alert { font-weight:500; }
+.gf .gf-t.hub { fill:var(--accent-text); }
+.gf .gf-t.alert { fill:var(--alert); }
+.gf .gf-in.hub, .gf .gf-in.alert { fill:var(--bg); }
+.gf .gf-el { fill:var(--muted); paint-order:stroke; stroke:var(--surface); stroke-width:5px; stroke-linejoin:round; }
+.gf-c, .gf-b { fill:var(--bg); stroke:var(--line-strong); }
+.gf-c.hub { fill:var(--accent-text); stroke:none; }
+.gf-c.alert { fill:var(--alert); stroke:none; }
+.gf-b.hub { fill:color-mix(in srgb,var(--accent-text) 10%,var(--bg)); stroke:var(--accent-text); }
+.gf-b.alert { fill:color-mix(in srgb,var(--alert) 8%,var(--bg)); stroke:var(--alert); }
+.gf .gf-b.alert + .gf-t { fill:var(--alert); }
+.gf .gf-b.hub + .gf-t { fill:var(--accent-text); font-weight:500; }
+.gf-n:has(.faded) { opacity:.65; }
+.gf-c.faded, .gf-b.faded { stroke-dasharray:4 3; }
+.gf-link { fill:none; stroke:var(--accent-text); stroke-width:1.4; stroke-dasharray:3 5; opacity:.7; animation:hf-flow 1.3s linear infinite; }
+.gf-link.wave { stroke:var(--alert); }
+.gf-link.dead { stroke:var(--line-strong); stroke-dasharray:2 4; opacity:1; animation:none; }
+.gf-arrow { fill:none; stroke:var(--accent-text); stroke-width:1.4; stroke-linecap:round; stroke-linejoin:round; opacity:.8; }
+.gf-arrow.wave { stroke:var(--alert); }
+.gf-arrow.dead { stroke:var(--line-strong); }
+.gf-dot { fill:var(--accent-text); }
+.gf-dot.wave { fill:var(--alert); }
+.gf-hit { fill:none; stroke:var(--accent-text); stroke-width:2; }
+.gf-hit.wave { fill:color-mix(in srgb,var(--alert) 14%,transparent); stroke:var(--alert); }
+.gf-pulse { fill:var(--accent-text); transform-box:fill-box; transform-origin:center; opacity:0; animation:hf-pulse 2.4s ease-out infinite; }
+.gf-pulse.alert { fill:var(--alert); }
+.gf-n { --i:0; } /* its rank, set on each node; staggers the rise below */
+@supports (animation-timeline: view()) { .gf-n { animation:hf-rise linear both; } .gf .gf-n { animation-timeline:view(); animation-range:entry calc(10% + var(--i) * 8%) entry calc(60% + var(--i) * 8%); } }
+@media (prefers-reduced-motion:reduce) { .gf-dot, .gf-hit { display:none; } }
 .barchart { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:8px; align-items:end; height:170px; }
 .bc { display:grid; gap:8px; align-items:end; height:100%; grid-template-rows:1fr auto; }
 .bc-bar { background:var(--line-strong); border-radius:4px 4px 0 0; align-self:end; }
