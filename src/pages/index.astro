@@ -28,7 +28,7 @@ const external = { target: '_blank', rel: 'noopener noreferrer' };
 
 <SiteLayout jsonLd={[website(), person()]} title="Suhas Darsi — AI Security Notes and Micro-Apps" description="Notes on AI security, agent systems, and network risk, plus micro-apps and ways to connect with Suhas Darsi.">
   <section class="g-hero">
-    <h1 class="serif">I study how AI systems fail, and how to deploy them safely.</h1>
+    <h1 class="serif">{site.headline}</h1>
     <p class="g-sub">I’m {site.name}, co-founder of <a class="g-link" href={site.company.url} {...external}>{site.company.name}</a>, where we help security teams see and control how AI is used in their organizations. I write about what happens when AI becomes the hub everything else connects through.</p>
     <div class="elsewhere">
       <a class="btn dark" href={site.booking} {...external}>Book a time to talk <svg class="ic" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" /></svg></a>

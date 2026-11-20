@@ -1,37 +1,42 @@
 import type { APIRoute } from 'astro';
 import sharp from 'sharp';
-import { getNotes } from '../../notes/notes';
+import { noteCover } from '../../notes/cover';
+import { noteGraph } from '../../notes/graph';
+import { getNoteLinks, getNotes, readingTime } from '../../notes/notes';
+import { shareCardSvg } from '../../notes/share-card';
 import { site } from '../../site/site';
 
-export async function getStaticPaths() {
-  const notes = (await getNotes()).map((post) => ({
-    params: { slug: post.id }, props: { title: post.data.title },
-  }));
-  // 'site' is the default share card for pages that are not notes.
-  return [...notes, { params: { slug: 'site' }, props: { title: `${site.name} — Notes on AI security` } }];
+type Figure = Parameters<typeof shareCardSvg>[0]['figure'];
+
+// The graph of every note, as on the home page, with the best-linked note as the hub.
+function siteFigure(ids: string[], links: ReturnType<typeof getNoteLinks>): Figure {
+  const size = 360;
+  const { nodes, edges } = noteGraph(ids, links, size);
+  const hub = nodes.reduce((best, node) => (node.r > best.r ? node : best));
+  const markup = edges.map(([a, b]) => `<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}"/>`).join('')
+    + nodes.map((node) => `<circle class="n${node === hub ? ' hub' : ''}" cx="${node.x}" cy="${node.y}" r="${node.r * 1.6}"/>`).join('');
+  return { markup, viewBox: [0, 0, size, size] };
 }
 
-const escape = (text: string) => text.replace(/[&<>"']/g, (character) =>
-  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&apos;' })[character]!);
+export async function getStaticPaths() {
+  const posts = await getNotes();
+  const links = getNoteLinks(posts);
+  // Cover drawings use a 320x220 box with a little room around the drawing; show the drawing, not the room.
+  const notes = posts.map((post) => ({
+    params: { slug: post.id },
+    props: {
+      title: post.data.title,
+      kicker: ['Note', readingTime(post)].filter(Boolean).join(' · '),
+      figure: { markup: noteCover(post.id, links.get(post.id)!), viewBox: [30, 20, 260, 180] } satisfies Figure,
+    },
+  }));
+  // 'site' is the default share card for pages that are not notes.
+  const home = { title: site.headline, kicker: 'Notes on AI security', figure: siteFigure(posts.map((post) => post.id), links) };
+  return [...notes, { params: { slug: 'site' }, props: home }];
+}
 
 export const GET: APIRoute = async ({ props }) => {
-  const words = (props.title as string).split(/\s+/);
-  const lines: string[] = [];
-  for (const word of words) {
-    if (!lines.length || `${lines.at(-1)} ${word}`.length > 32) lines.push(word);
-    else lines[lines.length - 1] += ` ${word}`;
-  }
-  const size = Math.min(64, 300 / lines.length);
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630">
-    <rect width="1200" height="630" fill="#f7f0e7"/>
-    <path d="M72 105H1128" stroke="#ddd2bf" stroke-width="2"/>
-    <text x="72" y="73" font-family="sans-serif" font-size="24" fill="#625c56">NOTES</text>
-    <g font-family="sans-serif" font-weight="bold" font-size="${size}" fill="#2b2825">
-      ${lines.map((line, index) => `<text x="72" y="${185 + index * size * 1.15}">${escape(line)}</text>`).join('')}
-    </g>
-    <text x="72" y="565" font-family="sans-serif" font-size="28" fill="#5d5751">${site.name}</text>
-    <text x="1128" y="565" text-anchor="end" font-family="sans-serif" font-size="24" fill="#625c56">${new URL(site.url).host}</text>
-  </svg>`;
+  const svg = shareCardSvg({ ...(props as { title: string; kicker: string; figure: Figure }), author: site.name, host: new URL(site.url).host });
   const png = await sharp(Buffer.from(svg)).png().toBuffer();
   return new Response(new Uint8Array(png), { headers: { 'Content-Type': 'image/png' } });
 };
