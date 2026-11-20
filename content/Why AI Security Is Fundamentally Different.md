@@ -19,6 +19,7 @@ In a [[Small World Networks and the Power of Hubs|hub-based network]], the impac
 
 ```mermaid A traditional breach stays where it lands. An AI hub failure spreads to everything the hub can touch.
 flowchart LR
+  %% animate
   accTitle: Traditional breach versus AI hub failure
   accDescr: A compromised service exposes one database. A failed AI hub reaches email, files, payments, the CRM, and a partner AI hub with its own systems.
   subgraph trad["Traditional breach"]

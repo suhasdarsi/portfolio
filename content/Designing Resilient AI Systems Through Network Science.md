@@ -16,6 +16,7 @@ We need diverse AI systems, not a monoculture of identical hubs that share the s
 
 ```mermaid With one shared model, a single exploit is universal. With diverse models, it stays contained.
 flowchart LR
+  %% animate
   accTitle: Monoculture versus diversity
   accDescr: On the left, three organisations depend on the same model, so one exploit reaches all of them. On the right, each organisation runs a different model, so an exploit in one affects only that organisation.
   subgraph mono["Monoculture"]

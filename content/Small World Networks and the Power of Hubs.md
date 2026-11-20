@@ -33,6 +33,7 @@ This hub structure is simultaneously brilliant and terrifying. It creates effici
 
 ```mermaid Lose a random node and the hub keeps everything connected. Lose the hub and the network falls apart.
 flowchart LR
+  %% animate
   accTitle: Random failure versus targeted attack
   accDescr: On the left, one leaf node is removed and the rest stay connected through the hub. On the right, the hub is removed and every remaining node is cut off.
   subgraph random["Random failure"]

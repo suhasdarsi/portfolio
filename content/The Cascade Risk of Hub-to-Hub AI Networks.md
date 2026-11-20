@@ -27,6 +27,7 @@ In a traditional network, compromising one node might affect its direct neighbor
 
 ```mermaid One compromised hub reaches every hub it talks to, and everything those hubs reach.
 flowchart LR
+  %% animate
   accTitle: A cascade through a hub-to-hub network
   accDescr: A compromised personal AI connects to a company AI, which connects to bank, healthcare and government AIs. Each of those connects to its own downstream systems.
   P((Personal AI)):::alert --> C((Company AI)):::hub

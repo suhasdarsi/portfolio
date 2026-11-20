@@ -32,6 +32,7 @@ By the end there were four layers, each catching what the others missed.
 
 ```mermaid Every change goes back through the verifiers until they pass. A human looks last.
 flowchart LR
+  %% animate
   accTitle: From design artifact to verified page
   accDescr: The design artifact sets the target. Agents implement it and the verifiers check it. A failure goes back to a fix and the work is checked again. Work that passes goes to a human review.
   A((Design artifact)):::hub --> B[Implement] --> C{Verifiers}

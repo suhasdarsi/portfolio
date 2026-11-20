@@ -20,6 +20,7 @@ Think of it this way: traditional software creates bridges between specific syst
 
 ```mermaid Traditional software builds bridges between specific systems. AI becomes the point every system converges on.
 flowchart LR
+  %% animate
   accTitle: Bridges versus a merging point
   accDescr: On the left, systems are linked in pairs by purpose-built integrations. On the right, every system connects to a single AI hub.
   subgraph before["Traditional software: bridges"]
