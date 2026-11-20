@@ -8,6 +8,8 @@ export const site = {
   xHandle: '@suhas_darsi',
   booking: 'https://booking.akiflow.com/suhas--a84d',
   company: { name: 'SuperAlign', url: 'https://superalign.ai/' },
+  /** The home page headline; also the title on the site's share card. */
+  headline: 'I study how AI systems fail, and how to deploy them safely.',
 } as const;
 
 // Roles, newest first. Home lists them all; About splits current from previous.
