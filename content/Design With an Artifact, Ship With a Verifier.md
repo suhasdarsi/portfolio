@@ -3,6 +3,7 @@ description: "I redesigned this site with AI agents. The design artifact set the
 pubDate: "2026-11-03"
 topics: ["Building with AI"]
 stage: "budding"
+short: "Artifact and verifier"
 ---
 
 I redesigned this site this week, and I barely wrote any of the code. I described what I wanted, Claude built a design, agents implemented it, and the new pages went live after one long session. The interesting part wasn't how fast the code appeared. It was how much of the session went into answering a simpler question: is it actually right?

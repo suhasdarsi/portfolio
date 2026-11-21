@@ -3,6 +3,7 @@ description: "Traditional security assumes boundaries. AI is designed to break t
 pubDate: "2026-04-05"
 topics: ["AI Security"]
 stage: "budding"
+short: "Why AI security is different"
 ---
 
 As we explored in [[The Cascade Risk of Hub-to-Hub AI Networks]], AI hubs connecting to each other creates a new class of systemic risk. This brings us to why AI risk represents a categorically different challenge than traditional IT security.

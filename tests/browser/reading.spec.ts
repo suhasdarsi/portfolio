@@ -151,9 +151,9 @@ test('the local graph links to each linked note and is hidden on phones', async 
   }
   const nodes = graph.getByRole('link');
   await expect(nodes).toHaveCount(4);
-  await nodes.first().hover();
+  await nodes.first().locator('.node').hover();
   await expect(page.locator('.peek:visible')).toHaveCount(1);
   const href = await nodes.first().getAttribute('href');
-  await nodes.first().click();
+  await nodes.first().locator('.node').click();
   await expect(page).toHaveURL(new RegExp(href! + '$'));
 });

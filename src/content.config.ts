@@ -34,6 +34,8 @@ const blog = defineCollection({
     topics: z.array(z.enum(['AI Security', 'Building with AI'])).default([]),
     // How finished the note is: a rough idea, a working draft of the idea, or settled. Shown beside the dates.
     stage: z.enum(noteStages).optional(),
+    // A name of a few words for the graph of notes, where the full title won't fit. Without it, the title is used.
+    short: z.string().trim().optional(),
   }),
 });
 

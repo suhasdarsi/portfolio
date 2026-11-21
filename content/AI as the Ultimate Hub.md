@@ -3,6 +3,7 @@ description: "AI isn’t just another node in our networks — it’s a fundamen
 pubDate: "2026-04-04"
 topics: ["AI Security"]
 stage: "budding"
+short: "AI as the ultimate hub"
 ---
 As we explored in [[Small World Networks and the Power of Hubs]], complex networks are defined by their hubs — nodes with disproportionately many connections that give the system both its efficiency and its fragility. Now we stand at the threshold of something unprecedented.
 

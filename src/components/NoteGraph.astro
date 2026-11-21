@@ -1,8 +1,10 @@
 ---
-// The graph of notes, used two ways. On a note (`here`), it is that note and only the notes linked with it.
-// Without `here` it is every published note. Each node is a link to its note; the name shows in the hover preview
-// (NotePreviews) and is read out by screen readers. Pointing at a node lights up its links and fades the rest.
-import { noteGraph } from '../notes/graph';
+// The graph of notes, used two ways, with every note named. On a note (`here`), it is that note and only the notes
+// linked with it, in the rail. Without `here` it is every published note, drawn once per home layout so the names stay
+// at interface size; CSS shows the one that fits.
+// Each note is a link to it. The hub (the most-linked note, or the note being read) is solid with rings round it.
+// Pointing at a note with a mouse, or tabbing to it, lights its links and fades the rest; a tap just opens the note.
+import { noteGraph, type NoteGraph } from '../notes/graph';
 import { noteHref, type Note, type NoteLinks } from '../notes/notes';
 
 interface Props {
@@ -11,73 +13,172 @@ interface Props {
   links: Map<string, NoteLinks>;
   /** The note being read: show only its linked notes. */
   here?: Note;
-  /** The side of the square drawing, about the width it is shown at, so nodes are the same size everywhere. */
-  size?: number;
 }
-const { notes, links, here, size = 220 } = Astro.props;
-const { nodes, edges, hidden } = noteGraph(notes.map((note) => note.id), links, size, here?.id);
+const { notes, links, here } = Astro.props;
+const ids = notes.map((note) => note.id);
 const titles = new Map(notes.map((note) => [note.id, note.data.title]));
+const labels = new Map(notes.map((note) => [note.id, note.data.short || note.data.title.split(':')[0]]));
+const drawings: { name: string; graph: NoteGraph }[] = here
+  ? [{ name: 'local', graph: noteGraph(ids, links, { width: 320, height: 320, here: here.id, labels }) }]
+  : [
+    // One drawing per layout, each shown at the size it was laid out for: the full-width two-column section (1180px and
+    // up), the narrower two-column section (901 to 1179px, a column of 430px or more), and one column on phones.
+    { name: 'wide', graph: noteGraph(ids, links, { width: 580, height: 400, labels }) },
+    { name: 'medium', graph: noteGraph(ids, links, { width: 420, height: 340, labels }) },
+    // 300 fits a phone 348px wide or wider at full size, so names and targets aren't shrunk.
+    { name: 'compact', graph: noteGraph(ids, links, { width: 300, height: 300, labels }) },
+  ];
+const { hidden } = drawings[0].graph;
+// A named note's link starts with the name shown on the drawing, so voice control ("click Small worlds") finds it,
+// then gives the full title.
+const accessibleName = (node: NoteGraph['nodes'][number]) => {
+  const title = titles.get(node.id)!;
+  const shown = node.label?.lines.join(' ');
+  return !shown || shown === title ? title : `${shown}: ${title}`;
+};
+const label = here ? `${here.data.title} and its linked notes` : 'Every note and the links between them';
 ---
 
-{nodes.length > 1 && (
+{drawings[0].graph.nodes.length > (here ? 1 : 0) && (
   <nav class="graph" aria-label={here ? 'Graph of linked notes' : 'Graph of all notes'}>
     {here && <span class="eyebrow">Graph</span>}
-    <svg viewBox={`0 0 ${size} ${size}`} role="group" aria-label={here ? `${here.data.title} and its linked notes` : 'Every note and the links between them'}>
-      {edges.map(([a, b]) => <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} data-a={a.id} data-b={b.id} />)}
-      {nodes.map((node) => node.here
-        ? <circle class="node here" cx={node.x} cy={node.y} r={node.r} data-id={node.id} />
-        : (
-          <a href={noteHref(node.id)} aria-label={titles.get(node.id)} data-id={node.id}>
-            <circle class="hit" cx={node.x} cy={node.y} r={node.r + 8} />
-            <circle class="node" cx={node.x} cy={node.y} r={node.r} />
-          </a>
-        ))}
-    </svg>
+    {drawings.map(({ name, graph }) => {
+      const hub = graph.nodes.find((node) => node.hub)!;
+      return (
+        <svg class={`art ${name}`} viewBox={`0 0 ${graph.width} ${graph.height}`} role="group" aria-label={label}>
+          <defs><pattern id={`graph-dots-${name}`} width="16" height="16" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1" class="dot" /></pattern></defs>
+          <rect class="ground" width={graph.width} height={graph.height} fill={`url(#graph-dots-${name})`} />
+          <circle class="halo far" cx={hub.x} cy={hub.y} r={hub.r * 3.4} />
+          <circle class="halo" cx={hub.x} cy={hub.y} r={hub.r * 2.2} />
+          {graph.edges.map((edge) => <path class:list={['edge', { spoke: edge.spoke }]} d={edge.d} data-a={edge.a.id} data-b={edge.b.id} />)}
+          {graph.nodes.map((node) => {
+            const name = node.label && (
+              <>
+                {node.label.pill && <rect class="pill" x={node.label.pill.x} y={node.label.pill.y} width={node.label.pill.width} height={node.label.pill.height} rx={node.label.pill.height / 2} />}
+                <text x={node.label.x} y={node.label.y} text-anchor={node.label.anchor} aria-hidden="true">
+                  {node.label.lines.map((line, i, lines) => <tspan x={node.label!.x} dy={i ? 22.5 : 0}>{i < lines.length - 1 ? `${line} ` : line}</tspan>)}
+                </text>
+              </>
+            );
+            return node.here
+              ? <g class="node-group hub" data-id={node.id}><circle class="node" cx={node.x} cy={node.y} r={node.r} />{name}</g>
+              : (
+                <a class:list={['node-group', { hub: node.hub }]} href={noteHref(node.id)} aria-label={accessibleName(node)} data-id={node.id}>
+                  <circle class="hit" cx={node.x} cy={node.y} r={node.hit} />
+                  <circle class="node" cx={node.x} cy={node.y} r={node.r} />
+                  {name}
+                </a>
+              );
+          })}
+        </svg>
+      );
+    })}
     {hidden > 0 && <span class="graph-key">and {hidden} more, listed below</span>}
-    {!here && <span class="graph-key">Every note and the links between them. Point at a note to see it.</span>}
+    {!here && (
+      <span class="graph-key">
+        <span class="key"><i class="key-hub"></i>Most-linked note, the hub</span>
+        <span class="key"><i class="key-node"></i>Bigger means more links</span>
+      </span>
+    )}
   </nav>
 )}
 
 <script>
-  // Pointing at (or tabbing to) a node marks it, its links and the notes at the other end; the stylesheet fades the rest.
-  for (const svg of document.querySelectorAll<SVGSVGElement>('.graph svg')) {
-    const lit = () => svg.querySelectorAll('.lit');
-    const clear = () => {
-      svg.classList.remove('focused');
-      for (const el of lit()) el.classList.remove('lit');
-    };
-    const focus = (target: EventTarget | null) => {
-      const link = target instanceof Element ? target.closest<SVGAElement>('a[data-id]') : null;
-      clear();
-      if (!link) return;
-      const id = link.dataset.id;
+  // Pointing at (with a mouse) or tabbing to a note marks it, its links and the notes at the other end; the stylesheet
+  // fades the rest and runs the lit links outward. On the home page a note card and its node light each other.
+  // Touch is left alone: lighting on touch would make Safari treat the first tap as a hover and not open the note.
+  const svgs = [...document.querySelectorAll<SVGSVGElement>('.graph svg.art')];
+  const cards = [...document.querySelectorAll<HTMLAnchorElement>('.g-card[href]')];
+  const clear = () => {
+    for (const el of document.querySelectorAll('.graph .lit, .g-card.lit')) el.classList.remove('lit');
+    for (const svg of svgs) svg.classList.remove('focused');
+  };
+  const focus = (id: string | undefined) => {
+    clear();
+    if (!id) return;
+    for (const svg of svgs) {
       const near = new Set([id]);
-      for (const line of svg.querySelectorAll<SVGLineElement>('line')) {
-        if (line.dataset.a !== id && line.dataset.b !== id) continue;
-        line.classList.add('lit');
-        near.add(line.dataset.a).add(line.dataset.b);
+      for (const edge of svg.querySelectorAll<SVGPathElement>('path.edge')) {
+        if (edge.dataset.a !== id && edge.dataset.b !== id) continue;
+        edge.classList.add('lit');
+        // The flow runs away from the note being pointed at.
+        edge.classList.toggle('back', edge.dataset.b === id);
+        near.add(edge.dataset.a!).add(edge.dataset.b!);
       }
-      for (const node of svg.querySelectorAll<SVGElement>('[data-id]')) if (near.has(node.dataset.id)) node.classList.add('lit');
+      for (const node of svg.querySelectorAll<SVGElement>('.node-group')) if (near.has(node.dataset.id!)) node.classList.add('lit');
       svg.classList.add('focused');
-    };
-    svg.addEventListener('pointerover', (event) => focus(event.target));
-    svg.addEventListener('pointerleave', clear);
-    svg.addEventListener('focusin', (event) => focus(event.target));
-    svg.addEventListener('focusout', clear);
+    }
+    const href = svgs[0]?.querySelector(`a[data-id="${id}"]`)?.getAttribute('href');
+    for (const card of cards) if (href && card.getAttribute('href') === href) card.classList.add('lit');
+  };
+  const idOf = (target: EventTarget | null) => (target instanceof Element ? target.closest<SVGElement>('a.node-group')?.dataset.id : undefined);
+  // The note tabbed to, if any. When the mouse leaves, its light comes back instead of everything clearing.
+  let keyboard: string | undefined;
+  const settle = () => (keyboard ? focus(keyboard) : clear());
+  for (const svg of svgs) {
+    svg.addEventListener('pointerover', (event) => { if (event.pointerType === 'mouse') focus(idOf(event.target)); });
+    svg.addEventListener('pointerleave', (event) => { if (event.pointerType === 'mouse') settle(); });
+    // Only keyboard focus lights the graph: a tap focuses the link too, and must just open the note.
+    svg.addEventListener('focusin', (event) => {
+      if (!(event.target instanceof Element) || !event.target.matches(':focus-visible')) return;
+      keyboard = idOf(event.target);
+      focus(keyboard);
+    });
+    svg.addEventListener('focusout', () => { keyboard = undefined; clear(); });
+  }
+  for (const card of cards) {
+    const id = svgs[0]?.querySelector(`a[href="${card.getAttribute('href')}"]`)?.getAttribute('data-id') ?? undefined;
+    if (!id) continue;
+    card.addEventListener('pointerenter', (event) => { if (event.pointerType === 'mouse') focus(id); });
+    card.addEventListener('pointerleave', (event) => { if (event.pointerType === 'mouse') settle(); });
   }
 </script>
 
 <style>
-  .graph { display: grid; gap: 8px; font-size: 15px; color: var(--faint); max-width: 440px; }
-  .graph svg { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
-  .graph line { stroke: var(--line-strong); stroke-width: 1; transition: opacity .15s, stroke .15s; }
-  .graph .node { fill: var(--muted); transform-box: fill-box; transform-origin: center; transition: opacity .15s, fill .15s, scale .24s var(--ease-spring); }
-  .graph a:hover .node, .graph a:focus-visible .node { scale: 1.3; }
-  .graph .node.here { fill: var(--accent-text); }
-  .graph .hit { fill: transparent; }
-  .graph a:hover .node, .graph a:focus-visible .node { fill: var(--accent-text); }
-  .graph a:focus-visible { outline: none; }
-  .graph a:focus-visible .hit { stroke: var(--focus); stroke-width: 2; }
-  .graph .focused line:not(.lit), .graph .focused a:not(.lit) .node, .graph .focused .node.here:not(.lit) { opacity: .25; }
-  .graph .focused line.lit { stroke: var(--accent-text); }
+  .graph { display: grid; gap: 12px; font-size: 15px; color: var(--faint); }
+  .art { display: block; width: 100%; height: auto; border-radius: 16px; background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); overflow: visible; }
+  /* Each drawing is shown no larger than it was laid out, so the names stay at 15px. */
+  .wide { max-width: 580px; }
+  .medium { max-width: 420px; }
+  .compact { max-width: 300px; }
+  .local { max-width: 320px; }
+  /* The breakpoints match the home section: two columns from 901px, the page frame at full width from 1180px. */
+  .medium, .compact { display: none; }
+  @media (max-width: 1179px) { .wide { display: none; } .medium { display: block; } }
+  @media (max-width: 900px) { .medium { display: none; } .compact { display: block; } }
+  /* The dotted ground, the rings and the lines are decoration: the pointer passes through them to the notes. */
+  .ground, .halo, .edge { pointer-events: none; }
+  .dot { fill: var(--line-strong); opacity: .55; }
+  .halo { fill: none; stroke: var(--accent-text); stroke-width: 1; opacity: .18; }
+  .halo.far { stroke-dasharray: 2 4; opacity: .28; }
+  .edge { fill: none; stroke: var(--line-strong); stroke-width: 1.2; transition: stroke .2s, opacity .2s; }
+  .edge.spoke { stroke: color-mix(in srgb, var(--accent-text) 45%, var(--line-strong)); stroke-width: 1.6; }
+  .node { fill: var(--surface); stroke: var(--ink); stroke-width: 1.5; transform-box: fill-box; transform-origin: center; transition: scale .24s var(--ease-spring), fill .2s, stroke .2s; }
+  .hub .node { fill: var(--accent-text); stroke: var(--accent-text); }
+  .hit { fill: transparent; }
+  .node-group { transition: opacity .2s; }
+  text { font-family: Geist, sans-serif; font-size: 15px; line-height: 1.5; font-weight: 500; fill: var(--muted); paint-order: stroke; stroke: var(--surface); stroke-width: 5px; stroke-linejoin: round; transition: fill .2s; }
+  .hub text { fill: var(--ink); font-weight: 600; stroke: none; }
+  .pill { fill: var(--surface); stroke: color-mix(in srgb, var(--accent-text) 40%, var(--line)); stroke-width: 1; }
+  /* Hover only for a real pointer: on touch, a hover state would flash on tap (and Safari can hold the tap for it). */
+  @media (hover: hover) and (pointer: fine) {
+    a.node-group:hover .node { scale: 1.25; fill: var(--accent-text); stroke: var(--accent-text); }
+    a.node-group:hover text { fill: var(--accent-text); }
+  }
+  a.node-group:focus-visible .node { scale: 1.25; fill: var(--accent-text); stroke: var(--accent-text); }
+  a.node-group:focus-visible text { fill: var(--accent-text); }
+  a.node-group:focus-visible { outline: none; }
+  a.node-group:focus-visible .hit { stroke: var(--focus); stroke-width: 2; }
+  .focused .edge:not(.lit) { opacity: .15; }
+  .focused .node-group:not(.lit) { opacity: .35; }
+  .edge.lit { stroke: var(--accent-text); stroke-width: 2; stroke-dasharray: 6 6; animation: flow .3s linear infinite; }
+  .edge.lit.back { animation-direction: reverse; }
+  @keyframes flow { to { stroke-dashoffset: -12; } }
+  @media (prefers-reduced-motion: reduce) { .edge.lit { animation: none; } }
+  .graph-key { display: flex; flex-wrap: wrap; gap: 4px 20px; }
+  .key { display: inline-flex; align-items: center; gap: 8px; }
+  .key i { width: 10px; height: 10px; border-radius: 999px; }
+  .key-hub { background: var(--accent-text); }
+  .key-node { border: 1.5px solid var(--ink); background: var(--surface); }
+  :global(.g-card.lit .g-title) { color: var(--accent-text); }
 </style>

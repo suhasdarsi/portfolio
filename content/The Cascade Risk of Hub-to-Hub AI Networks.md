@@ -3,6 +3,7 @@ description: "The danger isn’t just AI hubs failing — it’s what happens wh
 pubDate: "2026-04-05"
 topics: ["AI Security"]
 stage: "budding"
+short: "Cascade risk"
 ---
 
 In [[AI as the Ultimate Hub]], we explored how AI is emerging as a new kind of network node — one that compresses complexity by bridging previously siloed systems. But here's where [[Small World Networks and the Power of Hubs|network theory]] delivers its most sobering lesson.

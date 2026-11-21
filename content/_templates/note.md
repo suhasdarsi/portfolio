@@ -2,6 +2,7 @@
 description: ''
 topics: ['AI Security']
 stage: seedling # seedling → budding → evergreen
+short: '' # a few words for the graph of notes; empty uses the title
 draft: true
 ---
 

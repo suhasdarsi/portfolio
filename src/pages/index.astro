@@ -41,21 +41,21 @@ const external = { target: '_blank', rel: 'noopener noreferrer' };
 
   <section id="writing" class="g-section">
     <div class="g-head">
-      <h2 class="serif">Notes</h2>
-      <p class="lede">Every network has a hub. Every hub is a way in. These notes on AI security link to each other, so start anywhere and follow the threads. <a class="g-link" href="/notes">All notes</a></p>
-    </div>
-    <div class="g-grid">
-      <div class="g-cards">
-        {cards.map((note) => (
-          <a class="g-card" href={note.href}>
-            <span class="g-cover"><svg viewBox="0 0 320 220" aria-hidden="true" set:html={note.cover} /></span>
-            <span class="g-title serif">{note.title}</span>
-            <span class="g-desc">{note.desc}</span>
-            <span class="g-meta"><NoteStage stage={note.stage} /><span>{note.date}</span></span>
-          </a>
-        ))}
+      <div class="g-head-text">
+        <h2 class="serif">Notes</h2>
+        <p class="lede">Every network has a hub. Every hub is a way in. These notes on AI security link to each other, so start anywhere and follow the threads. <a class="g-link" href="/notes">All notes</a></p>
       </div>
-      <NoteGraph notes={posts} links={links} size={360} />
+      <NoteGraph notes={posts} links={links} />
+    </div>
+    <div class="g-cards">
+      {cards.map((note) => (
+        <a class="g-card" href={note.href}>
+          <span class="g-cover"><svg viewBox="0 0 320 220" aria-hidden="true" set:html={note.cover} /></span>
+          <span class="g-title serif">{note.title}</span>
+          <span class="g-desc">{note.desc}</span>
+          <span class="g-meta"><NoteStage stage={note.stage} /><span>{note.date}</span></span>
+        </a>
+      ))}
     </div>
   </section>
 
@@ -67,7 +67,7 @@ const external = { target: '_blank', rel: 'noopener noreferrer' };
 </SiteLayout>
 
 <style is:global>
-  /* Garden look: a large serif headline, a thin section heading, note cards with diagram covers beside a graph of every note. */
+  /* Garden look: a large serif headline, then the Notes section: its title beside a graph of every note, and note cards with diagram covers below. */
   .g-hero { display: grid; gap: 24px; padding-block: 64px 96px; }
   .g-hero h1 { font-size: 80px; line-height: 1.1; font-weight: 400; letter-spacing: -.02em; max-width: 28ch; text-wrap: balance; }
   /* The same serif as the lede on every other page, one size up; a light sans here went thin on the dark theme. */
@@ -76,11 +76,13 @@ const external = { target: '_blank', rel: 'noopener noreferrer' };
   .sd a.g-link { color: var(--accent-text); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; text-decoration-color: color-mix(in srgb, var(--accent-text) 45%, transparent); }
   .sd a.g-link:hover { text-decoration-color: var(--accent-text); }
   .g-section { padding-bottom: 64px; }
-  .g-head { display: grid; gap: 12px; padding-bottom: 48px; }
+  /* The section opens with its title beside the graph of every note; the newest notes run in one row below. */
+  .g-head { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 64px; align-items: center; padding-bottom: 64px; }
+  .g-head-text { display: grid; gap: 12px; }
   .g-head h2 { font-size: 44px; line-height: 1.1; letter-spacing: -.02em; font-weight: 400; }
-  .g-grid { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 64px; align-items: start; }
-  .g-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 40px 24px; }
-  @media (max-width: 900px) { .g-grid { grid-template-columns: minmax(0, 1fr); gap: 48px; } }
+  .g-cards { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 40px 24px; }
+  @media (max-width: 1100px) { .g-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 900px) { .g-head { grid-template-columns: minmax(0, 1fr); gap: 32px; padding-bottom: 48px; } }
   @media (max-width: 760px) {
     .g-hero { padding-block: 40px 64px; }
     .g-hero h1 { font-size: 44px; }
