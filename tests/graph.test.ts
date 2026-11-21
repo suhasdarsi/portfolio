@@ -41,7 +41,7 @@ function expectTidy(graph: Graph) {
 }
 
 describe('graph of notes', () => {
-  for (const [width, height] of [[580, 400], [420, 340], [300, 300]]) {
+  for (const [width, height] of [[580, 400], [420, 340], [300, 300], [272, 340]]) {
     it(`names every note inside a ${width}×${height} frame without names covering each other`, () => {
       const graph = noteGraph(ids, links, { width, height, labels });
       expect(graph.nodes.every((node) => node.label)).toBe(true);

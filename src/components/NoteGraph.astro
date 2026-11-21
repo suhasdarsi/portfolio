@@ -27,6 +27,8 @@ const drawings: { name: string; graph: NoteGraph }[] = here
     { name: 'medium', graph: noteGraph(ids, links, { width: 420, height: 340, labels }) },
     // 300 fits a phone 348px wide or wider at full size, so names and targets aren't shrunk.
     { name: 'compact', graph: noteGraph(ids, links, { width: 300, height: 300, labels }) },
+    // And 272 fits the smallest phones, 320px wide with the page's 24px gutters; taller, so the names still fit.
+    { name: 'narrow', graph: noteGraph(ids, links, { width: 272, height: 340, labels }) },
   ];
 const { hidden } = drawings[0].graph;
 // A named note's link starts with the name shown on the drawing, so voice control ("click Small worlds") finds it,
@@ -116,7 +118,8 @@ const label = here ? `${here.data.title} and its linked notes` : 'Every note and
   let keyboard: string | undefined;
   const settle = () => (keyboard ? focus(keyboard) : clear());
   for (const svg of svgs) {
-    svg.addEventListener('pointerover', (event) => { if (event.pointerType === 'mouse') focus(idOf(event.target)); });
+    // Off any note (the space between them), the tabbed-to note's light comes back.
+    svg.addEventListener('pointerover', (event) => { if (event.pointerType !== 'mouse') return; const id = idOf(event.target); if (id) focus(id); else settle(); });
     svg.addEventListener('pointerleave', (event) => { if (event.pointerType === 'mouse') settle(); });
     // Only keyboard focus lights the graph: a tap focuses the link too, and must just open the note.
     svg.addEventListener('focusin', (event) => {
@@ -141,11 +144,13 @@ const label = here ? `${here.data.title} and its linked notes` : 'Every note and
   .wide { max-width: 580px; }
   .medium { max-width: 420px; }
   .compact { max-width: 300px; }
+  .narrow { max-width: 272px; }
   .local { max-width: 320px; }
   /* The breakpoints match the home section: two columns from 901px, the page frame at full width from 1180px. */
-  .medium, .compact { display: none; }
+  .medium, .compact, .narrow { display: none; }
   @media (max-width: 1179px) { .wide { display: none; } .medium { display: block; } }
   @media (max-width: 900px) { .medium { display: none; } .compact { display: block; } }
+  @media (max-width: 347px) { .compact { display: none; } .narrow { display: block; } }
   /* The dotted ground, the rings and the lines are decoration: the pointer passes through them to the notes. */
   .ground, .halo, .edge { pointer-events: none; }
   .dot { fill: var(--line-strong); opacity: .55; }

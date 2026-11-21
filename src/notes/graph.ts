@@ -110,6 +110,8 @@ function curve(a: GraphNode, b: GraphNode, cx: number, cy: number) {
 // all the others are known. Returns how much is still covered, so callers can compare layouts.
 function placeLabels(nodes: GraphNode[], curves: [number, number][][], texts: Map<string, string>, width: number, height: number) {
   const circles: Box[] = nodes.map((n) => ({ left: n.x - n.r - 3, top: n.y - n.r - 3, right: n.x + n.r + 3, bottom: n.y + n.r + 3 }));
+  // Each tap target as roughly the square inside its circle, so a name may sit by the circle's corner.
+  const targets: Box[] = nodes.map((n) => { const k = n.hit * 0.75; return { left: n.x - k, top: n.y - k, right: n.x + k, bottom: n.y + k }; });
   const order = [...nodes].sort((a, b) => Number(b.hub) - Number(a.hub) || b.r - a.r).filter((node) => texts.has(node.id));
   const items = order.map((node) => {
     const pill = node.hub;
@@ -132,6 +134,8 @@ function placeLabels(nodes: GraphNode[], curves: [number, number][][], texts: Ma
     let c = 0;
     for (const other of items) if (other !== item && other.at >= 0) c += area(pad(box, 3), other.spots[other.at]) * 20;
     circles.forEach((circle, i) => { if (nodes[i] !== item.node) c += area(box, circle) * 20; });
+    // Another note's tap target over a name would open that note when the name is tapped.
+    targets.forEach((target, i) => { if (nodes[i] !== item.node) c += area(box, target) * 4; });
     // A line through a name is worse than a little crowding; under the hub's tag a line just disappears.
     for (const points of curves) for (const [x, y] of points) if (inside(box, x, y)) c += item.pill ? 150 : 300;
     const out = Math.max(0, 4 - box.left) + Math.max(0, box.right - (width - 4)) + Math.max(0, 4 - box.top) + Math.max(0, box.bottom - (height - 4));

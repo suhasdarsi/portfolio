@@ -11,10 +11,9 @@ type Figure = Parameters<typeof shareCardSvg>[0]['figure'];
 // The graph of every note, as on the home page, with the best-linked note as the hub.
 function siteFigure(ids: string[], links: ReturnType<typeof getNoteLinks>): Figure {
   const size = 360;
-  const { nodes, edges } = noteGraph(ids, links, size);
-  const hub = nodes.reduce((best, node) => (node.r > best.r ? node : best));
-  const markup = edges.map(([a, b]) => `<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}"/>`).join('')
-    + nodes.map((node) => `<circle class="n${node === hub ? ' hub' : ''}" cx="${node.x}" cy="${node.y}" r="${node.r * 1.6}"/>`).join('');
+  const { nodes, edges } = noteGraph(ids, links, { width: size, height: size });
+  const markup = edges.map(({ a, b }) => `<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}"/>`).join('')
+    + nodes.map((node) => `<circle class="n${node.hub ? ' hub' : ''}" cx="${node.x}" cy="${node.y}" r="${node.r * 1.6}"/>`).join('');
   return { markup, viewBox: [0, 0, size, size] };
 }
 

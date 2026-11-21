@@ -92,6 +92,22 @@ test('the home graph names every note, can be tapped on a phone, and its preview
   expect(card.x + card.width <= drawing.x || card.x >= drawing.x + drawing.width).toBe(true);
 });
 
+test('a graph preview with no room beside, above or below the drawing stays closed rather than cover it', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'desktop', 'previews need a mouse');
+  await page.setViewportSize({ width: 420, height: 568 });
+  await page.goto('/');
+  const drawing = page.locator('.graph svg.art:visible');
+  // Graph in the middle of the window: no side has room for a 250px card.
+  await drawing.evaluate((svg) => window.scrollBy(0, svg.getBoundingClientRect().top + svg.getBoundingClientRect().height / 2 - window.innerHeight / 2));
+  await page.waitForTimeout(300);
+  await drawing.locator('a.node-group .node').first().hover();
+  const box = (await drawing.boundingBox())!;
+  for (const card of await page.locator('.peek:visible').all()) {
+    const at = (await card.boundingBox())!;
+    expect(at.y + at.height <= box.y || at.y >= box.y + box.height || at.x + at.width <= box.x || at.x >= box.x + box.width).toBe(true);
+  }
+});
+
 test('graph names stay at 15px and targets at 44px or more at every width, on home and on a note', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'desktop', 'one browser is enough: this resizes the window itself');
   const measure = () => page.evaluate(() => {
@@ -104,9 +120,16 @@ test('graph names stay at 15px and targets at 44px or more at every width, on ho
       hit: Math.min(...[...svg.querySelectorAll('.hit')].map((hit) => hit.getBoundingClientRect().width)),
       // The drawing is a plain block, not a second sticky element in the rail.
       position: getComputedStyle(svg).position,
+      // A tap on any part of a name opens that name's note, not a neighbour whose target reaches over it.
+      stolen: [...svg.querySelectorAll('tspan')].flatMap((tspan) => {
+        const box = tspan.getBoundingClientRect(), own = tspan.closest('.node-group');
+        const xs = Array.from({ length: Math.floor(box.width / 3) + 1 }, (_, i) => box.left + 1 + i * 3).filter((x) => x < box.right - 1);
+        return xs.map((x) => document.elementFromPoint(x, box.top + box.height / 2)?.closest('.node-group'))
+          .filter((hit) => hit && hit !== own).slice(0, 1).map(() => tspan.textContent);
+      }),
     };
   });
-  for (const width of [360, 390, 760, 901, 1000, 1179, 1180, 1440]) {
+  for (const width of [320, 347, 360, 390, 760, 901, 1000, 1179, 1180, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     await page.goto('/');
     const home = await measure();
@@ -114,6 +137,7 @@ test('graph names stay at 15px and targets at 44px or more at every width, on ho
     expect(home.names, `${width}px: every note named`).toBe(await page.getByRole('navigation', { name: 'Graph of all notes' }).getByRole('link').count());
     expect(home.text, `${width}px: names at 15px`).toBeGreaterThanOrEqual(14.9);
     expect(home.hit, `${width}px: targets 44px or more`).toBeGreaterThanOrEqual(44);
+    expect(home.stolen, `${width}px: names tap through to their own note`).toEqual([]);
   }
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto('/notes/ai-as-the-ultimate-hub');
@@ -121,4 +145,5 @@ test('graph names stay at 15px and targets at 44px or more at every width, on ho
   expect(local.text).toBeGreaterThanOrEqual(14.9);
   expect(local.names).toBeGreaterThan(1);
   expect(local.position).toBe('static');
+  expect(local.stolen).toEqual([]);
 });

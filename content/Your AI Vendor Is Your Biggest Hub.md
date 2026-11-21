@@ -4,6 +4,7 @@ description: "Regulators now treat dependence on a few AI and cloud providers as
 pubDate: "2026-11-20"
 topics: ["AI Security"]
 stage: "budding"
+short: "Your AI vendor is a hub"
 ---
 
 Most boards ask one question about AI risk: *is our AI secure?* Between May and September 2026, the institutions that watch the stability of the financial system started asking a different one: *what does everyone share, and what happens to all of us when it fails?*

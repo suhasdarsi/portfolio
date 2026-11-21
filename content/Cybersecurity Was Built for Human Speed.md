@@ -4,6 +4,7 @@ description: "AI-driven attacks move in minutes while security still runs on hum
 pubDate: "2026-11-21"
 topics: ["AI Security"]
 stage: "budding"
+short: "Built for human speed"
 ---
 
 In 2018, an intruder took one hour and 58 minutes to move from the first system to the next, by CrowdStrike's measure. For 2025 the average was 29 minutes, which CrowdStrike called "a 65% increase in speed from 2024". The fastest it saw was 27 seconds. In one intrusion, data theft began within four minutes of getting in.[^1][^2]

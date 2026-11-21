@@ -68,6 +68,9 @@ const { notes, links } = Astro.props;
         card.style.top = `${top}px`;
         return;
       }
+      // Nowhere beside the drawing: no preview, rather than one over the graph. The note's name is on the drawing.
+      hide();
+      return;
     }
     const below = at.bottom + gap + size.height <= window.innerHeight - edge;
     const left = Math.min(Math.max(edge, at.left), window.innerWidth - size.width - edge);
