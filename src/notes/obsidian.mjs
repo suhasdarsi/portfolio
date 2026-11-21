@@ -1,7 +1,9 @@
 // Obsidian syntax the Markdown parser doesn't know, so a note reads the same on the site as in Obsidian:
 // callouts (`> [!note] Title`), highlights (`==text==`), comments (`%%private%%`, never published) and
 // embeds (`![[picture.png]]`, found anywhere in the notes folder like Obsidian's shortest-path links).
-import { existsSync, readdirSync } from 'node:fs';
+// An SVG in the notes folder placed alone on a line (`![alt](illustrations/x.svg)`) is inlined as a figure, so it
+// takes the site's colours, fonts, dark theme and reduced-motion rule (.ill in site.css).
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { basename, dirname, extname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { NOTES_DIRECTORY } from './publishing.mjs';
@@ -81,6 +83,23 @@ export function obsidianSyntaxPlugin() {
         type: 'html',
         value: parts.map((part, i) => (i % 2 ? `<mark>${escapeHtml(part)}</mark>` : escapeHtml(part))).join(''),
       });
+    },
+
+    // A paragraph that is only a local .svg image becomes <figure class="fig"><svg …></figure>.
+    paragraph(node, context) {
+      const parts = node.children.filter((child) => !(child.type === 'text' && !child.value.trim()));
+      const image = parts.length === 1 && parts[0].type === 'image' ? parts[0] : undefined;
+      const url = safeDecode(image?.url ?? '').trim();
+      if (!image || !/\.svg$/i.test(url) || /^[a-z][\w+.-]*:|^\//i.test(url)) return;
+      const from = fileOf(context);
+      const near = resolve(dirname(from), url);
+      const file = existsSync(near) ? near : findInVault(url);
+      if (!file) throw new Error(`${from}: illustration "${url}" is not in ${NOTES_DIRECTORY}.`);
+      const svg = readFileSync(file, 'utf8').replace(/<\?xml[^>]*>|<!--[\s\S]*?-->/g, '').trim();
+      if (!/^<svg\b[^>]*\brole="img"/.test(svg) || !/<title>[^<]+<\/title>/.test(svg) || /<script\b|<style\b|\bon\w+=/i.test(svg)) {
+        throw new Error(`${file}: an inlined illustration must be an <svg role="img"> with a <title>, and no <script>, <style> or event handlers.`);
+      }
+      context.replaceNode(node, { type: 'html', value: `<figure class="fig">${svg.replace(/>\s+</g, '><')}</figure>` });
     },
 
     // ![[picture.png]] and ![[picture.png|300]]. The parser has already made these image nodes.

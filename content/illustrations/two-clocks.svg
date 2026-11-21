@@ -1,0 +1,19 @@
+<svg class="ill" viewBox="0 0 360 262" width="360" height="262" role="img">
+<title>Two clocks</title>
+<desc>Two bars on the same scale: 29 minutes for the average attacker breakout, 19 hours for one reported first response.</desc>
+<g aria-hidden="true">
+<text class="h" x="0" y="16">Attacker: 29 minutes</text>
+<text class="m" x="0" y="38">average breakout time, 2025</text>
+<text class="m" x="0" y="58">(CrowdStrike, vendor figure)</text>
+<rect class="ill-track" x="0" y="70" width="360" height="20" rx="5"/>
+<rect class="ill-bar atk" x="0" y="70" width="9.2" height="20" rx="3"/>
+<text class="h" x="0" y="124">Response: 19 hours to first response</text>
+<text class="m" x="0" y="146">one reported case (VentureBeat,</text>
+<text class="m" x="0" y="166">secondhand; not checkable)</text>
+<rect class="ill-track" x="0" y="180" width="360" height="20" rx="5"/>
+<rect class="ill-bar res" x="0" y="180" width="360" height="20" rx="5"/>
+<line class="ill-gap" x1="9.2" y1="174" x2="9.2" y2="206"/>
+<text class="m" x="0" y="232">Same scale. The bars are drawn to the</text>
+<text class="m" x="0" y="252">ratio of 29 minutes to 19 hours.</text>
+</g>
+</svg>

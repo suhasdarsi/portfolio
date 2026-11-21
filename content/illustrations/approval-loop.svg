@@ -1,0 +1,15 @@
+<svg class="ill" viewBox="0 0 360 402" width="360" height="402" role="img">
+<title>The approval loop</title>
+<desc>An alert reaches the queue in seconds, then waits at the queue, the analyst and the approval step before the action runs.</desc>
+<g aria-hidden="true">
+<text class="m" x="0" y="16">The attacker's steps take seconds.</text>
+<text class="m" x="0" y="36">These three steps are where the hours go.</text>
+<line class="ill-path" x1="60" y1="92" x2="60" y2="372"/>
+<rect class="ill-node" x="0" y="72" width="120" height="40" rx="8"/><text class="c" x="60" y="97">Alert</text><text class="m" x="144" y="97">seconds</text>
+<rect class="ill-node" x="0" y="142" width="120" height="40" rx="8"/><text class="c" x="60" y="167">Queue</text><text class="w" x="144" y="167">waits for a person</text><rect class="ill-ring" x="0" y="142" width="120" height="40" rx="8"/>
+<rect class="ill-node" x="0" y="212" width="120" height="40" rx="8"/><text class="c" x="60" y="237">Analyst</text><text class="w" x="144" y="237">waits for a person</text><rect class="ill-ring r2" x="0" y="212" width="120" height="40" rx="8"/>
+<rect class="ill-node" x="0" y="282" width="120" height="40" rx="8"/><text class="c" x="60" y="307">Approval</text><text class="w" x="144" y="307">waits for a person</text><rect class="ill-ring r3" x="0" y="282" width="120" height="40" rx="8"/>
+<rect class="ill-node" x="0" y="352" width="120" height="40" rx="8"/><text class="c" x="60" y="377">Action</text><text class="m" x="144" y="377">seconds</text>
+<circle class="ill-dot" cx="128" cy="92" r="4"/>
+</g>
+</svg>

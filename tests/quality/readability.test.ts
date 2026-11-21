@@ -70,7 +70,10 @@ function proseHtml(html: string): string {
 
 /** Remove everything that is not running prose. */
 const stripNonProse = (h: string) =>
-  h.replace(/<(pre|code|svg|figure|table|script|style)\b[\s\S]*?<\/\1>/g, ' ');
+  stripFootnotes(h).replace(/<(pre|code|svg|figure|table|script|style)\b[\s\S]*?<\/\1>/g, ' ');
+
+/** A note's footnotes ([^1]) are citations: titles, URLs and dates, not running prose. */
+const stripFootnotes = (h: string) => h.replace(/<section\b[^>]*\bdata-footnotes\b[\s\S]*?<\/section>/g, ' ');
 
 type Block = { tag: string; text: string; hadCode: boolean };
 
@@ -87,7 +90,7 @@ function blocks(prose: string): Block[] {
   // Mark list items / paragraphs that held inline code in the original HTML.
   const codeRe = /<(p|li|h2|h3|h4|blockquote)\b[^>]*>([\s\S]*?)<\/\1>/g;
   let i = 0;
-  const outer = prose.replace(/<(pre|svg|figure|table)\b[\s\S]*?<\/\1>/g, ' ');
+  const outer = stripFootnotes(prose).replace(/<(pre|svg|figure|table)\b[\s\S]*?<\/\1>/g, ' ');
   for (const m of outer.matchAll(codeRe)) {
     const text = squash(m[2].replace(/<(code)\b[\s\S]*?<\/\1>/g, ' '));
     if (!text) continue;

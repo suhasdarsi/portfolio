@@ -6,7 +6,8 @@ interface Props {
   headings: { depth: number; slug: string; text: string }[];
 }
 const { headings } = Astro.props;
-const sections = headings.filter((heading) => heading.depth === 2);
+// The footnotes' own heading is for screen readers only; the note's References heading already marks the list.
+const sections = headings.filter((heading) => heading.depth === 2 && heading.slug !== 'footnote-label');
 ---
 
 {sections.length > 0 && (
