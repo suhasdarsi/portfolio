@@ -33,6 +33,9 @@ body { font-size: 15px; }
 .navlink:hover, .navlink.on { color:var(--ink); }
 .icon-btn { display:inline-grid; place-items:center; width:40px; height:40px; border-radius:999px; border:0; background:transparent; color:var(--muted); cursor:pointer; }
 .icon-btn:hover { color:var(--ink); background:var(--soft); }
+/* Trailing edge: an icon button's round hover box nests past the frame line by its padding ((40 - 18) / 2 = 11px), so the glyph itself ends on the line the text above and below ends on. */
+.top-icons { display:flex; gap:2px; margin-right:-11px; }
+.ts-end { margin-right:-2px; } /* the last item is a .navlink: take back its 2px side padding */
 .ic { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; flex:none; }
 .sd a:focus-visible, .sd button:focus-visible, .sd input:focus-visible, .sd textarea:focus-visible, .sd select:focus-visible { outline:2px solid var(--focus); outline-offset:3px; border-radius:6px; }
 
@@ -332,6 +335,9 @@ h1, h2, h3, .title, .serif { font-family: "Geist Serif", serif; }
   .nav { order:3; width:100%; gap:16px; overflow-x:auto; scrollbar-width:none; }
   .navlink { position:relative; white-space:nowrap; }
   .ts-top .nav { gap:8px; }
+  /* The nav row starts the second line: pull it out by the links' 2px side padding so the first label sits on the text line. */
+  .nav { margin-inline:-2px; width:calc(100% + 4px); }
+  .ts-top .icon-btn { margin-right:-11px; } /* .ts-end is display:contents here, so the theme button ends the first row */
   /* Words a phone drops from a label; screen readers still hear them. */
   .vh-sm { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
   .ts-top .searchlink { order:4; width:100%; margin-bottom:4px; }
