@@ -1,0 +1,16 @@
+<svg class="ill" viewBox="0 0 360 450" width="360" height="450" role="img">
+<title>The approval loop, with a refusal</title>
+<desc>An alert waits at the queue, the analyst and the approval step, then waits again when the model refuses, before the action runs.</desc>
+<g aria-hidden="true">
+<line class="ill-path" x1="60" y1="20" x2="60" y2="370"/>
+<rect class="ill-node" x="0" y="0" width="120" height="40" rx="8"/><text class="c" x="60" y="25">Alert</text><text class="m" x="144" y="25">seconds</text>
+<rect class="ill-node" x="0" y="70" width="120" height="40" rx="8"/><text class="c" x="60" y="95">Queue</text><text class="w" x="144" y="95">waits for a person</text><rect class="ill-ring" x="0" y="70" width="120" height="40" rx="8"/>
+<rect class="ill-node" x="0" y="140" width="120" height="40" rx="8"/><text class="c" x="60" y="165">Analyst</text><text class="w" x="144" y="165">waits for a person</text><rect class="ill-ring r2" x="0" y="140" width="120" height="40" rx="8"/>
+<rect class="ill-node" x="0" y="210" width="120" height="40" rx="8"/><text class="c" x="60" y="235">Approval</text><text class="w" x="144" y="235">waits for a person</text><rect class="ill-ring r3" x="0" y="210" width="120" height="40" rx="8"/>
+<rect class="ill-node" x="0" y="280" width="120" height="40" rx="8"/><text class="c" x="60" y="305">Model</text><text class="w h" x="144" y="305">refuses: another queue</text><rect class="ill-ring r4" x="0" y="280" width="120" height="40" rx="8"/>
+<rect class="ill-node" x="0" y="350" width="120" height="40" rx="8"/><text class="c" x="60" y="375">Action</text><text class="m" x="144" y="375">seconds</text>
+<circle class="ill-dot long" cx="128" cy="20" r="4"/>
+<text class="m" x="0" y="424">A refusal mid-incident is one more wait</text>
+<text class="m" x="0" y="444">the team cannot clear.</text>
+</g>
+</svg>

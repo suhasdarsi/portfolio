@@ -9,7 +9,7 @@ import NotePreviews from '../../components/NotePreviews.astro';
 import NoteStage from '../../components/NoteStage.astro';
 import ReadingGuide from '../../components/ReadingGuide.astro';
 import ReadingProgress from '../../components/ReadingProgress.astro';
-import { noteCover } from '../../notes/cover';
+import { noteBanner, noteCover } from '../../notes/cover';
 import { getNoteLinks, getNotes, lastRevised, noteHref, readingTime as noteReadingTime, type Note, type NoteLinks } from '../../notes/notes';
 import { formatDate } from '../../site/format';
 import { absoluteUrl, site } from '../../site/site';
@@ -114,7 +114,9 @@ const pageTitle = fullTitle.length <= 65 ? fullTitle : post.data.title;
         {post.data.description && <p class="lede">{post.data.description}</p>}
       </header>
 
-      <span class="g-cover banner"><svg viewBox="0 0 320 220" aria-hidden="true" set:html={cover} /></span>
+      {noteBanner(post.id)
+        ? <span class="g-cover banner has-lanes" set:html={noteBanner(post.id)} />
+        : <span class="g-cover banner"><svg viewBox="0 0 320 220" aria-hidden="true" set:html={cover} /></span>}
 
       <div class="prose">
         <Content />

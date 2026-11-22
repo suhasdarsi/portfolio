@@ -61,7 +61,36 @@ const drawn: Record<string, () => string> = {
     return xs.slice(1).map((x, i) => line([xs[i], 110], [x, 110])).join('') + gates.map((x) => `<rect class="gate" x="${x - 7}" y="103" width="14" height="14" transform="rotate(45 ${x} 110)"/>`).join('')
       + xs.map((x, i) => node([x, 110], 10, i === xs.length - 1 ? 'hub' : '')).join('');
   },
+  // Two lanes: an open gate the first dot passes, a closed gate that stops the second.
+  'next-foundation-model-lab-should-come-from-cybersecurity': () =>
+    line([110, 40], [110, 180]) + line([210, 40], [210, 180]) + line([84, 110], [102, 110], 'cut') + line([118, 110], [136, 110], 'cut') + line([184, 110], [236, 110], 'bad')
+    + node([110, 150], 7, 'hub') + node([210, 92], 7, 'bad'),
 };
+
+// A labelled, animated drawing that replaces the cover at the top of one note's own page (cards, previews and the
+// share image keep the plain cover above). Two drawings: side by side from 761px, stacked below. Styles: `.lanes` in site.css.
+const lane = (x: number, title: string, sub: string) =>
+  `<text class="h c" x="${x}" y="40">${title}</text><text class="m c" x="${x}" y="62">${sub}</text>`;
+const banners: Record<string, string> = {
+  'next-foundation-model-lab-should-come-from-cybersecurity':
+    `<svg class="lanes lanes-wide" viewBox="0 0 680 298" role="img"><title>An open gate and a closed one</title><desc>Models in an evaluation, with cyber refusals turned down, got through. Responders asking for help, with safeguards on, were refused.</desc><g aria-hidden="true">`
+    + lane(200, 'Models in an evaluation', 'cyber refusals turned down') + lane(480, 'Responders asking for help', 'safeguards on')
+    + '<line class="track" x1="200" y1="92" x2="200" y2="262"/><line class="track" x1="480" y1="92" x2="480" y2="262"/>'
+    + '<line class="open" x1="160" y1="176" x2="186" y2="176"/><line class="open" x1="214" y1="176" x2="240" y2="176"/><text class="m" x="256" y="181">got through</text>'
+    + '<line class="shut" x1="440" y1="176" x2="520" y2="176"/><text class="w" x="536" y="181">refused</text>'
+    + '<circle class="dot go" cx="200" cy="240" r="6"/><circle class="dot stop" cx="480" cy="164" r="6"/></g></svg>'
+    + `<svg class="lanes lanes-tall" viewBox="0 0 360 252" role="img"><title>An open gate and a closed one</title><desc>Models in an evaluation, with cyber refusals turned down, got through. Responders asking for help, with safeguards on, were refused.</desc><g aria-hidden="true">`
+    + '<text class="h" x="20" y="32">Models in an evaluation</text><text class="m" x="20" y="54">cyber refusals turned down</text>'
+    + '<line class="track" x1="20" y1="82" x2="340" y2="82"/><line class="open" x1="200" y1="64" x2="200" y2="76"/><line class="open" x1="200" y1="88" x2="200" y2="100"/><text class="m" x="212" y="108">got through</text>'
+    + '<text class="h" x="20" y="158">Responders asking for help</text><text class="m" x="20" y="180">safeguards on</text>'
+    + '<line class="track" x1="20" y1="208" x2="340" y2="208"/><line class="shut" x1="200" y1="190" x2="200" y2="226"/><text class="w" x="212" y="234">refused</text>'
+    + '<circle class="dot go" cx="300" cy="82" r="6"/><circle class="dot stop" cx="188" cy="208" r="6"/></g></svg>',
+};
+
+/** The drawing for the top of a note's page, when the note has its own; otherwise the page shows its cover. */
+export function noteBanner(id: string): string | undefined {
+  return banners[id];
+}
 
 const MOST_SPOKES = 14; // more than this and the spokes blur together at card size
 
