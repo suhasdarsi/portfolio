@@ -61,6 +61,8 @@ Thinking Machines Lab's first Inkling, released in July, has 975 billion paramet
 
 On 20 November the same lab released Inkling 2 Mini: 26.4 billion parameters, 3.4 billion active, under Apache 2.0. It ships as a single checkpoint of about 20GB and runs on a Mac with 32GB of memory. It feels capable enough to do substantial work without being one of the very large models that cost millions, or billions, of dollars to build, which most security labs cannot spend. That makes this size the right place to start: to experiment, and to ship to customers. Running it is cheap too. It needs a laptop-class machine, not a GPU cluster. Of the open models I've seen, it is the best starting point for this job. Its model card reports no cyber benchmark yet, so that is the first thing I'd measure. [Inkling model card](https://thinkingmachines.ai/model-card/inkling/), [Inkling 2 Mini model card](https://huggingface.co/thinkingmachines/Inkling-2-Mini)
 
+Before Inkling 2 Mini, my pick was Alibaba's Qwen3.8-27B, a 27-billion-parameter dense model released in August under Apache 2.0. For me it was the state of the art at this size. [Qwen3.8-27B model card](https://huggingface.co/Qwen/Qwen3.8-27B)
+
 Google's 31B Gemma 4 and Ai2's 32B Olmo 3 sit in the same class. Ai2 also publishes its training data, code and intermediate checkpoints, so outsiders can inspect how the model was made. [Gemma 4](https://gemma.ai/models/gemma-4/), [Ai2's Olmo 3 release](https://allenai.org/blog/olmo3)
 
 Thirty billion is an experiment, not an answer. I'd test whether a model that size can:
