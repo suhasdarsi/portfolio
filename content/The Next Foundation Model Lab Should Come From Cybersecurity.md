@@ -57,9 +57,11 @@ Independence gives defenders a way out. A team should be able to keep running a 
 
 ## Start at about 30 billion parameters
 
-The weights for capable models are already being released. Thinking Machines Lab's Inkling has 975 billion parameters, 41 billion active per token. That is far bigger than what I'd start with: about 30 billion **total**.
+Thinking Machines Lab's first Inkling, released in July, has 975 billion parameters, 41 billion active per token. That is far bigger than what I'd start with: about 30 billion **total**.
 
-Models that size already exist and teams already run them: Google's 31B Gemma 4 and Ai2's 32B Olmo 3. Ai2 also publishes its training data, code and intermediate checkpoints, so outsiders can inspect how the model was made. [Inkling model card](https://thinkingmachines.ai/model-card/inkling/), [Gemma 4](https://gemma.ai/models/gemma-4/), [Ai2's Olmo 3 release](https://allenai.org/blog/olmo3)
+On 20 November the same lab released Inkling 2 Mini: 26.4 billion parameters, 3.4 billion active, under Apache 2.0. It ships as a single checkpoint of about 20GB and runs on a Mac with 32GB of memory. It feels capable enough to do substantial work without being one of the very large models that cost millions, or billions, of dollars to build, which most security labs cannot spend. That makes this size the right place to start: to experiment, and to ship to customers. Running it is cheap too. It needs a laptop-class machine, not a GPU cluster. Of the open models I've seen, it is the best starting point for this job. Its model card reports no cyber benchmark yet, so that is the first thing I'd measure. [Inkling model card](https://thinkingmachines.ai/model-card/inkling/), [Inkling 2 Mini model card](https://huggingface.co/thinkingmachines/Inkling-2-Mini)
+
+Google's 31B Gemma 4 and Ai2's 32B Olmo 3 sit in the same class. Ai2 also publishes its training data, code and intermediate checkpoints, so outsiders can inspect how the model was made. [Gemma 4](https://gemma.ai/models/gemma-4/), [Ai2's Olmo 3 release](https://allenai.org/blog/olmo3)
 
 Thirty billion is an experiment, not an answer. I'd test whether a model that size can:
 
