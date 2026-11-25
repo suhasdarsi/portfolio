@@ -65,6 +65,15 @@ const drawn: Record<string, () => string> = {
   'next-foundation-model-lab-should-come-from-cybersecurity': () =>
     line([110, 40], [110, 180]) + line([210, 40], [210, 180]) + line([84, 110], [102, 110], 'cut') + line([118, 110], [136, 110], 'cut') + line([184, 110], [236, 110], 'bad')
     + node([110, 150], 7, 'hub') + node([210, 92], 7, 'bad'),
+  // A route of four boxes: one solid (your app), three dashed hops, a faint copy left under each dashed one.
+  'your-prompt-has-more-hops-than-your-contract': () => {
+    const xs = [52, 124, 196, 268];
+    const box = (x: number, cls: string) => `<rect class="${cls}" x="${x - 26}" y="88" width="52" height="40" rx="6"/>`;
+    const bracket = (a: number, b: number) => line([a, 152], [a, 160]) + line([a, 160], [b, 160]) + line([b, 152], [b, 160]);
+    return line([52, 108], [268, 108]) + xs.map((x, i) => box(x, i ? 'zone' : 'n')).join('')
+      + xs.slice(1).map((x) => `<circle class="n hub" cx="${x}" cy="140" r="3" opacity=".5"/>`).join('')
+      + node([268, 108], 6, 'hub') + bracket(26, 78) + bracket(98, 294);
+  },
 };
 
 // A labelled, animated drawing that replaces the cover at the top of one note's own page (cards, previews and the
@@ -85,6 +94,31 @@ const banners: Record<string, string> = {
     + '<text class="h" x="20" y="158">Responders asking for help</text><text class="m" x="20" y="180">safeguards on</text>'
     + '<line class="track" x1="20" y1="208" x2="340" y2="208"/><line class="shut" x1="200" y1="190" x2="200" y2="226"/><text class="w" x="212" y="234">refused</text>'
     + '<circle class="dot go" cx="300" cy="82" r="6"/><circle class="dot stop" cx="188" cy="208" r="6"/></g></svg>',
+  // A route: your app, then three hops not in your contract. The dot walks it and leaves a fading copy at each hop.
+  'your-prompt-has-more-hops-than-your-contract': (() => {
+    const title = '<title>A route with more hops than the contract</title><desc>A prompt leaves your app, which is in your contract, then passes a router, a reseller and a host, which are not. Each of those three keeps a copy.</desc>';
+    const names = ['Your app', 'Router', 'Reseller', 'Host'];
+    // Wide: left to right, brackets below.
+    const wx = [100, 260, 420, 580];
+    const wide = `<svg class="lanes route route-wide lanes-wide" viewBox="0 0 680 298" role="img">${title}<g aria-hidden="true">`
+      + '<line class="track" x1="100" y1="124" x2="580" y2="124"/>'
+      + wx.map((x, i) => `<rect class="${i ? 'hop' : 'own'}" x="${x - 60}" y="72" width="120" height="84" rx="10"/><text class="h c" x="${x}" y="105">${names[i]}</text>`).join('')
+      + wx.slice(1).map((x, i) => `<circle class="copy c${i + 1}" cx="${x}" cy="141" r="4"/>`).join('')
+      + '<circle class="dot walk" cx="580" cy="124" r="6"/>'
+      + '<path class="brace" d="M40 178v8h120v-8M200 178v8h440v-8"/>'
+      + '<text class="m c" x="100" y="214">in your contract</text><text class="w c" x="420" y="214">not in your contract</text></g></svg>';
+    // Tall (phones): top to bottom, brackets on the right.
+    const ty = [42, 114, 186, 258];
+    const tall = `<svg class="lanes route route-tall lanes-tall" viewBox="0 0 296 300" role="img">${title}<g aria-hidden="true">`
+      + '<line class="track" x1="144" y1="42" x2="144" y2="258"/>'
+      + ty.map((y, i) => `<rect class="${i ? 'hop' : 'own'}" x="16" y="${y - 24}" width="148" height="48" rx="10"/><text class="h" x="32" y="${y + 5}">${names[i]}</text>`).join('')
+      + ty.slice(1).map((y, i) => `<circle class="copy c${i + 1}" cx="124" cy="${y}" r="4"/>`).join('')
+      + '<circle class="dot walk" cx="144" cy="258" r="6"/>'
+      + '<path class="brace" d="M180 20h8v44h-8M180 92h8v188h-8"/>'
+      + '<text class="m" x="200" y="38">in your</text><text class="m" x="200" y="58">contract</text>'
+      + '<text class="w" x="200" y="180">not in your</text><text class="w" x="200" y="200">contract</text></g></svg>';
+    return wide + tall;
+  })(),
 };
 
 /** The drawing for the top of a note's page, when the note has its own; otherwise the page shows its cover. */
