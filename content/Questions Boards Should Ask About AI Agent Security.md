@@ -99,19 +99,17 @@ A drill that found nothing was probably too easy. The best answer opens with the
 - **Strong:** a recent exercise, one thing that failed, and what changed afterwards.
 - **Weak:** "no issues found", or no exercise.
 
-## A one-page scorecard
+## A scorecard to reuse each quarter
 
-Print this. Ask the same five each quarter. The trend matters more than any single answer.
+Ask the same five every quarter and write the answers down. The trend matters more than any single answer.
 
-| Question | Ask for | A good answer sounds like |
-| --- | --- | --- |
-| 1. Inventory | Count found running, owner per entry | "47 found, 41 owned, 6 under review, as of this week" |
-| 2. Reach | Access of the ten most powerful agents | "Each has a written scope, reviewed this quarter" |
-| 3. First ten minutes | List of pre-approved actions | "Four actions fire without sign-off, each with limits" |
-| 4. Stop one agent | Time to cut off a single agent | "Measured at 6 minutes in the last drill" |
-| 5. Practice | Last exercise and its failure | "Last month. The revoke step missed one credential. Fixed." |
+1. **Inventory.** Ask for the count found running and an owner for each entry. A good answer: "47 found, 41 owned, 6 under review, as of this week."
+2. **Reach.** Ask for the access of the ten most powerful agents. A good answer: "Each has a written scope, reviewed this quarter."
+3. **First ten minutes.** Ask for the list of pre-approved actions. A good answer: "Four actions fire without sign-off, each with limits."
+4. **Stop one agent.** Ask for the time to cut off a single agent. A good answer: "Measured at 6 minutes in the last drill."
+5. **Practice.** Ask for the last exercise and what failed. A good answer: "Last month. The revoke step missed one credential. Fixed."
 
-The examples in the right-hand column are illustrations of the shape of a good answer, not benchmarks. Nobody has published a standard time-to-contain for AI agents yet, so the first goal is simply to have your own number.
+These example answers are illustrations of the shape of a good answer, not benchmarks. Nobody has published a standard time-to-contain for AI agents yet, so the first goal is simply to have your own number.
 
 ## How to say it in business terms
 
