@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Board scorecard: five questions on AI agent security</title>
+<style>
+@font-face { font-family: "Geist"; src: url("/fonts/geist-latin.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+@font-face { font-family: "Geist Serif"; src: url("/fonts/geist-serif.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+@page { size: A4; margin: 14mm; }
+* { box-sizing: border-box; }
+html { background: #f4f2ee; }
+body { margin: 0 auto; max-width: 820px; padding: 32px 24px 48px; font: 15px/1.45 "Geist", system-ui, sans-serif; color: #151515; background: #fff; }
+h1 { font: 400 30px/1.15 "Geist Serif", Georgia, serif; margin: 0 0 6px; }
+.sub { margin: 0 0 18px; color: #555; }
+.meta { display: flex; gap: 24px; margin: 0 0 20px; font-size: 13px; color: #555; }
+.meta span { flex: 1; border-bottom: 1px solid #999; padding-bottom: 14px; }
+.q { border: 1px solid #c9c6bf; border-radius: 8px; padding: 12px 14px; margin: 0 0 10px; break-inside: avoid; }
+.q h2 { font: 600 16px/1.3 "Geist", sans-serif; margin: 0 0 6px; }
+.q h2 b { display: inline-block; width: 22px; height: 22px; line-height: 22px; text-align: center; border-radius: 50%; background: #151515; color: #fff; font-size: 12px; margin-right: 8px; }
+.row { display: grid; grid-template-columns: 74px 1fr; gap: 8px; font-size: 13.5px; margin: 2px 0; }
+.row span:first-child { color: #666; font-weight: 600; }
+.good { color: #14532d; } .weak { color: #7f1d1d; }
+.ans { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 14px; margin-top: 10px; font-size: 12px; color: #666; }
+.ans span { border-bottom: 1px solid #999; padding-bottom: 16px; }
+.foot { margin-top: 14px; font-size: 12px; color: #555; }
+.print { display: inline-block; margin: 0 0 18px; padding: 8px 14px; border: 1px solid #151515; border-radius: 6px; color: #151515; text-decoration: none; font-weight: 600; font-size: 14px; }
+@media print {
+  html, body { background: #fff; }
+  body { max-width: none; padding: 0; font-size: 12px; }
+  .print, .noprint { display: none; }
+  h1 { font-size: 24px; }
+  .q { padding: 7px 11px; margin-bottom: 6px; }
+  .q h2 { font-size: 14px; margin-bottom: 4px; }
+  .row { font-size: 11px; line-height: 1.35; }
+  .ans { margin-top: 6px; font-size: 10px; }
+  .ans span { padding-bottom: 10px; }
+  .meta { margin-bottom: 12px; }
+  .meta span { padding-bottom: 10px; }
+  .sub { margin-bottom: 10px; }
+}
+</style>
+</head>
+<body>
+<p class="noprint"><a class="print" href="javascript:window.print()">Print or save as PDF</a></p>
+<h1>Five questions on AI agent security</h1>
+<p class="sub">A one-page scorecard for the board. Ask the same five every quarter and write the answers down.</p>
+<div class="meta"><span>Quarter</span><span>Date</span><span>Asked of</span></div>
+
+<section class="q"><h2><b>1</b>How many agents run here, and who owns each?</h2>
+<div class="row"><span>Ask for</span><span>The count found running, and an owner per entry. Not the list of approved tools.</span></div>
+<div class="row"><span>Strong</span><span class="good">A recent inventory built from what is actually on devices and networks, with an owner and a date.</span></div>
+<div class="row"><span>Weak</span><span class="weak">A survey, a policy, or a list of approved tools.</span></div>
+<div class="ans"><span>Our answer</span><span>Number</span><span>Owner</span></div></section>
+
+<section class="q"><h2><b>2</b>What can each agent reach and do?</h2>
+<div class="row"><span>Ask for</span><span>Access of the ten most powerful agents, and why each needs it.</span></div>
+<div class="row"><span>Strong</span><span class="good">A one-line written scope for each, reviewed this quarter.</span></div>
+<div class="row"><span>Weak</span><span class="weak">"It uses the employee's login", which means it reaches everything that person can.</span></div>
+<div class="ans"><span>Our answer</span><span>Number</span><span>Owner</span></div></section>
+
+<section class="q"><h2><b>3</b>What happens automatically in the first ten minutes?</h2>
+<div class="row"><span>Ask for</span><span>The list of pre-approved actions, such as locking an account, ending a session, isolating a machine.</span></div>
+<div class="row"><span>Strong</span><span class="good">A short written list, each action with limits and an approver.</span></div>
+<div class="row"><span>Weak</span><span class="weak">"The analyst escalates", with no list.</span></div>
+<div class="ans"><span>Our answer</span><span>Number</span><span>Owner</span></div></section>
+
+<section class="q"><h2><b>4</b>Can we stop one agent without stopping the business?</h2>
+<div class="row"><span>Ask for</span><span>Time to cut off a single agent, and who can do it.</span></div>
+<div class="row"><span>Strong</span><span class="good">A named role, a tested procedure, and a measured time.</span></div>
+<div class="row"><span>Weak</span><span class="weak">"We would disable the user", when the agent holds its own credentials.</span></div>
+<div class="ans"><span>Our answer</span><span>Minutes</span><span>Owner</span></div></section>
+
+<section class="q"><h2><b>5</b>When did we last practise this, and what broke?</h2>
+<div class="row"><span>Ask for</span><span>The last exercise and the one thing that failed.</span></div>
+<div class="row"><span>Strong</span><span class="good">A recent drill, a real failure, and what changed afterwards.</span></div>
+<div class="row"><span>Weak</span><span class="weak">"No issues found", or no exercise at all.</span></div>
+<div class="ans"><span>Our answer</span><span>Date</span><span>Owner</span></div></section>
+
+<p class="foot">A good answer has a number, a date and an owner. A weak one has reassurance. Read the full note: suhasdarsi.com/notes/questions-boards-should-ask-ai-agent-security</p>
+</body>
+</html>
