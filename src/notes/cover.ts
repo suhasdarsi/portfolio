@@ -74,6 +74,13 @@ const drawn: Record<string, () => string> = {
       + xs.slice(1).map((x) => `<circle class="n hub" cx="${x}" cy="140" r="3" opacity=".5"/>`).join('')
       + node([268, 108], 6, 'hub') + bracket(26, 78) + bracket(98, 294);
   },
+  // Five questions as five checkpoints: each row asks one question of an agent, and one is cut off.
+  'questions-boards-should-ask-ai-agent-security': () => {
+    const ys = [40, 75, 110, 145, 180];
+    return ys.map((y, i) => line([70, y], [160, y], i === 3 ? 'cut' : '') + line([160, y], [250, y], i === 3 ? 'cut' : '')).join('')
+      + ys.map((y) => `<rect class="gate" x="153" y="${y - 7}" width="14" height="14" transform="rotate(45 160 ${y})"/>`).join('')
+      + ys.map((y) => node([70, y], 6)).join('') + ys.map((y, i) => node([250, y], i === 3 ? 6 : 8, i === 3 ? 'bad' : 'hub')).join('');
+  },
 };
 
 // A labelled, animated drawing that replaces the cover at the top of one note's own page (cards, previews and the
