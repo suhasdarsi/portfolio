@@ -33,8 +33,10 @@ const COLOUR_ALLOWLIST: Record<string, string[]> = {
   // QR code modules must be true white and near-black to scan reliably, whatever the theme.
   'src/pages/apps.astro': ['#ffffff', '#16171a'],
   'src/pages/pocket-card.astro': ['#ffffff'],
-  // White text on the accent-filled hub node; accent is dark enough in both themes for white to pass contrast.
-  'src/styles/site.css': ['#ffffff', 'rgba(0,0,0,.35)'],
+  // The printables thumbnail draws a printed sheet, so it keeps the sheet's own paper and ink colours in both themes.
+  // White text on the accent-filled hub node and the takeaway button; accent is dark enough in both themes for white to pass contrast.
+  // The rest draw the printables mini sheet, a printed page that keeps its own paper and ink colours in both themes.
+  'src/styles/site.css': ['#ffffff', 'rgba(0,0,0,.35)', '#fdfcf9', 'rgba(30,28,22,.35)', '#2f3e9e', '#2b2b28', '#e4e1dc', '#45443f', '#fff', '#e7f1ea', '#f9e6e3', '#d9d5cd'],
 };
 
 /* Colour tokens that are deliberately the same in light and dark. */

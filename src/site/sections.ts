@@ -20,12 +20,14 @@ export const apps: Section[] = [
 
 export const pages: Section[] = [
   { kind: 'Page', title: 'About', href: '/about', meta: 'Background', keywords: 'about background superalign aztlan iiit rimas suss', summary: 'Background, current work and ways to get in touch.' },
+  { kind: 'Page', title: 'Printables', href: '/printables', meta: 'Templates to print', keywords: 'printables print pdf scorecard template worksheet board', summary: 'One-page sheets to print or fill in, made alongside the notes.' },
   { kind: 'Page', title: 'Uses', href: '/uses', meta: 'Tools and gear', keywords: 'uses tools gear setup', summary: 'The tools and gear Suhas uses.' },
 ];
 
 export const nav = [
   { key: 'notes', label: 'Notes', href: '/notes' },
   { key: 'apps', label: 'Apps', href: '/apps' },
+  { key: 'printables', label: 'Printables', href: '/printables' },
   { key: 'about', label: 'About', href: '/about' },
   { key: 'uses', label: 'Uses', href: '/uses' },
 ] as const;

@@ -1,0 +1,37 @@
+---
+import SiteLayout from '../../layouts/SiteLayout.astro';
+
+import { printables, printableHref, miniSheet } from '../../printables/catalog.mjs';
+---
+
+<SiteLayout title="Printables by Suhas Darsi — One-Page Sheets to Print or Fill In" description="One-page sheets that go with the notes: scorecards and checklists you can fill in on screen or print for the meeting." current="printables">
+  <section class="page-head">
+    <h1 class="title">Printables</h1>
+    <p class="lede">One-page sheets that go with the notes. Fill them in on screen or print them for the meeting.</p>
+  </section>
+
+  <section class="printables-list">
+    <div class="printables">
+      {printables.map((item) => (
+        <article class="printable">
+          <a class="sheet-thumb" href={printableHref(item.id)} aria-hidden="true" tabindex="-1" set:html={miniSheet(item.rows)} />
+          <a class="pn" href={printableHref(item.id)}>{item.title}</a>
+          <p class="pd">{item.description}</p>
+          <a class="pl" href={`/notes/${item.note}`}>Read the note it goes with →</a>
+        </article>
+      ))}
+    </div>
+  </section>
+</SiteLayout>
+
+<style is:global>
+  .printables-list { padding-bottom: 64px; }
+  .printables { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+  .printable { display: flex; flex-direction: column; min-width: 0; }
+  .printable .pn { font-weight: 500; font-size: 15px; }
+  .printable .pn:hover { color: var(--accent-text); }
+  .printable .pd { margin: 4px 0 6px; font-size: 15px; line-height: 1.5; color: var(--muted); }
+  .printable .pl { font-size: 14px; color: var(--muted); }
+  .printable .pl:hover { color: var(--accent-text); }
+  @media (max-width: 760px) { .printables { grid-template-columns: minmax(0, 1fr); gap: 40px; } }
+</style>

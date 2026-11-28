@@ -389,3 +389,43 @@ h1, h2, h3, .title, .serif { font-family: "Geist Serif", serif; }
 /* Skip link: hidden until focused. */
 .skip-link { position:absolute; left:8px; top:-64px; z-index:60; padding:8px 12px; border-radius:8px; background:var(--ink); color:var(--bg); font-size:15px; }
 .skip-link:focus { top:8px; }
+
+/* Printables: the mini sheet drawing (printables page and note cards), and the takeaway card in notes. */
+.sheet-thumb { display: block; margin-bottom: 16px; height: 220px; border-radius: 12px; border: 1px solid var(--line); background: var(--soft); overflow: hidden; position: relative; transition: border-color .18s; }
+.printable:hover .sheet-thumb, .takeaway:hover .sheet-thumb { border-color: var(--line-strong); }
+.mini { position: absolute; left: 50%; top: 22px; width: 62%; height: 260px; transform: translateX(-50%) rotate(-2deg); background: #fdfcf9; border-radius: 4px; box-shadow: 0 10px 28px -12px rgba(30, 28, 22, .35); padding: 12px 12px 0; display: grid; align-content: start; gap: 4px; transition: transform .35s var(--ease-spring, ease); }
+.printable:hover .mini, .takeaway:hover .mini { transform: translateX(-50%) translateY(-6px) rotate(0deg); }
+.mini-eyebrow { width: 34%; height: 3px; border-radius: 2px; background: #2f3e9e; }
+.mini-title { width: 72%; height: 7px; border-radius: 2px; background: #2b2b28; }
+.mini-rule { height: 1px; background: #2b2b28; margin: 3px 0 2px; }
+.mini-q { display: grid; grid-template-columns: 12px 1fr; gap: 4px; padding: 3px 0; border-top: 1px solid #e4e1dc; }
+.mini-n { font: 400 7px/1 'Geist Serif', Georgia, serif; color: #2f3e9e; }
+.mini-body { display: grid; gap: 3px; }
+.mini-h { width: 80%; height: 3px; border-radius: 2px; background: #45443f; }
+.mini-guide { display: grid; grid-template-columns: repeat(3, 1fr); height: 7px; border-radius: 2px; overflow: hidden; border: 1px solid #e4e1dc; }
+.mini-guide i { background: #fff; } .mini-guide .g { background: #e7f1ea; } .mini-guide .w { background: #f9e6e3; }
+.mini-line { height: 6px; border-bottom: 1px solid #d9d5cd; }
+@media (prefers-reduced-motion: reduce) { .mini { transition: none; } }
+.prose .takeaway { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 28px; align-items: center; margin: 8px 0; padding: 20px; border: 1px solid var(--line-strong); border-radius: 16px; background: var(--surface); font-family: Geist, sans-serif; scroll-margin-top: 96px; }
+.prose .takeaway .sheet-thumb { margin: 0; height: 200px; }
+.prose .takeaway .mini { width: 70%; top: 20px; }
+.takeaway-text { display: grid; gap: 8px; min-width: 0; }
+.takeaway-kicker { font-size: 12px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--accent-text); }
+.prose .takeaway-title { font-family: "Geist Serif", serif; font-size: 26px; line-height: 1.2; color: var(--ink); text-decoration: none; }
+.prose .takeaway-title:hover { color: var(--accent-text); }
+.prose .takeaway p { margin: 0; font-size: 16px; line-height: 1.5; color: var(--muted); }
+.takeaway-actions { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; margin-top: 6px; }
+.prose .takeaway-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 999px; background: var(--accent); color: #ffffff; font-size: 15px; font-weight: 600; text-decoration: none; transition: transform .18s var(--ease-out, ease); }
+.prose .takeaway-btn::after { content: "→"; transition: transform .18s var(--ease-out, ease); }
+.prose .takeaway-btn:hover { transform: translateY(-1px); }
+.prose .takeaway-btn:hover::after { transform: translateX(3px); }
+.prose .takeaway-more { font-size: 15px; color: var(--muted); }
+.takeaway-hint { display: flex; align-items: center; gap: 10px; margin: -8px 0 4px; padding: 10px 14px; border: 1px dashed var(--line-strong); border-radius: 12px; font-size: 15px; color: var(--body); }
+.takeaway-hint b { font-weight: 600; color: var(--ink); }
+.takeaway-hint a { margin-left: auto; white-space: nowrap; color: var(--accent-text); font-weight: 500; }
+.takeaway-hint svg { flex: none; color: var(--accent-text); }
+@media (max-width: 760px) {
+  .prose .takeaway { grid-template-columns: minmax(0, 1fr); gap: 18px; padding: 16px; }
+  .prose .takeaway-title { font-size: 22px; }
+  .takeaway-hint { flex-wrap: wrap; } .takeaway-hint a { margin-left: 0; }
+}

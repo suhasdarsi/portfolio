@@ -2,6 +2,7 @@
 import { render } from 'astro:content';
 import SiteLayout from '../../layouts/SiteLayout.astro';
 import ContactCta from '../../components/ContactCta.astro';
+import { printableFor } from '../../printables/catalog.mjs';
 import CopyCode from '../../components/CopyCode.astro';
 import CopyLink from '../../components/CopyLink.astro';
 import NoteGraph from '../../components/NoteGraph.astro';
@@ -53,6 +54,7 @@ interface Props {
 
 const { post, links, byId, cover, newer, older, linksTo, linkedFrom } = Astro.props;
 const { Content, headings } = await render(post);
+const printable = printableFor(post.id);
 const href = (note: Note) => noteHref(note.id);
 const updatedDate = lastRevised(post);
 // "Last tended" is only worth showing when it is a later day than "Planted".
@@ -117,6 +119,14 @@ const pageTitle = fullTitle.length <= 65 ? fullTitle : post.data.title;
       {noteBanner(post.id)
         ? <span class="g-cover banner has-lanes" set:html={noteBanner(post.id)} />
         : <span class="g-cover banner"><svg viewBox="0 0 320 220" aria-hidden="true" set:html={cover} /></span>}
+
+      {printable && (
+        <p class="takeaway-hint">
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 9V3h10v6M7 18H5a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" /><path d="M7 14h10v7H7z" /></svg>
+          <span>Comes with a <b>printable {printable.kind.toLowerCase()}</b> you can fill in or take to the meeting.</span>
+          <a href="#takeaway">Jump to it ↓</a>
+        </p>
+      )}
 
       <div class="prose">
         <Content />

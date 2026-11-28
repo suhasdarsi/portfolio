@@ -6,6 +6,7 @@ import sitemap from '@astrojs/sitemap';
 import { wikilinkRoutesPlugin } from './src/notes/wikilinks.mjs';
 import { obsidianSyntaxPlugin } from './src/notes/obsidian.mjs';
 import { mermaidDiagramsPlugin } from './src/notes/diagrams.mjs';
+import { printablesPlugin } from './src/printables/catalog.mjs';
 import { isIndexed, site } from './src/site/site';
 
 // https://astro.build/config
@@ -21,7 +22,7 @@ export default defineConfig({
   markdown: {
     processor: satteri({
       features: { wikilinks: true },
-      mdastPlugins: [obsidianSyntaxPlugin(), wikilinkRoutesPlugin(), mermaidDiagramsPlugin()],
+      mdastPlugins: [obsidianSyntaxPlugin(), wikilinkRoutesPlugin(), mermaidDiagramsPlugin(), printablesPlugin()],
     }),
   },
 });

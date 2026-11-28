@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<link rel="canonical" href="https://suhasdarsi.com/printables/board-scorecard">
+<title>Board scorecard: five questions on AI agent security</title>
+<style>
+@font-face { font-family: "Geist"; src: url("/fonts/geist-latin.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+@font-face { font-family: "Geist Serif"; src: url("/fonts/geist-serif.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+:root {
+  --paper: #f6f5f1; --sheet: #fdfcf9; --ink: #1f1f1c; --body: #45443f; --muted: #75726b;
+  --line: #e4e1dc; --rule: #d9d5cd; --accent: #2f3e9e; --accent-soft: #eceefa;
+  --good: #2c6e49; --good-soft: #e7f1ea; --mid: #a16207; --mid-soft: #f7efdc; --bad: #b42318; --bad-soft: #f9e6e3;
+  --serif: "Geist Serif", Georgia, serif; --sans: "Geist", system-ui, sans-serif;
+}
+@page { size: A4; margin: 10mm 12mm; }
+* { box-sizing: border-box; }
+html { background: var(--paper); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body { margin: 0; font: 15px/1.5 var(--sans); color: var(--ink); }
+
+.bar { max-width: 860px; margin: 28px auto 14px; padding: 0 24px; display: flex; gap: 10px; align-items: center; }
+.back { font: 600 13px var(--sans); color: var(--accent); text-decoration: none; margin-right: 14px; }
+.back:hover { text-decoration: underline; }
+.bar p { margin: 0 auto 0 0; font-size: 13px; color: var(--muted); }
+.btn { font: 600 13px var(--sans); padding: 9px 15px; border-radius: 999px; border: 1px solid var(--ink); background: var(--ink); color: #fff; cursor: pointer; transition: transform .15s ease, opacity .15s; }
+.btn:hover { transform: translateY(-1px); } .btn:active { transform: translateY(0); }
+.btn.ghost { background: transparent; color: var(--ink); border-color: var(--rule); }
+
+.sheet { max-width: 860px; margin: 0 auto 56px; background: var(--sheet); border-radius: 14px; box-shadow: 0 1px 0 rgba(0,0,0,.03), 0 18px 50px -20px rgba(40,36,28,.25); padding: 40px 44px 30px; position: relative; overflow: hidden; }
+.sheet::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 5px; background: linear-gradient(90deg, var(--accent), #6f7bd1 60%, var(--good)); }
+
+header { display: grid; grid-template-columns: 1fr auto; gap: 28px; align-items: end; padding-bottom: 20px; border-bottom: 1px solid var(--ink); }
+.eyebrow { font: 600 11px/1 var(--sans); letter-spacing: .14em; text-transform: uppercase; color: var(--accent); margin: 0 0 12px; }
+h1 { font: 400 38px/1.05 var(--serif); letter-spacing: -.01em; margin: 0 0 10px; }
+h1 em { font-style: italic; color: var(--accent); }
+.deck { margin: 0; color: var(--body); font-size: 14.5px; max-width: 46ch; }
+
+.score { text-align: right; }
+.score .lbl { font: 600 10.5px var(--sans); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.score .big { font: 400 44px/1 var(--serif); margin: 6px 0 10px; }
+.score .big small { font-size: 20px; color: var(--muted); }
+.pips { display: flex; gap: 5px; justify-content: flex-end; }
+.pip { width: 26px; height: 9px; border-radius: 3px; border: 1px solid var(--rule); background: transparent; transition: background .35s cubic-bezier(.23,1,.32,1), border-color .35s, transform .35s cubic-bezier(.34,1.36,.64,1); }
+.pip.strong { background: var(--good); border-color: var(--good); transform: scaleY(1.25); }
+.pip.partial { background: var(--mid); border-color: var(--mid); }
+.pip.weak { background: var(--bad); border-color: var(--bad); }
+
+.meta { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; padding: 16px 0 6px; }
+.meta label, .f { display: flex; flex-direction: column; gap: 2px; }
+.meta span, .f span { font: 600 10px/1.2 var(--sans); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+input[type=text] { width: 100%; border: 0; border-bottom: 1px solid var(--rule); background: transparent; font: 14px/1.4 var(--sans); color: var(--ink); padding: 5px 0 4px; border-radius: 0; transition: border-color .2s; }
+input[type=text]:focus, textarea:focus { outline: none; border-color: var(--accent); }
+
+.q { display: grid; grid-template-columns: 58px 1fr; gap: 6px; padding: 22px 0 20px; border-top: 1px solid var(--line); }
+.meta + .q { border-top: 0; }
+.num { font: 400 30px/1 var(--serif); color: var(--accent); padding-top: 2px; }
+.q h2 { font: 400 21px/1.25 var(--serif); margin: 0 0 12px; letter-spacing: -.005em; }
+.guide { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; margin: 0 0 12px; border: 1px solid var(--line); border-radius: 9px; overflow: hidden; }
+.guide div { padding: 9px 12px 10px; background: #fff; }
+.guide div + div { border-left: 1px solid var(--line); }
+.guide dt { font: 600 10px/1 var(--sans); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 5px; display: flex; align-items: center; gap: 6px; }
+.guide dt::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+.guide .g { background: var(--good-soft); } .guide .g dt { color: var(--good); } .guide .g dt::before { background: var(--good); }
+.guide .w { background: var(--bad-soft); } .guide .w dt { color: var(--bad); } .guide .w dt::before { background: var(--bad); }
+.guide dd { margin: 0; font-size: 12.5px; line-height: 1.42; color: var(--body); }
+
+textarea { display: block; width: 100%; resize: none; border: 0; border-radius: 0; padding: 0 2px; font: 15px/30px var(--sans); color: var(--ink); height: 92px;
+  background: repeating-linear-gradient(to bottom, transparent 0 29px, var(--rule) 29px 30px); background-attachment: local; }
+textarea::placeholder { color: #b5b1a8; font-style: italic; }
+
+.foot-row { display: grid; grid-template-columns: auto 1fr 1fr .8fr; gap: 18px; align-items: end; margin-top: 12px; }
+.rate { display: inline-flex; border: 1px solid var(--rule); border-radius: 999px; padding: 3px; margin: 0; gap: 2px; background: #fff; }
+.rate label { position: relative; cursor: pointer; }
+.rate input { position: absolute; opacity: 0; pointer-events: none; }
+.rate span { display: inline-flex; align-items: center; gap: 6px; font: 600 12px/1 var(--sans); padding: 7px 11px; border-radius: 999px; color: var(--muted); transition: background .2s, color .2s; }
+.rate span::before { content: ""; width: 9px; height: 9px; border-radius: 50%; border: 1.5px solid currentColor; box-sizing: border-box; transition: background .2s; }
+.rate .s span { color: var(--good); } .rate .p span { color: var(--mid); } .rate .x span { color: var(--bad); }
+.rate .s input:checked + span { background: var(--good); color: #fff; }
+.rate .p input:checked + span { background: var(--mid); color: #fff; }
+.rate .x input:checked + span { background: var(--bad); color: #fff; }
+.rate input:checked + span::before { background: currentColor; }
+.rate input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.legend { display: flex; justify-content: space-between; gap: 20px; align-items: center; margin-top: 6px; padding-top: 14px; border-top: 1px solid var(--ink); font-size: 12px; color: var(--muted); }
+.legend b { color: var(--ink); font-weight: 600; }
+.legend .src { white-space: nowrap; }
+
+@media (max-width: 680px) {
+  .sheet { padding: 28px 20px; border-radius: 0; }
+  header, .meta, .guide, .foot-row { grid-template-columns: 1fr; }
+  .score { text-align: left; } .pips { justify-content: flex-start; }
+  .guide div + div { border-left: 0; border-top: 1px solid var(--line); }
+  .q { grid-template-columns: 1fr; }
+}
+
+@media print {
+  html, body { background: #fff; }
+  .bar { display: none; }
+  body { font-size: 10px; }
+  .sheet { max-width: none; margin: 0; padding: 0; box-shadow: none; border-radius: 0; background: #fff; overflow: visible; }
+  .sheet::before { display: none; }
+  header { padding-bottom: 2.4mm; gap: 8mm; }
+  .eyebrow { font-size: 7.5px; margin-bottom: 2mm; }
+  h1 { font-size: 23px; margin-bottom: 1.5mm; }
+  .deck { font-size: 9.5px; }
+  .score .lbl { font-size: 7px; } .score .big { font-size: 26px; margin: 1mm 0 1.5mm; } .score .big small { font-size: 12px; }
+  .pip { width: 15px; height: 6px; } .pip.strong { transform: none; }
+  .meta { padding: 2mm 0 0; gap: 6mm; }
+  .meta span, .f span { font-size: 6.5px; }
+  input[type=text] { font-size: 10px; padding: 1mm 0 .6mm; border-bottom-color: #bdb8ae; }
+  .q { padding: 2.2mm 0 1.9mm; grid-template-columns: 11mm 1fr; gap: 0; break-inside: avoid; }
+  .num { font-size: 18px; }
+  .q h2 { font-size: 13px; margin-bottom: 1.6mm; }
+  .guide { margin-bottom: 1mm; border-radius: 5px; }
+  .guide div { padding: 1.3mm 2.2mm 1.5mm; }
+  .guide dt { font-size: 6.2px; margin-bottom: .8mm; }
+  .guide dt::before { width: 5px; height: 5px; }
+  .guide dd { font-size: 8.3px; line-height: 1.32; }
+  textarea { height: 17.4mm; background-attachment: scroll !important; font: 10px/5.8mm var(--sans); background: repeating-linear-gradient(to bottom, transparent 0 calc(5.8mm - 1px), #c9c4ba calc(5.8mm - 1px) 5.8mm); }
+  textarea::placeholder { color: transparent; }
+  .foot-row { margin-top: 1.2mm; gap: 4mm; align-items: center; grid-template-columns: auto 1fr 1fr .8fr; }
+  .f { flex-direction: row; align-items: baseline; gap: 2mm; }
+  .f span { white-space: nowrap; }
+  .f input[type=text] { padding: 0 0 .4mm; }
+  .rate { padding: 1px; }
+  .rate span { font-size: 7.5px; padding: 1.1mm 2.2mm; gap: 3px; }
+  .rate span::before { width: 6px; height: 6px; }
+  .legend { font-size: 7.5px; padding-top: 2mm; margin-top: 0; }
+}
+</style>
+</head>
+<body>
+<div class="bar">
+  <a class="back" href="/printables">&larr; All printables</a>
+  <p>Type into it and it saves in this browser, or print it blank and write by hand.</p>
+  <button class="btn ghost" type="button" id="clear">Clear</button>
+  <button class="btn" type="button" onclick="window.print()">Print or save as PDF</button>
+</div>
+
+<main class="sheet">
+  <header>
+    <div>
+      <p class="eyebrow">Board toolkit &middot; AI agent security</p>
+      <h1>Five questions, <em>every quarter</em></h1>
+      <p class="deck">Write down what you were told, then rate it. A strong answer has a number, a date and an owner. A weak one has reassurance.</p>
+    </div>
+    <div class="score" aria-live="polite">
+      <div class="lbl">Strong answers</div>
+      <div class="big"><span id="strong">0</span><small> / 5</small></div>
+      <div class="pips"><span class="pip" title="Question 1"></span><span class="pip" title="Question 2"></span><span class="pip" title="Question 3"></span><span class="pip" title="Question 4"></span><span class="pip" title="Question 5"></span></div>
+    </div>
+  </header>
+
+  <div class="meta">
+    <label><span>Quarter</span><input type="text" name="quarter"></label>
+    <label><span>Meeting date</span><input type="text" name="date"></label>
+    <label><span>Asked of</span><input type="text" name="asked"></label>
+    <label><span>Recorded by</span><input type="text" name="by"></label>
+  </div>
+
+<section class="q" data-q="1">
+  <div class="num">01</div>
+  <div class="body">
+    <h2>How many agents run here, and who owns each?</h2>
+    <dl class="guide">
+      <div><dt>Ask for</dt><dd>The count found running, with an owner for each entry.</dd></div>
+      <div class="g"><dt>Strong answer</dt><dd>An inventory built from real devices and networks, dated and owned.</dd></div>
+      <div class="w"><dt>Red flag</dt><dd>A survey, a policy, or a list of approved tools.</dd></div>
+    </dl>
+    <textarea name="a1" rows="3" aria-label="What we were told, question 1" placeholder="What we were told"></textarea>
+    <div class="foot-row">
+      <fieldset class="rate" aria-label="Rating for question 1">
+        <label class="s"><input type="radio" name="r1" value="strong"><span>Strong</span></label>
+        <label class="p"><input type="radio" name="r1" value="partial"><span>Partial</span></label>
+        <label class="x"><input type="radio" name="r1" value="weak"><span>Weak</span></label>
+      </fieldset>
+      <label class="f"><span>Agents found</span><input type="text" name="m1"></label>
+      <label class="f"><span>Owner</span><input type="text" name="o1"></label>
+      <label class="f sm"><span>Recheck by</span><input type="text" name="d1"></label>
+    </div>
+  </div>
+</section>
+<section class="q" data-q="2">
+  <div class="num">02</div>
+  <div class="body">
+    <h2>What can each agent reach and do?</h2>
+    <dl class="guide">
+      <div><dt>Ask for</dt><dd>Access for the ten most powerful agents, and why each needs it.</dd></div>
+      <div class="g"><dt>Strong answer</dt><dd>A one-line written scope for each, reviewed this quarter.</dd></div>
+      <div class="w"><dt>Red flag</dt><dd>“It uses the employee’s login.”</dd></div>
+    </dl>
+    <textarea name="a2" rows="3" aria-label="What we were told, question 2" placeholder="What we were told"></textarea>
+    <div class="foot-row">
+      <fieldset class="rate" aria-label="Rating for question 2">
+        <label class="s"><input type="radio" name="r2" value="strong"><span>Strong</span></label>
+        <label class="p"><input type="radio" name="r2" value="partial"><span>Partial</span></label>
+        <label class="x"><input type="radio" name="r2" value="weak"><span>Weak</span></label>
+      </fieldset>
+      <label class="f"><span>Agents scoped</span><input type="text" name="m2"></label>
+      <label class="f"><span>Owner</span><input type="text" name="o2"></label>
+      <label class="f sm"><span>Recheck by</span><input type="text" name="d2"></label>
+    </div>
+  </div>
+</section>
+<section class="q" data-q="3">
+  <div class="num">03</div>
+  <div class="body">
+    <h2>What happens automatically in the first ten minutes?</h2>
+    <dl class="guide">
+      <div><dt>Ask for</dt><dd>The list of pre-approved actions: lock, end session, isolate.</dd></div>
+      <div class="g"><dt>Strong answer</dt><dd>A short written list, each action with limits and an approver.</dd></div>
+      <div class="w"><dt>Red flag</dt><dd>“The analyst escalates,” with no list.</dd></div>
+    </dl>
+    <textarea name="a3" rows="3" aria-label="What we were told, question 3" placeholder="What we were told"></textarea>
+    <div class="foot-row">
+      <fieldset class="rate" aria-label="Rating for question 3">
+        <label class="s"><input type="radio" name="r3" value="strong"><span>Strong</span></label>
+        <label class="p"><input type="radio" name="r3" value="partial"><span>Partial</span></label>
+        <label class="x"><input type="radio" name="r3" value="weak"><span>Weak</span></label>
+      </fieldset>
+      <label class="f"><span>Pre-approved actions</span><input type="text" name="m3"></label>
+      <label class="f"><span>Owner</span><input type="text" name="o3"></label>
+      <label class="f sm"><span>Recheck by</span><input type="text" name="d3"></label>
+    </div>
+  </div>
+</section>
+<section class="q" data-q="4">
+  <div class="num">04</div>
+  <div class="body">
+    <h2>Can we stop one agent without stopping the business?</h2>
+    <dl class="guide">
+      <div><dt>Ask for</dt><dd>Time to cut off a single agent, and who is allowed to do it.</dd></div>
+      <div class="g"><dt>Strong answer</dt><dd>A named role, a tested procedure, and a measured time.</dd></div>
+      <div class="w"><dt>Red flag</dt><dd>“We would disable the user.”</dd></div>
+    </dl>
+    <textarea name="a4" rows="3" aria-label="What we were told, question 4" placeholder="What we were told"></textarea>
+    <div class="foot-row">
+      <fieldset class="rate" aria-label="Rating for question 4">
+        <label class="s"><input type="radio" name="r4" value="strong"><span>Strong</span></label>
+        <label class="p"><input type="radio" name="r4" value="partial"><span>Partial</span></label>
+        <label class="x"><input type="radio" name="r4" value="weak"><span>Weak</span></label>
+      </fieldset>
+      <label class="f"><span>Minutes to stop</span><input type="text" name="m4"></label>
+      <label class="f"><span>Owner</span><input type="text" name="o4"></label>
+      <label class="f sm"><span>Recheck by</span><input type="text" name="d4"></label>
+    </div>
+  </div>
+</section>
+<section class="q" data-q="5">
+  <div class="num">05</div>
+  <div class="body">
+    <h2>When did we last practise this, and what broke?</h2>
+    <dl class="guide">
+      <div><dt>Ask for</dt><dd>The last exercise, and the one thing that failed.</dd></div>
+      <div class="g"><dt>Strong answer</dt><dd>A recent drill, a real failure, and what changed after.</dd></div>
+      <div class="w"><dt>Red flag</dt><dd>“No issues found,” or no exercise at all.</dd></div>
+    </dl>
+    <textarea name="a5" rows="3" aria-label="What we were told, question 5" placeholder="What we were told"></textarea>
+    <div class="foot-row">
+      <fieldset class="rate" aria-label="Rating for question 5">
+        <label class="s"><input type="radio" name="r5" value="strong"><span>Strong</span></label>
+        <label class="p"><input type="radio" name="r5" value="partial"><span>Partial</span></label>
+        <label class="x"><input type="radio" name="r5" value="weak"><span>Weak</span></label>
+      </fieldset>
+      <label class="f"><span>Last drill date</span><input type="text" name="m5"></label>
+      <label class="f"><span>Owner</span><input type="text" name="o5"></label>
+      <label class="f sm"><span>Recheck by</span><input type="text" name="d5"></label>
+    </div>
+  </div>
+</section>
+
+  <div class="legend">
+    <span><b>Rate each answer:</b> Strong = number, date, owner. Partial = one of those. Weak = reassurance only. Track the trend, not one quarter.</span>
+    <span class="src">suhasdarsi.com/notes/questions-boards-should-ask-ai-agent-security</span>
+  </div>
+</main>
+
+<script>
+(() => {
+  const KEY = 'board-scorecard-v1';
+  const form = document.querySelector('.sheet');
+  const fields = [...form.querySelectorAll('input, textarea')];
+  const pips = [...document.querySelectorAll('.pip')];
+  const strongEl = document.getElementById('strong');
+  function render() {
+    let n = 0;
+    for (let i = 1; i <= 5; i++) {
+      const v = (form.querySelector(`input[name=r${i}]:checked`) || {}).value || '';
+      pips[i - 1].className = 'pip ' + v;
+      if (v === 'strong') n++;
+    }
+    strongEl.textContent = n;
+  }
+  function save() {
+    const data = {};
+    fields.forEach(f => { if (f.type === 'radio') { if (f.checked) data[f.name] = f.value; } else data[f.name] = f.value; });
+    try { localStorage.setItem(KEY, JSON.stringify(data)); } catch (e) {}
+  }
+  try {
+    const data = JSON.parse(localStorage.getItem(KEY) || '{}');
+    fields.forEach(f => { if (f.type === 'radio') f.checked = data[f.name] === f.value; else if (data[f.name]) f.value = data[f.name]; });
+  } catch (e) {}
+  form.addEventListener('input', () => { render(); save(); });
+  form.addEventListener('change', () => { render(); save(); });
+  document.getElementById('clear').addEventListener('click', () => {
+    if (!confirm('Clear everything on this scorecard?')) return;
+    fields.forEach(f => { if (f.type === 'radio') f.checked = false; else f.value = ''; });
+    localStorage.removeItem(KEY); render();
+  });
+  render();
+})();
+</script>
+</body>
+</html>

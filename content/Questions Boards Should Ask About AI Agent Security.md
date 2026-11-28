@@ -109,7 +109,9 @@ Ask the same five every quarter and write the answers down. The trend matters mo
 4. **Stop one agent.** Ask for the time to cut off a single agent. A good answer: "Measured at 6 minutes in the last drill."
 5. **Practice.** Ask for the last exercise and what failed. A good answer: "Last month. The revoke step missed one credential. Fixed."
 
-[Open the one-page printable version](/board-scorecard.html) with space to write each answer, and print it or save it as a PDF for the meeting.
+Take it into the meeting. The printable version below has room to write each answer, rate it and name an owner. Fill it in on screen or print it.
+
+[Board scorecard](/printables/board-scorecard)
 
 The example answers above are illustrations of the shape of a good answer, not benchmarks. Nobody has published a standard time-to-contain for AI agents yet, so the first goal is simply to have your own number.
 
